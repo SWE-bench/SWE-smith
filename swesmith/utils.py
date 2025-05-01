@@ -7,7 +7,7 @@ import subprocess
 
 from ghapi.all import GhApi
 from pathlib import Path
-from swesmith.constants import MAP_REPO_TO_SPECS, ORG_NAME
+from swesmith.constants import MAP_REPO_TO_SPECS, ORG_NAME, LOG_DIR_ENV_RECORDS
 
 
 def get_arch_and_platform() -> tuple[str, str]:
@@ -57,7 +57,7 @@ def get_env_yml_path(repo: str, commit: str) -> str:
         raise ValueError(
             f"Must provide full commit hash, not partial commit ({commit})"
         )
-    return f"swesmith/build_repo/envs/sweenv_{repo.replace('/', '__')}_{commit}.yml"
+    return f"{LOG_DIR_ENV_RECORDS}/sweenv_{repo.replace('/', '__')}_{commit}.yml"
 
 
 def get_full_commit(repo, partial_commit) -> str:

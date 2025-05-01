@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="http://swe-bench.github.io">
+  <a href="https://swesmith.com/">
     <img src="docs/assets/banner.png" style="height: 10em" alt="Kawhi the SWE-smith" />
   </a>
 </p>
@@ -29,10 +29,16 @@ SWE-smith is a toolkit for training software engineering (SWE) agents. With SWE-
 * *Train local LMs* on these trajectories to improve their software engineering capabilities ([SWE-agent-LM-32B](https://huggingface.co/SWE-bench/SWE-agent-LM-32B)).
 
 ### 🚀 Get Started
-Check out the [documentation]() for a complete guide on how to use SWE-smith, including how to
-* [Install]() the repository locally or as a PyPI package.
-* [Create Task Instances]() for any Python repository with SWE-smith.
-* Use your task instance to [train your own SWE-agents]()
+Check out the [documentation](https://swesmith.com/getting_started/) for a complete guide on how to use SWE-smith, including how to
+* [Install](https://swesmith.com/getting_started/installation/) the repository locally or as a PyPI package.
+* [Create Task Instances](https://swesmith.com/guides/create_instances/) for any Python repository with SWE-smith.
+* Use your task instance to [train your own SWE-agents](https://swesmith.com/guides/train_swe_agent/)
+
+### 🏎️ Quick Start
+```bash
+pip install swesmith
+python -m swesmith.
+```
 
 ### 💿 Resources
 In addition to this toolkit, we've also provided several artifacts on the [SWE-bench HuggingFace](https://huggingface.co/SWE-bench), including:

@@ -1,17 +1,34 @@
 #!/bin/bash
 
-# We contain examples for how to call all scripts and functionalities
+# This script contains examples for how to call all scripts and functionalities
 # provided by the SWE-smith toolkit.
 
-# NOTE: The scripts are written such that you do *not* need to have the
-# repository installed locally (run `pip install swesmith`). *Although*,
-# some scripts require config files (you can download them from the repo).
+## NOTE: The scripts are written such that you do *not* need to have the
+## repository installed locally (run `pip install swesmith`). *Although*,
+## some scripts require config files (you can download them from the repo).
+
+## NOTE: If you want to create repositories + task instances under your own
+## account, change swesmith/constants.py:29 (the `ORG_NAME` variable) to your own account.
+
+
+###### MARK: Create Environment for Repository ######
+
+# Attempts to create a conda environment for the repo. If successfully, a
+# dump of the conda environment is saved to `logs/build_images/records``
+python -m swesmith.build_repo.test_install Instagram/MonkeyType configs/install_repo.sh
+
+# Download all existing SWE-smith environments
+# (All images downloaded by default, but you can specify a specific repo
+# from https://github.com/orgs/swesmith/repositories using `--repo`)
+python -m swesmith.build_repo.download_images
+
+# Create execution environment (Docker images) for all repositories
+python -m swesmith.build_repo.create_images
+
 
 ###### MARK: Generate Candidate Task Instances ######
 
 # This would point at "https://github.com/swesmith/Instagram__MonkeyType.70c3acf6"
-## NOTE: If you want to create repositories + task instances under your own
-## account, change swesmith/constants.py:29 (the `ORG_NAME` variable) to your own account.
 repo="Instagram__MonkeyType.70c3acf6"
 
 # LM Rewrite

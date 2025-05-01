@@ -8,13 +8,7 @@ import argparse
 import os
 import subprocess
 
-from swesmith.constants import ENV_NAME
-
-SWEFT_ENVS_FOLDER = "swesmith/build_repo/envs"  # Assuming this script is being run from the root of the repository
-
-CUSTOM_INSTS = [
-    "pip install -e .",
-]
+from swesmith.constants import ENV_NAME, LOG_DIR_ENV_RECORDS
 
 
 def cleanup(repo_name: str, env_name: str | None = None):
@@ -43,6 +37,7 @@ def cleanup(repo_name: str, env_name: str | None = None):
 
 def main(
     repo: str,
+    install_script: str,
     commit: str,
     no_pytest: bool,
     python_version: str,
@@ -50,6 +45,12 @@ def main(
 ):
     print(f"> Building image for {repo} at commit {commit or 'latest'}")
     repo_name = repo.split("/")[-1]
+
+    assert os.path.exists(
+        install_script
+    ), f"Installation script {install_script} does not exist"
+    assert install_script.endswith(".sh"), "Installation script must be a bash script"
+    install_script = os.path.abspath(install_script)
 
     try:
         # Shallow clone repository at the specified commit
@@ -77,14 +78,14 @@ def main(
         print(f"> Cloned {repo} at commit {commit}")
 
         # Construct installation script
-        if not no_pytest:
-            CUSTOM_INSTS.append("pip install pytest")
-
         installation_cmds = [
             ". /opt/miniconda3/bin/activate",
             f"conda create -n {ENV_NAME} python={python_version} -yq",
             f"conda activate {ENV_NAME}",
-        ] + CUSTOM_INSTS
+            f". {install_script}",
+        ]
+        if not no_pytest:
+            installation_cmds.append("pip install pytest")
 
         # Run installation
         print("> Installing repo...")
@@ -119,13 +120,13 @@ def main(
                     f.write(line)
 
         subprocess.run(
-            f"mv {env_yml} {SWEFT_ENVS_FOLDER}",
+            f"mv {env_yml} {LOG_DIR_ENV_RECORDS}",
             check=True,
             shell=True,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
         )
-        with open(f"{SWEFT_ENVS_FOLDER}/{env_yml.replace('.yml', '.sh')}", "w") as f:
+        with open(f"{LOG_DIR_ENV_RECORDS}/{env_yml.replace('.yml', '.sh')}", "w") as f:
             f.write(
                 "\n".join(
                     [
@@ -136,7 +137,7 @@ def main(
                     + installation_cmds
                 )
             )
-        print(f"> Exported conda environment to {SWEFT_ENVS_FOLDER}/{env_yml}")
+        print(f"> Exported conda environment to {LOG_DIR_ENV_RECORDS}/{env_yml}")
     except Exception as e:
         print(f"> Installation procedure failed: {e}")
     finally:
@@ -148,6 +149,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "repo", type=str, help="Repository name in the format of 'owner/repo'"
+    )
+    parser.add_argument(
+        "install_script",
+        type=str,
+        help="Bash script with installation commands (e.g. install.sh)",
     )
     parser.add_argument(
         "--commit",

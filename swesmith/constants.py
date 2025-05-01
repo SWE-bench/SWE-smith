@@ -21,6 +21,7 @@ KEY_PATCH = "patch"
 KEY_TEST_CMD = "test_cmd"
 KEY_TIMED_OUT = "timed_out"
 LOG_DIR_BUG_GEN = Path("logs/bug_gen")
+LOG_DIR_ENV_RECORDS = Path("logs/build_images/records")
 LOG_DIR_ISSUE_GEN = Path("logs/issue_gen")
 LOG_DIR_RUN_VALIDATION = Path("logs/run_validation")
 LOG_DIR_TASKS = Path("logs/task_insts")

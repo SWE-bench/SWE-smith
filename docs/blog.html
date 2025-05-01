@@ -12,9 +12,10 @@
 <body>
   <nav>
     <ul class="nav-bar">
-      <li><a href="#data">Data</a></li>
-      <li><a href="#paper">Paper</a></li>
-      <li><a href="#code">Code</a></li>
+      <li><a href="https://huggingface.co/SWE-bench">Data</a></li>
+      <li><a href="../assets/paper.pdf">Paper</a></li>
+      <li><a href="https://github.com/SWE-bench/SWE-smith">Code</a></li>
+      <li><a href="/getting_started">Docs</a></li>
     </ul>
   </nav>
 
@@ -31,7 +32,7 @@
 
     <section class="blog">
       <p style="color:#777;letter-spacing: -0.05rem;">
-        <a href="index.html" style="color:#777">Home</a> &bull; April 16, 2025
+        <a href="index.html" style="color:#777">Home</a> &bull; April 30, 2025
       </p>
       <p>by <a href="https://john-b-yang.github.io/">John Yang</a></p>
       <p style="margin-top:1.5rem;">
@@ -281,16 +282,14 @@
       </p>
       <h3 class="fire-text">Deliverables & Great Expectations</h3>
       <p>
-        Using SWE-smith, we create 50k task instances representing 128 Python repositories (and counting...).
-      </p>
-      <p>
+        Using SWE-smith, we create 50k task instances across 128 Python repositories (and counting...).
         Both numbers are an order of magnitude greater than any existing dataset.
       </p>
       <p>
         We train <a href="https://huggingface.co/Qwen/Qwen2.5-Coder-32B-Instruct">Qwen 2.5 32B Coder Instruct</a>
         on 5000 expert trajectories generated from running SWE-agent + Claude 3.7 Sonnet on a subset of SWE-smith.
-        Our model, SWE-agent-LM-32B, achieves a 40% single run resolve rate on SWE-bench Verified,
-        #1 for open source SWE-agents.
+        Our model, <a href="https://huggingface.co/SWE-bench/SWE-agent-LM-32B">SWE-agent-LM-32B</a>, achieves a 40% single run resolve rate on SWE-bench Verified,
+        #1 for open source agentic coding models.
       </p>
     </section>
   </main>
@@ -315,6 +314,15 @@
 
     // Optional: autoplay
     // setInterval(nextSlide, 5000);
+  </script>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-46KMJE3755"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-46KMJE3755');
   </script>
 </body>
 </html>
