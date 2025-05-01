@@ -87,7 +87,7 @@ def main(
     redo_existing: bool = False,
 ):
     """
-    Run evaluation of predictions on SWE-FT style dataset.
+    Run evaluation of predictions on SWE-smith style dataset.
     """
     assert len(run_id) > 0, "Run ID must be provided"
 

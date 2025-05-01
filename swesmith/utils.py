@@ -73,7 +73,7 @@ def get_full_commit(repo, partial_commit) -> str:
 
 def get_repo_name(repo, commit) -> str:
     """
-    Get the SWE-FT GitHub repository name for a repository at a specific commit.
+    Get the SWE-smith GitHub repository name for a repository at a specific commit.
     """
     return f"{repo.replace('/', '__')}.{commit[:8]}"
 

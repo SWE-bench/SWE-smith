@@ -1,21 +1,19 @@
 #!/bin/bash
 
-# This script contains examples for how to call all scripts and functionalities
-# provided by the SWE-smith toolkit.
+# This file contains examples for how to call all scripts and functionalities provided by the SWE-smith toolkit.
 
-## NOTE: The scripts are written such that you do *not* need to have the
-## repository installed locally (run `pip install swesmith`). *Although*,
-## some scripts require config files (you can download them from the repo).
+## The scripts are written such that you do *not* need to have the repository installed locally (run `pip install swesmith`).
+## *Although*, some scripts require config files (you can download them from the repo).
 
-## NOTE: If you want to create repositories + task instances under your own
-## account, change swesmith/constants.py:29 (the `ORG_NAME` variable) to your own account.
+## NOTE: If you want to create repositories + task instances under your own account,
+## change swesmith/constants.py:29 (the `ORG_NAME` variable) to your own account.
 
 
 ###### MARK: Create Environment for Repository ######
 
 # Attempts to create a conda environment for the repo. If successfully, a
 # dump of the conda environment is saved to `logs/build_images/records``
-python -m swesmith.build_repo.try_install Instagram/MonkeyType configs/install_repo.sh
+python -m swesmith.build_repo.try_install Instagram/MonkeyType configs/install_repo.sh --commit 70c3acf62950be5dfb28743c7a719bfdecebcd84
 
 # Download all existing SWE-smith environments
 # (All images downloaded by default, but you can specify a specific repo
@@ -23,7 +21,7 @@ python -m swesmith.build_repo.try_install Instagram/MonkeyType configs/install_r
 python -m swesmith.build_repo.download_images
 
 # Create execution environment (Docker images) for all repositories
-python -m swesmith.build_repo.create_images
+python -m swesmith.build_repo.create_images --repos Instagram/MonkeyType
 
 
 ###### MARK: Generate Candidate Task Instances ######

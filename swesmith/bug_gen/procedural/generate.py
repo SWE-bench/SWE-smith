@@ -177,7 +177,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "repo",
         type=str,
-        help="Name of a SWE-FT repository (pushed to GitHub) to generate bugs for.",
+        help="Name of a SWE-smith repository to generate bugs for.",
     )
     parser.add_argument(
         "--type",

@@ -10,7 +10,7 @@ import os
 import json
 import requests
 
-SWEFT_ORG = "jyangballin"
+DOCKER_ORG = "jyangballin"
 TAG = "latest"
 
 
@@ -76,37 +76,52 @@ def get_docker_repositories(username, token):
     return repositories
 
 
-def main(repo: str):
+def main(repo: str, proceed: bool = True):
     username, password = get_docker_hub_login()
     token = get_dockerhub_token(username, password)
     client = docker.from_env()
 
     # Get list of swesmith repositories
-    repos = get_docker_repositories(SWEFT_ORG, token)
+    repos = get_docker_repositories(DOCKER_ORG, token)
     repos = [r for r in repos if r["name"].startswith("swesmith")]
     if repo:
-        repos = [r for r in repos if repo.replace("/", "_1776_") in r["name"]]
+        repos = [
+            r
+            for r in repos
+            if repo.replace("__", "_1776_") in r["name"]
+            or repo in r["name"]
+            or repo.replace("/", "_1776_") in r["name"]
+        ]
         if len(repos) == 0:
             print(f"Could not find image for {repo}, exiting...")
             return
 
+    print(f"Found {len(repos)} environments:")
     for idx, r in enumerate(repos):
         print("-", r["name"])
         if idx == 4:
             print(f"(+ {len(repos) - 5} more...)")
             break
+    if not proceed and input("Proceed with downloading images? (y/n): ").lower() != "y":
+        return
 
     # Download images
     for r in repos:
         print(f"Downloading {r['name']}...")
-        client.images.pull(f"{SWEFT_ORG}/{r['name']}:{TAG}")
+        client.images.pull(f"{DOCKER_ORG}/{r['name']}:{TAG}")
         # Rename images via tagging
         new_name = f"{r['name'].replace('_1776_', '__')}:{TAG}"
-        client.images.get(f"{SWEFT_ORG}/{r['name']}:{TAG}").tag(new_name)
+        client.images.get(f"{DOCKER_ORG}/{r['name']}:{TAG}").tag(new_name)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo", type=str, help="Repository name", default=None)
+    parser.add_argument(
+        "-y",
+        "--proceed",
+        action="store_true",
+        help="Proceed with downloading images",
+    )
     args = parser.parse_args()
     main(**vars(args))

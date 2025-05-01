@@ -52,7 +52,7 @@ GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 api = GhApi(token=GITHUB_TOKEN)
 
 
-def get_repo_setup_script(repo: str, commit: str):
+def get_repo_setup_script(repo: str, commit: str, org: str):
     """
     Create a setup script for a repository at a specific commit.
     """
@@ -69,7 +69,7 @@ def get_repo_setup_script(repo: str, commit: str):
     setup_commands = [
         "#!/bin/bash",
         "set -euxo pipefail",
-        f"git clone -o origin https://github.com/{ORG_NAME}/{repo_name} {DOCKER_WORKDIR}",
+        f"git clone -o origin https://github.com/{org}/{repo_name} {DOCKER_WORKDIR}",
         f"cd {DOCKER_WORKDIR}",
         "source /opt/miniconda3/bin/activate",
         f"cat <<'{HEREDOC_DELIMITER}' > {path_to_reqs}\n{reqs}\n{HEREDOC_DELIMITER}",
@@ -125,7 +125,7 @@ def build_base_image(
     return base_image_key
 
 
-def create_repo_commit_mirror(repo: str, commit: str):
+def create_repo_commit_mirror(repo: str, commit: str, org: str):
     """
     Create a mirror of the repository at the given commit.
     """
@@ -135,7 +135,7 @@ def create_repo_commit_mirror(repo: str, commit: str):
     if repo_name in os.listdir():
         shutil.rmtree(repo_name)
     print(f"[{repo}][{commit[:8]}] Creating Mirror")
-    api.repos.create_in_org(ORG_NAME, repo_name)
+    api.repos.create_in_org(org, repo_name)
     for cmd in [
         f"git clone git@github.com:{repo}.git {repo_name}",
         (
@@ -149,7 +149,7 @@ def create_repo_commit_mirror(repo: str, commit: str):
             "git add .; "
             "git commit -m 'Initial commit'; "
             "git branch -M main; "
-            f"git remote add origin git@github.com:{ORG_NAME}/{repo_name}.git; "
+            f"git remote add origin git@github.com:{org}/{repo_name}.git; "
             "git push -u origin main",
         ),
         f"rm -rf {repo_name}",
@@ -171,9 +171,10 @@ def build_repo_image(
     platform: str,
     client: docker.DockerClient,
     build_dir: str,
+    org: str,
 ):
     repo, commit = get_repo_commit_from_image_name(image_name)
-    create_repo_commit_mirror(repo, commit)
+    create_repo_commit_mirror(repo, commit, org)
     build_image(
         image_name=image_name,
         setup_scripts=setup_scripts,
@@ -189,6 +190,7 @@ def build_repo_images(
     force_rebuild: bool = False,
     max_workers: int = 4,
     repos: str = None,
+    org: str = ORG_NAME,
     proceed: bool = False,
 ):
     """
@@ -218,17 +220,22 @@ def build_repo_images(
         for commit, spec in specs.items():
             image_name = get_image_name(repo, commit)
             image_exists = False
-            try:
-                client.images.get(image_name)
-                image_exists = True
-            except docker.errors.ImageNotFound:
-                pass
+            if not force_rebuild:
+                try:
+                    client.images.get(image_name)
+                    image_exists = True
+                except docker.errors.ImageNotFound:
+                    pass
             if not image_exists:
                 repo_build_scripts[image_name] = {
-                    "setup_script": get_repo_setup_script(repo, commit),
+                    "setup_script": get_repo_setup_script(repo, commit, org),
                     "dockerfile": env_dockerfile,
                     "platform": platform,
                 }
+    if not repo_build_scripts:
+        print("No images to build.")
+        return None, None
+
     print(f"Total repo images to build: {len(repo_build_scripts)}")
     for image_name in repo_build_scripts:
         print(f"- {image_name}")
@@ -254,6 +261,7 @@ def build_repo_images(
                     config["platform"],
                     client,
                     ENV_IMAGE_BUILD_DIR / image_name,
+                    org,
                 ): image_name
                 for image_name, config in repo_build_scripts.items()
             }
@@ -295,6 +303,12 @@ def main():
         type=str,
         default=None,
         help="List of space-separated repositories to build",
+    )
+    parser.add_argument(
+        "--org",
+        type=str,
+        default=ORG_NAME,
+        help="GitHub organization to create repo for (default: 'swesmith')",
     )
     parser.add_argument(
         "-y", "--proceed", action="store_true", help="Proceed without confirmation"
