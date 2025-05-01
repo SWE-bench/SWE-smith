@@ -39,16 +39,16 @@ def main(
     repo: str,
     install_script: str,
     commit: str,
-    no_pytest: bool,
     python_version: str,
     no_cleanup: bool,
+    force: bool,
 ):
     print(f"> Building image for {repo} at commit {commit or 'latest'}")
     repo_name = repo.split("/")[-1]
 
-    assert os.path.exists(
-        install_script
-    ), f"Installation script {install_script} does not exist"
+    assert os.path.exists(install_script), (
+        f"Installation script {install_script} does not exist"
+    )
     assert install_script.endswith(".sh"), "Installation script must be a bash script"
     install_script = os.path.abspath(install_script)
 
@@ -77,6 +77,17 @@ def main(
             ).strip()
         print(f"> Cloned {repo} at commit {commit}")
 
+        env_yml = f"sweenv_{repo.replace('/', '__')}_{commit}.yml"
+        if (
+            os.path.exists(os.path.join("..", LOG_DIR_ENV_RECORDS, env_yml))
+            and not force
+            and input(
+                f"> Environment file {env_yml} already exists. Do you want to overwrite it? (y/n) "
+            )
+            != "y"
+        ):
+            raise Exception("(No Error) Terminating")
+
         # Construct installation script
         installation_cmds = [
             ". /opt/miniconda3/bin/activate",
@@ -84,24 +95,16 @@ def main(
             f"conda activate {ENV_NAME}",
             f". {install_script}",
         ]
-        if not no_pytest:
-            installation_cmds.append("pip install pytest")
 
         # Run installation
         print("> Installing repo...")
-        temp = "\n- ".join(installation_cmds)
+        temp = "\n" + "\n- ".join(installation_cmds)
         print(f"> Script:{temp}\n")
         subprocess.run(" && ".join(installation_cmds), check=True, shell=True)
         print("> Successfully installed repo")
 
-        # Check that pytest is installed. If not, install it.
-        if not no_pytest:
-            subprocess.run("pip install pytest", check=True, shell=True)
-            print("> Installed pytest")
-
         # If installation succeeded, export the conda environment + record install script
         os.chdir("..")
-        env_yml = f"sweenv_{repo.replace('/', '__')}_{commit}.yml"
         subprocess.run(
             f"conda env export -n {ENV_NAME} > {env_yml}",
             check=True,
@@ -119,6 +122,7 @@ def main(
                         continue
                     f.write(line)
 
+        os.makedirs(LOG_DIR_ENV_RECORDS, exist_ok=True)
         subprocess.run(
             f"mv {env_yml} {LOG_DIR_ENV_RECORDS}",
             check=True,
@@ -134,8 +138,14 @@ def main(
                         f"git clone git@github.com:{repo}.git",
                         f"git checkout {commit}",
                     ]
-                    + installation_cmds
+                    + installation_cmds[:3]
+                    + [
+                        l.strip("\n")
+                        for l in open(install_script).readlines()
+                        if len(l.strip()) > 0
+                    ]
                 )
+                + "\n"
             )
         print(f"> Exported conda environment to {LOG_DIR_ENV_RECORDS}/{env_yml}")
     except Exception as e:
@@ -162,9 +172,6 @@ if __name__ == "__main__":
         default="latest",
     )
     parser.add_argument(
-        "--no_pytest", action="store_true", help="Do not run pytest after installation"
-    )
-    parser.add_argument(
         "--python_version",
         type=str,
         help="Python version to use for the environment",
@@ -174,6 +181,12 @@ if __name__ == "__main__":
         "--no_cleanup",
         action="store_true",
         help="Do not remove the repository and conda environment after installation",
+    )
+    parser.add_argument(
+        "-f",
+        "--force",
+        action="store_true",
+        help="Force overwrite of existing conda environment file (if it exists)",
     )
 
     args = parser.parse_args()
