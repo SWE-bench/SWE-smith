@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SWE-smith</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/home.css" />
+  <link rel="icon" href="../assets/home/swesmith.png" type="image/x-icon" />
+  <link rel="stylesheet" href="../css/bubbles.css" />
+</head>
+<body>
+  <nav>
+    <ul class="nav-bar">
+      <li><a href="#data">Data</a></li>
+      <li><a href="#paper">Paper</a></li>
+      <li><a href="#code">Code</a></li>
+      <li><a href="/getting_started">Docs</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <h1 class="title fire-text">
+      <img
+        src="../assets/home/swesmith.png"
+        style="width:2em;height:2em;vertical-align: middle;font-size:2.5rem;"
+        alt="SWE-smith logo" />SWE-smith
+    </h1>
+    <h3 class="subtitle">
+      Scaling Data for Software Engineering Agents
+    </h3>
+
+    <section class="summary">
+      <p style="color:#777777;letter-spacing: -0.05rem;">April 16, 2025</p>
+      <p>Creating training data for software engineering agents is difficult. Until now.</p>
+      <p>
+        Introducing SWE-smith: Generate 100s to 1000s of task instances for any GitHub repository.
+      </p>
+      <p>
+        We've generated 50k+ task instances for 128 popular GitHub repositories, then
+        trained our own LM for <a href="https://swe-agent.com/">SWE-agent</a>.
+      </p>
+      <p>
+        The result? We achieve 40% pass@1 on <a href="https://swe-bench.github.io/">SWE-bench Verified</a>.
+      </p>
+      <p>Now, we've open-sourced <i>everything</i>, and we're excited to see what you build with it!</p>
+      <p>
+        Check out the tutorial below to generate 100 task instances for
+        <i>any</i> GitHub repository in 10 minutes.
+      </p>
+    </section>
+
+    <div class="video-container">
+      <iframe 
+        src="https://www.youtube.com/embed/videoseries?si=djhrQngJzOa-_F3H&amp;list=PL1b-qYhmIXEhyaUafmTYmMI4l9dbCLNix"
+        title="YouTube video player"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen>
+      </iframe>
+    </div>
+
+    <section class="ecosystem">
+      <p>
+        Click <a href="blog.html">here</a> for an extended discussion.
+      </p>
+    </section>
+
+    <section class="collab">
+      <div>️🔥 Excited about <span class="fire-text">SWE-smith</span>? Build with us!</div>
+      <div>&emsp;> Create new bug generation techinques.</div>
+      <div>&emsp;> Expand to non-Python repositories.</div>
+      <div>&emsp;> Train better SWE-agents!</div>
+      <div>Read our <a href="/getting_started">documentation</a> or <a href="https://github.com/swe-bench/swe-smith">code</a> for more.</div>
+    </section>
+
+    <section class="authors">
+        <div style="color:#777777;margin-bottom:0.5em;">Authors</div>
+        <a href="https://john-b-yang.github.io/">John Yang</a>,
+        <a href="https://github.com/klieret/">Kilian Lieret</a>,
+        <a href="https://carlosejimenez.github.io/">Carlos E. Jimenez</a>,
+        <a href="https://www.cs.princeton.edu/~awettig/">Alexander Wettig</a>,
+        <a href="https://stevenyzzhang.github.io/website/">Yanzhe Zhang</a>,
+        <a href="https://huybery.github.io/">Binyuan Hui</a>,
+        <a href="https://ofir.io/">Ofir Press</a>,
+        <a href="https://people.csail.mit.edu/ludwigs/">Ludwig Schmidt</a>,
+        <a href="https://cs.stanford.edu/~diyiy/index.html">Diyi Yang</a>
+      </section>
+  
+      <section class="affiliations">
+        <div style="color:#777777;margin-bottom:0.5em;">Affiliations</div>
+        <a href="https://www.cs.stanford.edu/">Stanford University</a>,
+        <a href="https://saltlab.stanford.edu/">Stanford SALT Lab</a>,
+        <a href="https://pli.princeton.edu/">Princeton Language & Intelligence</a>,
+        <a href="https://github.com/QwenLM">Alibaba Qwen</a>
+      </section>
+  
+      <section class="citation">
+        <div style="color:#777777;margin-bottom:0.5em;">Citation</div>
+        <div class="cite-block">@misc{yang2025swesmith,
+  title={SWE-smith: Scaling Data for Software Engineering Agents}, 
+  author={John Yang and Kilian Leret and Carlos E. Jimenez and Alexander Wettig and Kabir Khandpur and Yanzhe Zhang and Binyuan Hui and Ofir Press and Ludwig Schmidt and Diyi Yang},
+  year={2025},
+  eprint={2504.21798},
+  archivePrefix={arXiv},
+  primaryClass={cs.SE},
+  url={https://arxiv.org/abs/2504.21798},
+} </div>
+      </section>
+  
+      <section style="text-align: right;">
+        © 2025
+      </section>
+    </main>
+    
+    <!-- Floating Bubbles -->
+    <div class="floating-bubbles">
+      <div class="floating-bubbles-title">Affiliated projects</div>
+      <a href="https://swebench.com" class="bubble" title="SWE-bench">
+        <img src="../assets/swebench_logo.png" alt="SWE-bench">
+        <span class="bubble-tooltip">SWE-bench</span>
+      </a>
+      <a href="https://swe-agent.com/" class="bubble" title="SWE-agent">
+        <img src="../assets/sweagent_logo.svg" alt="SWE-agent">
+        <span class="bubble-tooltip">SWE-agent</span>
+      </a>
+      <a href="https://swe-rex.com/" class="bubble" title="SWE-rex">
+        <img src="../assets/swerex_logo.svg" alt="SWE-rex">
+        <span class="bubble-tooltip">SWE-ReX</span>
+      </a>
+      <!-- <a href="https://swesmith.com" class="bubble" title="SWE-smith">
+        <img src="../assets/home/swesmith.png" alt="SWE-smith">
+        <span class="bubble-tooltip">SWE-smith</span>
+      </a> -->
+      <a href="https://www.swebench.com/sb-cli/" class="bubble" title="sb-cli">
+        <img src="../assets/sbcli_logo.svg" alt="sb-cli">
+        <span class="bubble-tooltip">sb-cli</span>
+      </a>
+    </div>
+  </body>
+  </html>

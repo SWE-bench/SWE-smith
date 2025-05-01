@@ -1,0 +1,189 @@
+:root {
+  --bg-color: #1e1e1e;
+  --nav-color: #2a2a2a;
+  --off-white: #e0e0e0;
+}
+
+/* Base styling */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-size: 0.9rem;
+  }
+  
+  body {
+    font-family: 'IBM Plex Mono', monospace;
+    background-color: var(--bg-color);
+    color: var(--off-white);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  main {
+    max-width: 520px;
+    width: 100%;
+  }
+
+  a {
+    color: var(--off-white);
+    transition: color 0.3s ease;
+  }
+
+  a:hover {
+    color: #ffffff;
+  }
+  
+  /* Navigation bar */
+  nav {
+    width: 100%;
+    background-color: var(--nav-color);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+  
+  .nav-bar {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    padding: 1rem 0;
+  }
+  
+  .nav-bar li {
+    margin: 0 2rem;
+  }
+  
+  .nav-bar a {
+    text-decoration: none;
+    color: #bbbbbb;
+    font-weight: 500;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: color 0.3s ease;
+  }
+  
+  .nav-bar a:hover {
+    color: #ffffff;
+  }
+  
+  /* Title */
+  .title {
+    margin: 3rem 0 0.5rem;
+    font-size: 2.5rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-align: center;
+  }
+
+  .subtitle {
+    margin: 0.5em 0 2rem;
+    font-size: 1.2rem;
+    font-weight: 400;
+    text-align: center;
+    color: #ccc;
+  }
+  
+  /* YouTube Embed */
+  .video-container {
+    aspect-ratio: 16 / 9;
+    border-radius: 1em;
+    overflow: hidden;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    display: flex;
+    justify-content: center;
+  }
+  
+  .video-container iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+  }
+
+  section {
+    margin: 1.5rem auto;
+  }
+
+  .ecosystem p {
+    margin-bottom: 1rem;
+  }
+
+  .summary p {
+    margin-bottom: 1rem;
+  }
+
+  .collab div {
+    background: none;
+    padding: 0.25rem 0;
+    border-radius: 0;
+    box-shadow: none;
+    line-height: 1.6;
+  }
+
+  .cite-block {
+    background-color: #272525;
+    border-radius: 1em;
+    color: white;
+    font-family: monospace;
+    font-size: 0.7rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 1em;
+    white-space: pre;
+  }
+
+  .fire-text {
+    background: linear-gradient(90deg, #ff2d00, #ff6f00, #ffc300, #ff6f00, #ff2d00);
+    background-size: 300% 100%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    animation: fireGradientShift 5s ease-in-out infinite;
+  }
+  
+  @keyframes fireGradientShift {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  .fire-logo {
+    animation: fireHueShift 5s ease-in-out infinite;
+    transform-origin: center;
+  }
+
+  .blog p {
+    margin-bottom: 1rem;
+  }
+
+  .blog h3 {
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .blog ol {
+    li {
+      margin: 1rem 0;
+    }
+  }
+
+  blockquote {
+    border-left: 0.25em solid #b77917; /* Indigo-500 */
+    background: #000;
+    padding: 1rem 1.5rem;
+    margin: 1.5rem 0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border-radius: 0.5rem;
+    position: relative;
+  }

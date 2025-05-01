@@ -1,0 +1,62 @@
+  .carousel {
+    position: relative;
+    max-width: 100%;
+    overflow: hidden;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background: #fff;
+    margin-bottom: 1rem;
+  }
+
+  .slides {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+  }
+
+  .slide {
+    min-width: 100%;
+    position: relative;
+  }
+
+  .slide img {
+    width: 100%;
+    display: block;
+  }
+
+  .caption {
+    position: absolute;
+    bottom: 1rem;
+    left: 1rem;
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+  }
+
+  .nav-buttons {
+    position: absolute;
+    top: 50%;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    transform: translateY(-50%);
+  }
+
+  .nav-buttons button {
+    background: rgba(0, 0, 0, 0.4);
+    color: #fff;
+    border: none;
+    width:  2em;
+    height: 2em;
+    font-size: 1.2rem;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: background 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .nav-buttons button:hover {
+    background: rgba(0, 0, 0, 0.7);
+  }
