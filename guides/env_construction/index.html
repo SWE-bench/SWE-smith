@@ -106,6 +106,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#automatically-install-repos-with-swe-agent" class="md-skip">
+          Skip to content
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -612,6 +617,19 @@
       
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Build Environments
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -623,6 +641,41 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#automatically-install-repos-with-swe-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      Automatically Install Repos with SWE-agent
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#create-an-execution-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Create an Execution Environment
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -769,6 +822,32 @@
   
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#automatically-install-repos-with-swe-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      Automatically Install Repos with SWE-agent
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#create-an-execution-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Create an Execution Environment
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -794,7 +873,44 @@
 
   <h1>Build Environments</h1>
 
+<p>SWE-smith enables automatic construction of execution environments for repositories.
+We'll review the two steps of this process:</p>
+<ol>
+<li>SWE-agent + LM attempts to install a repository + run the testing suite.</li>
+<li>Construct an execution environment (Docker image).</li>
+</ol>
+<p>For this section, we'll use the <a href="https://github.com/Instagram/MonkeyType/">Instagram/MonkeyType</a> repository as a running example, 
+specifically at commit <a href="https://github.com/Instagram/MonkeyType/tree/70c3acf62950be5dfb28743c7a719bfdecebcd84"><code>70c3acf</code></a>.</p>
+<h2 id="automatically-install-repos-with-swe-agent">Automatically Install Repos with SWE-agent</h2>
 <p>Coming soon!</p>
+<h2 id="create-an-execution-environment">Create an Execution Environment</h2>
+<p>First, create the conda environment for the target repository.
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>swesmith.build_repo.try_install<span class="w"> </span>Instagram/MonkeyType<span class="w"> </span>install_repo.sh<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--commit<span class="w"> </span>70c3acf62950be5dfb28743c7a719bfdecebcd84
+</code></pre></div>
+where <code>install_repo.sh</code> is the script that installs the repository.
+(<a href="https://github.com/SWE-bench/SWE-smith/blob/main/configs/install_repo.sh">Example</a>)</p>
+<p>If successful, two artifacts will be produced under <code>logs/build_repo/records/</code>:
+* <code>sweenv_[repo + commit].yml</code>: A dump of the conda environment that was created.
+* <code>sweenv_[repo + commit].sh</code>: A log of the installation process.</p>
+<p>Next, run the following command to create a Docker image for the repository.</p>
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>swesmith.build_repo.create_images<span class="w"> </span>--repos<span class="w"> </span>Instagram/MonkeyType
+</code></pre></div>
+<p>This command will create two artifacts:
+1. A mirror of the original repository at the specified commit, created under <a href="https://github.com/orgs/swesmith/repositories"><code>swesmith</code></a>. To change the organization, you can...
+    * Pass in an <code>--org</code> argument, or
+    * (If built from source) Change <code>ORG_NAME</code> in <code>swesmith/constants.py</code>
+2. A Docker image (<code>swesmith.x86_64.&lt;repo&gt;.&lt;commit&gt;</code>) which contains the installed codebase.</p>
+<p>It's good practice to check that your Docker image works as expected.
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>-it<span class="w"> </span>--rm<span class="w"> </span>swesmith.x86_64.instagram__monkeytype.70c3acf6
+</code></pre></div>
+Within the container, run the testing suite (e.g. <code>pytest</code>) to ensure that the codebase is functioning as expected.</p>
+<div class="admonition note">
+<p class="admonition-title">Get existing Docker images</p>
+<p>All repositories represented in the SWE-smith <a href="https://huggingface.co/datasets/SWE-bench/SWE-smith">dataset</a> are available to download. Simply run:
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>swesmith.build_repo.download_images
+</code></pre></div></p>
+</div>
 
 
 
@@ -835,6 +951,15 @@
     <span class="bubble-tooltip">sb-cli</span>
   </a>
 </div>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-46KMJE3755"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-46KMJE3755');
+</script>
 
               </article>
             </div>
