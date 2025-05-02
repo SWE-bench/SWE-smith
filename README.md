@@ -36,14 +36,13 @@ Check out the [documentation](https://swesmith.com/getting_started/) for a compl
 
 ### 🏎️ Quick Start
 ```bash
-pip install swesmith
-python -m swesmith.
+
 ```
 
 ### 💿 Resources
 In addition to this toolkit, we've also provided several artifacts on the [SWE-bench HuggingFace](https://huggingface.co/SWE-bench), including:
 * [50k Python Task Instances](https://huggingface.co/datasets/SWE-bench/SWE-smith), created using SWE-smith.
-* [SWE-agent-LM-32B](https://huggingface.co/SWE-bench/SWE-agent-LM-32B), trained using SWE-smith. Achieves **40.2%** pass@1 on [SWE-bench Verified](https://huggingface.co/datasets/SWE-bench/SWE-bench_Verified)!
+* [SWE-agent-LM-32B](https://huggingface.co/SWE-bench/SWE-agent-LM-32B), trained using SWE-smith. Achieves **41.6%** pass@1 on [SWE-bench Verified](https://huggingface.co/datasets/SWE-bench/SWE-bench_Verified)!
 * [5k Trajectories](https://huggingface.co/datasets/SWE-bench/SWE-smith-trajectories) that SWE-agent-LM-32B was trained on.
 
 And there's more coming!

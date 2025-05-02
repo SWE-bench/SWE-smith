@@ -48,13 +48,13 @@ python -m swesmith.bug_gen.procedural.generate $repo \
     --type func \
     --max_bugs 10
 
-# Combine (Same File)
+# Combine (Same File) - Must have validated task instances to run this script
 python -m swesmith.bug_gen.combine.same_file logs/bug_gen/$repo \
     --num_patches 3 \
     --limit_per_file 15 \
     --max_combos 100
 
-# Combine (Same Module)
+# Combine (Same Module) - Must have validated task instances to run this script
 python -m swesmith.bug_gen.combine.same_module logs/bug_gen/$repo \
     --num_patches 2 \
     --limit_per_module 20 \
@@ -65,8 +65,7 @@ python -m swesmith.bug_gen.combine.same_module logs/bug_gen/$repo \
 ## NOTE: `path/to/task_candidates.jsonl` is the output of running this
 ## the SWE-bench task candidate collection script:
 ## https://github.com/SWE-bench/SWE-bench/blob/main/swebench/collect/run_get_tasks_pipeline.sh
-python -m swesmith.bug_gen.mirror.generate path/to/task_candidates.jsonl \
-    --model openai/o3-mini
+python -m swesmith.bug_gen.mirror.generate path/to/task_candidates.jsonl --model openai/o3-mini
 
 
 ###### MARK: Validate + Evaluate Task Instances ######

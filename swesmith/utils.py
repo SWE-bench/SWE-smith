@@ -78,13 +78,13 @@ def get_repo_name(repo, commit) -> str:
     return f"{repo.replace('/', '__')}.{commit[:8]}"
 
 
-def clone_repo(repo: str, dest: str | None = None) -> str | None:
+def clone_repo(repo: str, dest: str | None = None, org: str = ORG_NAME) -> str | None:
     """Clone a repository from GitHub."""
     if not os.path.exists(dest or repo):
         clone_cmd = (
-            f"git clone git@github.com:{ORG_NAME}/{repo}.git"
+            f"git clone git@github.com:{org}/{repo}.git"
             if dest is None
-            else f"git clone git@github.com:{ORG_NAME}/{repo}.git {dest}"
+            else f"git clone git@github.com:{org}/{repo}.git {dest}"
         )
         subprocess.run(
             clone_cmd,
