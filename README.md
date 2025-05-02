@@ -35,9 +35,20 @@ Check out the [documentation](https://swesmith.com/getting_started/) for a compl
 * Use your task instance to [train your own SWE-agents](https://swesmith.com/guides/train_swe_agent/)
 
 ### 🏎️ Quick Start
+Install the repo:
 ```bash
-
+git clone https://github.com/SWE-bench/SWE-smith
+cd SWE-smith
+conda create -n smith python=3.10;
+conda activate smith;
+pip install -e .
 ```
+
+Then, check out `scripts/cheatsheet.sh` for scripts to (1) create execution environments, (2) create task instances, and (3) train SWE-agents.
+
+> [!TIP]
+> SWE-smith requires Docker to create execution environments. SWE-smith was developed and tested on Ubuntu 22.04.4 LTS.
+> We do *not* plan on supporting Windows or MacOS.
 
 ### 💿 Resources
 In addition to this toolkit, we've also provided several artifacts on the [SWE-bench HuggingFace](https://huggingface.co/SWE-bench), including:
@@ -51,7 +62,9 @@ And there's more coming!
 Excited about SWE-smith? We're actively working on several follow ups, and love meaningful collaborations! What we're thinking about...
 * Make SWE-smith work for non-Python languages
 * New bug generation techniques
-* Train SWE-agents with more 
+* Train SWE-agents with more trajectories and new methods
+
+Check out the [Contributing Guide](CONTRIBUTING.md) for more.
 
 Contact Person: [John Yang](https://john-b-yang.github.io/), [Kilian Lieret](https://github.com/klieret/)
 (Email: [johnby@stanford.edu](mailto:johnby@stanford.edu))
