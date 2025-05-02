@@ -1,6 +1,7 @@
 # Files
 .env
 .DS_Store
+.api_key
 
 # Folders
 hidden/
