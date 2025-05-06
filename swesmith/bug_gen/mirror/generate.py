@@ -357,7 +357,7 @@ def main(
     seen_repo_inst_ids = set()
 
     for sweb_insts_file in sweb_insts_files:
-        if sweb_insts_file.endswith(".jsonl"):
+        if any([sweb_insts_file.endswith(ext) for ext in [".jsonl", ".jsonl.all"]]):
             file_instances = [json.loads(line) for line in open(sweb_insts_file)]
         elif sweb_insts_file.endswith(".json"):
             file_instances = json.load(open(sweb_insts_file))

@@ -542,6 +542,13 @@ SPECS_REPO_PANDAS = {
 SPECS_REPO_MONKEYTYPE = {
     "70c3acf62950be5dfb28743c7a719bfdecebcd84": DEFAULT_SPECS,
 }
+SPECS_REPO_DSPY = {
+    "651a4c715ecc6c5e68b68d22172768f0b20f2eea": {
+        **DEFAULT_SPECS,
+        "install": ["pip install -e '.[dev]'"],
+        "python": "3.11",
+    }
+}
 
 
 MAP_REPO_TO_SPECS = {
@@ -666,6 +673,7 @@ MAP_REPO_TO_SPECS = {
     "sloria/environs": SPECS_REPO_ENVIRONS,
     "spulec/freezegun": SPECS_REPO_FREEZEGUN,
     "sqlfluff/sqlfluff": SPECS_REPO_SQLFLUFF,
+    "stanfordnlp/dspy": SPECS_REPO_DSPY,
     "sunpy/sunpy": SPECS_REPO_SUNPY,
     "Suor/funcy": SPECS_REPO_FUNCY,
     "sympy/sympy": SPECS_REPO_SYMPY,
