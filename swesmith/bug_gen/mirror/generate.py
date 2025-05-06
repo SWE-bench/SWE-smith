@@ -307,7 +307,7 @@ def process_single_instance(inst, repo, model, api_key=None):
         )
 
         if len(patch_files) == 0:
-            return {"status": "recover_fail"}
+            return "recover_fail"
         else:
             patch_merged = apply_patches(repo, patch_files)
             if patch_merged:
