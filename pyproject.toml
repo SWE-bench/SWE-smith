@@ -45,6 +45,7 @@ dependencies = [
 
 [project.optional-dependencies]
 docs = [
+    "mkdocs",
     "mkdocs-material",
     "mkdocs-glightbox",
     "mkdocs-include-markdown-plugin",
