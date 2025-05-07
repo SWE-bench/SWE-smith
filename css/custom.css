@@ -11,6 +11,14 @@
   --md-default-bg-color: #111111;
 }
 
+.theme-img--light,
+.theme-img--dark {
+  display: none;
+}
+
+body[data-md-color-scheme="default"] .theme-img--light { display: block; }
+body[data-md-color-scheme="slate"] .theme-img--dark { display: block; }
+
 .clickable-banner {
   color: #000000;
 }
