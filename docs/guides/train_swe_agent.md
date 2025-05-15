@@ -31,8 +31,8 @@ swesmith = load_dataset("SWE-bench/SWE-smith", split="train")
 subset_name = "subset0"
 def criteria(task_instance):
     return ".pr_" in task_instance["instance_id"] and \
-        len(bug["FAIL_TO_PASS"]) <= 5 and \
-        len(bug["FAIL_TO_PASS"]) >= 2
+        len(task_instance["FAIL_TO_PASS"]) <= 5 and \
+        len(task_instance["FAIL_TO_PASS"]) >= 2
 bugs = [x for x in swesmith if criteria(x)]
 print(f"Found {len(bugs)} bugs that match criteria")
 with open(f"logs/experiments/{subset_name}.json", "w") as f:

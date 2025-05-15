@@ -4,11 +4,11 @@ build-backend = 'setuptools.build_meta'
 
 [project]
 name = "swesmith"
-version = "0.0.1"
+dynamic = ["version"]
 authors = [
     {name = "John Yang", email = "byjohnyang@gmail.com"}
 ]
-description = "A package for generating LLM based agent trajectories for software engineering"
+description = "The official SWE-smith package - A toolkit for generating software engineering training data at scale."
 readme = "README.md"
 requires-python = ">=3.10"
 keywords = ["nlp", "benchmark", "code"]
@@ -29,11 +29,6 @@ dependencies = [
     "libcst",
     "litellm",
     "matplotlib",
-    "mkdocs-material",
-    "mkdocs-glightbox",
-    "mkdocs-include-markdown-plugin",
-    "mkdocstrings[python]>=0.18",
-    "mike",
     "modal",
     "openai",
     "pre-commit",
@@ -48,15 +43,31 @@ dependencies = [
     "textual",
 ]
 
+[project.optional-dependencies]
+docs = [
+    "mkdocs",
+    "mkdocs-material",
+    "mkdocs-glightbox",
+    "mkdocs-include-markdown-plugin",
+    "mkdocstrings[python]>=0.18",
+    "mike",
+]
+
 [tool.setuptools]
-packages = ["swesmith"]
 include-package-data = true
 
+[tool.setuptools.dynamic]
+version = {attr = "swesmith.__version__"}
+
+[tool.setuptools.packages.find]
+where = ["."]
+namespaces = false
+
 [project.urls]
-"Documentation" = "https://github.com/john-b-yang/swe-smith"
-"Bug Reports" = "https://github.com/john-b-yang/swe-smith/issues"
-"Source Code" = "https://github.com/john-b-yang/swe-smith"
-"Website" = "https://swebench.com"
+"Documentation" = "https://github.com/SWE-bench/SWE-smith"
+"Bug Reports" = "https://github.com/SWE-bench/SWE-smith/issues"
+"Source Code" = "https://github.com/SWE-bench/SWE-smith"
+"Website" = "https://swesmith.com"
 
 [tool.ruff]
 exclude = ["notebooks"]

@@ -6,8 +6,9 @@
 
 SWE-smith is toolkit for training Software Engineering (SWE) agents. With SWE-smith, you can:
 
-<div style="text-align:center">
-  <img src="../assets/overview.png" alt="SWE-smith" style="width:100%"/>
+<div class="theme-img-wrapper">
+  <img src="/assets/overview-light.png" class="theme-img theme-img--light" alt="Light Mode Image" style="width:100%">
+  <img src="/assets/overview.png" class="theme-img theme-img--dark" alt="Dark Mode Image" style="width:100%">
 </div>
 
 Check out the [installation](installation.md) guide to get started, then head over to the [tutorials](../guides/index.md) to learn
