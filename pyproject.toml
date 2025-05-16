@@ -52,6 +52,10 @@ docs = [
     "mkdocstrings[python]>=0.18",
     "mike",
 ]
+test = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+]
 
 [tool.setuptools]
 include-package-data = true
@@ -71,3 +75,10 @@ namespaces = false
 
 [tool.ruff]
 exclude = ["notebooks"]
+
+[tool.pytest]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+addopts = "--ignore=swesmith"
