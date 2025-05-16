@@ -1,6 +1,7 @@
 """
 Common pytest fixtures and configuration for SWE-smith tests.
 """
+
 import os
 import sys
 import pytest
@@ -9,6 +10,7 @@ import pytest
 repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if repo_root not in sys.path:
     sys.path.insert(0, repo_root)
+
 
 @pytest.fixture
 def sample_repo_path():
