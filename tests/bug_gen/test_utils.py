@@ -48,21 +48,19 @@ class Bar:
         test_file = os.path.join(repo, "a.py")
         with open(test_file, "w") as f:
             f.write("print('hi')\n")
-        subprocess.run(
-            ["git", "branch", "-m", "main"],
-            cwd=repo,
-            check=True,
-            stdout=subprocess.DEVNULL,
-        )
-        subprocess.run(
-            ["git", "add", "a.py"], cwd=repo, check=True, stdout=subprocess.DEVNULL
-        )
-        subprocess.run(
-            ["git", "commit", "-m", "init"],
-            cwd=repo,
-            check=True,
-            stdout=subprocess.DEVNULL,
-        )
+        for cmd in [
+            "git branch -m main",
+            "git add a.py",
+            'git config user.email "you@example.com"',
+            'git config user.name "Your Name"',
+            "git commit -m init",
+        ]:
+            subprocess.run(
+                cmd.split(),
+                cwd=repo,
+                check=True,
+                stdout=subprocess.DEVNULL,
+            )
         with open(test_file, "w") as f:
             f.write("print('bye')\n")
         patch = utils.get_patch(repo)
@@ -70,7 +68,7 @@ class Bar:
         print(patch)
         with open(patch_file, "w") as f:
             f.write(patch)
-        # Reset repo before applying patch
+        # Reset rep o before applying patch
         subprocess.run(
             ["git", "reset", "--hard"], cwd=repo, check=True, stdout=subprocess.DEVNULL
         )
@@ -114,15 +112,18 @@ class Bar:
         test_file = os.path.join(repo, "b.py")
         with open(test_file, "w") as f:
             f.write("print('hi')\n")
-        subprocess.run(
-            ["git", "add", "b.py"], cwd=repo, check=True, stdout=subprocess.DEVNULL
-        )
-        subprocess.run(
-            ["git", "commit", "-m", "init"],
-            cwd=repo,
-            check=True,
-            stdout=subprocess.DEVNULL,
-        )
+        for cmd in [
+            "git add b.py",
+            'git config user.email "you@example.com"',
+            'git config user.name "Your Name"',
+            "git commit -m init",
+        ]:
+            subprocess.run(
+                cmd.split(),
+                cwd=repo,
+                check=True,
+                stdout=subprocess.DEVNULL,
+            )
         with open(test_file, "w") as f:
             f.write("print('bye')\n")
         patch = utils.get_patch(repo)
