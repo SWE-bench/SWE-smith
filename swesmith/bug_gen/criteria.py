@@ -1,7 +1,7 @@
 import ast
 from functools import partial
 
-from swesmith.bug_gen.utils import CodeEntity
+from swesmith.utils import CodeEntity
 
 
 def filter_all(code_entity: CodeEntity) -> bool:

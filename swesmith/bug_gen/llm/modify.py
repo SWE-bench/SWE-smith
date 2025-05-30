@@ -5,7 +5,6 @@ Usage: python -m swesmith.bug_gen.llm.modify \
     --n_bugs <n_bugs> \
     --config_file <config_file> \
     --model <model> \
-    --type <entity_type>
     repo  # e.g., tkrajina__gpxpy.09fc46b3
 
 Where model follows the litellm format.
@@ -33,9 +32,6 @@ from litellm.cost_calculator import completion_cost
 from swesmith.bug_gen.criteria import MAP_KEY_TO_CRITERIA
 from swesmith.bug_gen.llm.utils import PROMPT_KEYS, extract_code_block
 from swesmith.bug_gen.utils import (
-    ENTITY_TYPES,
-    BugRewrite,
-    CodeEntity,
     apply_code_change,
     extract_entities_from_directory,
     get_patch,
@@ -46,7 +42,7 @@ from swesmith.constants import (
     PREFIX_BUG,
     PREFIX_METADATA,
 )
-from swesmith.utils import clone_repo, does_repo_exist
+from swesmith.utils import BugRewrite, CodeEntity, clone_repo, does_repo_exist
 from tqdm.auto import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
 from typing import Any
@@ -113,7 +109,6 @@ def gen_bug_from_code_lm(
 
 def main(
     config_file: str,
-    entity_type: str,
     model: str,
     n_bugs: int,
     repo: str,
@@ -134,15 +129,15 @@ def main(
     print("Cloning repository...")
     clone_repo(repo)
     print("Extracting candidates...")
-    candidates = extract_entities_from_directory(repo, entity_type)
-    print(f"{len(candidates)} candidates found for {entity_type} in {repo}")
+    candidates = extract_entities_from_directory(repo)
+    print(f"{len(candidates)} candidates found in {repo}")
     candidates = [x for x in candidates if MAP_KEY_TO_CRITERIA[configs["criteria"]](x)]
     print(f"{len(candidates)} candidates passed criteria")
     if not candidates:
-        print(f"No candidates found for {entity_type} in {repo}.")
+        print(f"No candidates found in {repo}.")
         return
 
-    print(f"Generating bugs for {entity_type} in {repo} using {model}...")
+    print(f"Generating bugs in {repo} using {model}...")
     if not kwargs.get("yes", False):
         if input("Proceed with bug generation? (y/n): ").lower() != "y":
             return
@@ -219,14 +214,6 @@ if __name__ == "__main__":
         "repo",
         type=str,
         help="Name of a SWE-smith repository to generate bugs for.",
-    )
-    parser.add_argument(
-        "--type",
-        dest="entity_type",
-        type=str,
-        choices=list(ENTITY_TYPES.keys()),
-        default="func",
-        help="Type of entity to generate bugs for.",
     )
     parser.add_argument(
         "--model",

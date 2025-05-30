@@ -3,7 +3,6 @@ Purpose: Given a repository, blank out various functions/classes, then ask the m
 
 Usage: python -m swesmith.bug_gen.llm.rewrite \
     --model <model> \
-    --type <entity_type> \
     repo  # e.g., tkrajina__gpxpy.09fc46b3
 
 Where model follows the litellm format.
@@ -34,15 +33,16 @@ from swesmith.bug_gen.llm.utils import (
     strip_function_body,
 )
 from swesmith.bug_gen.utils import (
-    ENTITY_TYPES,
-    BugRewrite,
-    CodeEntity,
     apply_code_change,
     extract_entities_from_directory,
     get_patch,
 )
 from swesmith.constants import LOG_DIR_BUG_GEN, PREFIX_BUG, PREFIX_METADATA
-from swesmith.utils import clone_repo
+from swesmith.utils import (
+    BugRewrite,
+    CodeEntity,
+    clone_repo,
+)
 from tqdm.auto import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
 from typing import Any
@@ -59,7 +59,6 @@ def main(
     repo: str,
     config_file: str,
     model: str,
-    entity_type: str,
     n_workers: int,
     redo_existing: bool = False,
     max_bugs: int = None,
@@ -71,7 +70,7 @@ def main(
     print(f"Extracting entities from {repo}...")
     candidates = [
         x
-        for x in extract_entities_from_directory(repo, entity_type)
+        for x in extract_entities_from_directory(repo)
         if filter_min_simple_complexity(x, 3)
     ]
     if max_bugs:
@@ -195,13 +194,6 @@ if __name__ == "__main__":
         "--config_file", type=str, help="Path to the configuration file.", required=True
     )
     parser.add_argument("--model", type=str, help="Model to use for rewriting.")
-    parser.add_argument(
-        "--type",
-        dest="entity_type",
-        type=str,
-        choices=list(ENTITY_TYPES.keys()),
-        help="Type of entity to generate bug patches for.",
-    )
     parser.add_argument(
         "--n_workers", type=int, help="Number of workers to use", default=1
     )

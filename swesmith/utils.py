@@ -5,9 +5,60 @@ import random
 import string
 import subprocess
 
+from dataclasses import dataclass
 from ghapi.all import GhApi
 from pathlib import Path
 from swesmith.constants import MAP_REPO_TO_SPECS, ORG_NAME, LOG_DIR_ENV_RECORDS
+from typing import Any
+
+
+class BugRewrite:
+    cost: float = 0
+    explanation: str = ""
+    output: str
+    rewrite: str
+    strategy: str
+
+    def __init__(
+        self,
+        rewrite: str,
+        explanation: str,
+        strategy: str,
+        cost: float = 0,
+        output: str = "",
+    ):
+        self.rewrite = rewrite
+        self.explanation = explanation
+        self.cost = cost
+        self.strategy = strategy
+        self.output = output
+
+    def get_hash(self) -> str:
+        """Generates a hash for the bug rewrite."""
+        return generate_hash(self.rewrite)
+
+    def to_dict(self) -> dict[str, Any]:
+        """Converts the bug rewrite to a dictionary."""
+        return {
+            "cost": self.cost,
+            "explanation": self.explanation,
+            "output": self.output,
+            "rewrite": self.rewrite,
+            "strategy": self.strategy,
+        }
+
+
+@dataclass
+class CodeEntity:
+    """Data class to hold information about a code entity (e.g. function, class)."""
+
+    file_path: str
+    indent_level: int
+    indent_size: int
+    line_end: int
+    line_start: int
+    src_code: Any
+    src_node: Any
 
 
 def get_arch_and_platform() -> tuple[str, str]:

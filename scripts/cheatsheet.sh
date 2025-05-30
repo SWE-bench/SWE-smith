@@ -40,7 +40,6 @@ python -m swesmith.bug_gen.llm.rewrite $repo \
 python -m swesmith.bug_gen.llm.modify $repo \
     --n_bugs 1 \
     --model openai/gpt-4o \
-    --entity_type func \
     --prompt_config configs/bug_gen/lm_modify.yml
 
 # Procedural Modifications

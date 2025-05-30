@@ -4,6 +4,7 @@ import shutil
 import tempfile
 import unittest
 
+from swesmith.bug_gen.adapters.python import py_get_entity_from_node
 from swesmith.bug_gen import utils
 
 
@@ -27,7 +28,7 @@ class Bar:
     def test_apply_code_change(self):
         # Setup CodeEntity and BugRewrite
         node = ast.parse(open(self.test_file).read()).body[0]
-        entity = utils.get_entity_from_node(
+        entity = py_get_entity_from_node(
             node, open(self.test_file).read(), self.test_file
         )
         bug = utils.BugRewrite(
@@ -82,12 +83,9 @@ class Bar:
 
     def test_extract_entities_from_directory(self):
         entities = utils.extract_entities_from_directory(
-            self.test_dir, "func", exclude_tests=False
+            self.test_dir, exclude_tests=False
         )
         self.assertTrue(any(e.src_code.startswith("def foo") for e in entities))
-        entities = utils.extract_entities_from_directory(
-            self.test_dir, "class", exclude_tests=False
-        )
         self.assertTrue(any("class Bar" in e.src_code for e in entities))
 
     def test_get_combos(self):
@@ -101,7 +99,7 @@ class Bar:
             content = f.read()
         tree = ast.parse(content)
         node = tree.body[0]
-        entity = utils.get_entity_from_node(node, content, self.test_file)
+        entity = py_get_entity_from_node(node, content, self.test_file)
         self.assertEqual(entity.line_start, 2)
         self.assertIn("def foo", entity.src_code)
 

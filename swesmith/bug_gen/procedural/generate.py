@@ -3,8 +3,7 @@ Purpose: Given a repository, procedurally generate a variety of bugs for functio
 
 Usage: python -m swesmith.bug_gen.procedural.generate \
     --repo <repo> \
-    --commit <commit> \
-    --type <entity_type>
+    --commit <commit>
 """
 
 import argparse
@@ -16,9 +15,6 @@ import shutil
 from pathlib import Path
 from rich import print
 from swesmith.bug_gen.utils import (
-    ENTITY_TYPES,
-    BugRewrite,
-    CodeEntity,
     apply_code_change,
     extract_entities_from_directory,
     get_patch,
@@ -29,7 +25,12 @@ from swesmith.constants import (
     PREFIX_BUG,
     PREFIX_METADATA,
 )
-from swesmith.utils import clone_repo, does_repo_exist
+from swesmith.utils import (
+    BugRewrite,
+    CodeEntity,
+    clone_repo,
+    does_repo_exist,
+)
 from tqdm.auto import tqdm
 
 from swesmith.bug_gen.procedural import BaseProceduralModifier
@@ -55,13 +56,10 @@ from swesmith.bug_gen.procedural.remove import (
     RemoveWrapperModifier,
 )
 
-PM_TECHNIQUES_CLASSES = [
+PM_TECHNIQUES = [
     ClassRemoveBasesModifier(likelihood=0.25),
     ClassRemoveFuncsModifier(likelihood=0.15),
     ClassShuffleMethodsModifier(likelihood=0.25),
-]
-
-PM_TECHNIQUES_FUNCS = [
     ControlIfElseInvertModifier(likelihood=0.25),
     ControlShuffleLinesModifier(likelihood=0.25),
     RemoveAssignModifier(likelihood=0.25),
@@ -129,7 +127,6 @@ def _process_candidate(
 
 def main(
     repo: str,
-    entity_type: str,
     max_bugs: int,
     seed: int,
 ):
@@ -137,24 +134,17 @@ def main(
     random.seed(seed)
 
     total = 0
-    PM_TECHNIQUES = {
-        "class": PM_TECHNIQUES_CLASSES,
-        "func": PM_TECHNIQUES_FUNCS,
-        "object": PM_TECHNIQUES_CLASSES + PM_TECHNIQUES_FUNCS,
-    }[entity_type]
     clone_repo(repo)
     print(f"Cloned {repo} repository.")
-    entities = extract_entities_from_directory(repo, entity_type)
-    print(f"Found {len(entities)} {entity_type} entities in {repo}.")
+    entities = extract_entities_from_directory(repo)
+    print(f"Found {len(entities)} entities in {repo}.")
     for pm in PM_TECHNIQUES:
-        print(
-            f"Generating [bold blue]{pm.name}[/bold blue] bugs for [bold blue]{entity_type}[/bold blue] in {repo}..."
-        )
+        print(f"Generating [bold blue]{pm.name}[/bold blue] bugs in {repo}...")
         candidates = [x for x in entities if all(c(x) for c in pm.conditions)]
         if not candidates:
-            print(f"No candidates found for {entity_type} in {repo}.")
+            print(f"No candidates found in {repo}.")
             continue
-        print(f"Found {len(candidates)} candidates for {entity_type} in {repo}.")
+        print(f"Found {len(candidates)} candidates in {repo}.")
 
         log_dir = LOG_DIR_BUG_GEN / repo
         log_dir.mkdir(parents=True, exist_ok=True)
@@ -178,14 +168,6 @@ if __name__ == "__main__":
         "repo",
         type=str,
         help="Name of a SWE-smith repository to generate bugs for.",
-    )
-    parser.add_argument(
-        "--type",
-        dest="entity_type",
-        type=str,
-        choices=list(ENTITY_TYPES.keys()),
-        default="func",
-        help="Type of entity to generate bugs for.",
     )
     parser.add_argument(
         "--seed",
