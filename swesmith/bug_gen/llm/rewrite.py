@@ -13,7 +13,6 @@ Example:
 python -m swesmith.bug_gen.llm.rewrite tkrajina__gpxpy.09fc46b3 --model claude-3-7-sonnet-20250219 --type class
 """
 
-import ast
 import argparse
 import json
 import litellm
@@ -31,6 +30,7 @@ from swesmith.bug_gen.criteria import filter_min_simple_complexity
 from swesmith.bug_gen.llm.utils import (
     PROMPT_KEYS,
     extract_code_block,
+    get_function_signature,
     strip_function_body,
 )
 from swesmith.bug_gen.utils import (
@@ -53,13 +53,6 @@ LM_REWRITE = "lm_rewrite"
 logging.getLogger("LiteLLM").setLevel(logging.WARNING)
 litellm.suppress_debug_info = True
 random.seed(24)
-
-
-def get_function_signature(node):
-    """Generate the function signature as a string."""
-    args = [ast.unparse(arg) for arg in node.args.args]  # For Python 3.9+
-    args_str = ", ".join(args)
-    return f"def {node.name}({args_str})"
 
 
 def main(

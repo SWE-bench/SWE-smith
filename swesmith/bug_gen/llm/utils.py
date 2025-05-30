@@ -12,6 +12,13 @@ def extract_code_block(text: str) -> str:
     return match.group(1).strip() if match else ""
 
 
+def get_function_signature(node):
+    """Generate the function signature as a string."""
+    args = [ast.unparse(arg) for arg in node.args.args]  # For Python 3.9+
+    args_str = ", ".join(args)
+    return f"def {node.name}({args_str})"
+
+
 def strip_function_body(source_code):
     tree = ast.parse(source_code)
 
