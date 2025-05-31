@@ -45,10 +45,7 @@ class GoEntity(CodeEntity):
         if match:
             body_start = match.start()
             return (
-                self.src_code[:body_start].rstrip()
-                + " {\n\t // "
-                + TODO_REWRITE
-                + "\n}"
+                self.src_code[:body_start].rstrip() + " {\n\t// " + TODO_REWRITE + "\n}"
             )
         else:
             # If no body found, return the original code

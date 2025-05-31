@@ -15,7 +15,7 @@ DEVNULL = {"stdout": subprocess.DEVNULL, "stderr": subprocess.DEVNULL}
 
 
 def apply_code_change(candidate: CodeEntity, bug: BugRewrite) -> None:
-    """Replaces lines in a file between start_line and end_line with replacement_code."""
+    """Replaces lines in a file between start_line and end_line (inclusive) with replacement_code."""
     with open(candidate.file_path, "r") as file:
         lines = file.readlines()
     if (
@@ -24,19 +24,25 @@ def apply_code_change(candidate: CodeEntity, bug: BugRewrite) -> None:
         or candidate.line_start > candidate.line_end
     ):
         raise ValueError("Invalid line range specified.")
-    replacement_lines = [
+    change = [
         f"{' ' * candidate.indent_level * candidate.indent_size}{x}"
         if len(x.strip()) > 0
         else x
         for x in bug.rewrite.splitlines(keepends=True)
     ]
-    lines = (
-        lines[: candidate.line_start - 1]
-        + replacement_lines
-        + lines[candidate.line_end :]
-    )
+
+    # If the last line being replaced ends with one or more newlines,
+    # ensure the last line of the replacement also end with the same number of newlines.
+    curr_last_line = lines[candidate.line_end - 1]
+    num_newlines = len(curr_last_line) - len(curr_last_line.rstrip("\n"))
+    change[-1] = change[-1].rstrip("\n") + "\n" * num_newlines
+
     with open(candidate.file_path, "w") as file:
-        file.writelines(lines)
+        # NOTE: This assumes that the candidate.line_start and candidate.line_end
+        # are 1-based indices, as is common in many text editors.
+        file.writelines(
+            (lines[: candidate.line_start - 1] + change + lines[candidate.line_end :])
+        )
 
 
 def apply_patches(repo: str, patch_files: list[str]) -> str | None:
