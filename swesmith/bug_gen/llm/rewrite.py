@@ -25,12 +25,9 @@ import yaml
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from litellm import completion
 from litellm.cost_calculator import completion_cost
-from swesmith.bug_gen.criteria import filter_min_simple_complexity
 from swesmith.bug_gen.llm.utils import (
     PROMPT_KEYS,
     extract_code_block,
-    get_function_signature,
-    strip_function_body,
 )
 from swesmith.bug_gen.utils import (
     apply_code_change,
@@ -68,11 +65,7 @@ def main(
     print(f"Cloning {repo}...")
     clone_repo(repo)
     print(f"Extracting entities from {repo}...")
-    candidates = [
-        x
-        for x in extract_entities_from_directory(repo)
-        if filter_min_simple_complexity(x, 3)
-    ]
+    candidates = extract_entities_from_directory(repo)
     if max_bugs:
         random.shuffle(candidates)
         candidates = candidates[:max_bugs]
@@ -100,7 +93,7 @@ def main(
         try:
             # Blank out the function body
             blank_function = BugRewrite(
-                rewrite=strip_function_body(candidate.src_code),
+                rewrite=candidate.stub,
                 explanation="Blanked out the function body.",
                 strategy=LM_REWRITE,
             )
@@ -110,7 +103,7 @@ def main(
 
         # Get prompt content
         prompt_content = {
-            "func_signature": get_function_signature(candidate.src_node),
+            "func_signature": candidate.signature,
             "func_to_write": blank_function.rewrite,
             "file_src_code": open(candidate.file_path).read(),
         }

@@ -5,6 +5,7 @@ import random
 import string
 import subprocess
 
+from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from ghapi.all import GhApi
 from pathlib import Path
@@ -49,7 +50,7 @@ class BugRewrite:
 
 
 @dataclass
-class CodeEntity:
+class CodeEntity(ABC):
     """Data class to hold information about a code entity (e.g. function, class)."""
 
     file_path: str
@@ -59,6 +60,22 @@ class CodeEntity:
     line_start: int
     src_code: Any
     src_node: Any
+
+    @property
+    def ext(self) -> str:
+        return self.file_path.rsplit(".", 1)[-1].lower()
+
+    @property
+    @abstractmethod
+    def signature(self) -> str:
+        """Get the signature of the code entity."""
+        pass
+
+    @property
+    @abstractmethod
+    def stub(self) -> str:
+        """Get stub (code with implementation removed) for the code entity."""
+        pass
 
 
 def get_arch_and_platform() -> tuple[str, str]:

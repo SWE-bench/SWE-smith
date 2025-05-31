@@ -1,10 +1,62 @@
 import ast
+import astor
 
+from dataclasses import dataclass
+from swesmith.constants import TODO_REWRITE
 from swesmith.utils import CodeEntity
 
 
+@dataclass
+class PythonEntity(CodeEntity):
+    @property
+    def signature(self):
+        if isinstance(self.src_node, ast.ClassDef):
+            return f"class {self.src_node.name}:"
+        elif isinstance(self.src_node, ast.FunctionDef):
+            args = [ast.unparse(arg) for arg in self.src_node.args.args]
+            args_str = ", ".join(args)
+            return f"def {self.src_node.name}({args_str})"
+
+    @property
+    def stub(self):
+        src_code = self.src_code
+        tree = ast.parse(src_code)
+
+        class FunctionBodyStripper(ast.NodeTransformer):
+            def visit_FunctionDef(self, node):
+                # Keep the original arguments and decorator list
+                new_node = ast.FunctionDef(
+                    name=node.name,
+                    args=node.args,
+                    body=[],  # Empty body initially
+                    decorator_list=node.decorator_list,
+                    returns=node.returns,
+                    type_params=getattr(node, "type_params", None),  # For Python 3.12+
+                )
+
+                # Add docstring if it exists
+                if (
+                    node.body
+                    and isinstance(node.body[0], ast.Expr)
+                    and isinstance(node.body[0].value, ast.Str)
+                ):
+                    new_node.body.append(node.body[0])
+
+                # Add a comment indicating to implement this function
+                new_node.body.append(ast.Expr(ast.Str(TODO_REWRITE)))
+
+                # Add a 'pass' statement after the docstring
+                new_node.body.append(ast.Pass())
+
+                return new_node
+
+        stripped_tree = FunctionBodyStripper().visit(tree)
+        ast.fix_missing_locations(stripped_tree)
+        return astor.to_source(stripped_tree).strip()
+
+
 def py_get_entities_from_file(
-    entities: list[CodeEntity],
+    entities: list[PythonEntity],
     file_path: str,
     max_entities: int = -1,
 ):
@@ -17,15 +69,13 @@ def py_get_entities_from_file(
     for node in ast.walk(tree):
         if not any([isinstance(node, x) for x in (ast.ClassDef, ast.FunctionDef)]):
             continue
-        entities.append(py_get_entity_from_node(node, file_content, file_path))
+        entities.append(_build_entity(node, file_content, file_path))
         if max_entities != -1 and len(entities) >= max_entities:
             return
 
 
-def py_get_entity_from_node(
-    node: ast.AST, file_content: str, file_path: str
-) -> CodeEntity:
-    """Turns an AST node into a CodeEntity object."""
+def _build_entity(node: ast.AST, file_content: str, file_path: str) -> PythonEntity:
+    """Turns an AST node into a PythonEntity object."""
     start_line = node.lineno  # type: ignore[attr-defined]
     end_line = (
         node.end_lineno if hasattr(node, "end_lineno") else None  # type: ignore[attr-defined]
@@ -41,7 +91,7 @@ def py_get_entity_from_node(
             - 1
         )
 
-    source_code = ast.get_source_segment(file_content, node)
+    src_code = ast.get_source_segment(file_content, node)
 
     # Get the line content for the source definition
     source_line = file_content.splitlines()[start_line - 1]
@@ -53,25 +103,23 @@ def py_get_entity_from_node(
         indent_size = source_line.expandtabs().index(source_line.lstrip())
 
     # Calculate indentation level
-    indentation_level = (
-        leading_whitespace // indent_size if leading_whitespace > 0 else 0
-    )
+    indent_level = leading_whitespace // indent_size if leading_whitespace > 0 else 0
 
     # Remove indentation from source source code
-    assert source_code is not None
-    lines = source_code.splitlines()
-    dedented_source_code = [lines[0]]
+    assert src_code is not None
+    lines = src_code.splitlines()
+    dedented_src_code = [lines[0]]
     for line in lines[1:]:
-        # Strip leading spaces equal to indentation_level * indent_size
-        dedented_source_code.append(line[indentation_level * indent_size :])
-    source_code = "\n".join(dedented_source_code)
+        # Strip leading spaces equal to indent_level * indent_size
+        dedented_src_code.append(line[indent_level * indent_size :])
+    src_code = "\n".join(dedented_src_code)
 
-    return CodeEntity(
+    return PythonEntity(
         file_path=file_path,
-        indent_level=indentation_level,
+        indent_level=indent_level,
         indent_size=indent_size,
         line_end=end_line,
         line_start=start_line,
-        src_code=source_code,
+        src_code=src_code,
         src_node=node,
     )

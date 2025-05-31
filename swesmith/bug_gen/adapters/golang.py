@@ -1,5 +1,6 @@
 import re
 
+from swesmith.constants import TODO_REWRITE
 from swesmith.utils import CodeEntity
 from tree_sitter import Parser
 from tree_sitter_languages import get_language
@@ -7,11 +8,33 @@ from tree_sitter_languages import get_language
 GO_LANGUAGE = get_language("go")
 
 
+class GoEntity(CodeEntity):
+    @property
+    def signature(self) -> str:
+        return self.src_code.split("{", 1)[0].strip()
+
+    @property
+    def stub(self) -> str:
+        # Find the opening brace '{' and remove everything after it
+        match = re.search(r"\{", self.src_code)
+        if match:
+            body_start = match.start()
+            return (
+                self.src_code[:body_start].rstrip()
+                + " {\n\t // "
+                + TODO_REWRITE
+                + "\n}"
+            )
+        else:
+            # If no body found, return the original code
+            return self.src_code
+
+
 def go_get_entities_from_file(
-    entities: list[CodeEntity],
+    entities: list[GoEntity],
     file_path: str,
     max_entities: int = -1,
-) -> list[CodeEntity]:
+) -> list[GoEntity]:
     """
     Parse a .go file and return up to max_entities top-level funcs and types.
     If max_entities < 0, collects them all.
@@ -71,7 +94,7 @@ def _build_entity(node, lines, file_path: str) -> CodeEntity:
         else:
             dedented.append(line.lstrip("\t "))
 
-    return CodeEntity(
+    return GoEntity(
         file_path=file_path,
         indent_level=indent_level,
         indent_size=indent_size,

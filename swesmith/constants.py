@@ -36,6 +36,7 @@ TEMP_PATCH = "_temp_patch_swesmith.diff"
 TEST_OUTPUT_END = ">>>>> End Test Output"
 TEST_OUTPUT_START = ">>>>> Start Test Output"
 TIMEOUT = 120
+TODO_REWRITE = "TODO: Implement this function"
 UBUNTU_VERSION = "22.04"
 VOLUME_NAME_DATASET = "datasets"
 VOLUME_NAME_MODEL = "llm-weights"
