@@ -80,28 +80,25 @@ def extract_entities_from_directory(
     """
     entities = []
     for root, _, files in os.walk(directory_path):
+        if exclude_tests and any([x in root for x in ["/tests", "/test", "/testing"]]):
+            continue
         for file in files:
-            if exclude_tests and any(
-                [x in root for x in ["/tests", "/test", "/testing"]]
+            if exclude_tests and (
+                file.startswith("test_") or file.rsplit(".", 1)[0].endswith("_test")
             ):
-                continue
-            if exclude_tests and file.startswith("test_"):
                 continue
 
             file_path = os.path.join(root, file)
 
             try:
-                with open(file_path, "r", encoding="utf-8") as f:
-                    file_content = f.read()
+                open(file_path, "r", encoding="utf-8").close()
             except:
                 continue
 
             file_ext = Path(file_path).suffix[1:]
             if file_ext not in get_entities_from_file:
                 continue
-            get_entities_from_file[file_ext](
-                entities, file_content, file_path, max_entities
-            )
+            get_entities_from_file[file_ext](entities, file_path, max_entities)
 
     return entities
 

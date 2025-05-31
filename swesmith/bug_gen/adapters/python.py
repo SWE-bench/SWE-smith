@@ -5,11 +5,11 @@ from swesmith.utils import CodeEntity
 
 def py_get_entities_from_file(
     entities: list[CodeEntity],
-    file_content: str,
     file_path: str,
     max_entities: int = -1,
 ):
     try:
+        file_content = open(file_path, "r", encoding="utf8").read()
         tree = ast.parse(file_content, filename=file_path)
     except SyntaxError:
         return
