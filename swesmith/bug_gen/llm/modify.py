@@ -42,7 +42,7 @@ from swesmith.constants import (
     PREFIX_BUG,
     PREFIX_METADATA,
 )
-from swesmith.utils import BugRewrite, CodeEntity, clone_repo, does_repo_exist
+from swesmith.utils import BugRewrite, CodeEntity, clone_repo, repo_exists
 from tqdm.auto import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
 from typing import Any
@@ -112,12 +112,12 @@ def main(
     model: str,
     n_bugs: int,
     repo: str,
-    *,
     n_workers: int = 1,
+    org: str = ORG_NAME,
     **kwargs,
 ):
     # Check arguments
-    assert does_repo_exist(repo), f"Repository {repo} does not exist in {ORG_NAME}."
+    assert repo_exists(repo, org), f"Repository {repo} does not exist in {org}."
     assert os.path.exists(config_file), f"{config_file} not found"
     assert n_bugs > 0, "n_bugs must be greater than 0"
     configs = yaml.safe_load(open(config_file))
@@ -216,6 +216,12 @@ if __name__ == "__main__":
         help="Name of a SWE-smith repository to generate bugs for.",
     )
     parser.add_argument(
+        "--config_file",
+        type=str,
+        help="Configuration file containing bug gen. strategy prompts",
+        required=True,
+    )
+    parser.add_argument(
         "--model",
         type=str,
         help="Model to use for bug generation",
@@ -228,14 +234,14 @@ if __name__ == "__main__":
         default=1,
     )
     parser.add_argument(
-        "--config_file",
-        type=str,
-        help="Configuration file containing bug gen. strategy prompts",
-        required=True,
-    )
-    parser.add_argument("-y", "--yes", action="store_true", help="Skip confirmation")
-    parser.add_argument(
         "--n_workers", type=int, help="Number of workers to use", default=1
     )
+    parser.add_argument(
+        "--org",
+        type=str,
+        help="Organization name (default: SWE-smith)",
+        default=ORG_NAME,
+    )
+    parser.add_argument("-y", "--yes", action="store_true", help="Skip confirmation")
     args = parser.parse_args()
     main(**vars(args))

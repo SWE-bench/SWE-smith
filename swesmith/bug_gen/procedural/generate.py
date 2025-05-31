@@ -29,7 +29,7 @@ from swesmith.utils import (
     BugRewrite,
     CodeEntity,
     clone_repo,
-    does_repo_exist,
+    repo_exists,
 )
 from tqdm.auto import tqdm
 
@@ -130,7 +130,7 @@ def main(
     max_bugs: int,
     seed: int,
 ):
-    assert does_repo_exist(repo), f"Repository {repo} does not exist in {ORG_NAME}."
+    assert repo_exists(repo), f"Repository {repo} does not exist in {ORG_NAME}."
     random.seed(seed)
 
     total = 0

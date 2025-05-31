@@ -192,7 +192,7 @@ def get_test_paths(dir_path: str, ext: str = ".py") -> list[Path]:
     ]
 
 
-def does_repo_exist(repo: str) -> bool:
+def repo_exists(repo: str, org_name: str = ORG_NAME) -> bool:
     """
     Check if a repository exists in project organization.
     """
@@ -201,6 +201,6 @@ def does_repo_exist(repo: str) -> bool:
     org_repos = [
         x["name"]
         for page in range(1, 3)
-        for x in api.repos.list_for_org(ORG_NAME, per_page=100, page=page)  # type: ignore
+        for x in api.repos.list_for_org(org_name, per_page=100, page=page)  # type: ignore
     ]
     return repo in org_repos
