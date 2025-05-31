@@ -10,6 +10,31 @@ GO_LANGUAGE = get_language("go")
 
 class GoEntity(CodeEntity):
     @property
+    def name(self) -> str:
+        if self.node.type == "function_declaration":
+            for child in self.node.children:
+                if child.type == "identifier":
+                    return child.text.decode("utf-8")
+        elif self.node.type == "method_declaration":
+            func_name, receiver_type = None, None
+            for child in self.node.children:
+                if child.type == "field_identifier":
+                    func_name = child.text.decode("utf-8")
+                elif child.type == "parameter_list":
+                    # Assume first parameter is the receiver
+                    receiver = [
+                        c for c in self.node.children if c.type == "parameter_list"
+                    ]
+                    receiver = [
+                        c
+                        for c in receiver[0].children
+                        if c.type == "parameter_declaration"
+                    ][0]
+                    type_node = [c for c in receiver.named_children if "type" in c.type]
+                    receiver_type = type_node[0].text.decode("utf-8").lstrip("*")
+            return f"{receiver_type}.{func_name}" if receiver_type else func_name
+
+    @property
     def signature(self) -> str:
         return self.src_code.split("{", 1)[0].strip()
 
@@ -100,6 +125,6 @@ def _build_entity(node, lines, file_path: str) -> CodeEntity:
         indent_size=indent_size,
         line_start=start_row + 1,
         line_end=end_row + 1,
+        node=node,
         src_code="\n".join(dedented),
-        src_node=node,
     )

@@ -58,12 +58,18 @@ class CodeEntity(ABC):
     indent_size: int
     line_end: int
     line_start: int
+    node: Any
     src_code: Any
-    src_node: Any
 
     @property
     def ext(self) -> str:
         return self.file_path.rsplit(".", 1)[-1].lower()
+
+    @property
+    @abstractmethod
+    def name(self) -> str:
+        """Get the name of the code entity."""
+        pass
 
     @property
     @abstractmethod

@@ -78,9 +78,7 @@ def main(
         print("Skipping existing bugs.")
 
     def _process_candidate(candidate: CodeEntity) -> dict[str, Any]:
-        bug_dir = (
-            log_dir / candidate.file_path.replace("/", "__") / candidate.src_node.name
-        )
+        bug_dir = log_dir / candidate.file_path.replace("/", "__") / candidate.name
         if not redo_existing:
             if bug_dir.exists() and any(
                 [

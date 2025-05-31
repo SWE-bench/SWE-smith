@@ -108,7 +108,7 @@ def _process_candidate(
     )
 
     # Create artifacts
-    bug_dir = log_dir / candidate.file_path.replace("/", "__") / candidate.src_node.name
+    bug_dir = log_dir / candidate.file_path.replace("/", "__") / candidate.name
     bug_dir.mkdir(parents=True, exist_ok=True)
     uuid_str = f"{pm.name}__{bug.get_hash()}"
     metadata_path = f"{PREFIX_METADATA}__{uuid_str}.json"

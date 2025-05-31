@@ -9,13 +9,17 @@ from swesmith.utils import CodeEntity
 @dataclass
 class PythonEntity(CodeEntity):
     @property
+    def name(self):
+        return self.node.name
+
+    @property
     def signature(self):
-        if isinstance(self.src_node, ast.ClassDef):
-            return f"class {self.src_node.name}:"
-        elif isinstance(self.src_node, ast.FunctionDef):
-            args = [ast.unparse(arg) for arg in self.src_node.args.args]
+        if isinstance(self.node, ast.ClassDef):
+            return f"class {self.node.name}:"
+        elif isinstance(self.node, ast.FunctionDef):
+            args = [ast.unparse(arg) for arg in self.node.args.args]
             args_str = ", ".join(args)
-            return f"def {self.src_node.name}({args_str})"
+            return f"def {self.node.name}({args_str})"
 
     @property
     def stub(self):
@@ -120,6 +124,6 @@ def _build_entity(node: ast.AST, file_content: str, file_path: str) -> PythonEnt
         indent_size=indent_size,
         line_end=end_line,
         line_start=start_line,
+        node=node,
         src_code=src_code,
-        src_node=node,
     )

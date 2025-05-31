@@ -154,11 +154,7 @@ def main(
 
         for bug in bugs:
             # Create artifacts
-            bug_dir = (
-                log_dir
-                / candidate.file_path.replace("/", "__")
-                / candidate.src_node.name
-            )
+            bug_dir = log_dir / candidate.file_path.replace("/", "__") / candidate.name
             bug_dir.mkdir(parents=True, exist_ok=True)
             uuid_str = f"{configs['name']}__{bug.get_hash()}"
             metadata_path = f"{PREFIX_METADATA}__{uuid_str}.json"
@@ -175,7 +171,7 @@ def main(
                     f.write(patch)
             except Exception as e:
                 print(
-                    f"Error applying bug to {candidate.src_node.name} in {candidate.file_path}: {e}",
+                    f"Error applying bug to {candidate.name} in {candidate.file_path}: {e}",
                 )
                 # import traceback
                 # print(f"Traceback:\n{''.join(traceback.format_exc())}")
