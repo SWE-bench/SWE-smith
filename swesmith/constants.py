@@ -543,6 +543,11 @@ SPECS_REPO_PANDAS = {
 SPECS_REPO_MONKEYTYPE = {
     "70c3acf62950be5dfb28743c7a719bfdecebcd84": DEFAULT_SPECS,
 }
+SPECS_REPO_GIN = {
+    "3c12d2a80e40930632fc4a4a4e1a45140f33fb12": {
+        KEY_TEST_CMD: "go test -v ./...",
+    }
+}
 
 
 MAP_REPO_TO_SPECS = {
@@ -584,6 +589,7 @@ MAP_REPO_TO_SPECS = {
     "gawel/pyquery": SPECS_REPO_PYQUERY,
     "getmoto/moto": SPECS_REPO_MOTO,
     "getnikola/nikola": SPECS_REPO_NIKOLA,
+    "gin-gonic/gin": SPECS_REPO_GIN,
     "google/textfsm": SPECS_REPO_TEXTFSM,
     "graphql-python/graphene": SPECS_REPO_GRAPHENE,
     "gruns/furl": SPECS_REPO_FURL,
