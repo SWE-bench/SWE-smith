@@ -16,5 +16,21 @@ if repo_root not in sys.path:
 
 
 @pytest.fixture
-def go_test_file():
-    return Path("tests", "test_data", "file.go")
+def test_file_go():
+    return Path(repo_root) / "tests/test_data/files/file.go"
+
+
+@pytest.fixture
+def test_output_gotest():
+    return (
+        Path(repo_root)
+        / "tests/test_data/test_output/gin-gonic__gin.3c12d2a8.lm_rewrite__4pb48n1g.txt"
+    )
+
+
+@pytest.fixture
+def test_output_pytest():
+    return (
+        Path(repo_root)
+        / "tests/test_data/test_output/django-money__django-money.835c1ab8.combine_file__7znr0kum.txt"
+    )

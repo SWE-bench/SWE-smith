@@ -1,6 +1,5 @@
 version: 2
 name: lm_modify
-criteria: simple_complexity10
 parameters:
   bug_examples:
     - "Alter calculation order for incorrect results: Rearrange the sequence of operations in a calculation to subtly change the output (e.g., change (a + b) * c to a + (b * c))."

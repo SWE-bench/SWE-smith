@@ -63,6 +63,8 @@ class CodeEntity(ABC):
 
     @property
     def ext(self) -> str:
+        if isinstance(self.file_path, Path):
+            self.file_path = str(self.file_path)
         return self.file_path.rsplit(".", 1)[-1].lower()
 
     @property

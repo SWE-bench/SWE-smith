@@ -1,5 +1,4 @@
 import ast
-from functools import partial
 
 from swesmith.utils import CodeEntity
 
@@ -241,15 +240,3 @@ def filter_min_simple_complexity(code_entity: CodeEntity, threshold: int = 10) -
 
 def filter_max_simple_complexity(code_entity: CodeEntity, threshold: int = 10) -> bool:
     return calc_simple_complexity(code_entity) <= threshold
-
-
-MAP_KEY_TO_CRITERIA = {
-    "all": filter_all,
-    "conditionals": filter_conditionals,
-    "list_indexing": filter_list_indexing,
-    "loops": filter_loops,
-    "off_by_one": filter_off_by_one,
-    "simple_complexity5": partial(filter_min_simple_complexity, threshold=5),
-    "simple_complexity10": partial(filter_min_simple_complexity, threshold=10),
-    "simple_complexity20": partial(filter_min_simple_complexity, threshold=20),
-}

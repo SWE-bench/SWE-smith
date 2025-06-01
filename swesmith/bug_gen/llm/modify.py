@@ -29,7 +29,6 @@ from dataclasses import asdict
 from dotenv import load_dotenv
 from litellm import completion
 from litellm.cost_calculator import completion_cost
-from swesmith.bug_gen.criteria import MAP_KEY_TO_CRITERIA
 from swesmith.bug_gen.llm.utils import PROMPT_KEYS, extract_code_block
 from swesmith.bug_gen.utils import (
     apply_code_change,
@@ -131,8 +130,6 @@ def main(
     print("Extracting candidates...")
     candidates = extract_entities_from_directory(repo)
     print(f"{len(candidates)} candidates found in {repo}")
-    candidates = [x for x in candidates if MAP_KEY_TO_CRITERIA[configs["criteria"]](x)]
-    print(f"{len(candidates)} candidates passed criteria")
     if not candidates:
         print(f"No candidates found in {repo}.")
         return
