@@ -1,3 +1,7 @@
+"""
+Utility functions for transforming SWE-agent trajectories to fine-tuning format.
+"""
+
 import json
 import yaml
 
@@ -10,11 +14,35 @@ SYSTEM_PROMPT = yaml.safe_load(open("agent/swesmith_infer.yaml", "r"))["agent"][
 ]["system_template"]
 
 
+def get_messages(traj: dict) -> list[dict]:
+    """Extract messages from a swe-agent trajectory.
+
+    We assume that the messages of the last step correspond to the
+    full message history.
+    This is a bit of an approximation (e.g., requeries after blocked actions
+    aren't fully captured)
+    """
+    last_step = traj["trajectory"][-1]
+    # There was a change in output formats in swe-agent 1.1.0:
+    # https://swe-agent.com/latest/usage/trajectories/
+    # For < 1.1.0, we had the 'messages' field that included messages
+    # _after_ the message was performed (and then we remove the last message because
+    # it contains the submit/patch)
+    # For >= 1.1.0, we have the 'query' field that includes messages that were the
+    # direct input to the agent at that step (so do not need to exclude the last message)
+    if "messages" in last_step:
+        return last_step["messages"][:-1]
+    else:
+        return last_step["query"][:]
+
+
 def transform_traj_backticks(traj: dict) -> dict:
+    """Transform a swe-agent trajectory to backticks format, i.e.,
+    for use with the `thought-action` parser of swe-agent where actions
+    are extracted from triple-backticks blocks.
+    """
     new_traj = []
-    for message in traj["trajectory"][-1]["messages"][:-1]:
-        # Pick out the last message b/c it contains full trajectory
-        # Also, skip the last message b/c it's just the patch output (post-submit)
+    for message in get_messages(traj):
         role = message["role"] if message["role"] != "tool" else "user"
         if message["role"] == "assistant":
             content = f"{message['thought']}\n\n```\n{message['action']}\n```"
@@ -28,7 +56,7 @@ def transform_traj_backticks(traj: dict) -> dict:
 
 
 def transform_traj_xml(traj: dict) -> dict:
-    def tool_call_to_action(tool_calls):
+    def tool_call_to_action(tool_calls: None | list[dict]) -> list[str]:
         actions = []
         if tool_calls is None:
             return []
@@ -45,8 +73,7 @@ def transform_traj_xml(traj: dict) -> dict:
         return actions
 
     new_traj = []
-    messages = traj["trajectory"][-1]["messages"][:-1]
-    for message in messages:
+    for message in get_messages(traj):
         role = message["role"] if message["role"] != "tool" else "user"
         if message["role"] == "assistant":
             if message["content"] == "Exit due to cost limit":
