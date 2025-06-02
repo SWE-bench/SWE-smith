@@ -89,7 +89,8 @@ if __name__ == "__main__":
     user = os.getenv("USER")
 
     arg_parser = argparse.ArgumentParser(
-        description="Transform SWE-agent trajectories to fine-tuning format"
+        description=__doc__,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     arg_parser.add_argument(
         "--traj_dir",
