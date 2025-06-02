@@ -2,6 +2,7 @@ import libcst
 
 from swesmith.bug_gen.procedural import FLIPPED_OPERATORS, BaseProceduralModifier
 from swesmith.bug_gen.criteria import *
+from functools import partial
 
 
 class OperationChangeModifier(BaseProceduralModifier):
