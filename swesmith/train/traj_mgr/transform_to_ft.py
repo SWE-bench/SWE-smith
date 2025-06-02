@@ -38,11 +38,11 @@ from tqdm.auto import tqdm
 
 
 def main(
-    traj_dir: str,
-    eval_dir: str,
+    out_path: Path,
+    traj_dir: Path,
+    eval_dir: Path,
     style: str,
     only_resolved: bool = False,
-    out_dir: str = ".",
 ):
     if style not in MAP_STYLE_TO_FUNC:
         raise ValueError(
@@ -50,30 +50,22 @@ def main(
         )
     transform_traj = MAP_STYLE_TO_FUNC[style]
 
-    folders = [
-        x for x in os.listdir(traj_dir) if os.path.isdir(os.path.join(traj_dir, x))
-    ]
+    folders = [x.name for x in traj_dir.iterdir() if x.is_dir()]
     print(f"Found {len(folders)} trajectory folders in {traj_dir}")
 
-    if only_resolved and os.path.exists(eval_dir):
+    if only_resolved and eval_dir.exists():
         print("Only keeping trajectories for resolved instances")
-
-    if not os.path.exists(out_dir):
-        from pathlib import Path
-
-        Path(out_dir).mkdir(parents=True, exist_ok=True)
-    out_path = os.path.join(out_dir, f"ft_{style}_{os.path.basename(eval_dir)}.jsonl")
 
     num_trajs = 0
     with open(out_path, "w") as f:
         for folder in tqdm(folders):
-            if folder not in os.listdir(eval_dir):
+            if not (eval_dir / folder).exists():
                 continue
-            if "report.json" not in os.listdir(os.path.join(eval_dir, folder)):
+            if not (eval_dir / folder / "report.json").exists():
                 continue
 
             if only_resolved:
-                report_path = os.path.join(eval_dir, folder, "report.json")
+                report_path = eval_dir / folder / "report.json"
                 report = json.load(open(report_path, "r"))
                 is_resolved = (
                     report.get("resolved", False)
@@ -83,7 +75,7 @@ def main(
                 if not is_resolved:
                     continue
 
-            traj_path = os.path.join(traj_dir, folder, f"{folder}.traj")
+            traj_path = traj_dir / folder / f"{folder}.traj"
             traj = transform_traj(json.load(open(traj_path, "r")))
             traj["instance_id"] = folder
             f.write(json.dumps(traj) + "\n")
@@ -146,16 +138,16 @@ if __name__ == "__main__":
         #     continue
         traj_dir = args.traj_dir / run_id
         eval_dir = args.eval_dir / run_id
-        out_file = args.out_path / f"ft_xml_{os.path.basename(eval_dir)}.jsonl"
-        if out_file.exists():
-            num = len(out_file.read_text().splitlines())
-            print(f"Skipping {out_file} because it already exists ({num} trajs)")
+        out_path = args.out_path / f"ft_xml_{eval_dir.name}.jsonl"
+        if out_path.exists():
+            num = len(out_path.read_text().splitlines())
+            print(f"Skipping {out_path} because it already exists ({num} trajs)")
             continue
         print("*" * 20)
         main(
-            traj_dir,
-            eval_dir,
+            out_path=out_path,
+            traj_dir=traj_dir,
+            eval_dir=eval_dir,
             style="xml",
             only_resolved=True,
-            out_dir="trajectories_sft/",
         )
