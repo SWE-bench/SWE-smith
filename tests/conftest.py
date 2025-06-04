@@ -17,7 +17,7 @@ if repo_root not in sys.path:
 
 @pytest.fixture
 def test_file_go():
-    return Path(repo_root) / "tests/test_data/files/file.go"
+    return Path(repo_root) / "tests/test_data/files/go/logger.go"
 
 
 @pytest.fixture
