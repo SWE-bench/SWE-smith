@@ -16,6 +16,25 @@ def test_get_entities_from_file_go_count(entities):
     assert len(entities) == 12
 
 
+def test_get_entities_from_file_go_max(test_file_go):
+    entities = []
+    get_entities_from_file_go(entities, test_file_go, 3)
+    assert len(entities) == 3
+
+
+def test_get_entities_from_file_go_unreadable():
+    with pytest.raises(IOError):
+        get_entities_from_file_go([], "non-existent-file")
+
+
+def test_get_entities_from_file_go_no_functions(tmp_path):
+    no_functions_file = tmp_path / "no_functions.go"
+    no_functions_file.write_text("// there are no functions here")
+    entities = []
+    get_entities_from_file_go(entities, no_functions_file)
+    assert len(entities) == 0
+
+
 def test_get_entities_from_file_go_names(entities):
     names = [e.name for e in entities]
     expected_names = [
@@ -90,6 +109,15 @@ def test_get_entities_from_file_go_signatures(entities):
         assert signature in signatures, (
             f"Expected signature '{signature}' not found in {signatures}"
         )
+
+
+def test_get_entities_from_file_go_signature_empty_interface(tmp_path):
+    empty_interface_arg_file = tmp_path / "empty_interface_arg.go"
+    empty_interface_arg_file.write_text("func TakesEmptyInterface(a interface{}) {}")
+    entities = []
+    get_entities_from_file_go(entities, empty_interface_arg_file)
+    assert len(entities) == 1
+    assert entities[0].signature == "func TakesEmptyInterface(a interface{})"
 
 
 def test_get_entities_from_file_go_stubs(entities):
