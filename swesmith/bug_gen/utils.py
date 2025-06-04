@@ -86,11 +86,15 @@ def extract_entities_from_directory(
     """
     entities = []
     for root, _, files in os.walk(directory_path):
-        if exclude_tests and any([x in root for x in ["/tests", "/test", "/testing"]]):
+        if exclude_tests and any(
+            [x in root for x in ["/spec", "/tests", "/test", "/testing"]]
+        ):
             continue
         for file in files:
             if exclude_tests and (
-                file.startswith("test_") or file.rsplit(".", 1)[0].endswith("_test")
+                file.startswith("test_")
+                or file.rsplit(".", 1)[0].endswith("_spec")
+                or file.rsplit(".", 1)[0].endswith("_test")
             ):
                 continue
 
