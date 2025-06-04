@@ -26,6 +26,11 @@ def test_file_py():
 
 
 @pytest.fixture
+def test_file_ruby():
+    return Path(repo_root) / "tests/test_data/files/ruby/query_parser.rb"
+
+
+@pytest.fixture
 def test_output_gotest():
     return (
         Path(repo_root)
