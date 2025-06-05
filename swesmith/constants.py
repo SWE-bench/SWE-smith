@@ -457,7 +457,7 @@ SPECS_REPO_MONAI = {
     "a09c1f08461cec3d2131fde3939ef38c3c4ad5fc": {
         "python": "3.12",
         "install": [
-            "sed -i '/^git+https:\/\/github.com\/Project-MONAI\//d' requirements-dev.txt",
+            r"sed -i '/^git+https:\/\/github.com\/Project-MONAI\//d' requirements-dev.txt",
             "python -m pip install -U -r requirements-dev.txt",
             "python -m pip install -e .",
         ],
