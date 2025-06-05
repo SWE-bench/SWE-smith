@@ -47,3 +47,37 @@ def test_go_get_entities_from_file(test_file_go):
     assert all([e.file_path == str(test_file_go) for e in entities]), (
         "All entities should have the correct file path"
     )
+    signatures = [e.signature for e in entities]
+    for signature in [
+        "func (p *LogFormatterParams) StatusCodeColor() string",
+        "func (p *LogFormatterParams) MethodColor() string",
+        "func (p *LogFormatterParams) ResetColor() string",
+        "func (p *LogFormatterParams) IsOutputColor() bool",
+        "func DisableConsoleColor()",
+        "func ForceConsoleColor()",
+        "func ErrorLogger() HandlerFunc",
+        "func ErrorLoggerT(typ ErrorType) HandlerFunc",
+        "func Logger() HandlerFunc",
+        "func LoggerWithFormatter(f LogFormatter) HandlerFunc",
+        "func LoggerWithWriter(out io.Writer, notlogged ...string) HandlerFunc",
+        "func LoggerWithConfig(conf LoggerConfig) HandlerFunc",
+    ]:
+        assert signature in signatures, (
+            f"Expected signature '{signature}' not found in {signatures}"
+        )
+    stubs = [e.stub for e in entities]
+    for stub in [
+        "func (p *LogFormatterParams) StatusCodeColor() string {\n\t// TODO: Implement this function\n}",
+        "func (p *LogFormatterParams) MethodColor() string {\n\t// TODO: Implement this function\n}",
+        "func (p *LogFormatterParams) ResetColor() string {\n\t// TODO: Implement this function\n}",
+        "func (p *LogFormatterParams) IsOutputColor() bool {\n\t// TODO: Implement this function\n}",
+        "func DisableConsoleColor() {\n\t// TODO: Implement this function\n}",
+        "func ForceConsoleColor() {\n\t// TODO: Implement this function\n}",
+        "func ErrorLogger() HandlerFunc {\n\t// TODO: Implement this function\n}",
+        "func ErrorLoggerT(typ ErrorType) HandlerFunc {\n\t// TODO: Implement this function\n}",
+        "func Logger() HandlerFunc {\n\t// TODO: Implement this function\n}",
+        "func LoggerWithFormatter(f LogFormatter) HandlerFunc {\n\t// TODO: Implement this function\n}",
+        "func LoggerWithWriter(out io.Writer, notlogged ...string) HandlerFunc {\n\t// TODO: Implement this function\n}",
+        "func LoggerWithConfig(conf LoggerConfig) HandlerFunc {\n\t// TODO: Implement this function\n}",
+    ]:
+        assert stub in stubs, f"Expected stub '{stub}' not found in {stubs}"

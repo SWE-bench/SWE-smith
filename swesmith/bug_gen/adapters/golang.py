@@ -61,7 +61,6 @@ def go_get_entities_from_file(
     Parse a .go file and return up to max_entities top-level funcs and types.
     If max_entities < 0, collects them all.
     """
-    # Choose one:
     parser = Parser()
     parser.set_language(GO_LANGUAGE)
 
