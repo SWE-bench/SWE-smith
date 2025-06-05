@@ -2,10 +2,10 @@ import re
 
 from swesmith.constants import TODO_REWRITE
 from swesmith.utils import CodeEntity
-from tree_sitter import Parser
-from tree_sitter_languages import get_language
+from tree_sitter import Language, Parser
+import tree_sitter_go as tsgo
 
-GO_LANGUAGE = get_language("go")
+GO_LANGUAGE = Language(tsgo.language())
 
 
 class GoEntity(CodeEntity):
@@ -61,8 +61,7 @@ def get_entities_from_file_go(
     Parse a .go file and return up to max_entities top-level funcs and types.
     If max_entities < 0, collects them all.
     """
-    parser = Parser()
-    parser.set_language(GO_LANGUAGE)
+    parser = Parser(GO_LANGUAGE)
 
     file_content = open(file_path, "r", encoding="utf8").read()
     tree = parser.parse(bytes(file_content, "utf8"))
