@@ -52,7 +52,7 @@ class GoEntity(CodeEntity):
             return self.src_code
 
 
-def go_get_entities_from_file(
+def get_entities_from_file_go(
     entities: list[GoEntity],
     file_path: str,
     max_entities: int = -1,

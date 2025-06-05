@@ -1,11 +1,11 @@
 from swesmith.bug_gen.adapters.golang import (
-    go_get_entities_from_file,
+    get_entities_from_file_go,
 )
 
 
-def test_go_get_entities_from_file(test_file_go):
+def test_get_entities_from_file_go(test_file_go):
     entities = []
-    go_get_entities_from_file(entities, test_file_go)
+    get_entities_from_file_go(entities, test_file_go)
     assert len(entities) == 12
     names = [e.name for e in entities]
     for name in [

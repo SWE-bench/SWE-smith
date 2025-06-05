@@ -59,7 +59,7 @@ class PythonEntity(CodeEntity):
         return astor.to_source(stripped_tree).strip()
 
 
-def py_get_entities_from_file(
+def get_entities_from_file_py(
     entities: list[PythonEntity],
     file_path: str,
     max_entities: int = -1,

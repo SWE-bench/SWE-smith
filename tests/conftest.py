@@ -21,6 +21,11 @@ def test_file_go():
 
 
 @pytest.fixture
+def test_file_py():
+    return Path(repo_root) / "tests/test_data/files/file.py"
+
+
+@pytest.fixture
 def test_output_gotest():
     return (
         Path(repo_root)
