@@ -33,7 +33,7 @@ from swesmith.utils import (
 )
 from tqdm.auto import tqdm
 
-from swesmith.bug_gen.procedural import BaseProceduralModifier
+from swesmith.bug_gen.procedural import PythonProceduralModifier
 from swesmith.bug_gen.procedural.classes import (
     ClassRemoveBasesModifier,
     ClassRemoveFuncsModifier,
@@ -74,7 +74,7 @@ PM_TECHNIQUES = [
 
 
 def _process_candidate(
-    candidate: CodeEntity, pm: BaseProceduralModifier, log_dir: Path, repo: str
+    candidate: CodeEntity, pm: PythonProceduralModifier, log_dir: Path, repo: str
 ):
     """
     Process a candidate by applying a given procedural modification to it.
@@ -140,7 +140,7 @@ def main(
     print(f"Found {len(entities)} entities in {repo}.")
     for pm in PM_TECHNIQUES:
         print(f"Generating [bold blue]{pm.name}[/bold blue] bugs in {repo}...")
-        candidates = [x for x in entities if all(c(x) for c in pm.conditions)]
+        candidates = [x for x in entities if pm.can_change(x)]
         if not candidates:
             print(f"No candidates found in {repo}.")
             continue

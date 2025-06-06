@@ -1,13 +1,14 @@
 import libcst
 
-from swesmith.bug_gen.procedural import BaseProceduralModifier
-from swesmith.bug_gen.criteria import *
+from swesmith.bug_gen.procedural import PythonProceduralModifier
+from swesmith.utils import CodeProperty
 
 
-class ClassRemoveBasesModifier(BaseProceduralModifier):
+class ClassRemoveBasesModifier(PythonProceduralModifier):
     explanation: str = "The base class has been removed from the class definition."
     name: str = "func_pm_class_rm_base"
-    conditions: list = [filter_classes_has_parents, filter_min_simple_complexity]
+    conditions: list = [CodeProperty.IS_CLASS, CodeProperty.HAS_PARENT]
+    min_complexity: int = 10
 
     def leave_ClassDef(self, original_node, updated_node):
         bases = list(updated_node.bases)
@@ -21,10 +22,11 @@ class ClassRemoveBasesModifier(BaseProceduralModifier):
         return updated_node.with_changes(bases=tuple(bases))
 
 
-class ClassShuffleMethodsModifier(BaseProceduralModifier):
+class ClassShuffleMethodsModifier(PythonProceduralModifier):
     explanation: str = "The methods in a class have been shuffled."
     name: str = "func_pm_class_shuffle_funcs"
-    conditions: list = [filter_classes, filter_min_simple_complexity]
+    conditions: list = [CodeProperty.IS_CLASS]
+    min_complexity: int = 10
 
     def leave_ClassDef(self, original_node, updated_node):
         methods = [
@@ -40,12 +42,13 @@ class ClassShuffleMethodsModifier(BaseProceduralModifier):
         )
 
 
-class ClassRemoveFuncsModifier(BaseProceduralModifier):
+class ClassRemoveFuncsModifier(PythonProceduralModifier):
     explanation: str = (
         "Method(s) and their reference(s) have been removed from the class."
     )
     name: str = "func_pm_class_rm_funcs"
-    conditions: list = [filter_classes, filter_min_simple_complexity]
+    conditions: list = [CodeProperty.IS_CLASS]
+    min_complexity: int = 10
 
     def leave_ClassDef(
         self, original_node: libcst.ClassDef, updated_node: libcst.ClassDef

@@ -3,11 +3,102 @@ import astor
 
 from dataclasses import dataclass
 from swesmith.constants import TODO_REWRITE
-from swesmith.utils import CodeEntity
+from swesmith.utils import CodeEntity, CodeProperty
 
 
 @dataclass
 class PythonEntity(CodeEntity):
+    def _analyze_properties(self):
+        node = self.node
+
+        # Core entity types
+        if isinstance(node, ast.FunctionDef):
+            self._tags.add(CodeProperty.IS_FUNCTION)
+        elif isinstance(node, ast.ClassDef):
+            self._tags.add(CodeProperty.IS_CLASS)
+
+        # Control flow
+        if any(isinstance(n, (ast.For, ast.While)) for n in ast.walk(node)):
+            self._tags.add(CodeProperty.HAS_LOOP)
+        if any(isinstance(n, ast.If) for n in ast.walk(node)):
+            self._tags.add(CodeProperty.HAS_IF)
+            if any(n.orelse for n in ast.walk(node) if isinstance(n, ast.If)):
+                self._tags.add(CodeProperty.HAS_IF_ELSE)
+        if any(isinstance(n, ast.Try) for n in ast.walk(node)):
+            self._tags.add(CodeProperty.HAS_EXCEPTION)
+
+        # Operations
+        if any(isinstance(n, ast.Subscript) for n in ast.walk(node)):
+            self._tags.add(CodeProperty.HAS_LIST_INDEXING)
+        if any(isinstance(n, ast.Call) for n in ast.walk(node)):
+            self._tags.add(CodeProperty.HAS_FUNCTION_CALL)
+        if any(isinstance(n, ast.Return) for n in ast.walk(node)):
+            self._tags.add(CodeProperty.HAS_RETURN)
+        if any(isinstance(n, ast.ListComp) for n in ast.walk(node)):
+            self._tags.add(CodeProperty.HAS_LIST_COMPREHENSION)
+        if any(isinstance(n, (ast.Import, ast.ImportFrom)) for n in ast.walk(node)):
+            self._tags.add(CodeProperty.HAS_IMPORT)
+        if any(isinstance(n, ast.Assign) for n in ast.walk(node)):
+            self._tags.add(CodeProperty.HAS_ASSIGNMENT)
+        if any(isinstance(n, ast.Lambda) for n in ast.walk(node)):
+            self._tags.add(CodeProperty.HAS_LAMBDA)
+        if any(isinstance(n, (ast.BinOp, ast.UnaryOp)) for n in ast.walk(node)):
+            self._tags.add(CodeProperty.HAS_ARITHMETIC)
+        if any(
+            isinstance(n, ast.FunctionDef) and n.decorator_list for n in ast.walk(node)
+        ):
+            self._tags.add(CodeProperty.HAS_DECORATOR)
+        if any(isinstance(n, (ast.Try, ast.With)) for n in ast.walk(node)):
+            self._tags.add(CodeProperty.HAS_WRAPPER)
+        if any(isinstance(n, ast.ClassDef) and n.bases for n in ast.walk(node)):
+            self._tags.add(CodeProperty.HAS_PARENT)
+
+        # Operations by type
+        if any(isinstance(n, ast.BinOp) for n in ast.walk(node)):
+            self._tags.add(CodeProperty.HAS_BINARY_OP)
+        if any(isinstance(n, ast.BoolOp) for n in ast.walk(node)):
+            self._tags.add(CodeProperty.HAS_BOOL_OP)
+        if any(isinstance(n, ast.UnaryOp) for n in ast.walk(node)):
+            self._tags.add(CodeProperty.HAS_UNARY_OP)
+
+        # Special cases
+        if any(
+            isinstance(n, ast.Compare)
+            and len(n.ops) == 1
+            and n.ops[0].__class__.__name__ in ["Lt", "Gt", "LtE", "GtE"]
+            for n in ast.walk(node)
+        ):
+            self._tags.add(CodeProperty.HAS_OFF_BY_ONE)
+
+    @property
+    def complexity(self) -> int:
+        """
+        Simple way of calculating the complexity of a function.
+        Complexity starts at 1 and increases for each decision point:
+        - if/elif/else statements
+        - for/while loops
+        - and/or operators
+        - except clauses
+        - boolean operators
+        """
+        complexity = 1  # Base complexity
+
+        for n in ast.walk(self.node):
+            # Decision points
+            if isinstance(n, (ast.If, ast.While, ast.For)):
+                complexity += 1
+            # Boolean operators
+            elif isinstance(n, ast.BoolOp):
+                complexity += len(n.values) - 1
+            # Exception handling
+            elif isinstance(n, ast.Try):
+                complexity += len(n.handlers)
+            # Comparison operators
+            elif isinstance(n, ast.Compare):
+                complexity += len(n.ops)
+
+        return complexity
+
     @property
     def name(self):
         return self.node.name

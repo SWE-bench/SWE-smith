@@ -1,17 +1,15 @@
 import libcst
 
-from swesmith.bug_gen.procedural import FLIPPED_OPERATORS, BaseProceduralModifier
-from swesmith.bug_gen.criteria import *
-from functools import partial
+from swesmith.bug_gen.procedural import FLIPPED_OPERATORS, PythonProceduralModifier
+from swesmith.utils import CodeProperty
 
 
-class OperationChangeModifier(BaseProceduralModifier):
+class OperationChangeModifier(PythonProceduralModifier):
     explanation: str = "The operations in an expressions are likely incorrect."
     name: str = "func_pm_op_change"
     conditions: list = [
-        filter_functions,
-        filter_operations_binary,
-        filter_min_simple_complexity,
+        CodeProperty.IS_FUNCTION,
+        CodeProperty.HAS_BINARY_OP,
     ]
 
     def leave_BinaryOperation(self, original_node, updated_node):
@@ -55,13 +53,12 @@ class OperationChangeModifier(BaseProceduralModifier):
         return updated_node
 
 
-class OperationFlipOperatorModifier(BaseProceduralModifier):
+class OperationFlipOperatorModifier(PythonProceduralModifier):
     explanation: str = "The operators in an expression are likely incorrect."
     name: str = "func_pm_flip_operators"
     conditions: list = [
-        filter_functions,
-        lambda node: filter_operations_binary(node) or filter_operations_bool(node),
-        partial(filter_min_simple_complexity, threshold=3),
+        CodeProperty.IS_FUNCTION,
+        CodeProperty.HAS_BINARY_OP,
     ]
 
     def _flip_operator(self, updated_node):
@@ -82,13 +79,12 @@ class OperationFlipOperatorModifier(BaseProceduralModifier):
         return self._flip_operator(updated_node) if self.flip() else updated_node
 
 
-class OperationSwapOperandsModifier(BaseProceduralModifier):
+class OperationSwapOperandsModifier(PythonProceduralModifier):
     explanation: str = "The operands in an expression are likely in the wrong order."
     name: str = "func_pm_op_swap"
     conditions: list = [
-        filter_functions,
-        lambda node: filter_operations_binary(node) or filter_operations_bool(node),
-        filter_min_simple_complexity,
+        CodeProperty.IS_FUNCTION,
+        CodeProperty.HAS_BINARY_OP,
     ]
 
     def leave_BinaryOperation(self, original_node, updated_node):
@@ -106,15 +102,14 @@ class OperationSwapOperandsModifier(BaseProceduralModifier):
         return updated_node
 
 
-class OperationBreakChainsModifier(BaseProceduralModifier):
+class OperationBreakChainsModifier(PythonProceduralModifier):
     explanation: str = (
         "There are expressions or mathemtical operations that are likely incomplete."
     )
     name: str = "func_pm_op_break_chains"
     conditions: list = [
-        filter_functions,
-        filter_operations_binary,
-        filter_min_simple_complexity,
+        CodeProperty.IS_FUNCTION,
+        CodeProperty.HAS_BINARY_OP,
     ]
 
     def leave_BinaryOperation(self, original_node, updated_node):
@@ -126,13 +121,12 @@ class OperationBreakChainsModifier(BaseProceduralModifier):
         return updated_node
 
 
-class OperationChangeConstantsModifier(BaseProceduralModifier):
+class OperationChangeConstantsModifier(PythonProceduralModifier):
     explanation: str = "The constants in an expression might be incorrect."
     name: str = "func_pm_op_change_const"
     conditions: list = [
-        filter_functions,
-        filter_operations_binary,
-        filter_min_simple_complexity,
+        CodeProperty.IS_FUNCTION,
+        CodeProperty.HAS_BINARY_OP,
     ]
 
     def leave_BinaryOperation(self, original_node, updated_node):
