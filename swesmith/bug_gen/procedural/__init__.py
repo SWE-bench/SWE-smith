@@ -19,10 +19,10 @@ class PythonProceduralModifier(libcst.CSTTransformer):
         return self.rand.random() < self.likelihood
 
     def can_change(self, code_entity: CodeEntity) -> bool:
-        """Check if the CodeEntity satifies the conditions of the modifier."""
+        """Check if the CodeEntity satisfies the conditions of the modifier."""
         return (
             all(c in code_entity._tags for c in self.conditions)
-            and code_entity.complexity() >= 3
+            and self.min_complexity <= code_entity.complexity() <= self.max_complexity
         )
 
 
