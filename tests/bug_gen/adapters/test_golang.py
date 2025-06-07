@@ -1,14 +1,24 @@
+import pytest
+
 from swesmith.bug_gen.adapters.golang import (
     get_entities_from_file_go,
 )
 
 
-def test_get_entities_from_file_go(test_file_go):
+@pytest.fixture
+def entities(test_file_go):
     entities = []
     get_entities_from_file_go(entities, test_file_go)
+    return entities
+
+
+def test_get_entities_from_file_go_count(entities):
     assert len(entities) == 12
+
+
+def test_get_entities_from_file_go_names(entities):
     names = [e.name for e in entities]
-    for name in [
+    expected_names = [
         "LogFormatterParams.StatusCodeColor",
         "LogFormatterParams.MethodColor",
         "LogFormatterParams.ResetColor",
@@ -21,10 +31,14 @@ def test_get_entities_from_file_go(test_file_go):
         "LoggerWithFormatter",
         "LoggerWithWriter",
         "LoggerWithConfig",
-    ]:
+    ]
+    for name in expected_names:
         assert name in names, f"Expected entity {name} not found in {names}"
+
+
+def test_get_entities_from_file_go_line_ranges(entities):
     start_end = [(e.line_start, e.line_end) for e in entities]
-    for start, end in [
+    expected_ranges = [
         (90, 105),
         (108, 129),
         (132, 134),
@@ -37,18 +51,28 @@ def test_get_entities_from_file_go(test_file_go):
         (197, 201),
         (205, 210),
         (213, 282),
-    ]:
+    ]
+    for start, end in expected_ranges:
         assert (start, end) in start_end, (
             f"Expected line range ({start}, {end}) not found in {start_end}"
         )
+
+
+def test_get_entities_from_file_go_extensions(entities):
     assert all([e.ext == "go" for e in entities]), (
         "All entities should have the extension 'go'"
     )
-    assert all([e.file_path == str(test_file_go) for e in entities]), (
+
+
+def test_get_entities_from_file_go_file_paths(entities, test_file_go):
+    assert all([e.file_path == test_file_go for e in entities]), (
         "All entities should have the correct file path"
     )
+
+
+def test_get_entities_from_file_go_signatures(entities):
     signatures = [e.signature for e in entities]
-    for signature in [
+    expected_signatures = [
         "func (p *LogFormatterParams) StatusCodeColor() string",
         "func (p *LogFormatterParams) MethodColor() string",
         "func (p *LogFormatterParams) ResetColor() string",
@@ -61,12 +85,16 @@ def test_get_entities_from_file_go(test_file_go):
         "func LoggerWithFormatter(f LogFormatter) HandlerFunc",
         "func LoggerWithWriter(out io.Writer, notlogged ...string) HandlerFunc",
         "func LoggerWithConfig(conf LoggerConfig) HandlerFunc",
-    ]:
+    ]
+    for signature in expected_signatures:
         assert signature in signatures, (
             f"Expected signature '{signature}' not found in {signatures}"
         )
+
+
+def test_get_entities_from_file_go_stubs(entities):
     stubs = [e.stub for e in entities]
-    for stub in [
+    expected_stubs = [
         "func (p *LogFormatterParams) StatusCodeColor() string {\n\t// TODO: Implement this function\n}",
         "func (p *LogFormatterParams) MethodColor() string {\n\t// TODO: Implement this function\n}",
         "func (p *LogFormatterParams) ResetColor() string {\n\t// TODO: Implement this function\n}",
@@ -79,5 +107,6 @@ def test_get_entities_from_file_go(test_file_go):
         "func LoggerWithFormatter(f LogFormatter) HandlerFunc {\n\t// TODO: Implement this function\n}",
         "func LoggerWithWriter(out io.Writer, notlogged ...string) HandlerFunc {\n\t// TODO: Implement this function\n}",
         "func LoggerWithConfig(conf LoggerConfig) HandlerFunc {\n\t// TODO: Implement this function\n}",
-    ]:
+    ]
+    for stub in expected_stubs:
         assert stub in stubs, f"Expected stub '{stub}' not found in {stubs}"

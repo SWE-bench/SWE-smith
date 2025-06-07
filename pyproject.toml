@@ -41,6 +41,7 @@ dependencies = [
     "tqdm",
     "tree-sitter",
     "tree-sitter-go",
+    "tree-sitter-ruby",
     "unidiff",
     "textual",
 ]
