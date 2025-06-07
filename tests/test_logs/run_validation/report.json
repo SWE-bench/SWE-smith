@@ -1,0 +1,19 @@
+{
+    "FAIL_TO_PASS": [
+        "pandas/tests/indexing/test_datetime.py::TestDatetimeIndex::test_getitem_pyarrow_index[DataFrame]",
+        "pandas/tests/indexing/test_datetime.py::TestDatetimeIndex::test_getitem_pyarrow_index[Series]"
+    ],
+    "PASS_TO_PASS": [
+        "pandas/tests/indexing/test_datetime.py::TestDatetimeIndex::test_get_loc_naive_dti_aware_str_deprecated",
+        "pandas/tests/indexing/test_datetime.py::TestDatetimeIndex::test_indexing_with_datetime_tz",
+        "pandas/tests/indexing/test_datetime.py::TestDatetimeIndex::test_indexing_fast_xs",
+        "pandas/tests/indexing/test_datetime.py::TestDatetimeIndex::test_consistency_with_tz_aware_scalar",
+        "pandas/tests/indexing/test_datetime.py::TestDatetimeIndex::test_indexing_with_datetimeindex_tz[setitem]",
+        "pandas/tests/indexing/test_datetime.py::TestDatetimeIndex::test_indexing_with_datetimeindex_tz[loc]",
+        "pandas/tests/indexing/test_datetime.py::TestDatetimeIndex::test_nanosecond_getitem_setitem_with_tz",
+        "pandas/tests/indexing/test_datetime.py::TestDatetimeIndex::test_getitem_str_slice_millisecond_resolution[DataFrame]",
+        "pandas/tests/indexing/test_datetime.py::TestDatetimeIndex::test_getitem_str_slice_millisecond_resolution[Series]"
+    ],
+    "FAIL_TO_FAIL": [],
+    "PASS_TO_FAIL": []
+}

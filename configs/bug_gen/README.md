@@ -45,7 +45,6 @@ Once you create the `.yaml` with a specified criteria, from this repo, run:
 python -m swesmith.bug_gen.llm.modify \
     --repo datamade/usaddress \
     --model openai/gpt-4o \
-    --entity_type func \
     --prompt_config configs/bug_gen/func_<your config>.yml \
     --n_workers 4  # 4 parallel queries to LM etc.
 ```

@@ -1,0 +1,584 @@
++ source /opt/miniconda3/bin/activate
+++ _CONDA_ROOT=/opt/miniconda3
+++ . /opt/miniconda3/etc/profile.d/conda.sh
++++ export CONDA_EXE=/opt/miniconda3/bin/conda
++++ CONDA_EXE=/opt/miniconda3/bin/conda
++++ export _CE_M=
++++ _CE_M=
++++ export _CE_CONDA=
++++ _CE_CONDA=
++++ export CONDA_PYTHON_EXE=/opt/miniconda3/bin/python
++++ CONDA_PYTHON_EXE=/opt/miniconda3/bin/python
++++ '[' -z '' ']'
++++ export CONDA_SHLVL=0
++++ CONDA_SHLVL=0
++++ '[' -n '' ']'
++++++ dirname /opt/miniconda3/bin/conda
+++++ dirname /opt/miniconda3/bin
++++ PATH=/opt/miniconda3/condabin:/opt/miniconda3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
++++ export PATH
++++ '[' -z '' ']'
++++ PS1=
+++ conda activate
+++ local cmd=activate
+++ case "$cmd" in
+++ __conda_activate activate
+++ '[' -n '' ']'
+++ local ask_conda
++++ PS1=
++++ __conda_exe shell.posix activate
++++ /opt/miniconda3/bin/conda shell.posix activate
+++ ask_conda='PS1='\''(base) '\''
+export PATH='\''/opt/miniconda3/bin:/opt/miniconda3/condabin:/opt/miniconda3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'\''
+export CONDA_PREFIX='\''/opt/miniconda3'\''
+export CONDA_SHLVL='\''1'\''
+export CONDA_DEFAULT_ENV='\''base'\''
+export CONDA_PROMPT_MODIFIER='\''(base) '\''
+export CONDA_EXE='\''/opt/miniconda3/bin/conda'\''
+export _CE_M='\'''\''
+export _CE_CONDA='\'''\''
+export CONDA_PYTHON_EXE='\''/opt/miniconda3/bin/python'\'''
+++ eval 'PS1='\''(base) '\''
+export PATH='\''/opt/miniconda3/bin:/opt/miniconda3/condabin:/opt/miniconda3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'\''
+export CONDA_PREFIX='\''/opt/miniconda3'\''
+export CONDA_SHLVL='\''1'\''
+export CONDA_DEFAULT_ENV='\''base'\''
+export CONDA_PROMPT_MODIFIER='\''(base) '\''
+export CONDA_EXE='\''/opt/miniconda3/bin/conda'\''
+export _CE_M='\'''\''
+export _CE_CONDA='\'''\''
+export CONDA_PYTHON_EXE='\''/opt/miniconda3/bin/python'\'''
++++ PS1='(base) '
++++ export PATH=/opt/miniconda3/bin:/opt/miniconda3/condabin:/opt/miniconda3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
++++ PATH=/opt/miniconda3/bin:/opt/miniconda3/condabin:/opt/miniconda3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
++++ export CONDA_PREFIX=/opt/miniconda3
++++ CONDA_PREFIX=/opt/miniconda3
++++ export CONDA_SHLVL=1
++++ CONDA_SHLVL=1
++++ export CONDA_DEFAULT_ENV=base
++++ CONDA_DEFAULT_ENV=base
++++ export 'CONDA_PROMPT_MODIFIER=(base) '
++++ CONDA_PROMPT_MODIFIER='(base) '
++++ export CONDA_EXE=/opt/miniconda3/bin/conda
++++ CONDA_EXE=/opt/miniconda3/bin/conda
++++ export _CE_M=
++++ _CE_M=
++++ export _CE_CONDA=
++++ _CE_CONDA=
++++ export CONDA_PYTHON_EXE=/opt/miniconda3/bin/python
++++ CONDA_PYTHON_EXE=/opt/miniconda3/bin/python
+++ __conda_hashr
+++ '[' -n '' ']'
+++ '[' -n '' ']'
+++ hash -r
++ conda activate testbed
++ local cmd=activate
++ case "$cmd" in
++ __conda_activate activate testbed
++ '[' -n '' ']'
++ local ask_conda
+++ PS1='(base) '
+++ __conda_exe shell.posix activate testbed
+++ /opt/miniconda3/bin/conda shell.posix activate testbed
++ ask_conda='PS1='\''(testbed) '\''
+export PATH='\''/opt/miniconda3/envs/testbed/bin:/opt/miniconda3/condabin:/opt/miniconda3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'\''
+export CONDA_PREFIX='\''/opt/miniconda3/envs/testbed'\''
+export CONDA_SHLVL='\''2'\''
+export CONDA_DEFAULT_ENV='\''testbed'\''
+export CONDA_PROMPT_MODIFIER='\''(testbed) '\''
+export CONDA_PREFIX_1='\''/opt/miniconda3'\''
+export CONDA_EXE='\''/opt/miniconda3/bin/conda'\''
+export _CE_M='\'''\''
+export _CE_CONDA='\'''\''
+export CONDA_PYTHON_EXE='\''/opt/miniconda3/bin/python'\'''
++ eval 'PS1='\''(testbed) '\''
+export PATH='\''/opt/miniconda3/envs/testbed/bin:/opt/miniconda3/condabin:/opt/miniconda3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'\''
+export CONDA_PREFIX='\''/opt/miniconda3/envs/testbed'\''
+export CONDA_SHLVL='\''2'\''
+export CONDA_DEFAULT_ENV='\''testbed'\''
+export CONDA_PROMPT_MODIFIER='\''(testbed) '\''
+export CONDA_PREFIX_1='\''/opt/miniconda3'\''
+export CONDA_EXE='\''/opt/miniconda3/bin/conda'\''
+export _CE_M='\'''\''
+export _CE_CONDA='\'''\''
+export CONDA_PYTHON_EXE='\''/opt/miniconda3/bin/python'\'''
+++ PS1='(testbed) '
+++ export PATH=/opt/miniconda3/envs/testbed/bin:/opt/miniconda3/condabin:/opt/miniconda3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+++ PATH=/opt/miniconda3/envs/testbed/bin:/opt/miniconda3/condabin:/opt/miniconda3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+++ export CONDA_PREFIX=/opt/miniconda3/envs/testbed
+++ CONDA_PREFIX=/opt/miniconda3/envs/testbed
+++ export CONDA_SHLVL=2
+++ CONDA_SHLVL=2
+++ export CONDA_DEFAULT_ENV=testbed
+++ CONDA_DEFAULT_ENV=testbed
+++ export 'CONDA_PROMPT_MODIFIER=(testbed) '
+++ CONDA_PROMPT_MODIFIER='(testbed) '
+++ export CONDA_PREFIX_1=/opt/miniconda3
+++ CONDA_PREFIX_1=/opt/miniconda3
+++ export CONDA_EXE=/opt/miniconda3/bin/conda
+++ CONDA_EXE=/opt/miniconda3/bin/conda
+++ export _CE_M=
+++ _CE_M=
+++ export _CE_CONDA=
+++ _CE_CONDA=
+++ export CONDA_PYTHON_EXE=/opt/miniconda3/bin/python
+++ CONDA_PYTHON_EXE=/opt/miniconda3/bin/python
++ __conda_hashr
++ '[' -n '' ']'
++ '[' -n '' ']'
++ hash -r
++ cd /testbed
++ : '>>>>> Start Test Output'
++ pytest --disable-warnings --color=no --tb=no --verbose
+============================= test session starts ==============================
+platform linux -- Python 3.10.16, pytest-8.2.2, pluggy-1.5.0 -- /opt/miniconda3/envs/testbed/bin/python
+cachedir: .pytest_cache
+django: version: 5.1.6, settings: tests.settings (from ini)
+rootdir: /testbed
+configfile: pytest.ini
+plugins: django-4.10.0, Faker-12.0.1, cov-6.0.0
+collecting ... collected 430 items / 1 skipped
+
+tests/contrib/exchange/test_admin.py::test_last_update PASSED            [  0%]
+tests/contrib/exchange/test_backends.py::TestBackends::test_get_rates[setup0] PASSED [  0%]
+tests/contrib/exchange/test_backends.py::TestBackends::test_get_rates[setup1] PASSED [  0%]
+tests/contrib/exchange/test_backends.py::TestBackends::test_initial_update_rates[setup0] PASSED [  0%]
+tests/contrib/exchange/test_backends.py::TestBackends::test_initial_update_rates[setup1] PASSED [  1%]
+tests/contrib/exchange/test_backends.py::TestBackends::test_second_update_rates[setup0] PASSED [  1%]
+tests/contrib/exchange/test_backends.py::TestBackends::test_second_update_rates[setup1] PASSED [  1%]
+tests/contrib/exchange/test_backends.py::test_missing_settings[FixerBackend] PASSED [  1%]
+tests/contrib/exchange/test_backends.py::test_missing_settings[OpenExchangeRatesBackend] PASSED [  2%]
+tests/contrib/exchange/test_backends.py::test_two_backends PASSED        [  2%]
+tests/contrib/exchange/test_backends.py::test_certifi_not_installed PASSED [  2%]
+tests/contrib/exchange/test_commands.py::TestCommand::test_update_rates[setup0] PASSED [  2%]
+tests/contrib/exchange/test_commands.py::TestCommand::test_update_rates[setup1] PASSED [  3%]
+tests/contrib/exchange/test_commands.py::test_custom_backend PASSED      [  3%]
+tests/contrib/exchange/test_commands.py::TestClearRates::test_for_specific_backend PASSED [  3%]
+tests/contrib/exchange/test_commands.py::TestClearRates::test_for_all PASSED [  3%]
+tests/contrib/exchange/test_model.py::test_get_rate[USD-USD-1-0] PASSED  [  3%]
+tests/contrib/exchange/test_model.py::test_get_rate[USD-EUR-2-1] PASSED  [  4%]
+tests/contrib/exchange/test_model.py::test_get_rate[EUR-USD-expected2-1] PASSED [  4%]
+tests/contrib/exchange/test_model.py::test_get_rate[source3-USD-1-0] PASSED [  4%]
+tests/contrib/exchange/test_model.py::test_get_rate[USD-target4-1-0] PASSED [  4%]
+tests/contrib/exchange/test_model.py::test_rates_via_base[NOK-SEK-expected0] PASSED [  5%]
+tests/contrib/exchange/test_model.py::test_rates_via_base[SEK-NOK-expected1] PASSED [  5%]
+tests/contrib/exchange/test_model.py::test_unknown_currency_with_partially_exiting_currencies[NOK-ZAR] PASSED [  5%]
+tests/contrib/exchange/test_model.py::test_unknown_currency_with_partially_exiting_currencies[ZAR-NOK] PASSED [  5%]
+tests/contrib/exchange/test_model.py::test_unknown_currency_with_partially_exiting_currencies[USD-ZAR] PASSED [  6%]
+tests/contrib/exchange/test_model.py::test_unknown_currency_with_partially_exiting_currencies[ZAR-USD] PASSED [  6%]
+tests/contrib/exchange/test_model.py::test_unknown_currency[USD-EUR] PASSED [  6%]
+tests/contrib/exchange/test_model.py::test_unknown_currency[SEK-ZWL] PASSED [  6%]
+tests/contrib/exchange/test_model.py::test_string_representation PASSED  [  6%]
+tests/contrib/exchange/test_model.py::test_cache PASSED                  [  7%]
+tests/contrib/exchange/test_model.py::test_bad_configuration PASSED      [  7%]
+tests/contrib/exchange/test_model.py::test_without_installed_exchange PASSED [  7%]
+tests/test_form.py::test_save PASSED                                     [  7%]
+tests/test_form.py::test_validate PASSED                                 [  8%]
+tests/test_form.py::test_form_is_invalid[data0] PASSED                   [  8%]
+tests/test_form.py::test_form_is_invalid[data1] PASSED                   [  8%]
+tests/test_form.py::test_form_is_invalid[data2] PASSED                   [  8%]
+tests/test_form.py::test_form_is_invalid[data3] PASSED                   [  9%]
+tests/test_form.py::test_changed_data[data0-result0] PASSED              [  9%]
+tests/test_form.py::test_changed_data[data1-result1] PASSED              [  9%]
+tests/test_form.py::test_change_currency_not_amount PASSED               [  9%]
+tests/test_form.py::test_optional_money_form[data0-True] PASSED          [ 10%]
+tests/test_form.py::test_optional_money_form[data1-True] PASSED          [ 10%]
+tests/test_form.py::test_optional_money_form[data2-False] PASSED         [ 10%]
+tests/test_form.py::test_default_currency PASSED                         [ 10%]
+tests/test_form.py::test_fields_default_amount_becomes_forms_initial PASSED [ 10%]
+tests/test_form.py::test_no_deprecation_warning PASSED                   [ 11%]
+tests/test_form.py::TestValidation::test_invalid[value0-Ensure this value is greater than or equal to \u20ac100.00.] PASSED [ 11%]
+tests/test_form.py::TestValidation::test_invalid[value1-Ensure this value is less than or equal to \u20ac1,000.00.] PASSED [ 11%]
+tests/test_form.py::TestValidation::test_invalid[value2-Ensure this value is greater than or equal to $50.00.] PASSED [ 11%]
+tests/test_form.py::TestValidation::test_invalid[value3-Ensure this value is less than or equal to $500.00.] PASSED [ 12%]
+tests/test_form.py::TestValidation::test_invalid[value4-Ensure this value is greater than or equal to NOK500.00.] PASSED [ 12%]
+tests/test_form.py::TestValidation::test_invalid[value5-Ensure this value is less than or equal to NOK900.00.] PASSED [ 12%]
+tests/test_form.py::TestValidation::test_invalid[value6-Ensure this value is greater than or equal to 10.] PASSED [ 12%]
+tests/test_form.py::TestValidation::test_invalid[value7-Ensure this value is less than or equal to 1500.] PASSED [ 13%]
+tests/test_form.py::TestValidation::test_valid[value0] PASSED            [ 13%]
+tests/test_form.py::TestValidation::test_valid[value1] PASSED            [ 13%]
+tests/test_form.py::TestValidation::test_valid[value2] PASSED            [ 13%]
+tests/test_form.py::TestValidation::test_valid[value3] PASSED            [ 13%]
+tests/test_form.py::TestValidation::test_non_negative_validator[value0] PASSED [ 14%]
+tests/test_form.py::TestValidation::test_non_negative_validator[value1] PASSED [ 14%]
+tests/test_form.py::TestValidation::test_non_negative_validator[value2] PASSED [ 14%]
+tests/test_form.py::TestValidation::test_non_negative_validator[value3] PASSED [ 14%]
+tests/test_form.py::TestValidation::test_positive_validator[value0] PASSED [ 15%]
+tests/test_form.py::TestValidation::test_positive_validator[value1] PASSED [ 15%]
+tests/test_form.py::TestValidation::test_positive_validator[value2] PASSED [ 15%]
+tests/test_form.py::TestValidation::test_positive_validator[value3] PASSED [ 15%]
+tests/test_form.py::TestValidation::test_positive_validator[value4] PASSED [ 16%]
+tests/test_form.py::TestValidation::test_default_django_validator PASSED [ 16%]
+tests/test_form.py::TestDisabledField::test_validation PASSED            [ 16%]
+tests/test_form.py::TestDisabledField::test_has_changed PASSED           [ 16%]
+tests/test_form.py::test_decimal_places_model_form[PreciseForm] PASSED   [ 16%]
+tests/test_form.py::test_decimal_places_model_form[DefaultPrecisionModelForm] PASSED [ 17%]
+tests/test_form.py::test_precedence_decimal_places_model_form PASSED     [ 17%]
+tests/test_models.py::TestVanillaMoneyField::test_create_defaults[ModelWithVanillaMoneyField-kwargs0-expected0] PASSED [ 17%]
+tests/test_models.py::TestVanillaMoneyField::test_create_defaults[ModelWithVanillaMoneyField-kwargs1-expected1] PASSED [ 17%]
+tests/test_models.py::TestVanillaMoneyField::test_create_defaults[BaseModel-kwargs2-expected2] PASSED [ 18%]
+tests/test_models.py::TestVanillaMoneyField::test_create_defaults[BaseModel-kwargs3-expected3] PASSED [ 18%]
+tests/test_models.py::TestVanillaMoneyField::test_create_defaults[BaseModel-kwargs4-expected4] PASSED [ 18%]
+tests/test_models.py::TestVanillaMoneyField::test_create_defaults[BaseModel-kwargs5-expected5] PASSED [ 18%]
+tests/test_models.py::TestVanillaMoneyField::test_create_defaults[BaseModel-kwargs6-expected6] PASSED [ 19%]
+tests/test_models.py::TestVanillaMoneyField::test_create_defaults[BaseModel-kwargs7-expected7] PASSED [ 19%]
+tests/test_models.py::TestVanillaMoneyField::test_create_defaults[ModelWithDefaultAsMoney-kwargs8-expected8] PASSED [ 19%]
+tests/test_models.py::TestVanillaMoneyField::test_create_defaults[ModelWithDefaultAsFloat-kwargs9-expected9] PASSED [ 19%]
+tests/test_models.py::TestVanillaMoneyField::test_create_defaults[ModelWithDefaultAsStringWithCurrency-kwargs10-expected10] PASSED [ 20%]
+tests/test_models.py::TestVanillaMoneyField::test_create_defaults[ModelWithDefaultAsString-kwargs11-expected11] PASSED [ 20%]
+tests/test_models.py::TestVanillaMoneyField::test_create_defaults[ModelWithDefaultAsInt-kwargs12-expected12] PASSED [ 20%]
+tests/test_models.py::TestVanillaMoneyField::test_create_defaults[ModelWithDefaultAsDecimal-kwargs13-expected13] PASSED [ 20%]
+tests/test_models.py::TestVanillaMoneyField::test_create_defaults[CryptoModel-kwargs14-expected14] PASSED [ 20%]
+tests/test_models.py::TestVanillaMoneyField::test_old_money_not_mutated_default PASSED [ 21%]
+tests/test_models.py::TestVanillaMoneyField::test_old_money_not_mutated_f_object PASSED [ 21%]
+tests/test_models.py::TestVanillaMoneyField::test_old_money_defaults PASSED [ 21%]
+tests/test_models.py::TestVanillaMoneyField::test_revert_to_default[BaseModel-other_value0] PASSED [ 21%]
+tests/test_models.py::TestVanillaMoneyField::test_revert_to_default[ModelWithDefaultAsMoney-other_value1] PASSED [ 22%]
+tests/test_models.py::TestVanillaMoneyField::test_revert_to_default[ModelWithDefaultAsFloat-other_value2] PASSED [ 22%]
+tests/test_models.py::TestVanillaMoneyField::test_revert_to_default[ModelWithDefaultAsFloat-other_value3] PASSED [ 22%]
+tests/test_models.py::TestVanillaMoneyField::test_invalid_values[value0] PASSED [ 22%]
+tests/test_models.py::TestVanillaMoneyField::test_invalid_values[value1] PASSED [ 23%]
+tests/test_models.py::TestVanillaMoneyField::test_invalid_values[value2] PASSED [ 23%]
+tests/test_models.py::TestVanillaMoneyField::test_save_new_value_on_field_without_default[Money0] PASSED [ 23%]
+tests/test_models.py::TestVanillaMoneyField::test_save_new_value_on_field_without_default[Money1] PASSED [ 23%]
+tests/test_models.py::TestVanillaMoneyField::test_save_new_value_on_field_with_default PASSED [ 23%]
+tests/test_models.py::TestVanillaMoneyField::test_rounding PASSED        [ 24%]
+tests/test_models.py::TestVanillaMoneyField::test_comparison_lookup[Money0-filters0-1] PASSED [ 24%]
+tests/test_models.py::TestVanillaMoneyField::test_comparison_lookup[Money0-filters1-2] PASSED [ 24%]
+tests/test_models.py::TestVanillaMoneyField::test_comparison_lookup[Money0-filters2-2] PASSED [ 24%]
+tests/test_models.py::TestVanillaMoneyField::test_comparison_lookup[Money0-filters3-0] PASSED [ 25%]
+tests/test_models.py::TestVanillaMoneyField::test_comparison_lookup[Money0-filters4-3] PASSED [ 25%]
+tests/test_models.py::TestVanillaMoneyField::test_comparison_lookup[Money0-filters5-2] PASSED [ 25%]
+tests/test_models.py::TestVanillaMoneyField::test_comparison_lookup[Money0-filters6-2] PASSED [ 25%]
+tests/test_models.py::TestVanillaMoneyField::test_comparison_lookup[Money0-filters7-3] PASSED [ 26%]
+tests/test_models.py::TestVanillaMoneyField::test_comparison_lookup[Money0-filters8-2] PASSED [ 26%]
+tests/test_models.py::TestVanillaMoneyField::test_comparison_lookup[Money0-filters9-1] PASSED [ 26%]
+tests/test_models.py::TestVanillaMoneyField::test_comparison_lookup[Money0-filters10-2] PASSED [ 26%]
+tests/test_models.py::TestVanillaMoneyField::test_comparison_lookup[Money1-filters0-1] PASSED [ 26%]
+tests/test_models.py::TestVanillaMoneyField::test_comparison_lookup[Money1-filters1-2] PASSED [ 27%]
+tests/test_models.py::TestVanillaMoneyField::test_comparison_lookup[Money1-filters2-2] PASSED [ 27%]
+tests/test_models.py::TestVanillaMoneyField::test_comparison_lookup[Money1-filters3-0] PASSED [ 27%]
+tests/test_models.py::TestVanillaMoneyField::test_comparison_lookup[Money1-filters4-3] PASSED [ 27%]
+tests/test_models.py::TestVanillaMoneyField::test_comparison_lookup[Money1-filters5-2] PASSED [ 28%]
+tests/test_models.py::TestVanillaMoneyField::test_comparison_lookup[Money1-filters6-2] PASSED [ 28%]
+tests/test_models.py::TestVanillaMoneyField::test_comparison_lookup[Money1-filters7-3] PASSED [ 28%]
+tests/test_models.py::TestVanillaMoneyField::test_comparison_lookup[Money1-filters8-2] PASSED [ 28%]
+tests/test_models.py::TestVanillaMoneyField::test_comparison_lookup[Money1-filters9-1] PASSED [ 29%]
+tests/test_models.py::TestVanillaMoneyField::test_comparison_lookup[Money1-filters10-2] PASSED [ 29%]
+tests/test_models.py::TestVanillaMoneyField::test_date_lookup PASSED     [ 29%]
+tests/test_models.py::TestVanillaMoneyField::test_all_lookups[Money0-startswith-2-1] PASSED [ 29%]
+tests/test_models.py::TestVanillaMoneyField::test_all_lookups[Money0-regex-^[134]-3] PASSED [ 30%]
+tests/test_models.py::TestVanillaMoneyField::test_all_lookups[Money0-iregex-^[134]-3] PASSED [ 30%]
+tests/test_models.py::TestVanillaMoneyField::test_all_lookups[Money0-istartswith-2-1] PASSED [ 30%]
+tests/test_models.py::TestVanillaMoneyField::test_all_lookups[Money0-contains-5-2] PASSED [ 30%]
+tests/test_models.py::TestVanillaMoneyField::test_all_lookups[Money0-lt-5-4] PASSED [ 30%]
+tests/test_models.py::TestVanillaMoneyField::test_all_lookups[Money0-endswith-5-2] PASSED [ 31%]
+tests/test_models.py::TestVanillaMoneyField::test_all_lookups[Money0-iendswith-5-2] PASSED [ 31%]
+tests/test_models.py::TestVanillaMoneyField::test_all_lookups[Money0-gte-4-3] PASSED [ 31%]
+tests/test_models.py::TestVanillaMoneyField::test_all_lookups[Money0-iexact-3-1] PASSED [ 31%]
+tests/test_models.py::TestVanillaMoneyField::test_all_lookups[Money0-exact-3-1] PASSED [ 32%]
+tests/test_models.py::TestVanillaMoneyField::test_all_lookups[Money0-isnull-True-0] PASSED [ 32%]
+tests/test_models.py::TestVanillaMoneyField::test_all_lookups[Money0-range-rhs12-4] PASSED [ 32%]
+tests/test_models.py::TestVanillaMoneyField::test_all_lookups[Money0-lte-2-2] PASSED [ 32%]
+tests/test_models.py::TestVanillaMoneyField::test_all_lookups[Money0-gt-3-3] PASSED [ 33%]
+tests/test_models.py::TestVanillaMoneyField::test_all_lookups[Money0-icontains-5-2] PASSED [ 33%]
+tests/test_models.py::TestVanillaMoneyField::test_all_lookups[Money0-in-rhs16-1] PASSED [ 33%]
+tests/test_models.py::TestVanillaMoneyField::test_all_lookups[Money1-startswith-2-1] PASSED [ 33%]
+tests/test_models.py::TestVanillaMoneyField::test_all_lookups[Money1-regex-^[134]-3] PASSED [ 33%]
+tests/test_models.py::TestVanillaMoneyField::test_all_lookups[Money1-iregex-^[134]-3] PASSED [ 34%]
+tests/test_models.py::TestVanillaMoneyField::test_all_lookups[Money1-istartswith-2-1] PASSED [ 34%]
+tests/test_models.py::TestVanillaMoneyField::test_all_lookups[Money1-contains-5-2] PASSED [ 34%]
+tests/test_models.py::TestVanillaMoneyField::test_all_lookups[Money1-lt-5-4] PASSED [ 34%]
+tests/test_models.py::TestVanillaMoneyField::test_all_lookups[Money1-endswith-5-2] PASSED [ 35%]
+tests/test_models.py::TestVanillaMoneyField::test_all_lookups[Money1-iendswith-5-2] PASSED [ 35%]
+tests/test_models.py::TestVanillaMoneyField::test_all_lookups[Money1-gte-4-3] PASSED [ 35%]
+tests/test_models.py::TestVanillaMoneyField::test_all_lookups[Money1-iexact-3-1] PASSED [ 35%]
+tests/test_models.py::TestVanillaMoneyField::test_all_lookups[Money1-exact-3-1] PASSED [ 36%]
+tests/test_models.py::TestVanillaMoneyField::test_all_lookups[Money1-isnull-True-0] PASSED [ 36%]
+tests/test_models.py::TestVanillaMoneyField::test_all_lookups[Money1-range-rhs12-4] PASSED [ 36%]
+tests/test_models.py::TestVanillaMoneyField::test_all_lookups[Money1-lte-2-2] PASSED [ 36%]
+tests/test_models.py::TestVanillaMoneyField::test_all_lookups[Money1-gt-3-3] PASSED [ 36%]
+tests/test_models.py::TestVanillaMoneyField::test_all_lookups[Money1-icontains-5-2] PASSED [ 37%]
+tests/test_models.py::TestVanillaMoneyField::test_all_lookups[Money1-in-rhs16-1] PASSED [ 37%]
+tests/test_models.py::TestVanillaMoneyField::test_exact_match PASSED     [ 37%]
+tests/test_models.py::TestVanillaMoneyField::test_issue_300_regression PASSED [ 37%]
+tests/test_models.py::TestVanillaMoneyField::test_range_search PASSED    [ 38%]
+tests/test_models.py::TestVanillaMoneyField::test_filter_chaining PASSED [ 38%]
+tests/test_models.py::TestVanillaMoneyField::test_currency_querying[ModelWithVanillaMoneyField] PASSED [ 38%]
+tests/test_models.py::TestVanillaMoneyField::test_currency_querying[ModelWithChoicesMoneyField] PASSED [ 38%]
+tests/test_models.py::TestVanillaMoneyField::test_in_lookup[Money0] PASSED [ 39%]
+tests/test_models.py::TestVanillaMoneyField::test_in_lookup[Money1] PASSED [ 39%]
+tests/test_models.py::TestVanillaMoneyField::test_in_lookup_f_expression[Money0] PASSED [ 39%]
+tests/test_models.py::TestVanillaMoneyField::test_in_lookup_f_expression[Money1] PASSED [ 39%]
+tests/test_models.py::TestVanillaMoneyField::test_isnull_lookup PASSED   [ 40%]
+tests/test_models.py::TestVanillaMoneyField::test_null_default PASSED    [ 40%]
+tests/test_models.py::TestVanillaMoneyField::test_implicit_currency_field_not_nullable_when_money_field_not_nullable PASSED [ 40%]
+tests/test_models.py::TestVanillaMoneyField::test_raises_type_error_setting_currency_to_none_on_nullable_currency_field_while_having_amount PASSED [ 40%]
+tests/test_models.py::TestVanillaMoneyField::test_currency_field_null_switch_not_triggered_from_default_currency PASSED [ 40%]
+tests/test_models.py::TestVanillaMoneyField::test_currency_field_nullable_when_money_field_is_nullable PASSED [ 41%]
+tests/test_models.py::test_errors_instantiating_money_field_with_no_default_currency_and_default_as[string without currency] PASSED [ 41%]
+tests/test_models.py::test_errors_instantiating_money_field_with_no_default_currency_and_default_as[bytes without currency] PASSED [ 41%]
+tests/test_models.py::test_errors_instantiating_money_field_with_no_default_currency_and_default_as[float] PASSED [ 41%]
+tests/test_models.py::test_errors_instantiating_money_field_with_no_default_currency_and_default_as[decimal] PASSED [ 42%]
+tests/test_models.py::test_errors_instantiating_money_field_with_no_default_currency_and_default_as[int] PASSED [ 42%]
+tests/test_models.py::test_errors_instantiating_money_field_with_no_default_currency_and_default_as[string with trailing space and without currency] PASSED [ 42%]
+tests/test_models.py::test_errors_instantiating_money_field_with_no_default_currency_and_default_as[bytes with trailing space and without currency] PASSED [ 42%]
+tests/test_models.py::test_errors_instantiating_money_field_with_no_default_currency_and_default_as[string with unknown currency code] PASSED [ 43%]
+tests/test_models.py::test_errors_instantiating_money_field_with_no_default_currency_and_default_as[bytes with unknown currency code] PASSED [ 43%]
+tests/test_models.py::test_errors_instantiating_money_field_with_no_default_currency_and_default_as[string with too much value and currency separation] PASSED [ 43%]
+tests/test_models.py::test_errors_instantiating_money_field_with_no_default_currency_and_default_as[bytes with too much value and currency separation] PASSED [ 43%]
+tests/test_models.py::test_errors_instantiating_money_field_with_no_default_currency_and_default_as[string with leading and trailing spaces] PASSED [ 43%]
+tests/test_models.py::test_errors_instantiating_money_field_with_no_default_currency_and_default_as[bytes with leading and trailing spaces] PASSED [ 44%]
+tests/test_models.py::test_errors_instantiating_money_field_with_no_default_currency_and_default_as[string with leading spaces] PASSED [ 44%]
+tests/test_models.py::test_errors_instantiating_money_field_with_no_default_currency_and_default_as[bytes with leading spaces] PASSED [ 44%]
+tests/test_models.py::test_errors_instantiating_money_field_with_no_default_currency_and_default_as[string with trailing spaces] PASSED [ 44%]
+tests/test_models.py::test_errors_instantiating_money_field_with_no_default_currency_and_default_as[bytes with trailing spaces] PASSED [ 45%]
+tests/test_models.py::test_can_instantiate_money_field_default_as[string with currency] PASSED [ 45%]
+tests/test_models.py::test_can_instantiate_money_field_default_as[bytes with currency] PASSED [ 45%]
+tests/test_models.py::test_can_instantiate_money_field_default_as[string without currency and currency default] PASSED [ 45%]
+tests/test_models.py::test_can_instantiate_money_field_default_as[bytes without currency and currency default] PASSED [ 46%]
+tests/test_models.py::test_errors_on_default_values_being_none_when_fields_have_not_null_constraint PASSED [ 46%]
+tests/test_models.py::TestGetOrCreate::test_get_or_create_respects_currency[ModelWithDefaultAsInt-money-kwargs0-PLN] PASSED [ 46%]
+tests/test_models.py::TestGetOrCreate::test_get_or_create_respects_currency[ModelWithVanillaMoneyField-money-kwargs1-EUR] PASSED [ 46%]
+tests/test_models.py::TestGetOrCreate::test_get_or_create_respects_currency[ModelWithVanillaMoneyField-money-kwargs2-EUR] PASSED [ 46%]
+tests/test_models.py::TestGetOrCreate::test_get_or_create_respects_currency[ModelWithSharedCurrency-first-kwargs3-CZK] PASSED [ 47%]
+tests/test_models.py::TestGetOrCreate::test_get_or_create_respects_defaults PASSED [ 47%]
+tests/test_models.py::TestGetOrCreate::test_defaults PASSED              [ 47%]
+tests/test_models.py::TestGetOrCreate::test_currency_field_lookup PASSED [ 47%]
+tests/test_models.py::TestGetOrCreate::test_no_default_model[NullMoneyFieldModel-create_kwargs0-get_kwargs0] PASSED [ 48%]
+tests/test_models.py::TestGetOrCreate::test_no_default_model[ModelWithSharedCurrency-create_kwargs1-get_kwargs1] PASSED [ 48%]
+tests/test_models.py::TestGetOrCreate::test_shared_currency PASSED       [ 48%]
+tests/test_models.py::TestNullableCurrency::test_create_nullable PASSED  [ 48%]
+tests/test_models.py::TestNullableCurrency::test_create_default PASSED   [ 49%]
+tests/test_models.py::TestNullableCurrency::test_fails_with_null_currency PASSED [ 49%]
+tests/test_models.py::TestNullableCurrency::test_fails_with_null_currency_decimal PASSED [ 49%]
+tests/test_models.py::TestNullableCurrency::test_fails_with_nullable_but_no_default PASSED [ 49%]
+tests/test_models.py::TestNullableCurrency::test_query_not_null PASSED   [ 50%]
+tests/test_models.py::TestNullableCurrency::test_query_null PASSED       [ 50%]
+tests/test_models.py::TestFExpressions::test_save[f_obj0-expected0] PASSED [ 50%]
+tests/test_models.py::TestFExpressions::test_save[f_obj1-expected1] PASSED [ 50%]
+tests/test_models.py::TestFExpressions::test_save[f_obj2-expected2] PASSED [ 50%]
+tests/test_models.py::TestFExpressions::test_save[f_obj3-expected3] PASSED [ 51%]
+tests/test_models.py::TestFExpressions::test_save[f_obj4-expected4] PASSED [ 51%]
+tests/test_models.py::TestFExpressions::test_save[f_obj5-expected5] PASSED [ 51%]
+tests/test_models.py::TestFExpressions::test_save[f_obj6-expected6] PASSED [ 51%]
+tests/test_models.py::TestFExpressions::test_save[f_obj7-expected7] PASSED [ 52%]
+tests/test_models.py::TestFExpressions::test_save[f_obj8-expected8] PASSED [ 52%]
+tests/test_models.py::TestFExpressions::test_save[f_obj9-expected9] PASSED [ 52%]
+tests/test_models.py::TestFExpressions::test_save[f_obj10-expected10] PASSED [ 52%]
+tests/test_models.py::TestFExpressions::test_save[f_obj11-expected11] PASSED [ 53%]
+tests/test_models.py::TestFExpressions::test_save[f_obj12-expected12] PASSED [ 53%]
+tests/test_models.py::TestFExpressions::test_save[f_obj13-expected13] PASSED [ 53%]
+tests/test_models.py::TestFExpressions::test_save[f_obj14-expected14] PASSED [ 53%]
+tests/test_models.py::TestFExpressions::test_save[f_obj15-expected15] PASSED [ 53%]
+tests/test_models.py::TestFExpressions::test_f_update[f_obj0-expected0] PASSED [ 54%]
+tests/test_models.py::TestFExpressions::test_f_update[f_obj1-expected1] PASSED [ 54%]
+tests/test_models.py::TestFExpressions::test_f_update[f_obj2-expected2] PASSED [ 54%]
+tests/test_models.py::TestFExpressions::test_f_update[f_obj3-expected3] PASSED [ 54%]
+tests/test_models.py::TestFExpressions::test_f_update[f_obj4-expected4] PASSED [ 55%]
+tests/test_models.py::TestFExpressions::test_f_update[f_obj5-expected5] PASSED [ 55%]
+tests/test_models.py::TestFExpressions::test_f_update[f_obj6-expected6] PASSED [ 55%]
+tests/test_models.py::TestFExpressions::test_f_update[f_obj7-expected7] PASSED [ 55%]
+tests/test_models.py::TestFExpressions::test_f_update[f_obj8-expected8] PASSED [ 56%]
+tests/test_models.py::TestFExpressions::test_f_update[f_obj9-expected9] PASSED [ 56%]
+tests/test_models.py::TestFExpressions::test_f_update[f_obj10-expected10] PASSED [ 56%]
+tests/test_models.py::TestFExpressions::test_f_update[f_obj11-expected11] PASSED [ 56%]
+tests/test_models.py::TestFExpressions::test_f_update[f_obj12-expected12] PASSED [ 56%]
+tests/test_models.py::TestFExpressions::test_f_update[f_obj13-expected13] PASSED [ 57%]
+tests/test_models.py::TestFExpressions::test_f_update[f_obj14-expected14] PASSED [ 57%]
+tests/test_models.py::TestFExpressions::test_f_update[f_obj15-expected15] PASSED [ 57%]
+tests/test_models.py::TestFExpressions::test_default_update PASSED       [ 57%]
+tests/test_models.py::TestFExpressions::test_filtration[create_kwargs0-filter_value0-True] PASSED [ 58%]
+tests/test_models.py::TestFExpressions::test_filtration[create_kwargs1-filter_value1-True] PASSED [ 58%]
+tests/test_models.py::TestFExpressions::test_filtration[create_kwargs2-filter_value2-False] PASSED [ 58%]
+tests/test_models.py::TestFExpressions::test_filtration[create_kwargs3-filter_value3-True] PASSED [ 58%]
+tests/test_models.py::TestFExpressions::test_filtration[create_kwargs4-filter_value4-True] PASSED [ 59%]
+tests/test_models.py::TestFExpressions::test_filtration[create_kwargs5-filter_value5-False] PASSED [ 59%]
+tests/test_models.py::TestFExpressions::test_filtration[create_kwargs6-filter_value6-False] PASSED [ 59%]
+tests/test_models.py::TestFExpressions::test_update_fields_save PASSED   [ 59%]
+tests/test_models.py::TestFExpressions::test_invalid_expressions_access[f_obj0] PASSED [ 60%]
+tests/test_models.py::TestFExpressions::test_invalid_expressions_access[f_obj1] PASSED [ 60%]
+tests/test_models.py::TestFExpressions::test_invalid_expressions_access[f_obj2] PASSED [ 60%]
+tests/test_models.py::TestFExpressions::test_invalid_expressions_access[f_obj3] PASSED [ 60%]
+tests/test_models.py::TestFExpressions::test_invalid_expressions_access[f_obj4] PASSED [ 60%]
+tests/test_models.py::TestFExpressions::test_invalid_expressions_access[f_obj5] PASSED [ 61%]
+tests/test_models.py::TestFExpressions::test_invalid_expressions_access[f_obj6] PASSED [ 61%]
+tests/test_models.py::TestFExpressions::test_invalid_expressions_access[f_obj7] PASSED [ 61%]
+tests/test_models.py::TestFExpressions::test_invalid_expressions_access[f_obj8] PASSED [ 61%]
+tests/test_models.py::TestExpressions::test_bulk_update PASSED           [ 62%]
+tests/test_models.py::TestExpressions::test_conditional_update PASSED    [ 62%]
+tests/test_models.py::TestExpressions::test_update_with_coalesce PASSED  [ 62%]
+tests/test_models.py::TestExpressions::test_create_func PASSED           [ 62%]
+tests/test_models.py::TestExpressions::test_value_create[None-None] PASSED [ 63%]
+tests/test_models.py::TestExpressions::test_value_create[10-expected1] PASSED [ 63%]
+tests/test_models.py::TestExpressions::test_value_create[value2-expected2] PASSED [ 63%]
+tests/test_models.py::TestExpressions::test_value_create_invalid PASSED  [ 63%]
+tests/test_models.py::TestExpressions::test_expressions_for_non_money_fields PASSED [ 63%]
+tests/test_models.py::test_find_models_related_to_money_models PASSED    [ 64%]
+tests/test_models.py::test_allow_expression_nodes_without_money PASSED   [ 64%]
+tests/test_models.py::test_base_model PASSED                             [ 64%]
+tests/test_models.py::TestInheritance::test_model[InheritedModel] PASSED [ 64%]
+tests/test_models.py::TestInheritance::test_model[InheritorModel] PASSED [ 65%]
+tests/test_models.py::TestInheritance::test_fields[InheritedModel] PASSED [ 65%]
+tests/test_models.py::TestInheritance::test_fields[InheritorModel] PASSED [ 65%]
+tests/test_models.py::TestManager::test_manager PASSED                   [ 65%]
+tests/test_models.py::TestManager::test_objects_creation PASSED          [ 66%]
+tests/test_models.py::TestProxyModel::test_instances PASSED              [ 66%]
+tests/test_models.py::TestProxyModel::test_patching PASSED               [ 66%]
+tests/test_models.py::TestDifferentCurrencies::test_add_default FAILED   [ 66%]
+tests/test_models.py::TestDifferentCurrencies::test_sub_default FAILED   [ 66%]
+tests/test_models.py::TestDifferentCurrencies::test_add_with_auto_convert PASSED [ 67%]
+tests/test_models.py::TestDifferentCurrencies::test_sub_with_auto_convert PASSED [ 67%]
+tests/test_models.py::TestDifferentCurrencies::test_eq PASSED            [ 67%]
+tests/test_models.py::TestDifferentCurrencies::test_ne PASSED            [ 67%]
+tests/test_models.py::TestDifferentCurrencies::test_ne_currency PASSED   [ 68%]
+tests/test_models.py::test_manager_instance_access[ModelWithNonMoneyField] PASSED [ 68%]
+tests/test_models.py::test_manager_instance_access[InheritorModel] PASSED [ 68%]
+tests/test_models.py::test_manager_instance_access[InheritedModel] PASSED [ 68%]
+tests/test_models.py::test_manager_instance_access[ProxyModel] PASSED    [ 69%]
+tests/test_models.py::test_different_hashes PASSED                       [ 69%]
+tests/test_models.py::test_migration_serialization PASSED                [ 69%]
+tests/test_models.py::test_clear_meta_cache[ModelWithVanillaMoneyField-objects] PASSED [ 69%]
+tests/test_models.py::test_clear_meta_cache[ModelWithCustomDefaultManager-custom] PASSED [ 70%]
+tests/test_models.py::TestFieldAttributes::test_missing_attributes PASSED [ 70%]
+tests/test_models.py::TestFieldAttributes::test_default_currency PASSED  [ 70%]
+tests/test_models.py::TestCustomManager::test_method PASSED              [ 70%]
+tests/test_models.py::test_package_is_importable PASSED                  [ 70%]
+tests/test_models.py::test_hash_uniqueness PASSED                        [ 71%]
+tests/test_models.py::test_override_decorator PASSED                     [ 71%]
+tests/test_models.py::test_properties_access PASSED                      [ 71%]
+tests/test_models.py::TestSharedCurrency::test_attributes PASSED         [ 71%]
+tests/test_models.py::TestSharedCurrency::test_filter_by_money_match[args0-kwargs0] PASSED [ 72%]
+tests/test_models.py::TestSharedCurrency::test_filter_by_money_match[args1-kwargs1] PASSED [ 72%]
+tests/test_models.py::TestSharedCurrency::test_filter_by_money_no_match[args0-kwargs0] PASSED [ 72%]
+tests/test_models.py::TestSharedCurrency::test_filter_by_money_no_match[args1-kwargs1] PASSED [ 72%]
+tests/test_models.py::TestSharedCurrency::test_f_query[args0-kwargs0] PASSED [ 73%]
+tests/test_models.py::TestSharedCurrency::test_f_query[args1-kwargs1] PASSED [ 73%]
+tests/test_models.py::TestSharedCurrency::test_in_lookup[args0-kwargs0] PASSED [ 73%]
+tests/test_models.py::TestSharedCurrency::test_in_lookup[args1-kwargs1] PASSED [ 73%]
+tests/test_models.py::TestSharedCurrency::test_create_with_money PASSED  [ 73%]
+tests/test_models.py::test_order_by PASSED                               [ 74%]
+tests/test_models.py::test_distinct_through_wrapper PASSED               [ 74%]
+tests/test_models.py::test_mixer_blend PASSED                            [ 74%]
+tests/test_models.py::test_deconstruct_includes[default_currency_as_none] PASSED [ 74%]
+tests/test_models.py::test_deconstruct_includes[default_currency_as_non_default_not_none] PASSED [ 75%]
+tests/test_models.py::test_deconstruct_includes[currency_max_length_as_non_default] PASSED [ 75%]
+tests/test_reversion.py::test_that_can_safely_restore_deleted_object SKIPPED [ 75%]
+tests/test_serialization.py::test_m2m_fields_are_not_lost PASSED         [ 75%]
+tests/test_serialization.py::test_dumpdata PASSED                        [ 76%]
+tests/test_serialization.py::test_load_invalid PASSED                    [ 76%]
+tests/test_serialization.py::test_load_invalid_ignore PASSED             [ 76%]
+tests/test_serialization.py::test_old_fields_skip PASSED                 [ 76%]
+tests/test_serialization.py::test_deserialization_error PASSED           [ 76%]
+tests/test_serialization.py::test_patched_get_model PASSED               [ 77%]
+tests/test_serialization.py::test_serialize_currency_field PASSED        [ 77%]
+tests/migrations/test_migrations.py::TestMigrationFramework::test_create_initial PASSED [ 77%]
+tests/migrations/test_migrations.py::TestMigrationFramework::test_add_field PASSED [ 77%]
+tests/migrations/test_migrations.py::TestMigrationFramework::test_alter_field PASSED [ 78%]
+tests/migrations/test_migrations.py::TestMigrationFramework::test_remove_field PASSED [ 78%]
+tests/migrations/test_migrations.py::TestMigrationFramework::test_rename_field PASSED [ 78%]
+tests/migrations/test_migrations.py::TestMigrationFramework::test_migrate_to_moneyfield PASSED [ 78%]
+tests/migrations/test_migrations.py::TestMigrationFramework::test_migrate_from_moneyfield PASSED [ 79%]
+tests/test_admin.py::test_display_for_field[value0-10,00\xa0RUB] PASSED  [ 79%]
+tests/test_admin.py::test_display_for_field[value1-1\xa0000,00\xa0SAR] PASSED [ 79%]
+tests/test_admin.py::test_display_for_field[value2-1\xa0000,00\xa0PLN] PASSED [ 79%]
+tests/test_admin.py::test_display_for_field[value3-3,33\xa0\u20ac] PASSED [ 80%]
+tests/test_admin.py::test_default_display PASSED                         [ 80%]
+tests/test_managers.py::TestExpandMoneyArgs::test_no_args PASSED         [ 80%]
+tests/test_managers.py::TestExpandMoneyArgs::test_non_q_args PASSED      [ 80%]
+tests/test_managers.py::TestExpandMoneyArgs::test_exact PASSED           [ 80%]
+tests/test_managers.py::TestExpandMoneyArgs::test_and PASSED             [ 81%]
+tests/test_managers.py::TestExpandMoneyArgs::test_and_with_or PASSED     [ 81%]
+tests/test_managers.py::TestExpandMoneyArgs::test_and_with_two_or PASSED [ 81%]
+tests/test_managers.py::TestKwargsExpand::test_simple[value0-expected0] PASSED [ 81%]
+tests/test_managers.py::TestKwargsExpand::test_simple[value1-expected1] PASSED [ 82%]
+tests/test_managers.py::TestKwargsExpand::test_simple[value2-expected2] PASSED [ 82%]
+tests/test_managers.py::TestKwargsExpand::test_simple[value3-expected3] PASSED [ 82%]
+tests/test_managers.py::TestKwargsExpand::test_complex_f_query[value0-2] PASSED [ 82%]
+tests/test_managers.py::TestKwargsExpand::test_complex_f_query[value1-100] PASSED [ 83%]
+tests/test_managers.py::TestKwargsExpand::test_simple_f_query PASSED     [ 83%]
+tests/test_money.py::test_repr PASSED                                    [ 83%]
+tests/test_money.py::test_legacy_repr PASSED                             [ 83%]
+tests/test_money.py::test_html_safe PASSED                               [ 83%]
+tests/test_money.py::test_html_unsafe PASSED                             [ 84%]
+tests/test_money.py::test_default_mul PASSED                             [ 84%]
+tests/test_money.py::test_default_truediv PASSED                         [ 84%]
+tests/test_money.py::test_reverse_truediv_fails PASSED                   [ 84%]
+tests/test_money.py::test_get_current_locale[pl-pl] PASSED               [ 85%]
+tests/test_money.py::test_get_current_locale[pl-pl-pl_PL] PASSED         [ 85%]
+tests/test_money.py::test_get_current_locale[sv-sv] PASSED               [ 85%]
+tests/test_money.py::test_get_current_locale[sv-se-sv_SE] PASSED         [ 85%]
+tests/test_money.py::test_get_current_locale[en-us-en_US] PASSED         [ 86%]
+tests/test_money.py::test_get_current_locale[en-gb-en_GB] PASSED         [ 86%]
+tests/test_money.py::test_round PASSED                                   [ 86%]
+tests/test_money.py::test_configurable_decimal_number PASSED             [ 86%]
+tests/test_money.py::test_localize_defaults_to_currency_decimal_places PASSED [ 86%]
+tests/test_money.py::test_add_decimal_places FAILED                      [ 87%]
+tests/test_money.py::test_add_decimal_places_zero FAILED                 [ 87%]
+tests/test_money.py::test_keep_decimal_places[<lambda>0-1] PASSED        [ 87%]
+tests/test_money.py::test_keep_decimal_places[<lambda>0-4] PASSED        [ 87%]
+tests/test_money.py::test_keep_decimal_places[<lambda>1-1] PASSED        [ 88%]
+tests/test_money.py::test_keep_decimal_places[<lambda>1-4] PASSED        [ 88%]
+tests/test_money.py::test_keep_decimal_places[<lambda>2-1] PASSED        [ 88%]
+tests/test_money.py::test_keep_decimal_places[<lambda>2-4] PASSED        [ 88%]
+tests/test_money.py::test_keep_decimal_places[<lambda>3-1] FAILED        [ 89%]
+tests/test_money.py::test_keep_decimal_places[<lambda>3-4] PASSED        [ 89%]
+tests/test_money.py::test_keep_decimal_places[<lambda>4-1] FAILED        [ 89%]
+tests/test_money.py::test_keep_decimal_places[<lambda>4-4] PASSED        [ 89%]
+tests/test_money.py::test_keep_decimal_places[<lambda>5-1] FAILED        [ 90%]
+tests/test_money.py::test_keep_decimal_places[<lambda>5-4] PASSED        [ 90%]
+tests/test_money.py::test_keep_decimal_places[<lambda>6-1] FAILED        [ 90%]
+tests/test_money.py::test_keep_decimal_places[<lambda>6-4] PASSED        [ 90%]
+tests/test_money.py::test_keep_decimal_places[<lambda>7-1] PASSED        [ 90%]
+tests/test_money.py::test_keep_decimal_places[<lambda>7-4] PASSED        [ 91%]
+tests/test_money.py::test_keep_decimal_places[<lambda>8-1] PASSED        [ 91%]
+tests/test_money.py::test_keep_decimal_places[<lambda>8-4] PASSED        [ 91%]
+tests/test_money.py::test_keep_decimal_places[<lambda>9-1] PASSED        [ 91%]
+tests/test_money.py::test_keep_decimal_places[<lambda>9-4] PASSED        [ 92%]
+tests/test_money.py::test_keep_decimal_places[<lambda>10-1] PASSED       [ 92%]
+tests/test_money.py::test_keep_decimal_places[<lambda>10-4] PASSED       [ 92%]
+tests/test_money.py::test_keep_decimal_places[<lambda>11-1] PASSED       [ 92%]
+tests/test_money.py::test_keep_decimal_places[<lambda>11-4] PASSED       [ 93%]
+tests/test_money.py::test_keep_decimal_places[<lambda>12-1] FAILED       [ 93%]
+tests/test_money.py::test_keep_decimal_places[<lambda>12-4] PASSED       [ 93%]
+tests/test_money.py::test_sub_negative PASSED                            [ 93%]
+tests/test_money.py::test_proper_copy_of_attributes[None] PASSED         [ 93%]
+tests/test_money.py::test_proper_copy_of_attributes[0] PASSED            [ 94%]
+tests/test_money.py::test_proper_copy_of_attributes[1] PASSED            [ 94%]
+tests/test_money.py::test_proper_copy_of_attributes[4] PASSED            [ 94%]
+tests/test_settings.py::TestCurrencies::test_project_currencies PASSED   [ 94%]
+tests/test_settings.py::TestCurrencies::test_custom_currencies PASSED    [ 95%]
+tests/test_settings.py::TestCurrencies::test_default_currency PASSED     [ 95%]
+tests/test_tags.py::TestMoneyLocalizeNode::test_repr PASSED              [ 95%]
+tests/test_tags.py::TestMoneyLocalizeNode::test_invalid_instance PASSED  [ 95%]
+tests/test_tags.py::test_invalid_input[{% load djmoney %}{% money_localize "2.5" "PLN" as NEW_M and blabla %}{{NEW_M}}-context0-Wrong number of input data to the tag.] PASSED [ 96%]
+tests/test_tags.py::test_invalid_input[{% load djmoney %}{% money_localize money %}{{NEW_M}}-context1-The variable "money" must be an instance of Money.] PASSED [ 96%]
+tests/test_tags.py::test_invalid_input[{% load djmoney %}{% money_localize amount currency %}-context2-You must define both variables: amount and currency.] PASSED [ 96%]
+tests/test_tags.py::test_tag[{% load djmoney %}{% money_localize "2.5" "PLN" as NEW_M %}{{NEW_M}}-2,50\xa0z\u0142-context0] PASSED [ 96%]
+tests/test_tags.py::test_tag[{% load djmoney %}{% money_localize "2.5" "PLN" %}-2,50\xa0z\u0142-context1] PASSED [ 96%]
+tests/test_tags.py::test_tag[{% load djmoney %}{% money_localize amount currency %}-2,60\xa0z\u0142-context2] PASSED [ 97%]
+tests/test_tags.py::test_tag[{% load djmoney %}{% money_localize money as NEW_M %}{{NEW_M}}-2,30\xa0z\u0142-context3] PASSED [ 97%]
+tests/test_tags.py::test_tag[{% load djmoney %}{% money_localize money off as NEW_M %}{{NEW_M}}-2,30\xa0z\u0142-context4] PASSED [ 97%]
+tests/test_tags.py::test_tag[{% load djmoney %}{% money_localize money off as NEW_M %}{{NEW_M}}-0,00\xa0z\u0142-context5] PASSED [ 97%]
+tests/test_tags.py::test_tag[{% load djmoney %}{% money_localize money %}-2,30\xa0z\u0142-context6] PASSED [ 98%]
+tests/test_tags.py::test_tag[{{ money }}-2,30\xa0z\u0142-context7] PASSED [ 98%]
+tests/test_tags.py::test_tag[{% load djmoney %}{% money_localize money off %}-2,30\xa0z\u0142-context8] PASSED [ 98%]
+tests/test_tags.py::test_tag[{% load djmoney %}{% money_localize money on %}-2,30\xa0z\u0142-context9] PASSED [ 98%]
+tests/test_tags.py::test_tag[{% load djmoney %}{% for i in "xxx" %}{% money_localize money %} {% endfor %}-2,30\xa0z\u0142 2,30\xa0z\u0142 2,30\xa0z\u0142 -context10] PASSED [ 99%]
+tests/test_tags.py::test_l10n_off[{% load djmoney %}{% money_localize money %}-2,30\xa0z\u0142-context0] PASSED [ 99%]
+tests/test_tags.py::test_l10n_off[{{ money }}-2,30\xa0z\u0142-context1] PASSED [ 99%]
+tests/test_tags.py::test_l10n_off[{% load djmoney %}{% money_localize money on %}-2,30\xa0z\u0142-context2] PASSED [ 99%]
+tests/test_tags.py::test_forced_l10n PASSED                              [100%]
+
+=========================== short test summary info ============================
+FAILED tests/test_models.py::TestDifferentCurrencies::test_add_default - djmo...
+FAILED tests/test_models.py::TestDifferentCurrencies::test_sub_default - djmo...
+FAILED tests/test_money.py::test_add_decimal_places - AssertionError: assert ...
+FAILED tests/test_money.py::test_add_decimal_places_zero - AttributeError: 'i...
+FAILED tests/test_money.py::test_keep_decimal_places[<lambda>3-1] - Assertion...
+FAILED tests/test_money.py::test_keep_decimal_places[<lambda>4-1] - Assertion...
+FAILED tests/test_money.py::test_keep_decimal_places[<lambda>5-1] - Assertion...
+FAILED tests/test_money.py::test_keep_decimal_places[<lambda>6-1] - Assertion...
+FAILED tests/test_money.py::test_keep_decimal_places[<lambda>12-1] - Assertio...
+============= 9 failed, 420 passed, 2 skipped, 2 warnings in 8.14s =============
++ : '>>>>> End Test Output'

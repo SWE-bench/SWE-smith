@@ -1,0 +1,318 @@
++ source /opt/miniconda3/bin/activate
+++ _CONDA_ROOT=/opt/miniconda3
+++ . /opt/miniconda3/etc/profile.d/conda.sh
++++ export CONDA_EXE=/opt/miniconda3/bin/conda
++++ CONDA_EXE=/opt/miniconda3/bin/conda
++++ export _CE_M=
++++ _CE_M=
++++ export _CE_CONDA=
++++ _CE_CONDA=
++++ export CONDA_PYTHON_EXE=/opt/miniconda3/bin/python
++++ CONDA_PYTHON_EXE=/opt/miniconda3/bin/python
++++ '[' -z '' ']'
++++ export CONDA_SHLVL=0
++++ CONDA_SHLVL=0
++++ '[' -n '' ']'
++++++ dirname /opt/miniconda3/bin/conda
+++++ dirname /opt/miniconda3/bin
++++ PATH=/opt/miniconda3/condabin:/opt/miniconda3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
++++ export PATH
++++ '[' -z '' ']'
++++ PS1=
+++ conda activate
+++ local cmd=activate
+++ case "$cmd" in
+++ __conda_activate activate
+++ '[' -n '' ']'
+++ local ask_conda
++++ PS1=
++++ __conda_exe shell.posix activate
++++ /opt/miniconda3/bin/conda shell.posix activate
+++ ask_conda='PS1='\''(base) '\''
+export PATH='\''/opt/miniconda3/bin:/opt/miniconda3/condabin:/opt/miniconda3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'\''
+export CONDA_PREFIX='\''/opt/miniconda3'\''
+export CONDA_SHLVL='\''1'\''
+export CONDA_DEFAULT_ENV='\''base'\''
+export CONDA_PROMPT_MODIFIER='\''(base) '\''
+export CONDA_EXE='\''/opt/miniconda3/bin/conda'\''
+export _CE_M='\'''\''
+export _CE_CONDA='\'''\''
+export CONDA_PYTHON_EXE='\''/opt/miniconda3/bin/python'\'''
+++ eval 'PS1='\''(base) '\''
+export PATH='\''/opt/miniconda3/bin:/opt/miniconda3/condabin:/opt/miniconda3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'\''
+export CONDA_PREFIX='\''/opt/miniconda3'\''
+export CONDA_SHLVL='\''1'\''
+export CONDA_DEFAULT_ENV='\''base'\''
+export CONDA_PROMPT_MODIFIER='\''(base) '\''
+export CONDA_EXE='\''/opt/miniconda3/bin/conda'\''
+export _CE_M='\'''\''
+export _CE_CONDA='\'''\''
+export CONDA_PYTHON_EXE='\''/opt/miniconda3/bin/python'\'''
++++ PS1='(base) '
++++ export PATH=/opt/miniconda3/bin:/opt/miniconda3/condabin:/opt/miniconda3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
++++ PATH=/opt/miniconda3/bin:/opt/miniconda3/condabin:/opt/miniconda3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
++++ export CONDA_PREFIX=/opt/miniconda3
++++ CONDA_PREFIX=/opt/miniconda3
++++ export CONDA_SHLVL=1
++++ CONDA_SHLVL=1
++++ export CONDA_DEFAULT_ENV=base
++++ CONDA_DEFAULT_ENV=base
++++ export 'CONDA_PROMPT_MODIFIER=(base) '
++++ CONDA_PROMPT_MODIFIER='(base) '
++++ export CONDA_EXE=/opt/miniconda3/bin/conda
++++ CONDA_EXE=/opt/miniconda3/bin/conda
++++ export _CE_M=
++++ _CE_M=
++++ export _CE_CONDA=
++++ _CE_CONDA=
++++ export CONDA_PYTHON_EXE=/opt/miniconda3/bin/python
++++ CONDA_PYTHON_EXE=/opt/miniconda3/bin/python
+++ __conda_hashr
+++ '[' -n '' ']'
+++ '[' -n '' ']'
+++ hash -r
++ conda activate testbed
++ local cmd=activate
++ case "$cmd" in
++ __conda_activate activate testbed
++ '[' -n '' ']'
++ local ask_conda
+++ PS1='(base) '
+++ __conda_exe shell.posix activate testbed
+++ /opt/miniconda3/bin/conda shell.posix activate testbed
++ ask_conda='PS1='\''(testbed) '\''
+export PATH='\''/opt/miniconda3/envs/testbed/bin:/opt/miniconda3/condabin:/opt/miniconda3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'\''
+export CONDA_PREFIX='\''/opt/miniconda3/envs/testbed'\''
+export CONDA_SHLVL='\''2'\''
+export CONDA_DEFAULT_ENV='\''testbed'\''
+export CONDA_PROMPT_MODIFIER='\''(testbed) '\''
+export CONDA_PREFIX_1='\''/opt/miniconda3'\''
+export CONDA_EXE='\''/opt/miniconda3/bin/conda'\''
+export _CE_M='\'''\''
+export _CE_CONDA='\'''\''
+export CONDA_PYTHON_EXE='\''/opt/miniconda3/bin/python'\'''
++ eval 'PS1='\''(testbed) '\''
+export PATH='\''/opt/miniconda3/envs/testbed/bin:/opt/miniconda3/condabin:/opt/miniconda3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'\''
+export CONDA_PREFIX='\''/opt/miniconda3/envs/testbed'\''
+export CONDA_SHLVL='\''2'\''
+export CONDA_DEFAULT_ENV='\''testbed'\''
+export CONDA_PROMPT_MODIFIER='\''(testbed) '\''
+export CONDA_PREFIX_1='\''/opt/miniconda3'\''
+export CONDA_EXE='\''/opt/miniconda3/bin/conda'\''
+export _CE_M='\'''\''
+export _CE_CONDA='\'''\''
+export CONDA_PYTHON_EXE='\''/opt/miniconda3/bin/python'\'''
+++ PS1='(testbed) '
+++ export PATH=/opt/miniconda3/envs/testbed/bin:/opt/miniconda3/condabin:/opt/miniconda3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+++ PATH=/opt/miniconda3/envs/testbed/bin:/opt/miniconda3/condabin:/opt/miniconda3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+++ export CONDA_PREFIX=/opt/miniconda3/envs/testbed
+++ CONDA_PREFIX=/opt/miniconda3/envs/testbed
+++ export CONDA_SHLVL=2
+++ CONDA_SHLVL=2
+++ export CONDA_DEFAULT_ENV=testbed
+++ CONDA_DEFAULT_ENV=testbed
+++ export 'CONDA_PROMPT_MODIFIER=(testbed) '
+++ CONDA_PROMPT_MODIFIER='(testbed) '
+++ export CONDA_PREFIX_1=/opt/miniconda3
+++ CONDA_PREFIX_1=/opt/miniconda3
+++ export CONDA_EXE=/opt/miniconda3/bin/conda
+++ CONDA_EXE=/opt/miniconda3/bin/conda
+++ export _CE_M=
+++ _CE_M=
+++ export _CE_CONDA=
+++ _CE_CONDA=
+++ export CONDA_PYTHON_EXE=/opt/miniconda3/bin/python
+++ CONDA_PYTHON_EXE=/opt/miniconda3/bin/python
++ __conda_hashr
++ '[' -n '' ']'
++ '[' -n '' ']'
++ hash -r
++ cd /testbed
++ : '>>>>> Start Test Output'
++ /root/.local/bin/uv run pytest --disable-warnings --color=no --tb=no --verbose tests/test_utils.py
+   Building pydantic @ file:///testbed
+      Built pydantic @ file:///testbed
+Uninstalled 1 package in 34ms
+Installed 1 package in 0.78ms
+============================= test session starts ==============================
+platform linux -- Python 3.10.16, pytest-8.3.4, pluggy-1.5.0 -- /testbed/.venv/bin/python
+codspeed: 3.1.2 (disabled, mode: walltime, timer_resolution: 1.0ns)
+cachedir: .pytest_cache
+benchmark: 5.1.0 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=True warmup_iterations=100000)
+rootdir: /testbed
+configfile: pyproject.toml
+plugins: memray-1.7.0, devtools-0.12.2, examples-0.0.15, Faker-35.0.0, codspeed-3.1.2, benchmark-5.1.0, pretty-1.2.0, mock-3.14.0
+collecting ... collected 169 items
+
+tests/test_utils.py::test_import_module PASSED                           [  0%]
+tests/test_utils.py::test_import_module_invalid PASSED                   [  1%]
+tests/test_utils.py::test_import_no_attr PASSED                          [  1%]
+tests/test_utils.py::test_display_as_type[str-str] PASSED                [  2%]
+tests/test_utils.py::test_display_as_type[foobar-str] PASSED             [  2%]
+tests/test_utils.py::test_display_as_type[SomeForwardRefString-str] PASSED [  3%]
+tests/test_utils.py::test_display_as_type[Union-Union[str, int]] PASSED  [  4%]
+tests/test_utils.py::test_display_as_type[list-list] PASSED              [  4%]
+tests/test_utils.py::test_display_as_type[value5-list] PASSED            [  5%]
+tests/test_utils.py::test_display_as_type[list-list[dict[str, int]]] PASSED [  5%]
+tests/test_utils.py::test_display_as_type[tuple-tuple[str, int, float]] PASSED [  6%]
+tests/test_utils.py::test_display_as_type[tuple-tuple[str, ...]] PASSED  [  7%]
+tests/test_utils.py::test_display_as_type[Union-Union[int, list[str], tuple[str, int]]] PASSED [  7%]
+tests/test_utils.py::test_display_as_type[foobar-foobar] PASSED          [  8%]
+tests/test_utils.py::test_display_as_type[time_ns-time_ns] PASSED        [  8%]
+tests/test_utils.py::test_display_as_type[LoggedVar-LoggedVar] PASSED    [  9%]
+tests/test_utils.py::test_display_as_type[value13-LoggedVar] PASSED      [ 10%]
+tests/test_utils.py::test_display_as_type_310[<lambda>-str0] PASSED      [ 10%]
+tests/test_utils.py::test_display_as_type_310[<lambda>-str1] PASSED      [ 11%]
+tests/test_utils.py::test_display_as_type_310[<lambda>-Union[str, int]] PASSED [ 11%]
+tests/test_utils.py::test_display_as_type_310[<lambda>-list] PASSED      [ 12%]
+tests/test_utils.py::test_display_as_type_310[<lambda>-list[int]0] PASSED [ 13%]
+tests/test_utils.py::test_display_as_type_310[<lambda>-list[int]1] PASSED [ 13%]
+tests/test_utils.py::test_display_as_type_310[<lambda>-list[dict[str, int]]] PASSED [ 14%]
+tests/test_utils.py::test_display_as_type_310[<lambda>-list[Union[str, int]]0] PASSED [ 14%]
+tests/test_utils.py::test_display_as_type_310[<lambda>-list[Union[str, int]]1] PASSED [ 15%]
+tests/test_utils.py::test_display_as_type_310[<lambda>-LoggedVar[int]] PASSED [ 15%]
+tests/test_utils.py::test_display_as_type_310[<lambda>-LoggedVar[dict[int, str]]] PASSED [ 16%]
+tests/test_utils.py::test_lenient_issubclass PASSED                      [ 17%]
+tests/test_utils.py::test_lenient_issubclass_with_generic_aliases PASSED [ 17%]
+tests/test_utils.py::test_lenient_issubclass_is_lenient PASSED           [ 18%]
+tests/test_utils.py::test_unique_list[input_value0-output0] PASSED       [ 18%]
+tests/test_utils.py::test_unique_list[input_value1-output1] PASSED       [ 19%]
+tests/test_utils.py::test_unique_list[input_value2-output2] PASSED       [ 20%]
+tests/test_utils.py::test_value_items PASSED                             [ 20%]
+tests/test_utils.py::test_value_items_merge[base0-override0-False-expected0] PASSED [ 21%]
+tests/test_utils.py::test_value_items_merge[None-None-False-None] PASSED [ 21%]
+tests/test_utils.py::test_value_items_merge[base2-override2-False-expected2] PASSED [ 22%]
+tests/test_utils.py::test_value_items_merge[base3-None-False-expected3] PASSED [ 23%]
+tests/test_utils.py::test_value_items_merge[None-override4-False-expected4] PASSED [ 23%]
+tests/test_utils.py::test_value_items_merge[None-override5-False-expected5] PASSED [ 24%]
+tests/test_utils.py::test_value_items_merge[base6-None-False-expected6] PASSED [ 24%]
+tests/test_utils.py::test_value_items_merge[base7-override7-False-expected7] PASSED [ 25%]
+tests/test_utils.py::test_value_items_merge[base8-override8-False-expected8] PASSED [ 26%]
+tests/test_utils.py::test_value_items_merge[base9-override9-False-expected9] PASSED [ 26%]
+tests/test_utils.py::test_value_items_merge[base10-override10-False-expected10] PASSED [ 27%]
+tests/test_utils.py::test_value_items_merge[base11-override11-False-expected11] PASSED [ 27%]
+tests/test_utils.py::test_value_items_merge[base12-override12-False-expected12] PASSED [ 28%]
+tests/test_utils.py::test_value_items_merge[base13-override13-False-expected13] PASSED [ 28%]
+tests/test_utils.py::test_value_items_merge[base14-override14-False-expected14] PASSED [ 29%]
+tests/test_utils.py::test_value_items_merge[base15-override15-False-expected15] PASSED [ 30%]
+tests/test_utils.py::test_value_items_merge[base16-override16-True-expected16] PASSED [ 30%]
+tests/test_utils.py::test_value_items_merge[None-None-True-None] PASSED  [ 31%]
+tests/test_utils.py::test_value_items_merge[base18-override18-True-expected18] PASSED [ 31%]
+tests/test_utils.py::test_value_items_merge[base19-None-True-expected19] PASSED [ 32%]
+tests/test_utils.py::test_value_items_merge[None-override20-True-expected20] PASSED [ 33%]
+tests/test_utils.py::test_value_items_merge[None-override21-True-expected21] PASSED [ 33%]
+tests/test_utils.py::test_value_items_merge[base22-None-True-expected22] PASSED [ 34%]
+tests/test_utils.py::test_value_items_merge[base23-override23-True-expected23] PASSED [ 34%]
+tests/test_utils.py::test_value_items_merge[base24-override24-True-expected24] PASSED [ 35%]
+tests/test_utils.py::test_value_items_merge[base25-override25-True-expected25] PASSED [ 36%]
+tests/test_utils.py::test_value_items_merge[base26-override26-True-expected26] PASSED [ 36%]
+tests/test_utils.py::test_value_items_merge[base27-override27-True-expected27] PASSED [ 37%]
+tests/test_utils.py::test_value_items_merge[base28-override28-True-expected28] PASSED [ 37%]
+tests/test_utils.py::test_value_items_merge[base29-override29-True-expected29] PASSED [ 38%]
+tests/test_utils.py::test_value_items_merge[base30-override30-True-expected30] PASSED [ 39%]
+tests/test_utils.py::test_value_items_merge[base31-override31-True-expected31] PASSED [ 39%]
+tests/test_utils.py::test_value_items_merge[base32-True-False-True] PASSED [ 40%]
+tests/test_utils.py::test_value_items_merge[True-override33-False-expected33] PASSED [ 40%]
+tests/test_utils.py::test_value_items_merge[True-None-False-True] PASSED [ 41%]
+tests/test_utils.py::test_value_items_merge[base35-override35-False-expected35] PASSED [ 42%]
+tests/test_utils.py::test_value_items_error PASSED                       [ 42%]
+tests/test_utils.py::test_is_new_type PASSED                             [ 43%]
+tests/test_utils.py::test_pretty PASSED                                  [ 43%]
+tests/test_utils.py::test_pretty_color PASSED                            [ 44%]
+tests/test_utils.py::test_devtools_output PASSED                         [ 44%]
+tests/test_utils.py::test_deep_update[mapping0-updating_mapping0-expected_mapping0-extra keys are inserted] PASSED [ 45%]
+tests/test_utils.py::test_deep_update[mapping1-updating_mapping1-expected_mapping1-values that can not be merged are updated] PASSED [ 46%]
+tests/test_utils.py::test_deep_update[mapping2-updating_mapping2-expected_mapping2-values that have corresponding keys are merged] PASSED [ 46%]
+tests/test_utils.py::test_deep_update[mapping3-updating_mapping3-expected_mapping3-deeply nested values that have corresponding keys are merged] PASSED [ 47%]
+tests/test_utils.py::test_deep_update_is_not_mutating PASSED             [ 47%]
+tests/test_utils.py::test_undefined_repr PASSED                          [ 48%]
+tests/test_utils.py::test_undefined_copy PASSED                          [ 49%]
+tests/test_utils.py::test_class_attribute PASSED                         [ 49%]
+tests/test_utils.py::test_literal_values PASSED                          [ 50%]
+tests/test_utils.py::test_smart_deepcopy_immutable_non_sequence[1_0] PASSED [ 50%]
+tests/test_utils.py::test_smart_deepcopy_immutable_non_sequence[1.0] PASSED [ 51%]
+tests/test_utils.py::test_smart_deepcopy_immutable_non_sequence[1_1] PASSED [ 52%]
+tests/test_utils.py::test_smart_deepcopy_immutable_non_sequence[1_2] PASSED [ 52%]
+tests/test_utils.py::test_smart_deepcopy_immutable_non_sequence[int] PASSED [ 53%]
+tests/test_utils.py::test_smart_deepcopy_immutable_non_sequence[None] PASSED [ 53%]
+tests/test_utils.py::test_smart_deepcopy_immutable_non_sequence[test_literal_values] PASSED [ 54%]
+tests/test_utils.py::test_smart_deepcopy_immutable_non_sequence[len] PASSED [ 55%]
+tests/test_utils.py::test_smart_deepcopy_immutable_non_sequence[obj8] PASSED [ 55%]
+tests/test_utils.py::test_smart_deepcopy_immutable_non_sequence[<lambda>] PASSED [ 56%]
+tests/test_utils.py::test_smart_deepcopy_immutable_non_sequence[obj10] PASSED [ 56%]
+tests/test_utils.py::test_smart_deepcopy_empty_collection[empty_collection0] PASSED [ 57%]
+tests/test_utils.py::test_smart_deepcopy_empty_collection[empty_collection1] PASSED [ 57%]
+tests/test_utils.py::test_smart_deepcopy_empty_collection[empty_collection2] PASSED [ 58%]
+tests/test_utils.py::test_smart_deepcopy_empty_collection[empty_collection3] PASSED [ 59%]
+tests/test_utils.py::test_smart_deepcopy_empty_collection[empty_collection4] PASSED [ 59%]
+tests/test_utils.py::test_smart_deepcopy_empty_collection[empty_collection5] PASSED [ 60%]
+tests/test_utils.py::test_smart_deepcopy_empty_collection[empty_collection6] PASSED [ 60%]
+tests/test_utils.py::test_smart_deepcopy_empty_collection[empty_collection7] PASSED [ 61%]
+tests/test_utils.py::test_smart_deepcopy_collection[collection0] PASSED  [ 62%]
+tests/test_utils.py::test_smart_deepcopy_collection[collection1] PASSED  [ 62%]
+tests/test_utils.py::test_smart_deepcopy_collection[collection2] PASSED  [ 63%]
+tests/test_utils.py::test_smart_deepcopy_collection[collection3] PASSED  [ 63%]
+tests/test_utils.py::test_smart_deepcopy_collection[collection4] PASSED  [ 64%]
+tests/test_utils.py::test_smart_deepcopy_collection[collection5] PASSED  [ 65%]
+tests/test_utils.py::test_smart_deepcopy_collection[collection6] PASSED  [ 65%]
+tests/test_utils.py::test_smart_deepcopy_collection[collection7] PASSED  [ 66%]
+tests/test_utils.py::test_smart_deepcopy_error[TypeError] PASSED         [ 66%]
+tests/test_utils.py::test_smart_deepcopy_error[ValueError] PASSED        [ 67%]
+tests/test_utils.py::test_smart_deepcopy_error[RuntimeError] PASSED      [ 68%]
+tests/test_utils.py::test_get_origin[Annotated-Annotated] PASSED         [ 68%]
+tests/test_utils.py::test_get_origin[Callable-Callable] PASSED           [ 69%]
+tests/test_utils.py::test_get_origin[dict-dict] PASSED                   [ 69%]
+tests/test_utils.py::test_get_origin[list-list] PASSED                   [ 70%]
+tests/test_utils.py::test_get_origin[Union-Union] PASSED                 [ 71%]
+tests/test_utils.py::test_get_origin[int-None] PASSED                    [ 71%]
+tests/test_utils.py::test_all_identical PASSED                           [ 72%]
+tests/test_utils.py::test_undefined_pickle PASSED                        [ 72%]
+tests/test_utils.py::test_on_lower_camel_zero_length PASSED              [ 73%]
+tests/test_utils.py::test_on_lower_camel_one_length PASSED               [ 73%]
+tests/test_utils.py::test_on_lower_camel_many_length PASSED              [ 74%]
+tests/test_utils.py::test_snake2camel_start_lower[snake_to_camel-snakeToCamel] PASSED [ 75%]
+tests/test_utils.py::test_snake2camel_start_lower[snake_2_camel-snake2Camel] PASSED [ 75%]
+tests/test_utils.py::test_snake2camel_start_lower[snake2camel-snake2Camel] PASSED [ 76%]
+tests/test_utils.py::test_snake2camel_start_lower[_snake_to_camel-_snakeToCamel] PASSED [ 76%]
+tests/test_utils.py::test_snake2camel_start_lower[snake_to_camel_-snakeToCamel_] PASSED [ 77%]
+tests/test_utils.py::test_snake2camel_start_lower[__snake_to_camel__-__snakeToCamel__] PASSED [ 78%]
+tests/test_utils.py::test_snake2camel_start_lower[snake_2-snake2] PASSED [ 78%]
+tests/test_utils.py::test_snake2camel_start_lower[_snake_2-_snake2] PASSED [ 79%]
+tests/test_utils.py::test_snake2camel_start_lower[snake_2_-snake2_] PASSED [ 79%]
+tests/test_utils.py::test_snake2pascal[snake_to_camel-SnakeToCamel] PASSED [ 80%]
+tests/test_utils.py::test_snake2pascal[snake_2_camel-Snake2Camel] PASSED [ 81%]
+tests/test_utils.py::test_snake2pascal[snake2camel-Snake2Camel] PASSED   [ 81%]
+tests/test_utils.py::test_snake2pascal[_snake_to_camel-_SnakeToCamel] PASSED [ 82%]
+tests/test_utils.py::test_snake2pascal[snake_to_camel_-SnakeToCamel_] PASSED [ 82%]
+tests/test_utils.py::test_snake2pascal[__snake_to_camel__-__SnakeToCamel__] PASSED [ 83%]
+tests/test_utils.py::test_snake2pascal[snake_2-Snake2] PASSED            [ 84%]
+tests/test_utils.py::test_snake2pascal[_snake_2-_Snake2] PASSED          [ 84%]
+tests/test_utils.py::test_snake2pascal[snake_2_-Snake2_] PASSED          [ 85%]
+tests/test_utils.py::test_to_snake[camel_to_snake-camel_to_snake] PASSED [ 85%]
+tests/test_utils.py::test_to_snake[camelToSnake-camel_to_snake] PASSED   [ 86%]
+tests/test_utils.py::test_to_snake[camel2Snake-camel_2_snake] PASSED     [ 86%]
+tests/test_utils.py::test_to_snake[_camelToSnake-_camel_to_snake] PASSED [ 87%]
+tests/test_utils.py::test_to_snake[camelToSnake_-camel_to_snake_] PASSED [ 88%]
+tests/test_utils.py::test_to_snake[__camelToSnake__-__camel_to_snake__] PASSED [ 88%]
+tests/test_utils.py::test_to_snake[CamelToSnake-camel_to_snake] PASSED   [ 89%]
+tests/test_utils.py::test_to_snake[Camel2Snake-camel_2_snake] PASSED     [ 89%]
+tests/test_utils.py::test_to_snake[_CamelToSnake-_camel_to_snake] PASSED [ 90%]
+tests/test_utils.py::test_to_snake[CamelToSnake_-camel_to_snake_] PASSED [ 91%]
+tests/test_utils.py::test_to_snake[CAMELToSnake-camel_to_snake] PASSED   [ 91%]
+tests/test_utils.py::test_to_snake[__CamelToSnake__-__camel_to_snake__] PASSED [ 92%]
+tests/test_utils.py::test_to_snake[Camel2-camel_2] PASSED                [ 92%]
+tests/test_utils.py::test_to_snake[Camel2_-camel_2_] PASSED              [ 93%]
+tests/test_utils.py::test_to_snake[_Camel2-_camel_2] PASSED              [ 94%]
+tests/test_utils.py::test_to_snake[camel2-camel_2] PASSED                [ 94%]
+tests/test_utils.py::test_to_snake[camel2_-camel_2_] PASSED              [ 95%]
+tests/test_utils.py::test_to_snake[_camel2-_camel_2] PASSED              [ 95%]
+tests/test_utils.py::test_to_snake[kebab-to-snake-kebab_to_snake] PASSED [ 96%]
+tests/test_utils.py::test_to_snake[kebab-Snake-kebab_snake] PASSED       [ 97%]
+tests/test_utils.py::test_to_snake[Kebab-Snake-kebab_snake] PASSED       [ 97%]
+tests/test_utils.py::test_to_snake[PascalToSnake-pascal_to_snake] PASSED [ 98%]
+tests/test_utils.py::test_to_snake[snake_to_snake-snake_to_snake] PASSED [ 98%]
+tests/test_utils.py::test_to_snake[snakeV2-snake_v2] PASSED              [ 99%]
+tests/test_utils.py::test_to_camel_from_camel PASSED                     [100%]
+Results (0.77s):
+       169 passed
++ : '>>>>> End Test Output'

@@ -38,7 +38,7 @@ from tqdm.auto import tqdm
 
 
 def main(
-    out_path: Path,
+    out_dir: Path,
     traj_dir: Path,
     eval_dir: Path,
     style: str,
@@ -55,6 +55,8 @@ def main(
 
     if only_resolved and eval_dir.exists():
         print("Only keeping trajectories for resolved instances")
+
+    out_path = os.path.join(out_dir, f"ft_{style}_{os.path.basename(eval_dir)}.jsonl")
 
     num_trajs = 0
     with open(out_path, "w") as f:
@@ -120,7 +122,7 @@ if __name__ == "__main__":
         help="Only keep trajectories for resolved instances",
     )
     arg_parser.add_argument(
-        "--out_path",
+        "--out_dir",
         type=Path,
         required=False,
         default="trajectories_sft/",
@@ -128,27 +130,3 @@ if __name__ == "__main__":
     )
     args = arg_parser.parse_args()
     main(**vars(args))
-
-    args.out_path.mkdir(parents=True, exist_ok=True)
-
-    USER = "john-b-yang"
-    # TRAJS_EXP_PREFIX = "swesmith_gen_"
-
-    for run_id in sorted(args.traj_dir.iterdir()):
-        # if not run_id.startswith(TRAJS_EXP_PREFIX):
-        #     continue
-        traj_dir = args.traj_dir / run_id
-        eval_dir = args.eval_dir / run_id
-        out_path = args.out_path / f"ft_xml_{eval_dir.name}.jsonl"
-        if out_path.exists():
-            num = len(out_path.read_text().splitlines())
-            print(f"Skipping {out_path} because it already exists ({num} trajs)")
-            continue
-        print("*" * 20)
-        main(
-            out_path=out_path,
-            traj_dir=traj_dir,
-            eval_dir=eval_dir,
-            style="xml",
-            only_resolved=True,
-        )

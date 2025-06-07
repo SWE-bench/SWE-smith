@@ -32,7 +32,6 @@ repo="Instagram__MonkeyType.70c3acf6"
 # LM Rewrite
 python -m swesmith.bug_gen.llm.rewrite $repo \
     --model anthropic/claude-3-7-sonnet-20250219 \
-    --type func \
     --config_file configs/bug_gen/lm_rewrite.yml \
     --n_workers 1
 
@@ -40,13 +39,10 @@ python -m swesmith.bug_gen.llm.rewrite $repo \
 python -m swesmith.bug_gen.llm.modify $repo \
     --n_bugs 1 \
     --model openai/gpt-4o \
-    --entity_type func \
     --prompt_config configs/bug_gen/lm_modify.yml
 
 # Procedural Modifications
-python -m swesmith.bug_gen.procedural.generate $repo \
-    --type func \
-    --max_bugs 10
+python -m swesmith.bug_gen.procedural.generate $repo --max_bugs 10
 
 # Combine (Same File) - Must have validated task instances to run this script
 python -m swesmith.bug_gen.combine.same_file logs/bug_gen/$repo \

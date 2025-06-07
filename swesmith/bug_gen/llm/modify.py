@@ -5,7 +5,6 @@ Usage: python -m swesmith.bug_gen.llm.modify \
     --n_bugs <n_bugs> \
     --config_file <config_file> \
     --model <model> \
-    --type <entity_type>
     repo  # e.g., tkrajina__gpxpy.09fc46b3
 
 Where model follows the litellm format.
@@ -30,12 +29,8 @@ from dataclasses import asdict
 from dotenv import load_dotenv
 from litellm import completion
 from litellm.cost_calculator import completion_cost
-from swesmith.bug_gen.criteria import MAP_KEY_TO_CRITERIA
 from swesmith.bug_gen.llm.utils import PROMPT_KEYS, extract_code_block
 from swesmith.bug_gen.utils import (
-    ENTITY_TYPES,
-    BugRewrite,
-    CodeEntity,
     apply_code_change,
     extract_entities_from_directory,
     get_patch,
@@ -46,7 +41,7 @@ from swesmith.constants import (
     PREFIX_BUG,
     PREFIX_METADATA,
 )
-from swesmith.utils import clone_repo, does_repo_exist
+from swesmith.utils import BugRewrite, CodeEntity, clone_repo, repo_exists
 from tqdm.auto import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
 from typing import Any
@@ -113,16 +108,15 @@ def gen_bug_from_code_lm(
 
 def main(
     config_file: str,
-    entity_type: str,
     model: str,
     n_bugs: int,
     repo: str,
-    *,
     n_workers: int = 1,
+    org: str = ORG_NAME,
     **kwargs,
 ):
     # Check arguments
-    assert does_repo_exist(repo), f"Repository {repo} does not exist in {ORG_NAME}."
+    assert repo_exists(repo, org), f"Repository {repo} does not exist in {org}."
     assert os.path.exists(config_file), f"{config_file} not found"
     assert n_bugs > 0, "n_bugs must be greater than 0"
     configs = yaml.safe_load(open(config_file))
@@ -134,15 +128,13 @@ def main(
     print("Cloning repository...")
     clone_repo(repo)
     print("Extracting candidates...")
-    candidates = extract_entities_from_directory(repo, entity_type)
-    print(f"{len(candidates)} candidates found for {entity_type} in {repo}")
-    candidates = [x for x in candidates if MAP_KEY_TO_CRITERIA[configs["criteria"]](x)]
-    print(f"{len(candidates)} candidates passed criteria")
+    candidates = extract_entities_from_directory(repo)
+    print(f"{len(candidates)} candidates found in {repo}")
     if not candidates:
-        print(f"No candidates found for {entity_type} in {repo}.")
+        print(f"No candidates found in {repo}.")
         return
 
-    print(f"Generating bugs for {entity_type} in {repo} using {model}...")
+    print(f"Generating bugs in {repo} using {model}...")
     if not kwargs.get("yes", False):
         if input("Proceed with bug generation? (y/n): ").lower() != "y":
             return
@@ -159,11 +151,7 @@ def main(
 
         for bug in bugs:
             # Create artifacts
-            bug_dir = (
-                log_dir
-                / candidate.file_path.replace("/", "__")
-                / candidate.src_node.name
-            )
+            bug_dir = log_dir / candidate.file_path.replace("/", "__") / candidate.name
             bug_dir.mkdir(parents=True, exist_ok=True)
             uuid_str = f"{configs['name']}__{bug.get_hash()}"
             metadata_path = f"{PREFIX_METADATA}__{uuid_str}.json"
@@ -180,7 +168,7 @@ def main(
                     f.write(patch)
             except Exception as e:
                 print(
-                    f"Error applying bug to {candidate.src_node.name} in {candidate.file_path}: {e}",
+                    f"Error applying bug to {candidate.name} in {candidate.file_path}: {e}",
                 )
                 # import traceback
                 # print(f"Traceback:\n{''.join(traceback.format_exc())}")
@@ -221,12 +209,10 @@ if __name__ == "__main__":
         help="Name of a SWE-smith repository to generate bugs for.",
     )
     parser.add_argument(
-        "--type",
-        dest="entity_type",
+        "--config_file",
         type=str,
-        choices=list(ENTITY_TYPES.keys()),
-        default="func",
-        help="Type of entity to generate bugs for.",
+        help="Configuration file containing bug gen. strategy prompts",
+        required=True,
     )
     parser.add_argument(
         "--model",
@@ -241,14 +227,14 @@ if __name__ == "__main__":
         default=1,
     )
     parser.add_argument(
-        "--config_file",
-        type=str,
-        help="Configuration file containing bug gen. strategy prompts",
-        required=True,
-    )
-    parser.add_argument("-y", "--yes", action="store_true", help="Skip confirmation")
-    parser.add_argument(
         "--n_workers", type=int, help="Number of workers to use", default=1
     )
+    parser.add_argument(
+        "--org",
+        type=str,
+        help="Organization name (default: SWE-smith)",
+        default=ORG_NAME,
+    )
+    parser.add_argument("-y", "--yes", action="store_true", help="Skip confirmation")
     args = parser.parse_args()
     main(**vars(args))

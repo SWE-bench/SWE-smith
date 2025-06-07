@@ -3,7 +3,6 @@ Purpose: Given a repository, blank out various functions/classes, then ask the m
 
 Usage: python -m swesmith.bug_gen.llm.rewrite \
     --model <model> \
-    --type <entity_type> \
     repo  # e.g., tkrajina__gpxpy.09fc46b3
 
 Where model follows the litellm format.
@@ -26,23 +25,21 @@ import yaml
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from litellm import completion
 from litellm.cost_calculator import completion_cost
-from swesmith.bug_gen.criteria import filter_min_simple_complexity
 from swesmith.bug_gen.llm.utils import (
     PROMPT_KEYS,
     extract_code_block,
-    get_function_signature,
-    strip_function_body,
 )
 from swesmith.bug_gen.utils import (
-    ENTITY_TYPES,
-    BugRewrite,
-    CodeEntity,
     apply_code_change,
     extract_entities_from_directory,
     get_patch,
 )
 from swesmith.constants import LOG_DIR_BUG_GEN, PREFIX_BUG, PREFIX_METADATA
-from swesmith.utils import clone_repo
+from swesmith.utils import (
+    BugRewrite,
+    CodeEntity,
+    clone_repo,
+)
 from tqdm.auto import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
 from typing import Any
@@ -59,7 +56,6 @@ def main(
     repo: str,
     config_file: str,
     model: str,
-    entity_type: str,
     n_workers: int,
     redo_existing: bool = False,
     max_bugs: int = None,
@@ -69,11 +65,7 @@ def main(
     print(f"Cloning {repo}...")
     clone_repo(repo)
     print(f"Extracting entities from {repo}...")
-    candidates = [
-        x
-        for x in extract_entities_from_directory(repo, entity_type)
-        if filter_min_simple_complexity(x, 3)
-    ]
+    candidates = extract_entities_from_directory(repo)
     if max_bugs:
         random.shuffle(candidates)
         candidates = candidates[:max_bugs]
@@ -86,9 +78,7 @@ def main(
         print("Skipping existing bugs.")
 
     def _process_candidate(candidate: CodeEntity) -> dict[str, Any]:
-        bug_dir = (
-            log_dir / candidate.file_path.replace("/", "__") / candidate.src_node.name
-        )
+        bug_dir = log_dir / candidate.file_path.replace("/", "__") / candidate.name
         if not redo_existing:
             if bug_dir.exists() and any(
                 [
@@ -101,7 +91,7 @@ def main(
         try:
             # Blank out the function body
             blank_function = BugRewrite(
-                rewrite=strip_function_body(candidate.src_code),
+                rewrite=candidate.stub,
                 explanation="Blanked out the function body.",
                 strategy=LM_REWRITE,
             )
@@ -111,7 +101,7 @@ def main(
 
         # Get prompt content
         prompt_content = {
-            "func_signature": get_function_signature(candidate.src_node),
+            "func_signature": candidate.signature,
             "func_to_write": blank_function.rewrite,
             "file_src_code": open(candidate.file_path).read(),
         }
@@ -195,13 +185,6 @@ if __name__ == "__main__":
         "--config_file", type=str, help="Path to the configuration file.", required=True
     )
     parser.add_argument("--model", type=str, help="Model to use for rewriting.")
-    parser.add_argument(
-        "--type",
-        dest="entity_type",
-        type=str,
-        choices=list(ENTITY_TYPES.keys()),
-        help="Type of entity to generate bug patches for.",
-    )
     parser.add_argument(
         "--n_workers", type=int, help="Number of workers to use", default=1
     )

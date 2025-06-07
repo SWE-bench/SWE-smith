@@ -6,15 +6,11 @@ Usage: python -m swesmith.build_repo.create_images --force-rebuild --max-workers
 
 import argparse
 import docker
-import os
-import subprocess
-import shutil
 import traceback
 
 from copy import deepcopy
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from dotenv import load_dotenv
-from ghapi.all import GhApi
+from swesmith.build_repo.create_mirror_repo import create_mirror_repo
 from swebench.harness.constants import (
     BASE_IMAGE_BUILD_DIR,
     ENV_IMAGE_BUILD_DIR,
@@ -38,7 +34,6 @@ from swesmith.constants import (
     UBUNTU_VERSION,
 )
 from swesmith.utils import (
-    does_repo_exist,
     get_arch_and_platform,
     get_env_yml_path,
     get_repo_commit_from_image_name,
@@ -46,10 +41,6 @@ from swesmith.utils import (
     get_repo_name,
 )
 from tqdm import tqdm
-
-load_dotenv()
-GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
-api = GhApi(token=GITHUB_TOKEN)
 
 
 def get_repo_setup_script(repo: str, commit: str, org: str):
@@ -125,45 +116,6 @@ def build_base_image(
     return base_image_key
 
 
-def create_repo_commit_mirror(repo: str, commit: str, org: str):
-    """
-    Create a mirror of the repository at the given commit.
-    """
-    repo_name = get_repo_name(repo, commit)
-    if does_repo_exist(repo_name):
-        return
-    if repo_name in os.listdir():
-        shutil.rmtree(repo_name)
-    print(f"[{repo}][{commit[:8]}] Creating Mirror")
-    api.repos.create_in_org(org, repo_name)
-    for cmd in [
-        f"git clone git@github.com:{repo}.git {repo_name}",
-        (
-            f"cd {repo_name}; "
-            f"git checkout {commit}; "
-            "rm -rf .git; "
-            "git init; "
-            'git config user.name "swesmith"; '
-            'git config user.email "swesmith@anon.com"; '
-            "rm -rf .github/workflows; "  # Remove workflows
-            "git add .; "
-            "git commit -m 'Initial commit'; "
-            "git branch -M main; "
-            f"git remote add origin git@github.com:{org}/{repo_name}.git; "
-            "git push -u origin main",
-        ),
-        f"rm -rf {repo_name}",
-    ]:
-        subprocess.run(
-            cmd,
-            shell=True,
-            check=True,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        )
-    print(f"[{repo}][{commit[:8]}] Mirror created successfully")
-
-
 def build_repo_image(
     image_name: str,
     setup_scripts: dict,
@@ -174,7 +126,7 @@ def build_repo_image(
     org: str,
 ):
     repo, commit = get_repo_commit_from_image_name(image_name)
-    create_repo_commit_mirror(repo, commit, org)
+    create_mirror_repo(repo, commit, org)
     build_image(
         image_name=image_name,
         setup_scripts=setup_scripts,
@@ -316,7 +268,7 @@ def main():
     args = parser.parse_args()
 
     client = docker.from_env()
-    successful, failed = build_repo_images(client, **vars(args))
+    build_repo_images(client, **vars(args))
 
 
 if __name__ == "__main__":

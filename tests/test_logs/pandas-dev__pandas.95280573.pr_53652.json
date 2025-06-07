@@ -1,0 +1,24 @@
+{
+  "instance_id": "pandas-dev__pandas.95280573.pr_53652",
+  "repo": "swesmith/pandas-dev__pandas.95280573",
+  "patch": "diff --git a/pandas/core/indexes/base.py b/pandas/core/indexes/base.py\nindex c17c8c1..d1c4e49 100644\n--- a/pandas/core/indexes/base.py\n+++ b/pandas/core/indexes/base.py\n@@ -6069,9 +6069,7 @@ class Index(IndexOpsMixin, PandasObject):\n         if isinstance(key, Index):\n             # GH 42790 - Preserve name from an Index\n             keyarr.name = key.name\n-        if lib.is_np_dtype(keyarr.dtype, \"mM\") or isinstance(\n-            keyarr.dtype, DatetimeTZDtype\n-        ):\n+        if keyarr.dtype.kind in \"mM\":\n             # DTI/TDI.take can infer a freq in some cases when we dont want one\n             if isinstance(key, list) or (\n                 isinstance(key, type(self))\n",
+  "FAIL_TO_PASS": [
+    "pandas/tests/indexing/test_datetime.py::TestDatetimeIndex::test_getitem_pyarrow_index[DataFrame]",
+    "pandas/tests/indexing/test_datetime.py::TestDatetimeIndex::test_getitem_pyarrow_index[Series]"
+  ],
+  "PASS_TO_PASS": [
+    "pandas/tests/indexing/test_datetime.py::TestDatetimeIndex::test_get_loc_naive_dti_aware_str_deprecated",
+    "pandas/tests/indexing/test_datetime.py::TestDatetimeIndex::test_indexing_with_datetime_tz",
+    "pandas/tests/indexing/test_datetime.py::TestDatetimeIndex::test_indexing_fast_xs",
+    "pandas/tests/indexing/test_datetime.py::TestDatetimeIndex::test_consistency_with_tz_aware_scalar",
+    "pandas/tests/indexing/test_datetime.py::TestDatetimeIndex::test_indexing_with_datetimeindex_tz[setitem]",
+    "pandas/tests/indexing/test_datetime.py::TestDatetimeIndex::test_indexing_with_datetimeindex_tz[loc]",
+    "pandas/tests/indexing/test_datetime.py::TestDatetimeIndex::test_nanosecond_getitem_setitem_with_tz",
+    "pandas/tests/indexing/test_datetime.py::TestDatetimeIndex::test_getitem_str_slice_millisecond_resolution[DataFrame]",
+    "pandas/tests/indexing/test_datetime.py::TestDatetimeIndex::test_getitem_str_slice_millisecond_resolution[Series]"
+  ],
+  "created_at": "2025-03-21T08:23:31.701599",
+  "image_name": "swesmith.x86_64.pandas-dev__pandas.95280573",
+  "base_commit": "d1c5199b6a9d7ae9382d26ee2859b837107165e7",
+  "problem_statement": "# PyArrow timestamp indexes not working with .loc indexing\n\nIn version 2.0.0, I noticed that PyArrow timestamp indexes don't work correctly with `.loc` indexing.\n\n## Reproduction\n\n```python\nimport pandas as pd\nimport pyarrow as pa\n\n# Create a dataframe with PyArrow timestamp index\nindex = pd.date_range('2020', freq='D', periods=5).astype('timestamp[us][pyarrow]')\ndf = pd.DataFrame(range(5), index=index)\n\n# Try to select a subset using .loc with the index\nresult = df.loc[df.index[:-3]]\n```\n\nThis fails with an error. The same issue happens with Series objects:\n\n```python\n# Series version\ns = pd.Series(range(5), index=index)\nresult = s.loc[s.index[:-3]]  # This also fails\n```\n\nIt seems like the issue is related to how PyArrow timestamp dtypes are handled in indexing operations. The code works fine with regular pandas timestamp indexes, but breaks specifically with PyArrow timestamp indexes.\n\nExpected behavior: The `.loc` indexing should return the first 2 elements of the dataframe/series, similar to how it works with regular pandas timestamp indexes."
+}

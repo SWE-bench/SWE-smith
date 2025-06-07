@@ -39,6 +39,8 @@ dependencies = [
     "swebench",
     "tiktoken",
     "tqdm",
+    "tree-sitter",
+    "tree-sitter-go",
     "unidiff",
     "textual",
 ]

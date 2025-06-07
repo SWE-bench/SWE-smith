@@ -103,7 +103,7 @@ def test_get_test_paths(tmp_path):
     assert result_set == expected
 
 
-def test_does_repo_exist():
+def test_repo_exists():
     repo_name = "TestRepo"
     # Mock environment variable and GhApi
     with (
@@ -116,7 +116,7 @@ def test_does_repo_exist():
             [{"name": repo_name}],  # page 1
             [],  # page 2
         ]
-        assert does_repo_exist(repo_name) is True
+        assert repo_exists(repo_name) is True
         # Simulate repo does not exist
         mock_api_instance.repos.list_for_org.side_effect = [[{"name": "OtherRepo"}], []]
-        assert does_repo_exist(repo_name) is False
+        assert repo_exists(repo_name) is False
