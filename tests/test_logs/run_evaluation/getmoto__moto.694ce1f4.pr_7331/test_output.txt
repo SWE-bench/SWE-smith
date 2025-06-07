@@ -1,0 +1,353 @@
++ source /opt/miniconda3/bin/activate
+++ _CONDA_ROOT=/opt/miniconda3
+++ . /opt/miniconda3/etc/profile.d/conda.sh
++++ export CONDA_EXE=/opt/miniconda3/bin/conda
++++ CONDA_EXE=/opt/miniconda3/bin/conda
++++ export _CE_M=
++++ _CE_M=
++++ export _CE_CONDA=
++++ _CE_CONDA=
++++ export CONDA_PYTHON_EXE=/opt/miniconda3/bin/python
++++ CONDA_PYTHON_EXE=/opt/miniconda3/bin/python
++++ '[' -z '' ']'
++++ export CONDA_SHLVL=0
++++ CONDA_SHLVL=0
++++ '[' -n '' ']'
++++++ dirname /opt/miniconda3/bin/conda
+++++ dirname /opt/miniconda3/bin
++++ PATH=/opt/miniconda3/condabin:/opt/miniconda3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
++++ export PATH
++++ '[' -z '' ']'
++++ PS1=
+++ conda activate
+++ local cmd=activate
+++ case "$cmd" in
+++ __conda_activate activate
+++ '[' -n '' ']'
+++ local ask_conda
++++ PS1=
++++ __conda_exe shell.posix activate
++++ /opt/miniconda3/bin/conda shell.posix activate
+++ ask_conda='PS1='\''(base) '\''
+export PATH='\''/opt/miniconda3/bin:/opt/miniconda3/condabin:/opt/miniconda3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'\''
+export CONDA_PREFIX='\''/opt/miniconda3'\''
+export CONDA_SHLVL='\''1'\''
+export CONDA_DEFAULT_ENV='\''base'\''
+export CONDA_PROMPT_MODIFIER='\''(base) '\''
+export CONDA_EXE='\''/opt/miniconda3/bin/conda'\''
+export _CE_M='\'''\''
+export _CE_CONDA='\'''\''
+export CONDA_PYTHON_EXE='\''/opt/miniconda3/bin/python'\'''
+++ eval 'PS1='\''(base) '\''
+export PATH='\''/opt/miniconda3/bin:/opt/miniconda3/condabin:/opt/miniconda3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'\''
+export CONDA_PREFIX='\''/opt/miniconda3'\''
+export CONDA_SHLVL='\''1'\''
+export CONDA_DEFAULT_ENV='\''base'\''
+export CONDA_PROMPT_MODIFIER='\''(base) '\''
+export CONDA_EXE='\''/opt/miniconda3/bin/conda'\''
+export _CE_M='\'''\''
+export _CE_CONDA='\'''\''
+export CONDA_PYTHON_EXE='\''/opt/miniconda3/bin/python'\'''
++++ PS1='(base) '
++++ export PATH=/opt/miniconda3/bin:/opt/miniconda3/condabin:/opt/miniconda3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
++++ PATH=/opt/miniconda3/bin:/opt/miniconda3/condabin:/opt/miniconda3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
++++ export CONDA_PREFIX=/opt/miniconda3
++++ CONDA_PREFIX=/opt/miniconda3
++++ export CONDA_SHLVL=1
++++ CONDA_SHLVL=1
++++ export CONDA_DEFAULT_ENV=base
++++ CONDA_DEFAULT_ENV=base
++++ export 'CONDA_PROMPT_MODIFIER=(base) '
++++ CONDA_PROMPT_MODIFIER='(base) '
++++ export CONDA_EXE=/opt/miniconda3/bin/conda
++++ CONDA_EXE=/opt/miniconda3/bin/conda
++++ export _CE_M=
++++ _CE_M=
++++ export _CE_CONDA=
++++ _CE_CONDA=
++++ export CONDA_PYTHON_EXE=/opt/miniconda3/bin/python
++++ CONDA_PYTHON_EXE=/opt/miniconda3/bin/python
+++ __conda_hashr
+++ '[' -n '' ']'
+++ '[' -n '' ']'
+++ hash -r
++ conda activate testbed
++ local cmd=activate
++ case "$cmd" in
++ __conda_activate activate testbed
++ '[' -n '' ']'
++ local ask_conda
+++ PS1='(base) '
+++ __conda_exe shell.posix activate testbed
+++ /opt/miniconda3/bin/conda shell.posix activate testbed
++ ask_conda='PS1='\''(testbed) '\''
+export PATH='\''/opt/miniconda3/envs/testbed/bin:/opt/miniconda3/condabin:/opt/miniconda3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'\''
+export CONDA_PREFIX='\''/opt/miniconda3/envs/testbed'\''
+export CONDA_SHLVL='\''2'\''
+export CONDA_DEFAULT_ENV='\''testbed'\''
+export CONDA_PROMPT_MODIFIER='\''(testbed) '\''
+export CONDA_PREFIX_1='\''/opt/miniconda3'\''
+export CONDA_EXE='\''/opt/miniconda3/bin/conda'\''
+export _CE_M='\'''\''
+export _CE_CONDA='\'''\''
+export CONDA_PYTHON_EXE='\''/opt/miniconda3/bin/python'\'''
++ eval 'PS1='\''(testbed) '\''
+export PATH='\''/opt/miniconda3/envs/testbed/bin:/opt/miniconda3/condabin:/opt/miniconda3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'\''
+export CONDA_PREFIX='\''/opt/miniconda3/envs/testbed'\''
+export CONDA_SHLVL='\''2'\''
+export CONDA_DEFAULT_ENV='\''testbed'\''
+export CONDA_PROMPT_MODIFIER='\''(testbed) '\''
+export CONDA_PREFIX_1='\''/opt/miniconda3'\''
+export CONDA_EXE='\''/opt/miniconda3/bin/conda'\''
+export _CE_M='\'''\''
+export _CE_CONDA='\'''\''
+export CONDA_PYTHON_EXE='\''/opt/miniconda3/bin/python'\'''
+++ PS1='(testbed) '
+++ export PATH=/opt/miniconda3/envs/testbed/bin:/opt/miniconda3/condabin:/opt/miniconda3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+++ PATH=/opt/miniconda3/envs/testbed/bin:/opt/miniconda3/condabin:/opt/miniconda3/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+++ export CONDA_PREFIX=/opt/miniconda3/envs/testbed
+++ CONDA_PREFIX=/opt/miniconda3/envs/testbed
+++ export CONDA_SHLVL=2
+++ CONDA_SHLVL=2
+++ export CONDA_DEFAULT_ENV=testbed
+++ CONDA_DEFAULT_ENV=testbed
+++ export 'CONDA_PROMPT_MODIFIER=(testbed) '
+++ CONDA_PROMPT_MODIFIER='(testbed) '
+++ export CONDA_PREFIX_1=/opt/miniconda3
+++ CONDA_PREFIX_1=/opt/miniconda3
+++ export CONDA_EXE=/opt/miniconda3/bin/conda
+++ CONDA_EXE=/opt/miniconda3/bin/conda
+++ export _CE_M=
+++ _CE_M=
+++ export _CE_CONDA=
+++ _CE_CONDA=
+++ export CONDA_PYTHON_EXE=/opt/miniconda3/bin/python
+++ CONDA_PYTHON_EXE=/opt/miniconda3/bin/python
++ __conda_hashr
++ '[' -n '' ']'
++ '[' -n '' ']'
++ hash -r
++ cd /testbed
++ : '>>>>> Start Test Output'
++ pytest --disable-warnings --color=no --tb=no --verbose tests/test_cognitoidp/test_cognitoidp.py
+============================= test session starts ==============================
+platform linux -- Python 3.12.9, pytest-8.3.4, pluggy-1.5.0 -- /opt/miniconda3/envs/testbed/bin/python
+cachedir: .pytest_cache
+rootdir: /testbed
+configfile: pyproject.toml
+plugins: order-1.3.0, xdist-3.6.1, cov-6.0.0
+collecting ... collected 210 items
+
+tests/test_cognitoidp/test_cognitoidp.py::test_create_user_pool PASSED   [  0%]
+tests/test_cognitoidp/test_cognitoidp.py::test_create_user_pool__overwrite_template_messages PASSED [  0%]
+tests/test_cognitoidp/test_cognitoidp.py::test_create_user_pool_should_have_all_default_attributes_in_schema PASSED [  1%]
+tests/test_cognitoidp/test_cognitoidp.py::test_create_user_pool_unknown_attribute_data_type PASSED [  1%]
+tests/test_cognitoidp/test_cognitoidp.py::test_create_user_pool_custom_attribute_without_data_type PASSED [  2%]
+tests/test_cognitoidp/test_cognitoidp.py::test_create_user_pool_custom_attribute_defaults PASSED [  2%]
+tests/test_cognitoidp/test_cognitoidp.py::test_create_user_pool_custom_attribute_developer_only PASSED [  3%]
+tests/test_cognitoidp/test_cognitoidp.py::test_create_user_pool_custom_attribute_required PASSED [  3%]
+tests/test_cognitoidp/test_cognitoidp.py::test_create_user_pool_standard_attribute_with_changed_data_type_or_developer_only[standard_attribute] PASSED [  4%]
+tests/test_cognitoidp/test_cognitoidp.py::test_create_user_pool_standard_attribute_with_changed_data_type_or_developer_only[developer_only] PASSED [  4%]
+tests/test_cognitoidp/test_cognitoidp.py::test_create_user_pool_attribute_with_schema PASSED [  5%]
+tests/test_cognitoidp/test_cognitoidp.py::test_create_user_pool_attribute_partial_schema PASSED [  5%]
+tests/test_cognitoidp/test_cognitoidp.py::test_create_user_pool_invalid_schema_values[invalid_min_length] PASSED [  6%]
+tests/test_cognitoidp/test_cognitoidp.py::test_create_user_pool_invalid_schema_values[invalid_max_length] PASSED [  6%]
+tests/test_cognitoidp/test_cognitoidp.py::test_create_user_pool_invalid_schema_values[invalid_max_value] PASSED [  7%]
+tests/test_cognitoidp/test_cognitoidp.py::test_create_user_pool_invalid_schema_values[invalid_min_value] PASSED [  7%]
+tests/test_cognitoidp/test_cognitoidp.py::test_create_user_pool_string_schema_max_length_over_2048[invalid_min_length] PASSED [  8%]
+tests/test_cognitoidp/test_cognitoidp.py::test_create_user_pool_string_schema_max_length_over_2048[invalid_max_length] PASSED [  8%]
+tests/test_cognitoidp/test_cognitoidp.py::test_create_user_pool_string_schema_min_bigger_than_max PASSED [  9%]
+tests/test_cognitoidp/test_cognitoidp.py::test_create_user_pool_number_schema_min_bigger_than_max PASSED [  9%]
+tests/test_cognitoidp/test_cognitoidp.py::test_add_custom_attributes PASSED [ 10%]
+tests/test_cognitoidp/test_cognitoidp.py::test_add_custom_attributes_existing_attribute PASSED [ 10%]
+tests/test_cognitoidp/test_cognitoidp.py::test_create_user_pool_default_id_strategy PASSED [ 10%]
+tests/test_cognitoidp/test_cognitoidp.py::test_create_user_pool_hash_id_strategy_with_equal_pool_name PASSED [ 11%]
+tests/test_cognitoidp/test_cognitoidp.py::test_create_user_pool_hash_id_strategy_with_different_pool_name PASSED [ 11%]
+tests/test_cognitoidp/test_cognitoidp.py::test_create_user_pool_hash_id_strategy_with_different_attributes PASSED [ 12%]
+tests/test_cognitoidp/test_cognitoidp.py::test_list_user_pools PASSED    [ 12%]
+tests/test_cognitoidp/test_cognitoidp.py::test_authorize_user_with_force_password_change_status PASSED [ 13%]
+tests/test_cognitoidp/test_cognitoidp.py::test_set_user_pool_mfa_config PASSED [ 13%]
+tests/test_cognitoidp/test_cognitoidp.py::test_list_user_pools_returns_max_items PASSED [ 14%]
+tests/test_cognitoidp/test_cognitoidp.py::test_list_user_pools_returns_next_tokens PASSED [ 14%]
+tests/test_cognitoidp/test_cognitoidp.py::test_list_user_pools_when_max_items_more_than_total_items PASSED [ 15%]
+tests/test_cognitoidp/test_cognitoidp.py::test_describe_user_pool PASSED [ 15%]
+tests/test_cognitoidp/test_cognitoidp.py::test_describe_user_pool_estimated_number_of_users PASSED [ 16%]
+tests/test_cognitoidp/test_cognitoidp.py::test_describe_user_pool_resource_not_found PASSED [ 16%]
+tests/test_cognitoidp/test_cognitoidp.py::test_update_user_pool PASSED   [ 17%]
+tests/test_cognitoidp/test_cognitoidp.py::test_delete_user_pool PASSED   [ 17%]
+tests/test_cognitoidp/test_cognitoidp.py::test_create_user_pool_domain PASSED [ 18%]
+tests/test_cognitoidp/test_cognitoidp.py::test_create_user_pool_domain_custom_domain_config PASSED [ 18%]
+tests/test_cognitoidp/test_cognitoidp.py::test_describe_user_pool_domain PASSED [ 19%]
+tests/test_cognitoidp/test_cognitoidp.py::test_delete_user_pool_domain PASSED [ 19%]
+tests/test_cognitoidp/test_cognitoidp.py::test_update_user_pool_domain PASSED [ 20%]
+tests/test_cognitoidp/test_cognitoidp.py::test_create_user_pool_client PASSED [ 20%]
+tests/test_cognitoidp/test_cognitoidp.py::test_create_user_pool_client_returns_secret PASSED [ 20%]
+tests/test_cognitoidp/test_cognitoidp.py::test_list_user_pool_clients PASSED [ 21%]
+tests/test_cognitoidp/test_cognitoidp.py::test_list_user_pool_clients_returns_max_items PASSED [ 21%]
+tests/test_cognitoidp/test_cognitoidp.py::test_list_user_pool_clients_returns_next_tokens PASSED [ 22%]
+tests/test_cognitoidp/test_cognitoidp.py::test_list_user_pool_clients_when_max_items_more_than_total_items PASSED [ 22%]
+tests/test_cognitoidp/test_cognitoidp.py::test_describe_user_pool_client PASSED [ 23%]
+tests/test_cognitoidp/test_cognitoidp.py::test_update_user_pool_client PASSED [ 23%]
+tests/test_cognitoidp/test_cognitoidp.py::test_update_user_pool_client_returns_secret PASSED [ 24%]
+tests/test_cognitoidp/test_cognitoidp.py::test_delete_user_pool_client PASSED [ 24%]
+tests/test_cognitoidp/test_cognitoidp.py::test_create_identity_provider PASSED [ 25%]
+tests/test_cognitoidp/test_cognitoidp.py::test_list_identity_providers PASSED [ 25%]
+tests/test_cognitoidp/test_cognitoidp.py::test_list_identity_providers_returns_max_items PASSED [ 26%]
+tests/test_cognitoidp/test_cognitoidp.py::test_list_identity_providers_returns_next_tokens PASSED [ 26%]
+tests/test_cognitoidp/test_cognitoidp.py::test_list_identity_providers_when_max_items_more_than_total_items PASSED [ 27%]
+tests/test_cognitoidp/test_cognitoidp.py::test_describe_identity_providers PASSED [ 27%]
+tests/test_cognitoidp/test_cognitoidp.py::test_update_identity_provider PASSED [ 28%]
+tests/test_cognitoidp/test_cognitoidp.py::test_update_identity_provider_no_user_pool PASSED [ 28%]
+tests/test_cognitoidp/test_cognitoidp.py::test_update_identity_provider_no_identity_provider PASSED [ 29%]
+tests/test_cognitoidp/test_cognitoidp.py::test_delete_identity_providers PASSED [ 29%]
+tests/test_cognitoidp/test_cognitoidp.py::test_create_group PASSED       [ 30%]
+tests/test_cognitoidp/test_cognitoidp.py::test_update_group PASSED       [ 30%]
+tests/test_cognitoidp/test_cognitoidp.py::test_group_in_access_token PASSED [ 30%]
+tests/test_cognitoidp/test_cognitoidp.py::test_jti_in_tokens PASSED      [ 31%]
+tests/test_cognitoidp/test_cognitoidp.py::test_other_attributes_in_id_token PASSED [ 31%]
+tests/test_cognitoidp/test_cognitoidp.py::test_create_group_with_duplicate_name_raises_error PASSED [ 32%]
+tests/test_cognitoidp/test_cognitoidp.py::test_get_group PASSED          [ 32%]
+tests/test_cognitoidp/test_cognitoidp.py::test_list_groups PASSED        [ 33%]
+tests/test_cognitoidp/test_cognitoidp.py::test_list_groups_returns_pagination_tokens PASSED [ 33%]
+tests/test_cognitoidp/test_cognitoidp.py::test_list_groups_when_limit_more_than_total_items PASSED [ 34%]
+tests/test_cognitoidp/test_cognitoidp.py::test_delete_group PASSED       [ 34%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_add_user_to_group PASSED [ 35%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_add_user_to_group_with_username_attributes PASSED [ 35%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_add_user_to_group_again_is_noop PASSED [ 36%]
+tests/test_cognitoidp/test_cognitoidp.py::test_list_users_in_group PASSED [ 36%]
+tests/test_cognitoidp/test_cognitoidp.py::test_list_users_in_group_ignores_deleted_user PASSED [ 37%]
+tests/test_cognitoidp/test_cognitoidp.py::test_list_users_in_group_returns_pagination_tokens PASSED [ 37%]
+tests/test_cognitoidp/test_cognitoidp.py::test_list_users_in_group_when_limit_more_than_total_items PASSED [ 38%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_list_groups_for_user PASSED [ 38%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_list_groups_for_user_with_username_attribute PASSED [ 39%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_list_groups_for_user_ignores_deleted_group PASSED [ 39%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_list_groups_for_users_returns_pagination_tokens PASSED [ 40%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_remove_user_from_group PASSED [ 40%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_remove_user_from_group_with_username_attributes PASSED [ 40%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_remove_user_from_group_again_is_noop PASSED [ 41%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_create_user PASSED  [ 41%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_create_user_with_username_attributes PASSED [ 42%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_create_user_with_incorrect_username_attribute_type_fails PASSED [ 42%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_create_user_with_existing_username_attribute_fails PASSED [ 43%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_create_existing_user PASSED [ 43%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_confirm_sign_up PASSED [ 44%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_confirm_sign_up_non_existing_user PASSED [ 44%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_confirm_sign_up_non_existing_pool PASSED [ 45%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_resend_invitation_existing_user PASSED [ 45%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_resend_invitation_missing_user PASSED [ 46%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_get_user PASSED     [ 46%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_get_user_with_username_attributes PASSED [ 47%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_get_missing_user PASSED [ 47%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_get_missing_user_with_username_attributes PASSED [ 48%]
+tests/test_cognitoidp/test_cognitoidp.py::test_new_user_contains_same_created_and_updated_dates PASSED [ 48%]
+tests/test_cognitoidp/test_cognitoidp.py::test_update_user_attributes_also_changes_last_modified_date PASSED [ 49%]
+tests/test_cognitoidp/test_cognitoidp.py::test_delete_user_attributes_also_changes_last_modified_date PASSED [ 49%]
+tests/test_cognitoidp/test_cognitoidp.py::test_get_user PASSED           [ 50%]
+tests/test_cognitoidp/test_cognitoidp.py::test_get_user_unknown_accesstoken PASSED [ 50%]
+tests/test_cognitoidp/test_cognitoidp.py::test_list_users PASSED         [ 50%]
+tests/test_cognitoidp/test_cognitoidp.py::test_list_users_incorrect_filter PASSED [ 51%]
+tests/test_cognitoidp/test_cognitoidp.py::test_list_users_invalid_attributes PASSED [ 51%]
+tests/test_cognitoidp/test_cognitoidp.py::test_list_users_with_username_attributes PASSED [ 52%]
+tests/test_cognitoidp/test_cognitoidp.py::test_list_users_inherent_attributes PASSED [ 52%]
+tests/test_cognitoidp/test_cognitoidp.py::test_get_user_unconfirmed PASSED [ 53%]
+tests/test_cognitoidp/test_cognitoidp.py::test_list_users_returns_limit_items PASSED [ 53%]
+tests/test_cognitoidp/test_cognitoidp.py::test_list_users_returns_pagination_tokens PASSED [ 54%]
+tests/test_cognitoidp/test_cognitoidp.py::test_list_users_when_limit_more_than_total_items PASSED [ 54%]
+tests/test_cognitoidp/test_cognitoidp.py::test_list_users_with_attributes_to_get PASSED [ 55%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_disable_user PASSED [ 55%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_disable_user_with_username_attributes PASSED [ 56%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_enable_user PASSED  [ 56%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_enable_user_with_username_attributes PASSED [ 57%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_delete_user PASSED  [ 57%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_delete_user_with_username_attributes PASSED [ 58%]
+tests/test_cognitoidp/test_cognitoidp.py::test_authentication_flow PASSED [ 58%]
+tests/test_cognitoidp/test_cognitoidp.py::test_authentication_flow_invalid_flow PASSED [ 59%]
+tests/test_cognitoidp/test_cognitoidp.py::test_authentication_flow_invalid_user_flow PASSED [ 59%]
+tests/test_cognitoidp/test_cognitoidp.py::test_user_authentication_flow_mfa_on PASSED [ 60%]
+tests/test_cognitoidp/test_cognitoidp.py::test_user_authentication_flow_mfa_optional PASSED [ 60%]
+tests/test_cognitoidp/test_cognitoidp.py::test_token_legitimacy PASSED   [ 60%]
+tests/test_cognitoidp/test_cognitoidp.py::test_change_password PASSED    [ 61%]
+tests/test_cognitoidp/test_cognitoidp.py::test_change_password__using_custom_user_agent_header PASSED [ 61%]
+tests/test_cognitoidp/test_cognitoidp.py::test_forgot_password PASSED    [ 62%]
+tests/test_cognitoidp/test_cognitoidp.py::test_forgot_password_nonexistent_client_id PASSED [ 62%]
+tests/test_cognitoidp/test_cognitoidp.py::test_forgot_password_admin_only_recovery PASSED [ 63%]
+tests/test_cognitoidp/test_cognitoidp.py::test_forgot_password_user_with_all_recovery_attributes PASSED [ 63%]
+tests/test_cognitoidp/test_cognitoidp.py::test_forgot_password_nonexistent_user_or_user_without_attributes PASSED [ 64%]
+tests/test_cognitoidp/test_cognitoidp.py::test_forgot_password_with_email_delivery_details PASSED [ 64%]
+tests/test_cognitoidp/test_cognitoidp.py::test_confirm_forgot_password_legacy PASSED [ 65%]
+tests/test_cognitoidp/test_cognitoidp.py::test_confirm_forgot_password_opt_in_verification PASSED [ 65%]
+tests/test_cognitoidp/test_cognitoidp.py::test_confirm_forgot_password_opt_in_verification_invalid_confirmation_code PASSED [ 66%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_user_global_sign_out PASSED [ 66%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_user_global_sign_out_twice PASSED [ 67%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_user_global_sign_out_unknown_userpool PASSED [ 67%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_user_global_sign_out_unknown_user PASSED [ 68%]
+tests/test_cognitoidp/test_cognitoidp.py::test_global_sign_out PASSED    [ 68%]
+tests/test_cognitoidp/test_cognitoidp.py::test_global_sign_out_unknown_accesstoken PASSED [ 69%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_update_user_attributes PASSED [ 69%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_delete_user_attributes PASSED [ 70%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_delete_user_attributes_non_existing_attribute PASSED [ 70%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_delete_user_attributes_non_existing_user PASSED [ 70%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_delete_user_attributes_non_existing_pool PASSED [ 71%]
+tests/test_cognitoidp/test_cognitoidp.py::test_update_user_attributes PASSED [ 71%]
+tests/test_cognitoidp/test_cognitoidp.py::test_update_user_attributes_unknown_accesstoken PASSED [ 72%]
+tests/test_cognitoidp/test_cognitoidp.py::test_create_resource_server PASSED [ 72%]
+tests/test_cognitoidp/test_cognitoidp.py::test_create_resource_server_with_no_scopes PASSED [ 73%]
+tests/test_cognitoidp/test_cognitoidp.py::test_describe_resource_server PASSED [ 73%]
+tests/test_cognitoidp/test_cognitoidp.py::test_list_resource_servers_empty_set PASSED [ 74%]
+tests/test_cognitoidp/test_cognitoidp.py::test_list_resource_servers_single_page PASSED [ 74%]
+tests/test_cognitoidp/test_cognitoidp.py::test_list_resource_servers_multi_page PASSED [ 75%]
+tests/test_cognitoidp/test_cognitoidp.py::test_sign_up PASSED            [ 75%]
+tests/test_cognitoidp/test_cognitoidp.py::test_sign_up_with_unverified_email PASSED [ 76%]
+tests/test_cognitoidp/test_cognitoidp.py::test_sign_up_with_verified_email PASSED [ 76%]
+tests/test_cognitoidp/test_cognitoidp.py::test_sign_up_with_verified_but_not_supplied_email PASSED [ 77%]
+tests/test_cognitoidp/test_cognitoidp.py::test_sign_up_with_invalid_password[p2$$word] PASSED [ 77%]
+tests/test_cognitoidp/test_cognitoidp.py::test_sign_up_with_invalid_password[P2$s] PASSED [ 78%]
+tests/test_cognitoidp/test_cognitoidp.py::test_sign_up_with_username_attributes PASSED [ 78%]
+tests/test_cognitoidp/test_cognitoidp.py::test_sign_up_existing_user PASSED [ 79%]
+tests/test_cognitoidp/test_cognitoidp.py::test_confirm_sign_up PASSED    [ 79%]
+tests/test_cognitoidp/test_cognitoidp.py::test_confirm_sign_up_with_username_attributes PASSED [ 80%]
+tests/test_cognitoidp/test_cognitoidp.py::test_initiate_auth_USER_SRP_AUTH PASSED [ 80%]
+tests/test_cognitoidp/test_cognitoidp.py::test_initiate_auth_USER_SRP_AUTH_with_username_attributes PASSED [ 80%]
+tests/test_cognitoidp/test_cognitoidp.py::test_initiate_auth_REFRESH_TOKEN PASSED [ 81%]
+tests/test_cognitoidp/test_cognitoidp.py::test_initiate_auth_USER_PASSWORD_AUTH PASSED [ 81%]
+tests/test_cognitoidp/test_cognitoidp.py::test_initiate_auth_USER_PASSWORD_AUTH_with_email PASSED [ 82%]
+tests/test_cognitoidp/test_cognitoidp.py::test_initiate_auth_USER_PASSWORD_AUTH_when_software_token_mfa_enabled PASSED [ 82%]
+tests/test_cognitoidp/test_cognitoidp.py::test_initiate_auth_USER_PASSWORD_AUTH_when_sms_mfa_enabled PASSED [ 83%]
+tests/test_cognitoidp/test_cognitoidp.py::test_initiate_auth_invalid_auth_flow PASSED [ 83%]
+tests/test_cognitoidp/test_cognitoidp.py::test_initiate_auth_invalid_admin_auth_flow PASSED [ 84%]
+tests/test_cognitoidp/test_cognitoidp.py::test_initiate_auth_USER_PASSWORD_AUTH_with_FORCE_CHANGE_PASSWORD_status PASSED [ 84%]
+tests/test_cognitoidp/test_cognitoidp.py::test_initiate_mfa_auth_USER_PASSWORD_AUTH_with_FORCE_CHANGE_PASSWORD_status PASSED [ 85%]
+tests/test_cognitoidp/test_cognitoidp.py::test_initiate_auth_USER_PASSWORD_AUTH_user_not_found PASSED [ 85%]
+tests/test_cognitoidp/test_cognitoidp.py::test_initiate_auth_USER_PASSWORD_AUTH_user_incorrect_password PASSED [ 86%]
+tests/test_cognitoidp/test_cognitoidp.py::test_initiate_auth_USER_PASSWORD_AUTH_unconfirmed_user PASSED [ 86%]
+tests/test_cognitoidp/test_cognitoidp.py::test_initiate_auth_for_unconfirmed_user PASSED [ 87%]
+tests/test_cognitoidp/test_cognitoidp.py::test_initiate_auth_with_invalid_secret_hash PASSED [ 87%]
+tests/test_cognitoidp/test_cognitoidp.py::test_setting_mfa PASSED        [ 88%]
+tests/test_cognitoidp/test_cognitoidp.py::test_setting_mfa_when_token_not_verified PASSED [ 88%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_setting_single_mfa PASSED [ 89%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_setting_mfa_totp_and_sms PASSED [ 89%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_initiate_auth_when_token_totp_enabled PASSED [ 90%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_initiate_auth_when_sms_mfa_enabled PASSED [ 90%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_setting_mfa_when_token_not_verified PASSED [ 90%]
+tests/test_cognitoidp/test_cognitoidp.py::test_respond_to_auth_challenge_with_invalid_secret_hash PASSED [ 91%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_set_user_password PASSED [ 91%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_set_invalid_user_password[pa$$word] PASSED [ 92%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_set_invalid_user_password[Password] PASSED [ 92%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_set_invalid_user_password[p2ssword] PASSED [ 93%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_set_invalid_user_password[P2$S] PASSED [ 93%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_set_invalid_user_password__custom_policy_provided[password] PASSED [ 94%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_set_invalid_user_password__custom_policy_provided[P2$$word] PASSED [ 94%]
+tests/test_cognitoidp/test_cognitoidp.py::test_change_password_with_invalid_token_raises_error PASSED [ 95%]
+tests/test_cognitoidp/test_cognitoidp.py::test_confirm_forgot_password_with_non_existent_client_id_raises_error PASSED [ 95%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_reset_password_and_change_password PASSED [ 96%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_initiate_auth__use_access_token PASSED [ 96%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_reset_password_disabled_user PASSED [ 97%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_reset_password_unconfirmed_user PASSED [ 97%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_reset_password_no_verified_notification_channel PASSED [ 98%]
+tests/test_cognitoidp/test_cognitoidp.py::test_admin_reset_password_multiple_invocations PASSED [ 98%]
+tests/test_cognitoidp/test_cognitoidp.py::test_login_denied_if_account_disabled PASSED [ 99%]
+tests/test_cognitoidp/test_cognitoidp.py::test_initiate_auth_with_invalid_user_pool PASSED [ 99%]
+tests/test_cognitoidp/test_cognitoidp.py::test_idtoken_contains_kid_header PASSED [100%]
+
+====================== 210 passed, 36 warnings in 46.89s =======================
++ : '>>>>> End Test Output'
