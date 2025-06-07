@@ -22,7 +22,7 @@ def test_file_go():
 
 @pytest.fixture
 def test_file_py():
-    return Path(repo_root) / "tests/test_data/files/file.py"
+    return Path(repo_root) / "tests/test_logs/files/file.py"
 
 
 @pytest.fixture
@@ -34,7 +34,7 @@ def test_file_ruby():
 def test_output_gotest():
     return (
         Path(repo_root)
-        / "tests/test_data/test_output/gin-gonic__gin.3c12d2a8.lm_rewrite__4pb48n1g.txt"
+        / "tests/test_logs/test_output/gin-gonic__gin.3c12d2a8.lm_rewrite__4pb48n1g.txt"
     )
 
 
@@ -42,5 +42,30 @@ def test_output_gotest():
 def test_output_pytest():
     return (
         Path(repo_root)
-        / "tests/test_data/test_output/django-money__django-money.835c1ab8.combine_file__7znr0kum.txt"
+        / "tests/test_logs/test_output/django-money__django-money.835c1ab8.combine_file__7znr0kum.txt"
     )
+
+
+@pytest.fixture
+def logs_trajectories():
+    return Path(repo_root) / "tests/test_logs/trajectories"
+
+
+@pytest.fixture
+def logs_run_evaluation():
+    return Path(repo_root) / "tests/test_logs/run_evaluation"
+
+
+@pytest.fixture
+def logs_run_validation():
+    return Path(repo_root) / "tests/test_logs/run_validation"
+
+
+@pytest.fixture
+def ft_xml_example():
+    return Path(repo_root) / "tests/test_logs/ft_xml_example.jsonl"
+
+
+@pytest.fixture
+def task_instance_path():
+    return Path(repo_root) / "tests/test_logs/pandas-dev__pandas.95280573.pr_53652.json"
