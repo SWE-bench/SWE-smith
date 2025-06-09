@@ -133,12 +133,12 @@ class PythonEntity(CodeEntity):
                 if (
                     node.body
                     and isinstance(node.body[0], ast.Expr)
-                    and isinstance(node.body[0].value, ast.Str)
+                    and isinstance(node.body[0].value, ast.Constant)
                 ):
                     new_node.body.append(node.body[0])
 
                 # Add a comment indicating to implement this function
-                new_node.body.append(ast.Expr(ast.Str(TODO_REWRITE)))
+                new_node.body.append(ast.Expr(ast.Constant(TODO_REWRITE)))
 
                 # Add a 'pass' statement after the docstring
                 new_node.body.append(ast.Pass())
