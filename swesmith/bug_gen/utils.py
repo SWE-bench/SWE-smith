@@ -95,6 +95,7 @@ def extract_entities_from_directory(
                 file.startswith("test_")
                 or file.rsplit(".", 1)[0].endswith("_spec")
                 or file.rsplit(".", 1)[0].endswith("_test")
+                or file.rsplit(".", 1)[0].endswith("Test")
             ):
                 continue
 
