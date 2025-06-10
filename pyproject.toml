@@ -41,6 +41,7 @@ dependencies = [
     "tqdm",
     "tree-sitter>=0.23",
     "tree-sitter-go",
+    "tree-sitter-java",
     "tree-sitter-ruby",
     "tree-sitter-rust==v0.23.2",
     "unidiff",
