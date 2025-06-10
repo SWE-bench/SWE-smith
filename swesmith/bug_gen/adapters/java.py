@@ -109,14 +109,27 @@ def get_entities_from_file_java(
             "constructor_declaration",
             "method_declaration",
         ]:
-            entities.append(_build_entity(node, lines, file_path))
-            if 0 <= max_entities == len(entities):
-                return
+            if node.type == "method_declaration" and not _has_body(node):
+                pass
+            else:
+                entities.append(_build_entity(node, lines, file_path))
+                if 0 <= max_entities == len(entities):
+                    return
 
         for child in node.children:
             walk(child)
 
     walk(root)
+
+
+def _has_body(node) -> bool:
+    """
+    Check if a method declaration has a body.
+    """
+    for child in node.children:
+        if child.type == "block":
+            return True
+    return False
 
 
 def _build_entity(node, lines, file_path: str) -> CodeEntity:

@@ -12,8 +12,43 @@ def entities(test_file_java):
     return entities
 
 
+def test_get_entities_from_file_java_max(test_file_java):
+    entities = []
+    get_entities_from_file_java(entities, test_file_java, 3)
+    assert len(entities) == 3
+
+
+def test_get_entities_from_file_java_unreadable():
+    with pytest.raises(IOError):
+        get_entities_from_file_java([], "non-existent-file")
+
+
 def test_get_entities_from_file_java_count(entities):
     assert len(entities) == 9
+
+
+def test_get_entities_from_file_java_no_methods(tmp_path):
+    no_methods_file = tmp_path / "NoMethods.java"
+    no_methods_file.write_text("// there are no methods here")
+    entities = []
+    get_entities_from_file_java(entities, no_methods_file)
+    assert len(entities) == 0
+
+
+def test_get_entities_from_file_java_ignore_abstract_methods(tmp_path):
+    abstract_method_file = tmp_path / "HasAbstractMethod.java"
+    abstract_method_file.write_text("protected abstract String getName();")
+    entities = []
+    get_entities_from_file_java(entities, abstract_method_file)
+    assert len(entities) == 0
+
+
+def test_get_entities_from_file_java_ignore_interface_methods(tmp_path):
+    interface_file = tmp_path / "HasInterface.java"
+    interface_file.write_text("public interface Nameable { String getName(); }")
+    entities = []
+    get_entities_from_file_java(entities, interface_file)
+    assert len(entities) == 0
 
 
 def test_get_entities_from_file_java_names(entities):
