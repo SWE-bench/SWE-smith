@@ -45,6 +45,8 @@ class JavaEntity(CodeEntity):
                 .rstrip()
                 .decode("utf-8")
             )
+            signature = re.sub(r"\(\s+", "(", signature).strip()
+            signature = re.sub(r"\s+\)", ")", signature).strip()
             signature = re.sub(r"\s+", " ", signature).strip()
             return signature
         return ""
