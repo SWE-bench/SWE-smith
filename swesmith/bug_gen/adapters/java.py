@@ -40,13 +40,10 @@ class JavaEntity(CodeEntity):
         matches = body_query.matches(self.node)
         if matches:
             body_node = matches[0][1]["body"][0]
-            signature_with_annotations = (
+            signature = (
                 self.node.text[: body_node.start_byte - self.node.start_byte]
                 .rstrip()
                 .decode("utf-8")
-            )
-            signature = self._strip_leading_annotations(
-                self.node, signature_with_annotations
             )
             signature = re.sub(r"\s+", " ", signature).strip()
             return signature
@@ -61,31 +58,6 @@ class JavaEntity(CodeEntity):
         """Extract text from tree-sitter query matches with None fallback."""
         matches = query.matches(node)
         return matches[0][1][capture_name][0].text.decode("utf-8") if matches else None
-
-    @staticmethod
-    def _strip_leading_annotations(node, signature_text: str) -> str:
-        """Strip leading annotations from method/constructor signature text."""
-        annotation_query = Query(
-            JAVA_LANGUAGE,
-            """
-            [
-              (method_declaration (modifiers (marker_annotation) @annotation))
-              (constructor_declaration (modifiers (marker_annotation) @annotation))
-            ]
-            """.strip(),
-        )
-        annotation_matches = annotation_query.matches(node)
-
-        if annotation_matches:
-            last_annotation_end = 0
-            for match in annotation_matches:
-                annotation_node = match[1]["annotation"][0]
-                last_annotation_end = max(
-                    last_annotation_end, annotation_node.end_byte - node.start_byte
-                )
-            return signature_text[last_annotation_end:].strip()
-        else:
-            return signature_text
 
 
 def get_entities_from_file_java(

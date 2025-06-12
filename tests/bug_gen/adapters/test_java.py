@@ -117,13 +117,13 @@ def test_get_entities_from_file_java_signatures(entities):
     expected_signatures = [
         "public List<Object> getMocksToBeVerifiedInOrder()",
         "public InOrderImpl(List<?> mocksToBeVerifiedInOrder)",
-        "public <T> T verify(T mock)",
-        "public <T> T verify(T mock, VerificationMode mode)",
-        "public void verify( MockedStatic<?> mockedStatic, MockedStatic.Verification verification, VerificationMode mode)",
+        "@Override public <T> T verify(T mock)",
+        "@Override public <T> T verify(T mock, VerificationMode mode)",
+        "@Override public void verify( MockedStatic<?> mockedStatic, MockedStatic.Verification verification, VerificationMode mode)",
         "private boolean objectIsMockToBeVerified(Object mock)",
-        "public boolean isVerified(Invocation i)",
-        "public void markVerified(Invocation i)",
-        "public void verifyNoMoreInteractions()",
+        "@Override public boolean isVerified(Invocation i)",
+        "@Override public void markVerified(Invocation i)",
+        "@Override public void verifyNoMoreInteractions()",
     ]
     assert signatures == expected_signatures
 
@@ -144,7 +144,7 @@ public class SomeClass {
     get_entities_from_file_java(entities, annotated_param_file)
     assert len(entities) == 1
     assert (
-        entities[0].signature == "public void someMethod(@ParamAnnotation String param)"
+        entities[0].signature == "@MethodAnnotation public void someMethod(@ParamAnnotation String param)"
     )
 
 
@@ -153,12 +153,12 @@ def test_get_entities_from_file_java_stubs(entities):
     expected_stubs = [
         "public List<Object> getMocksToBeVerifiedInOrder() {\n\t// TODO: Implement this function\n}",
         "public InOrderImpl(List<?> mocksToBeVerifiedInOrder) {\n\t// TODO: Implement this function\n}",
-        "public <T> T verify(T mock) {\n\t// TODO: Implement this function\n}",
-        "public <T> T verify(T mock, VerificationMode mode) {\n\t// TODO: Implement this function\n}",
-        "public void verify( MockedStatic<?> mockedStatic, MockedStatic.Verification verification, VerificationMode mode) {\n\t// TODO: Implement this function\n}",
+        "@Override public <T> T verify(T mock) {\n\t// TODO: Implement this function\n}",
+        "@Override public <T> T verify(T mock, VerificationMode mode) {\n\t// TODO: Implement this function\n}",
+        "@Override public void verify( MockedStatic<?> mockedStatic, MockedStatic.Verification verification, VerificationMode mode) {\n\t// TODO: Implement this function\n}",
         "private boolean objectIsMockToBeVerified(Object mock) {\n\t// TODO: Implement this function\n}",
-        "public boolean isVerified(Invocation i) {\n\t// TODO: Implement this function\n}",
-        "public void markVerified(Invocation i) {\n\t// TODO: Implement this function\n}",
-        "public void verifyNoMoreInteractions() {\n\t// TODO: Implement this function\n}",
+        "@Override public boolean isVerified(Invocation i) {\n\t// TODO: Implement this function\n}",
+        "@Override public void markVerified(Invocation i) {\n\t// TODO: Implement this function\n}",
+        "@Override public void verifyNoMoreInteractions() {\n\t// TODO: Implement this function\n}",
     ]
     assert stubs == expected_stubs
