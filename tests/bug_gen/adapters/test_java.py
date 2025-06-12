@@ -144,7 +144,8 @@ public class SomeClass {
     get_entities_from_file_java(entities, annotated_param_file)
     assert len(entities) == 1
     assert (
-        entities[0].signature == "@MethodAnnotation public void someMethod(@ParamAnnotation String param)"
+        entities[0].signature
+        == "@MethodAnnotation public void someMethod(@ParamAnnotation String param)"
     )
 
 
