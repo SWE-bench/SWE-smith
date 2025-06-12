@@ -128,6 +128,26 @@ def test_get_entities_from_file_java_signatures(entities):
     assert signatures == expected_signatures
 
 
+def test_get_entities_from_file_java_signature_param_annotation(tmp_path):
+    annotated_param_file = tmp_path / "AnnotatedParameter.java"
+    annotated_param_file.write_text(
+        """
+@ClassAnnotation
+public class SomeClass {
+  @MethodAnnotation
+  public void someMethod(@ParamAnnotation String param) {
+  }
+}
+    """.strip()
+    )
+    entities = []
+    get_entities_from_file_java(entities, annotated_param_file)
+    assert len(entities) == 1
+    assert (
+        entities[0].signature == "public void someMethod(@ParamAnnotation String param)"
+    )
+
+
 def test_get_entities_from_file_java_stubs(entities):
     stubs = [e.stub for e in entities]
     expected_stubs = [

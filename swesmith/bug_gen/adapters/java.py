@@ -68,7 +68,10 @@ class JavaEntity(CodeEntity):
         annotation_query = Query(
             JAVA_LANGUAGE,
             """
-            (modifiers (marker_annotation) @annotation)
+            [
+              (method_declaration (modifiers (marker_annotation) @annotation))
+              (constructor_declaration (modifiers (marker_annotation) @annotation))
+            ]
             """.strip(),
         )
         annotation_matches = annotation_query.matches(node)
