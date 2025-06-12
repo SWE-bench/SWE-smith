@@ -1,4 +1,6 @@
 import pytest
+import re
+import warnings
 
 from swesmith.bug_gen.adapters.golang import (
     get_entities_from_file_go,
@@ -33,6 +35,21 @@ def test_get_entities_from_file_go_no_functions(tmp_path):
     entities = []
     get_entities_from_file_go(entities, no_functions_file)
     assert len(entities) == 0
+
+
+def test_get_entities_from_file_go_malformed(tmp_path):
+    malformed_file = tmp_path / "malformed.go"
+    malformed_file.write_text("(malformed")
+    entities = []
+    with warnings.catch_warnings(record=True) as ws:
+        warnings.simplefilter("always")
+        get_entities_from_file_go(entities, malformed_file)
+        assert any(
+            [
+                re.search(r"Error encountered parsing .*malformed.go", str(w.message))
+                for w in ws
+            ]
+        )
 
 
 def test_get_entities_from_file_go_names(entities):
