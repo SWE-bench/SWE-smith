@@ -21,6 +21,11 @@ def test_file_go():
 
 
 @pytest.fixture
+def test_file_java():
+    return Path(repo_root) / "tests/test_logs/files/java/InOrderImpl.java"
+
+
+@pytest.fixture
 def test_file_py():
     return Path(repo_root) / "tests/test_logs/files/python/extension.py"
 
