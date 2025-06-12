@@ -1,4 +1,6 @@
 import pytest
+import re
+import warnings
 
 from swesmith.bug_gen.adapters.java import (
     get_entities_from_file_java,
@@ -49,6 +51,21 @@ def test_get_entities_from_file_java_ignore_interface_methods(tmp_path):
     entities = []
     get_entities_from_file_java(entities, interface_file)
     assert len(entities) == 0
+
+
+def test_get_entities_from_file_java_malformed(tmp_path):
+    malformed_file = tmp_path / "Malformed.java"
+    malformed_file.write_text("(malformed")
+    entities = []
+    with warnings.catch_warnings(record=True) as ws:
+        warnings.simplefilter("always")
+        get_entities_from_file_java(entities, malformed_file)
+        assert any(
+            [
+                re.search(r"Error encountered parsing .*Malformed.java", str(w.message))
+                for w in ws
+            ]
+        )
 
 
 def test_get_entities_from_file_java_names(entities):

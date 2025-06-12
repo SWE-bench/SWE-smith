@@ -1,4 +1,5 @@
 import re
+import warnings
 
 from swesmith.constants import TODO_REWRITE
 from swesmith.utils import CodeEntity
@@ -103,6 +104,9 @@ def get_entities_from_file_java(
     def walk(node):
         # stop if we've hit the limit
         if 0 <= max_entities == len(entities):
+            return
+        if node.type == "ERROR":
+            warnings.warn(f"Error encountered parsing {file_path}")
             return
 
         if node.type in [
