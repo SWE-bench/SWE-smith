@@ -178,3 +178,23 @@ func f(i int) {
     get_entities_from_file_go(entities, if_else_file)
     assert len(entities) == 1
     assert entities[0].complexity == 7
+
+
+@pytest.mark.parametrize(
+    "func_definition",
+    [
+        ("func f() { defer func() {}() }"),
+        ("func f() { go func() {}() }"),
+        ("func f(c chan struct{}) { <-c }"),
+        ("func f(c chan struct{}) { c <- struct{}{} }"),
+    ],
+)
+def test_get_entities_from_file_go_complexity_other_statements(
+    tmp_path, func_definition
+):
+    stmt_file = tmp_path / "stmt.go"
+    stmt_file.write_text(func_definition)
+    entities = []
+    get_entities_from_file_go(entities, stmt_file)
+    assert len(entities) == 1
+    assert entities[0].complexity == 2

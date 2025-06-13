@@ -73,6 +73,7 @@ class GoEntity(CodeEntity):
                 "!=",
                 "&&",
                 "<",
+                "<-",
                 "<=",
                 "==",
                 ">",
@@ -80,14 +81,16 @@ class GoEntity(CodeEntity):
                 "||",
                 "case",
                 "default",
+                "defer",
                 "else",
                 "for",
+                "go",
                 "if",
             ]:
                 score += 1
 
             for child in node.children:
-                score = score + walk(child)
+                score += walk(child)
 
             return score
 
