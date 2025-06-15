@@ -66,6 +66,37 @@ class GoEntity(CodeEntity):
     def stub(self) -> str:
         return f"{self.signature} {{\n\t// {TODO_REWRITE}\n}}"
 
+    @property
+    def complexity(self) -> int:
+        def walk(node):
+            score = 0
+            if node.type in [
+                "!=",
+                "&&",
+                "<",
+                "<-",
+                "<=",
+                "==",
+                ">",
+                ">=",
+                "||",
+                "case",
+                "default",
+                "defer",
+                "else",
+                "for",
+                "go",
+                "if",
+            ]:
+                score += 1
+
+            for child in node.children:
+                score += walk(child)
+
+            return score
+
+        return 1 + walk(self.node)
+
     @staticmethod
     def _extract_text_from_first_match(query, node, capture_name: str) -> str | None:
         """Extract text from tree-sitter query matches with None fallback."""
