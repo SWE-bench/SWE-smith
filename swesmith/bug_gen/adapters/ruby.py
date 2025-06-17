@@ -59,6 +59,47 @@ class RubyEntity(CodeEntity):
     def stub(self) -> str:
         return f"{self.signature}\n\t# {TODO_REWRITE}\nend"
 
+    @property
+    def complexity(self) -> int:
+        def walk(node):
+            score = 0
+
+            if node.type in [
+                # binary expressions, operators including and, or, ||, &&...
+                "binary",
+                # blocks
+                "block",
+                "do_block",
+                "block_argument",
+                # assignment operators +=, -=, ||=, |=, &&=...
+                "operator_assignment",
+                # expression modifiers "perform_foo if bar?"
+                "if_modifier",
+                "rescue_modifier",
+                "unless_modifier",
+                "until_modifier",
+                "while_modifier",
+            ]:
+                score += 1
+
+            # ternary
+            if node.type == "conditional":
+                score += 2
+
+            if (
+                node.type
+                in ["if", "elsif", "else", "ensure", "rescue", "unless", "when"]
+                and node.child_count > 0
+            ):
+                score += 1
+
+            for child in node.children:
+                score += walk(child)
+
+            return score
+
+        return 1 + walk(self.node)
+
 
 def get_entities_from_file_rb(
     entities: list[RubyEntity],

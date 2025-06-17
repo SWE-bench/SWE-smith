@@ -161,3 +161,43 @@ def test_ruby_entity_multi_line_signature(tmp_path):
     assert len(entities) == 1
     assert entities[0].name == "multi_line_signature"
     assert entities[0].signature == "def multi_line_signature(\n  multiple,\n  lines\n)"
+
+
+def test_get_entities_from_file_ruby_complexity(ruby_test_file_entities):
+    complexity_scores = [(e.name, e.complexity) for e in ruby_test_file_entities]
+    expected_scores = [
+        ("make_default", 1),
+        ("initialize", 1),
+        ("parse_query", 14),
+        ("parse_nested_query", 9),
+        ("normalize_params", 1),
+        ("_normalize_params", 50),
+        ("make_params", 1),
+        ("new_depth_limit", 1),
+        ("params_hash_type?", 1),
+        ("params_hash_has_key?", 7),
+        ("check_query_string", 10),
+        ("unescape", 1),
+    ]
+    assert complexity_scores == expected_scores
+
+
+@pytest.mark.parametrize(
+    "expr",
+    [
+        "true and true",
+        "true or false",
+        "foo rescue nil",
+        "bar until true",
+        "bar while false",
+        "begin\n  some_action\nensure\n  cleanup\nend",
+        "case\nwhen false\n  perform_some_action\nend",
+    ],
+)
+def test_get_entities_from_file_ruby_complexity_other_expressions(tmp_path, expr):
+    expr_file = tmp_path / "expr.rb"
+    expr_file.write_text(f"def f\n  {expr}\nend")
+    entities = []
+    get_entities_from_file_rb(entities, expr_file)
+    assert len(entities) == 1
+    assert entities[0].complexity == 2
