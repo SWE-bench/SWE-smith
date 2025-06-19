@@ -86,7 +86,7 @@ MIT. Check `LICENSE` for more information.
 }
 ```
 
-## 📕 Related Works
+## 📕 Our Other Projects:
 <div align="center">
   <a href="https://github.com/SWE-bench/SWE-bench"><img src="docs/assets/swebench_logo_text_below.svg" alt="SWE-bench" height="120px"></a>
   &nbsp;&nbsp;
