@@ -42,6 +42,7 @@ dependencies = [
     "tree-sitter",
     "tree-sitter-go",
     "tree-sitter-ruby",
+    "tree-sitter-rust==v0.23.2",
     "unidiff",
     "textual",
 ]
