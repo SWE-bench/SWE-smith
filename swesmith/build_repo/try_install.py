@@ -8,7 +8,7 @@ import argparse
 import os
 import subprocess
 
-from swesmith.constants import ENV_NAME, LOG_DIR_ENV_RECORDS
+from swesmith.constants import ENV_NAME, LOG_DIR_ENV
 
 
 def cleanup(repo_name: str, env_name: str | None = None):
@@ -78,7 +78,7 @@ def main(
 
         env_yml = f"sweenv_{repo.replace('/', '__')}_{commit}.yml"
         if (
-            os.path.exists(os.path.join("..", LOG_DIR_ENV_RECORDS, env_yml))
+            os.path.exists(os.path.join("..", LOG_DIR_ENV, env_yml))
             and not force
             and input(
                 f"> Environment file {env_yml} already exists. Do you want to overwrite it? (y/n) "
@@ -111,15 +111,15 @@ def main(
                         continue
                     f.write(line)
 
-        os.makedirs(LOG_DIR_ENV_RECORDS, exist_ok=True)
+        os.makedirs(LOG_DIR_ENV, exist_ok=True)
         subprocess.run(
-            f"mv {env_yml} {LOG_DIR_ENV_RECORDS}",
+            f"mv {env_yml} {LOG_DIR_ENV}",
             check=True,
             shell=True,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
         )
-        with open(f"{LOG_DIR_ENV_RECORDS}/{env_yml.replace('.yml', '.sh')}", "w") as f:
+        with open(f"{LOG_DIR_ENV}/{env_yml.replace('.yml', '.sh')}", "w") as f:
             f.write(
                 "\n".join(
                     [
@@ -135,7 +135,7 @@ def main(
                 )
                 + "\n"
             )
-        print(f"> Exported conda environment to {LOG_DIR_ENV_RECORDS}/{env_yml}")
+        print(f"> Exported conda environment to {LOG_DIR_ENV}/{env_yml}")
     except Exception as e:
         print(f"> Installation procedure failed: {e}")
     finally:

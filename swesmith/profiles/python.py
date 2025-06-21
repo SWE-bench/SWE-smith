@@ -5,8 +5,8 @@ from typing import List, Dict
 from swebench.harness.constants import TestStatus
 from swebench.harness.docker_build import build_image as build_image_sweb
 from swebench.harness.dockerfiles import get_dockerfile_env
-from swesmith.constants import ENV_IMAGE_BUILD_DIR, ENV_NAME, LOG_DIR_ENV_RECORDS
-from swesmith.profiles.base import RepoProfile, Registry
+from swesmith.constants import LOG_DIR_ENV, ENV_NAME
+from swesmith.profiles.base import RepoProfile, global_registry
 from swesmith.profiles.utils import INSTALL_BAZEL, INSTALL_CMAKE
 from swesmith.utils import get_arch_and_platform
 
@@ -31,7 +31,7 @@ class PythonProfile(RepoProfile):
 
         client = docker.from_env()
         reqs = open(
-            f"{LOG_DIR_ENV_RECORDS}/sweenv_{self.owner}__{self.repo}_{self.commit}.yml"
+            f"{LOG_DIR_ENV}/sweenv_{self.owner}__{self.repo}_{self.commit}.yml"
         ).read()
 
         arch, platform = get_arch_and_platform()
@@ -58,10 +58,11 @@ class PythonProfile(RepoProfile):
             dockerfile=dockerfile,
             platform=platform,
             client=client,
-            build_dir=ENV_IMAGE_BUILD_DIR / self.get_image_name(),
+            build_dir=LOG_DIR_ENV / self.get_image_name(),
         )
 
     def log_parser(self, log: str) -> Dict[str, str]:
+        """Parser for test logs generated with PyTest framework"""
         test_status_map = {}
         for line in log.split("\n"):
             for status in TestStatus:
@@ -1010,4 +1011,5 @@ class MonkeyType70c3acf6(PythonProfile):
     commit = "70c3acf62950be5dfb28743c7a719bfdecebcd84"
 
 
-registry = Registry(PythonProfile, globals())
+# Register all Python profiles with the global registry
+global_registry.register_from_module(PythonProfile, globals())

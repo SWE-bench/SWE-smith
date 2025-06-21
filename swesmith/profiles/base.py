@@ -111,22 +111,35 @@ class RepoProfile(ABC):
 class Registry:
     """Simple registry for mapping strings to profile classes."""
 
-    def __init__(self, profile_class: type, module_globals: dict):
+    def __init__(self, profile_class: type = None, module_globals: dict = None):
         self.profile_class = profile_class
         self.module_globals = module_globals
-        self._cache = None
+        self._cache = {}
+
+    def register_from_module(self, profile_class: type, module_globals: dict):
+        """Register profiles from a specific module."""
+        for name, obj in module_globals.items():
+            if (
+                isinstance(obj, type)
+                and issubclass(obj, profile_class)
+                and obj != profile_class
+            ):
+                key = f"{obj.owner}/{obj.repo}"
+                self._cache[key] = obj
+
+    def register_profile(self, profile_class: type):
+        """Register a single profile class."""
+        if (
+            isinstance(profile_class, type)
+            and issubclass(profile_class, RepoProfile)
+            and profile_class != RepoProfile
+        ):
+            key = f"{profile_class.owner}/{profile_class.repo}"
+            self._cache[key] = profile_class
 
     def _build_cache(self):
-        if self._cache is None:
-            self._cache = {}
-            for name, obj in self.module_globals.items():
-                if (
-                    isinstance(obj, type)
-                    and issubclass(obj, self.profile_class)
-                    and obj != self.profile_class
-                ):
-                    key = f"{obj.owner}/{obj.repo}"
-                    self._cache[key] = obj
+        if self.profile_class and self.module_globals and not self._cache:
+            self.register_from_module(self.profile_class, self.module_globals)
 
     def get(self, key: str):
         """Get a profile class by 'owner/repo' string."""
@@ -142,3 +155,7 @@ class Registry:
         """Get all profile classes."""
         self._build_cache()
         return list(self._cache.values())
+
+
+# Global registry instance that can be shared across modules
+global_registry = Registry()

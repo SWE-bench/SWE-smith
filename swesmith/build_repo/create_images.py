@@ -13,7 +13,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from swesmith.build_repo.create_mirror_repo import create_mirror_repo
 from swebench.harness.constants import (
     BASE_IMAGE_BUILD_DIR,
-    ENV_IMAGE_BUILD_DIR,
+    LOG_DIR_ENV,
     DOCKER_WORKDIR,
 )
 from swebench.harness.docker_build import (
@@ -212,7 +212,7 @@ def build_repo_images(
                     config["dockerfile"],
                     config["platform"],
                     client,
-                    ENV_IMAGE_BUILD_DIR / image_name,
+                    LOG_DIR_ENV / image_name,
                     org,
                 ): image_name
                 for image_name, config in repo_build_scripts.items()

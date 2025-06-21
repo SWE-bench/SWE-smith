@@ -6,7 +6,6 @@ from pathlib import Path
 
 CONDA_VERSION = "py312_24.1.2-0"
 DEFAULT_PM_LIKELIHOOD = 0.2
-ENV_IMAGE_BUILD_DIR = Path("logs/build_images/env")
 ENV_NAME = "testbed"
 KEY_IMAGE_NAME = "image_name"
 
@@ -22,7 +21,7 @@ KEY_PATCH = "patch"
 KEY_TEST_CMD = "test_cmd"
 KEY_TIMED_OUT = "timed_out"
 LOG_DIR_BUG_GEN = Path("logs/bug_gen")
-LOG_DIR_ENV_RECORDS = Path("logs/build_images/records")
+LOG_DIR_ENV = Path("logs/build_images/env")
 LOG_DIR_ISSUE_GEN = Path("logs/issue_gen")
 LOG_DIR_RUN_VALIDATION = Path("logs/run_validation")
 LOG_DIR_TASKS = Path("logs/task_insts")
