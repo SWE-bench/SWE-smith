@@ -12,6 +12,7 @@ import subprocess
 from abc import ABC, abstractmethod
 from dotenv import load_dotenv
 from ghapi.all import GhApi
+from swebench.harness.constants import KEY_INSTANCE_ID
 from swesmith.constants import ORG_NAME_DH, ORG_NAME_GH
 from swesmith.utils import repo_exists, get_arch_and_platform
 
@@ -53,34 +54,39 @@ class RepoProfile(ABC):
         """Build a Docker image (execution environment) for this repository profile."""
         pass
 
-    def get_image_name(self, arch: str | None = None) -> str:
+    @property
+    def image_name(self, arch: str | None = None) -> str:
         arch, _ = get_arch_and_platform()
-        return f"{self.org_dh}/swesmith.{arch}.{self.owner}_1776_{self.repo}.{self.commit[:8]}"
+        return f"{self.org_dh}/swesmith.{arch}.{self.owner}_1776_{self.repo}.{self.commit[:8]}".lower()
 
     @abstractmethod
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse test output logs and extract relevant information."""
         pass
 
-    def get_mirror_name(self):
-        return f"{self.org_gh}/{self.owner}__{self.repo}.{self.commit[:8]}"
+    @property
+    def mirror_name(self):
+        return f"{self.org_gh}/{self.repo_name}"
+
+    @property
+    def repo_name(self):
+        return f"{self.owner}__{self.repo}.{self.commit[:8]}"
 
     def create_mirror_repo(self):
         """
         Create a mirror of this repository at the specified commit.
         """
         api = GhApi(token=GITHUB_TOKEN)
-        repo_full_name = f"{self.owner}/{self.repo}"
 
-        if repo_exists(self.get_mirror_name()):
+        if repo_exists(self.repo_name, self.org_gh):
             return
-        if self.get_mirror_name() in os.listdir():
-            shutil.rmtree(self.get_mirror_name())
-        api.repos.create_in_org(self.org, self.get_mirror_name())
+        if self.repo_name in os.listdir():
+            shutil.rmtree(self.repo_name)
+        api.repos.create_in_org(self.org, self.repo_name)
         for cmd in [
-            f"git clone git@github.com:{repo_full_name}.git {self.get_mirror_name()}",
+            f"git clone git@github.com:{self.mirror_name}.git {self.repo_name}",
             (
-                f"cd {self.get_mirror_name()}; "
+                f"cd {self.repo_name}; "
                 f"git checkout {self.commit}; "
                 "rm -rf .git; "
                 "git init; "
@@ -90,10 +96,10 @@ class RepoProfile(ABC):
                 "git add .; "
                 "git commit -m 'Initial commit'; "
                 "git branch -M main; "
-                f"git remote add origin git@github.com:{self.org}/{self.get_mirror_name()}.git; "
+                f"git remote add origin git@github.com:{self.mirror_name}.git; "
                 "git push -u origin main",
             ),
-            f"rm -rf {self.get_mirror_name()}",
+            f"rm -rf {self.repo_name}",
         ]:
             subprocess.run(
                 cmd,
@@ -121,12 +127,16 @@ class Registry:
             and profile_class != RepoProfile
         ):
             # Create an instance to get the mirror name
-            instance = profile_class()
-            key = instance.get_mirror_name()
-            self._profiles[key] = profile_class
+            p = profile_class()
+            self._profiles[p.repo_name] = profile_class
 
     def get(self, key: str) -> RepoProfile:
         """Get a profile class by mirror name."""
+        return self._profiles.get(key)()
+
+    def get_from_inst(self, instance: dict) -> RepoProfile:
+        """Get a profile class by a SWE-smith instance"""
+        key = instance[KEY_INSTANCE_ID].rsplit(".", 1)[0]
         return self._profiles.get(key)()
 
     def keys(self) -> list[str]:
@@ -135,7 +145,7 @@ class Registry:
 
     def values(self) -> list[RepoProfile]:
         """Get all profile classes."""
-        return list(self._profiles.values())
+        return [p() for p in self._profiles.values()]
 
 
 # Global registry instance that can be shared across modules

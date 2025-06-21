@@ -1,3 +1,4 @@
+from swesmith.constants import ORG_NAME_GH
 from swesmith.profiles import global_registry, RepoProfile
 from swesmith.profiles.utils import INSTALL_CMAKE, INSTALL_BAZEL
 
@@ -7,7 +8,7 @@ def test_registry_keys_and_lookup():
     keys = global_registry.keys()
     assert len(keys) > 0
     # Pick a known profile
-    key = "swesmith/mewwts__addict.75284f95"
+    key = "mewwts__addict.75284f95"
     repo_profile = global_registry.get(key)
     assert repo_profile is not None
     assert isinstance(repo_profile, RepoProfile)
@@ -15,12 +16,12 @@ def test_registry_keys_and_lookup():
     assert repo_profile.repo == "addict"
     assert repo_profile.commit.startswith("75284f95")
     # Mirror name matches key
-    assert repo_profile.get_mirror_name() == key
+    assert repo_profile.mirror_name == f"{ORG_NAME_GH}/{key}"
 
 
-def test_get_image_name():
-    repo_profile = global_registry.get("swesmith/mewwts__addict.75284f95")
-    image_name = repo_profile.get_image_name()
+def test_image_name():
+    repo_profile = global_registry.get("mewwts__addict.75284f95")
+    image_name = repo_profile.image_name
     assert "swesmith" in image_name
     assert repo_profile.owner in image_name
     assert repo_profile.repo in image_name
@@ -29,7 +30,7 @@ def test_get_image_name():
 
 def test_python_log_parser():
     # Use the default PythonProfile log_parser
-    repo_profile = global_registry.get("swesmith/mewwts__addict.75284f95")
+    repo_profile = global_registry.get("mewwts__addict.75284f95")
     log = "test_foo.py PASSED\ntest_bar.py FAILED\ntest_baz.py SKIPPED"
 
     # Patch TestStatus for this test
@@ -57,7 +58,7 @@ def test_python_log_parser():
 
 def test_golang_log_parser():
     # Use Gin3c12d2a8 Go profile
-    key = "swesmith/gin-gonic__gin.3c12d2a8"
+    key = "gin-gonic__gin.3c12d2a8"
     repo_profile = global_registry.get(key)
     log = """
 --- PASS: TestFoo (0.01s)

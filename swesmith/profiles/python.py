@@ -1,6 +1,7 @@
 import docker
 import re
 
+from pathlib import Path
 from swebench.harness.constants import TestStatus
 from swebench.harness.docker_build import build_image as build_image_sweb
 from swebench.harness.dockerfiles import get_dockerfile_env
@@ -29,15 +30,13 @@ class PythonProfile(RepoProfile):
         PATH_TO_REQS = "swesmith_environment.yml"
 
         client = docker.from_env()
-        reqs = open(
-            f"{LOG_DIR_ENV}/sweenv_{self.owner}__{self.repo}_{self.commit}.yml"
-        ).read()
+        reqs = open(self._env_yml).read()
 
         arch, platform = get_arch_and_platform()
         setup_commands = [
             "#!/bin/bash",
             "set -euxo pipefail",
-            f"git clone -o origin https://github.com/{self.org_gh}/{self.get_mirror_name()} /{ENV_NAME}",
+            f"git clone -o origin https://github.com/{self.mirror_name} /{ENV_NAME}",
             f"cd /{ENV_NAME}",
             "source /opt/miniconda3/bin/activate",
             f"cat <<'{HEREDOC_DELIMITER}' > {PATH_TO_REQS}\n{reqs}\n{HEREDOC_DELIMITER}",
@@ -52,12 +51,12 @@ class PythonProfile(RepoProfile):
         )
 
         build_image_sweb(
-            image_name=self.get_image_name(),
+            image_name=self.image_name,
             setup_scripts={"setup_env.sh": "\n".join(setup_commands) + "\n"},
             dockerfile=dockerfile,
             platform=platform,
             client=client,
-            build_dir=LOG_DIR_ENV / self.get_image_name(),
+            build_dir=LOG_DIR_ENV / self.repo_name,
         )
 
     def log_parser(self, log: str) -> dict[str, str]:
@@ -70,6 +69,10 @@ class PythonProfile(RepoProfile):
                     test_status_map[is_match.group(1)] = status.value
                     continue
         return test_status_map
+
+    @property
+    def _env_yml(self) -> Path:
+        return LOG_DIR_ENV / self.repo_name / f"sweenv_{self.repo_name}.yml"
 
 
 ### MARK: Repository Profile Classes ###
@@ -651,34 +654,6 @@ class PythonSlugify872b3750(PythonProfile):
     test_cmd = "python test.py --verbose"
 
 
-class Pyvista3f0fad3f(PythonProfile):
-    owner = "pyvista"
-    repo = "pyvista"
-    commit = "3f0fad3f42d9b491679e6aa50e52d93c1a81c042"
-    install_cmds = [
-        "apt-get update && apt-get install -y ffmpeg libsm6 libxext6 libxrender1",
-        "python -m pip install -e '.[dev]'",
-    ]
-
-    def log_parser(self, log: str) -> dict[str, str]:
-        test_status_map = {}
-        pattern = r"^([a-zA-Z0-9_\-,\.\s\(\)']+)\s\.{3}\s"
-        for line in log.split("\n"):
-            is_match = re.match(f"{pattern}ok$", line)
-            if is_match:
-                test_status_map[is_match.group(1)] = TestStatus.PASSED.value
-                continue
-            for keyword, status in {
-                "FAIL": TestStatus.FAILED,
-                "ERROR": TestStatus.ERROR,
-            }.items():
-                is_match = re.match(f"{pattern}{keyword}$", line)
-                if is_match:
-                    test_status_map[is_match.group(1)] = status.value
-                    continue
-        return test_status_map
-
-
 class Radon54b88e58(PythonProfile):
     owner = "rubik"
     repo = "radon"
@@ -738,14 +713,6 @@ class SoupsieveA8080d97(PythonProfile):
     owner = "facelessuser"
     repo = "soupsieve"
     commit = "a8080d97a0355e316981cb0c5c887a861c4244e3"
-
-
-class SpacyB3c46c31(PythonProfile):
-    owner = "explosion"
-    repo = "spacy"
-    commit = "b3c46c315eb16ce644bddd106d31c3dd349f6bb2"
-    install_cmds = ["pip install -r requirements.txt", "pip install -e ."]
-    min_testing = True
 
 
 class Sqlfluff50a1c4b6(PythonProfile):

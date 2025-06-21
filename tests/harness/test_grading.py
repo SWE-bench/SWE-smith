@@ -74,6 +74,6 @@ def test_get_valid_report(logs_run_validation):
     report = get_valid_report(
         logs_run_validation / "test_output.txt",
         logs_run_validation / "test_output_pre_gold.txt",
-        {"repo": "swesmith/pandas-dev__pandas.95280573"},
+        {"repo": "pandas-dev__pandas.95280573"},
     )
     assert report == json.load(open(logs_run_validation / "report.json"))

@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from enum import Enum
 from ghapi.all import GhApi
 from pathlib import Path
-from swesmith.constants import MAP_REPO_TO_SPECS, ORG_NAME, LOG_DIR_ENV
+from swesmith.constants import ORG_NAME
 from typing import Any
 
 
@@ -153,53 +153,6 @@ def get_arch_and_platform() -> tuple[str, str]:
     return arch, pltf
 
 
-def get_image_name(repo: str, commit: str, arch: str | None = None) -> str:
-    """
-    Get the docker image ID for a repository at a specific commit.
-    """
-    arch = arch or get_arch_and_platform()[0]
-    return f"swesmith.{arch}.{repo.replace('/', '__').lower()}.{commit[:8]}"
-
-
-def get_repo_commit_from_image_name(image_name: str) -> tuple[str, str]:
-    """
-    Get the repository and commit from a docker image ID.
-    """
-    # Parsing supports repos with '.' in their name
-    image_name = image_name.split(".", 2)[-1]
-    repo = image_name.rsplit(".", 1)[0].replace("__", "/")
-    partial_commit = image_name.rsplit(".", 1)[-1]
-    for repo_name in MAP_REPO_TO_SPECS:
-        # Hack because docker image_name must be lowercase
-        if repo_name.lower() == repo:
-            repo = repo_name
-            break
-    commit = get_full_commit(repo, partial_commit)
-    return repo, commit
-
-
-def get_env_yml_path(repo: str, commit: str) -> str:
-    """
-    Get the path to the environment.yml file for a repository at a specific commit.
-    """
-    if len(commit) != 40:
-        raise ValueError(
-            f"Must provide full commit hash, not partial commit ({commit})"
-        )
-    return f"{LOG_DIR_ENV}/sweenv_{repo.replace('/', '__')}_{commit}.yml"
-
-
-def get_full_commit(repo, partial_commit) -> str:
-    """
-    Get the full commit hash for a repository at a specific commit.
-    """
-    for commit in MAP_REPO_TO_SPECS[repo]:
-        if commit.startswith(partial_commit):
-            return commit
-
-    raise ValueError(f"Commit {partial_commit} not found for repository {repo}.")
-
-
 def get_repo_name(repo, commit) -> str:
     """
     Get the SWE-smith GitHub repository name for a repository at a specific commit.
@@ -232,25 +185,6 @@ def generate_hash(s):
             string.ascii_lowercase + string.digits, k=8
         )
     )
-
-
-def get_test_paths(dir_path: str, ext: str = ".py") -> list[Path]:
-    """
-    Get all testing file paths relative to the given directory.
-    """
-    return [
-        Path(os.path.relpath(os.path.join(root, file), dir_path))
-        for root, _, files in os.walk(Path(dir_path).resolve())
-        for file in files
-        if (
-            (
-                any([x in root.split("/") for x in ["tests", "test", "specs"]])
-                or file.lower().startswith("test")
-                or file.rsplit(".", 1)[0].endswith("test")
-            )
-            and (ext is None or file.endswith(ext))
-        )
-    ]
 
 
 def repo_exists(repo: str, org_name: str = ORG_NAME) -> bool:

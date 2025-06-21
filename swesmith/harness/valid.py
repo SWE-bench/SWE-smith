@@ -10,9 +10,10 @@ Usage: python -m swesmith.harness.valid \
 import argparse
 import json
 import os
-from pathlib import Path
 import shutil
 
+from collections import defaultdict
+from pathlib import Path
 from swebench.harness.constants import (
     KEY_INSTANCE_ID,
     KEY_PREDICTION,
@@ -23,19 +24,16 @@ from swebench.harness.constants import (
 from swebench.harness.docker_build import close_logger
 from swebench.harness.utils import run_threadpool
 from swesmith.constants import (
-    KEY_IMAGE_NAME,
-    KEY_MIN_PREGOLD,
     KEY_PATCH,
     KEY_TIMED_OUT,
     LOG_TEST_OUTPUT_PRE_GOLD,
-    MAP_REPO_TO_SPECS,
     REF_SUFFIX,
     LOG_DIR_RUN_VALIDATION,
     TIMEOUT,
 )
 from swesmith.harness.grading import get_valid_report
 from swesmith.harness.utils import run_patch_in_container
-from swesmith.utils import get_repo_commit_from_image_name
+from swesmith.profiles import global_registry
 
 
 def print_report(log_dir: Path) -> None:
@@ -69,7 +67,7 @@ def run_validation(
     instance_id = instance[KEY_INSTANCE_ID]
     valid_folder = LOG_DIR_RUN_VALIDATION / run_id
     val_postgold_path = (
-        valid_folder / f"{instance[KEY_IMAGE_NAME]}{REF_SUFFIX}" / LOG_TEST_OUTPUT
+        valid_folder / f"{instance['repo']}{REF_SUFFIX}" / LOG_TEST_OUTPUT
     )
     report_path = valid_folder / instance_id / LOG_REPORT
 
@@ -141,7 +139,7 @@ def main(
     # {
     #     "instance_id": <instance_id>,
     #     "patch" / "model_patch": <bug inducing patch>,
-    #     "image_name": <image_name = repo_commit>,
+    #     "repo": <mirror repo name>,
     # }
     print(f"[{run_id}] Running validation for {bug_patches}...")
     bug_patches = json.load(open(bug_patches, "r"))
@@ -169,38 +167,32 @@ def main(
     log_dir_parent.mkdir(parents=True, exist_ok=True)
 
     # Group patches by image_name:
-    image_name_to_bug_patches = dict()
+    repo_to_bug_patches = defaultdict(list)
     for bug_patch in bug_patches:
-        image_name = bug_patch[KEY_IMAGE_NAME]
-        if image_name not in image_name_to_bug_patches:
-            image_name_to_bug_patches[image_name] = list()
-        image_name_to_bug_patches[image_name].append(bug_patch)
+        repo_to_bug_patches[bug_patch["repo"]].append(bug_patch)
 
     # Log
-    if len(image_name_to_bug_patches) == 0:
+    if len(repo_to_bug_patches) == 0:
         print("No patches to run.")
         print_report(log_dir_parent)
         return
     print("Will run validation for these images:")
-    for image_name, patches in image_name_to_bug_patches.items():
-        print(f"- {image_name}: {len(patches)} patches")
+    for repo, patches in repo_to_bug_patches.items():
+        print(f"- {repo}: {len(patches)} patches")
 
     # Run validation
     payloads = list()
     if timeout_ref is None:
         timeout_ref = timeout
-    for image_name, bug_patches in image_name_to_bug_patches.items():
-        ref_dir = LOG_DIR_RUN_VALIDATION / run_id / f"{image_name}{REF_SUFFIX}"
-        repo, commit = get_repo_commit_from_image_name(image_name)
-        is_min_pregold = KEY_MIN_PREGOLD in MAP_REPO_TO_SPECS[repo][commit]
-        if not is_min_pregold and not os.path.exists(ref_dir):
+    for repo, bug_patches in repo_to_bug_patches.items():
+        p = global_registry.get(repo)
+        ref_inst = f"{p.repo_name}{REF_SUFFIX}"
+        ref_dir = LOG_DIR_RUN_VALIDATION / run_id / ref_inst
+        if not p.min_pregold and not os.path.exists(ref_dir):
             # Run pytest for each repo/commit to get pre-gold behavior.
-            print(f"Running pre-gold for {image_name}...")
+            print(f"Running pre-gold for {repo}...")
             logger, timed_out = run_patch_in_container(
-                {
-                    KEY_IMAGE_NAME: image_name,
-                    KEY_INSTANCE_ID: f"{image_name}{REF_SUFFIX}",
-                },
+                {KEY_INSTANCE_ID: ref_inst},
                 run_id,
                 LOG_DIR_RUN_VALIDATION,
                 timeout=timeout_ref,
@@ -209,14 +201,14 @@ def main(
             if timed_out:
                 # If timed out, skip this repo/commit (remove log directory)
                 print(
-                    f"Timed out for {image_name}, not running validation. (Increase --timeout?)"
+                    f"Timed out for {repo}, not running validation. (Increase --timeout?)"
                 )
                 shutil.rmtree(ref_dir)
                 continue
 
         # Add payloads
         for bug_patch in bug_patches:
-            payloads.append((bug_patch, run_id, timeout, is_min_pregold))
+            payloads.append((bug_patch, run_id, timeout, p.min_pregold))
 
     run_threadpool(run_validation, payloads, max_workers)
     print("All instances run.")

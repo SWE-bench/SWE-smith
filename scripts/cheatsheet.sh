@@ -13,7 +13,7 @@
 
 # Attempts to create a conda environment for the repo. If successfully, a
 # dump of the conda environment is saved to `logs/build_images/records``
-python -m swesmith.build_repo.try_install Instagram/MonkeyType configs/install_repo.sh --commit 70c3acf62950be5dfb28743c7a719bfdecebcd84
+python -m swesmith.build_repo.try_install_py Instagram/MonkeyType configs/install_repo.sh --commit 70c3acf62950be5dfb28743c7a719bfdecebcd84
 
 # Download all existing SWE-smith environments
 # (All images downloaded by default, but you can specify a specific repo

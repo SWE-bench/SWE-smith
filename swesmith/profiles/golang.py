@@ -14,19 +14,19 @@ class Gin3c12d2a8(RepoProfile):
 
     def build_image(self):
         dockerfile = f"""FROM golang:1.24
-RUN git clone https://github.com/{self.org_gh}/{self.get_mirror_name()} /testbed
+RUN git clone https://github.com/{self.mirror_name} /testbed
 WORKDIR /testbed
 RUN go mod tidy
 RUN go test ./...
 """
-        env_dir = LOG_DIR_ENV / self.get_image_name()
+        env_dir = LOG_DIR_ENV / self.repo_name
         env_dir.mkdir(parents=True, exist_ok=True)
         dockerfile_path = env_dir / "Dockerfile"
         with open(dockerfile_path, "w") as f:
             f.write(dockerfile)
-        with open("build_image.log", "w") as log_file:
+        with open(env_dir / "build_image.log", "w") as log_file:
             subprocess.run(
-                f"docker build -f {dockerfile_path} -t {self.get_image_name()} .",
+                f"docker build -f {dockerfile_path} -t {self.image_name} .",
                 shell=True,
                 stdout=log_file,
                 stderr=subprocess.STDOUT,

@@ -34,26 +34,37 @@ from swesmith.bug_gen.mirror.generate import INSTANCE_REF
 from swesmith.constants import (
     ENV_NAME,
     GIT_APPLY_CMDS,
-    KEY_IMAGE_NAME,
-    KEY_MIN_TESTING,
     KEY_PATCH,
-    KEY_TEST_CMD,
     LOG_DIR_RUN_VALIDATION,
-    MAP_REPO_TO_SPECS,
     TEST_OUTPUT_END,
     TEST_OUTPUT_START,
     TIMEOUT,
 )
-from swesmith.utils import (
-    clone_repo,
-    get_repo_commit_from_image_name,
-    get_repo_name,
-    get_test_paths,
-)
+from swesmith.profiles import global_registry
+from swesmith.utils import clone_repo
 from unidiff import PatchSet
 
 
 repo_lock = Lock()
+
+
+def get_test_paths(dir_path: str, ext: str = ".py") -> list[Path]:
+    """
+    Get all testing file paths relative to the given directory.
+    """
+    return [
+        Path(os.path.relpath(os.path.join(root, file), dir_path))
+        for root, _, files in os.walk(Path(dir_path).resolve())
+        for file in files
+        if (
+            (
+                any([x in root.split("/") for x in ["tests", "test", "specs"]])
+                or file.lower().startswith("test")
+                or file.rsplit(".", 1)[0].endswith("test")
+            )
+            and (ext is None or file.endswith(ext))
+        )
+    ]
 
 
 @lru_cache(maxsize=None)
@@ -71,7 +82,7 @@ def get_cached_test_paths(repo_name):
 
 
 def get_test_command_mypy(instance: dict):
-    repo, commit = get_repo_commit_from_image_name(instance[KEY_IMAGE_NAME])
+    rp = global_registry.get_from_inst(instance)
     pattern = r"\[case ([^\]]+)\]"
     if FAIL_TO_PASS in instance:
         test_keys = " or ".join([x.rsplit("::", 1)[-1] for x in instance[FAIL_TO_PASS]])
@@ -79,7 +90,7 @@ def get_test_command_mypy(instance: dict):
         test_keys = " or ".join(
             re.findall(pattern, instance[INSTANCE_REF]["test_patch"])
         )
-    return f'{MAP_REPO_TO_SPECS[repo][commit][KEY_TEST_CMD]} "{test_keys}"'
+    return f'{rp.test_cmd} "{test_keys}"'
 
 
 MAP_REPO_TO_TEST_CMD = {
@@ -91,25 +102,25 @@ def get_test_command(instance: dict):
     """
     Given a repo/commit pair and a (gold) patch, return the test command to run
     """
-    repo, commit = get_repo_commit_from_image_name(instance[KEY_IMAGE_NAME])
-    specs = MAP_REPO_TO_SPECS[repo][commit]
-    test_command = specs[KEY_TEST_CMD]
+    rp = global_registry.get_from_inst(instance)
+    test_command = rp.test_cmd
+    _r = f"{rp.owner}/{rp.repo}"
 
-    if FAIL_TO_PASS in instance and "pytest" in specs[KEY_TEST_CMD]:
+    if FAIL_TO_PASS in instance and "pytest" in rp.test_cmd:
         # NOTE: Using F2P key as indicator that this is eval instance, not validation
-        if repo in MAP_REPO_TO_TEST_CMD:
-            return MAP_REPO_TO_TEST_CMD[repo](instance), []
+        if _r in MAP_REPO_TO_TEST_CMD:
+            return MAP_REPO_TO_TEST_CMD[_r](instance), []
         f2p_files = list(set([x.split("::", 1)[0] for x in instance[FAIL_TO_PASS]]))
         test_command += f" {' '.join(f2p_files)}"
         return test_command, f2p_files
 
-    if KEY_MIN_TESTING not in specs or KEY_PATCH not in instance:
+    if rp.min_testing or KEY_PATCH not in instance:
         # If min testing is not enabled or there's no patch
         # return test command as is (usually = run whole test suite)
         return test_command, []
 
     # Get all testing related file paths in the repo
-    test_paths = get_cached_test_paths(get_repo_name(repo, commit))
+    test_paths = get_cached_test_paths(rp.repo_name)
 
     if (
         INSTANCE_REF in instance
@@ -118,8 +129,8 @@ def get_test_command(instance: dict):
         test_patch = instance[INSTANCE_REF]["test_patch"]
         # For PR Mirroring (SWE-bench style) instances,
         # if test patch is available, use that information
-        if repo in MAP_REPO_TO_TEST_CMD:
-            return MAP_REPO_TO_TEST_CMD[repo](instance), []
+        if _r in MAP_REPO_TO_TEST_CMD:
+            return MAP_REPO_TO_TEST_CMD[_r](instance), []
         rv = []
         for x in PatchSet(test_patch):
             for test_path in test_paths:
@@ -236,7 +247,7 @@ def run_patch_in_container(
     container = None
     client = docker.from_env()
     instance_id = instance[KEY_INSTANCE_ID]
-    image_name = instance[KEY_IMAGE_NAME]
+    rp = global_registry.get_from_inst(instance)
     try:
         container_type = None
         if log_dir == RUN_EVALUATION_LOG_DIR:
@@ -253,7 +264,7 @@ def run_patch_in_container(
 
         # Start docker container
         container = client.containers.create(
-            image=image_name,
+            image=rp.image_name,
             name=container_name,
             user=DOCKER_USER,
             detach=True,

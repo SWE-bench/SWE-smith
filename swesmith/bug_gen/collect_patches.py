@@ -12,8 +12,7 @@ import json
 from pathlib import Path
 
 from swebench.harness.constants import KEY_INSTANCE_ID
-from swesmith.constants import LOG_DIR_BUG_GEN, KEY_IMAGE_NAME, KEY_PATCH, PREFIX_BUG
-from swesmith.utils import get_image_name
+from swesmith.constants import LOG_DIR_BUG_GEN, KEY_PATCH, PREFIX_BUG
 
 
 def main(bug_gen_path: str | Path, bug_type: str = "all", num_bugs: int = -1):
@@ -30,9 +29,6 @@ def main(bug_gen_path: str | Path, bug_type: str = "all", num_bugs: int = -1):
         )
 
     repo = bug_gen_path.name
-    commit = repo.rsplit(".", 1)[-1]
-    repo = repo.rsplit(".", 1)[0]
-    image_name = get_image_name(repo, commit)
 
     patches = []
     prefix = f"{PREFIX_BUG}__"
@@ -43,7 +39,7 @@ def main(bug_gen_path: str | Path, bug_type: str = "all", num_bugs: int = -1):
         for file in files:
             if file.startswith(prefix) and file.endswith(".diff"):
                 bug_type_and_uuid = file.split(f"{PREFIX_BUG}__")[-1].split(".diff")[0]
-                instance_id = f"{repo}.{commit}.{bug_type_and_uuid}"
+                instance_id = f"{repo}.{bug_type_and_uuid}"
                 patch = {}
 
                 # Add metadata if it exists
@@ -56,7 +52,7 @@ def main(bug_gen_path: str | Path, bug_type: str = "all", num_bugs: int = -1):
                     {
                         KEY_INSTANCE_ID: instance_id,
                         KEY_PATCH: open(os.path.join(root, file), "r").read(),
-                        KEY_IMAGE_NAME: image_name,
+                        "repo": repo,
                     }
                 )
                 patches.append(patch)
