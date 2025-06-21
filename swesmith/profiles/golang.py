@@ -54,4 +54,6 @@ RUN go test ./...
 
 
 # Register all Go profiles with the global registry
-global_registry.register_from_module(RepoProfile, globals())
+for name, obj in list(globals().items()):
+    if isinstance(obj, type) and issubclass(obj, RepoProfile) and obj != RepoProfile:
+        global_registry.register_profile(obj)

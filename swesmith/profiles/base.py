@@ -14,7 +14,6 @@ from dotenv import load_dotenv
 from ghapi.all import GhApi
 from swesmith.constants import ORG_NAME_DH, ORG_NAME_GH
 from swesmith.utils import repo_exists, get_arch_and_platform
-from typing import Dict, List
 
 
 load_dotenv()
@@ -37,7 +36,7 @@ class RepoProfile(ABC):
     org_gh: str = ORG_NAME_GH
 
     # Install + Test specifications
-    install_cmds: List[str] = None
+    install_cmds: list[str] = None
     test_cmd: str = None
 
     # `min_testing`: If set, then subset of tests (not all) are run for post-bug validation
@@ -56,15 +55,15 @@ class RepoProfile(ABC):
 
     def get_image_name(self, arch: str | None = None) -> str:
         arch, _ = get_arch_and_platform()
-        return f"{self.org_dh}/swesmith.{arch}.{self.get_mirror_name()}"
+        return f"{self.org_dh}/swesmith.{arch}.{self.owner}_1776_{self.repo}.{self.commit[:8]}"
 
     @abstractmethod
-    def log_parser(self, log: str) -> Dict[str, str]:
+    def log_parser(self, log: str) -> dict[str, str]:
         """Parse test output logs and extract relevant information."""
         pass
 
     def get_mirror_name(self):
-        return f"{self.owner}_1776_{self.repo}.{self.commit[:8]}"
+        return f"{self.org_gh}/{self.owner}__{self.repo}.{self.commit[:8]}"
 
     def create_mirror_repo(self):
         """
@@ -109,23 +108,10 @@ class RepoProfile(ABC):
 
 
 class Registry:
-    """Simple registry for mapping strings to profile classes."""
+    """Simple registry for mapping mirror names to profile classes."""
 
-    def __init__(self, profile_class: type = None, module_globals: dict = None):
-        self.profile_class = profile_class
-        self.module_globals = module_globals
-        self._cache = {}
-
-    def register_from_module(self, profile_class: type, module_globals: dict):
-        """Register profiles from a specific module."""
-        for name, obj in module_globals.items():
-            if (
-                isinstance(obj, type)
-                and issubclass(obj, profile_class)
-                and obj != profile_class
-            ):
-                key = f"{obj.owner}/{obj.repo}"
-                self._cache[key] = obj
+    def __init__(self):
+        self._profiles = {}
 
     def register_profile(self, profile_class: type):
         """Register a single profile class."""
@@ -134,27 +120,22 @@ class Registry:
             and issubclass(profile_class, RepoProfile)
             and profile_class != RepoProfile
         ):
-            key = f"{profile_class.owner}/{profile_class.repo}"
-            self._cache[key] = profile_class
-
-    def _build_cache(self):
-        if self.profile_class and self.module_globals and not self._cache:
-            self.register_from_module(self.profile_class, self.module_globals)
+            # Create an instance to get the mirror name
+            instance = profile_class()
+            key = instance.get_mirror_name()
+            self._profiles[key] = profile_class
 
     def get(self, key: str):
-        """Get a profile class by 'owner/repo' string."""
-        self._build_cache()
-        return self._cache.get(key)
+        """Get a profile class by mirror name."""
+        return self._profiles.get(key)
 
     def keys(self):
-        """Get all available profile keys."""
-        self._build_cache()
-        return list(self._cache.keys())
+        """Get all available profile keys (mirror names)."""
+        return list(self._profiles.keys())
 
     def values(self):
         """Get all profile classes."""
-        self._build_cache()
-        return list(self._cache.values())
+        return list(self._profiles.values())
 
 
 # Global registry instance that can be shared across modules

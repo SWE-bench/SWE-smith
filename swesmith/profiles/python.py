@@ -1,6 +1,5 @@
 import docker
 import re
-from typing import List, Dict
 
 from swebench.harness.constants import TestStatus
 from swebench.harness.docker_build import build_image as build_image_sweb
@@ -21,7 +20,7 @@ class PythonProfile(RepoProfile):
     """
 
     python_version: str = "3.10"
-    install_cmds: List[str] = ["python -m pip install -e ."]
+    install_cmds: list[str] = ["python -m pip install -e ."]
     test_cmd: str = "pytest --disable-warnings --color=no --tb=no --verbose"
 
     def build_image(self):
@@ -61,7 +60,7 @@ class PythonProfile(RepoProfile):
             build_dir=LOG_DIR_ENV / self.get_image_name(),
         )
 
-    def log_parser(self, log: str) -> Dict[str, str]:
+    def log_parser(self, log: str) -> dict[str, str]:
         """Parser for test logs generated with PyTest framework"""
         test_status_map = {}
         for line in log.split("\n"):
@@ -118,6 +117,16 @@ class AutogradAc044f0d(PythonProfile):
     repo = "autograd"
     commit = "ac044f0de1185b725955595840135e9ade06aaed"
     install_cmds = ["pip install -e '.[scipy,test]'"]
+
+    def log_parser(self, log: str) -> dict[str, str]:
+        test_status_map = {}
+        for line in log.split("\n"):
+            for status in TestStatus:
+                is_match = re.match(rf"^\[gw\d\]\s{status.value}\s(\S+)", line)
+                if is_match:
+                    test_status_map[is_match.group(1)] = status.value
+                    continue
+        return test_status_map
 
 
 class Bleach73871d76(PythonProfile):
@@ -469,6 +478,16 @@ class Paramiko23f92003(PythonProfile):
     commit = "23f92003898b060df0e2b8b1d889455264e63a3e"
     test_cmd = "pytest -rA --color=no --disable-warnings"
 
+    def log_parser(self, log: str) -> dict[str, str]:
+        test_status_map = {}
+        for line in log.split("\n"):
+            for status in TestStatus:
+                is_match = re.match(rf"^{status.value}\s(\S+)", line)
+                if is_match:
+                    test_status_map[is_match.group(1)] = status.value
+                    continue
+        return test_status_map
+
 
 class Parse30da9e4f(PythonProfile):
     owner = "r1chardj0n3s"
@@ -640,6 +659,24 @@ class Pyvista3f0fad3f(PythonProfile):
         "apt-get update && apt-get install -y ffmpeg libsm6 libxext6 libxrender1",
         "python -m pip install -e '.[dev]'",
     ]
+
+    def log_parser(self, log: str) -> dict[str, str]:
+        test_status_map = {}
+        pattern = r"^([a-zA-Z0-9_\-,\.\s\(\)']+)\s\.{3}\s"
+        for line in log.split("\n"):
+            is_match = re.match(f"{pattern}ok$", line)
+            if is_match:
+                test_status_map[is_match.group(1)] = TestStatus.PASSED.value
+                continue
+            for keyword, status in {
+                "FAIL": TestStatus.FAILED,
+                "ERROR": TestStatus.ERROR,
+            }.items():
+                is_match = re.match(f"{pattern}{keyword}$", line)
+                if is_match:
+                    test_status_map[is_match.group(1)] = status.value
+                    continue
+        return test_status_map
 
 
 class Radon54b88e58(PythonProfile):
@@ -824,6 +861,20 @@ class TornadoD5ac65c1(PythonProfile):
     commit = "d5ac65c1f1453c2aeddd089d8e68c159645c13e1"
     test_cmd = "python -m tornado.test --verbose"
 
+    def log_parser(self, log: str) -> dict[str, str]:
+        test_status_map = {}
+        for line in log.split("\n"):
+            if line.endswith("... ok"):
+                test_case = line.split(" ... ")[0]
+                test_status_map[test_case] = TestStatus.PASSED.value
+            elif " ... skipped " in line:
+                test_case = line.split(" ... ")[0]
+                test_status_map[test_case] = TestStatus.SKIPPED.value
+            elif any([line.startswith(x) for x in ["ERROR:", "FAIL:"]]):
+                test_case = " ".join(line.split()[1:3])
+                test_status_map[test_case] = TestStatus.FAILED.value
+        return test_status_map
+
 
 class TrioCfbbe2c1(PythonProfile):
     owner = "python-trio"
@@ -904,6 +955,19 @@ class MypyE93f06ce(PythonProfile):
     ]
     test_cmd = "pytest --color=no -rA -k"
     min_testing = True
+
+    def log_parser(self, log: str) -> dict[str, str]:
+        test_status_map = {}
+        for line in log.split("\n"):
+            for status in [
+                TestStatus.PASSED.value,
+                TestStatus.FAILED.value,
+            ]:
+                if status in line:
+                    test_case = line.split()[-1]
+                    test_status_map[test_case] = status
+                    break
+        return test_status_map
 
 
 class MONAIa09c1f08(PythonProfile):
@@ -1012,4 +1076,10 @@ class MonkeyType70c3acf6(PythonProfile):
 
 
 # Register all Python profiles with the global registry
-global_registry.register_from_module(PythonProfile, globals())
+for name, obj in list(globals().items()):
+    if (
+        isinstance(obj, type)
+        and issubclass(obj, PythonProfile)
+        and obj != PythonProfile
+    ):
+        global_registry.register_profile(obj)
