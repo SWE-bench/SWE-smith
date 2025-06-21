@@ -6,6 +6,7 @@ from pathlib import Path
 
 CONDA_VERSION = "py312_24.1.2-0"
 DEFAULT_PM_LIKELIHOOD = 0.2
+ENV_IMAGE_BUILD_DIR = Path("logs/build_images/env")
 ENV_NAME = "testbed"
 KEY_IMAGE_NAME = "image_name"
 
@@ -28,6 +29,8 @@ LOG_DIR_TASKS = Path("logs/task_insts")
 LOG_TEST_OUTPUT_PRE_GOLD = "test_output_pre_gold.txt"
 MAX_INPUT_TOKENS = 128000
 ORG_NAME = "swesmith"
+ORG_NAME_DH = "jyangballin"
+ORG_NAME_GH = "swesmith"
 PREFIX_BUG = "bug"
 PREFIX_METADATA = "metadata"
 REF_SUFFIX = ".ref"
