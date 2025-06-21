@@ -125,15 +125,15 @@ class Registry:
             key = instance.get_mirror_name()
             self._profiles[key] = profile_class
 
-    def get(self, key: str):
+    def get(self, key: str) -> RepoProfile:
         """Get a profile class by mirror name."""
-        return self._profiles.get(key)
+        return self._profiles.get(key)()
 
-    def keys(self):
+    def keys(self) -> list[str]:
         """Get all available profile keys (mirror names)."""
         return list(self._profiles.keys())
 
-    def values(self):
+    def values(self) -> list[RepoProfile]:
         """Get all profile classes."""
         return list(self._profiles.values())
 

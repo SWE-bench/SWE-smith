@@ -7,4 +7,8 @@ and provides a global registry for accessing all profiles.
 
 from .base import RepoProfile, global_registry
 
+# Auto-import all profile modules to populate the registry
+from . import python
+from . import golang
+
 __all__ = ["RepoProfile", "global_registry"]

@@ -8,31 +8,28 @@ def test_registry_keys_and_lookup():
     assert len(keys) > 0
     # Pick a known profile
     key = "swesmith/mewwts__addict.75284f95"
-    profile_cls = global_registry.get(key)
-    assert profile_cls is not None
-    inst = profile_cls()
-    assert isinstance(inst, RepoProfile)
-    assert inst.owner == "mewwts"
-    assert inst.repo == "addict"
-    assert inst.commit.startswith("75284f95")
+    repo_profile = global_registry.get(key)
+    assert repo_profile is not None
+    assert isinstance(repo_profile, RepoProfile)
+    assert repo_profile.owner == "mewwts"
+    assert repo_profile.repo == "addict"
+    assert repo_profile.commit.startswith("75284f95")
     # Mirror name matches key
-    assert inst.get_mirror_name() == key
+    assert repo_profile.get_mirror_name() == key
 
 
 def test_get_image_name():
-    profile_cls = global_registry.get("swesmith/mewwts__addict.75284f95")
-    inst = profile_cls()
-    image_name = inst.get_image_name()
+    repo_profile = global_registry.get("swesmith/mewwts__addict.75284f95")
+    image_name = repo_profile.get_image_name()
     assert "swesmith" in image_name
-    assert inst.owner in image_name
-    assert inst.repo in image_name
-    assert inst.commit[:8] in image_name
+    assert repo_profile.owner in image_name
+    assert repo_profile.repo in image_name
+    assert repo_profile.commit[:8] in image_name
 
 
 def test_python_log_parser():
     # Use the default PythonProfile log_parser
-    profile_cls = global_registry.get("swesmith/mewwts__addict.75284f95")
-    inst = profile_cls()
+    repo_profile = global_registry.get("swesmith/mewwts__addict.75284f95")
     log = "test_foo.py PASSED\ntest_bar.py FAILED\ntest_baz.py SKIPPED"
 
     # Patch TestStatus for this test
@@ -50,7 +47,7 @@ def test_python_log_parser():
         DummyStatus.SKIPPED,
     ]
     try:
-        result = inst.log_parser(log)
+        result = repo_profile.log_parser(log)
         assert result["test_foo.py"] == "PASSED"
         assert result["test_bar.py"] == "FAILED"
         assert result["test_baz.py"] == "SKIPPED"
@@ -61,8 +58,7 @@ def test_python_log_parser():
 def test_golang_log_parser():
     # Use Gin3c12d2a8 Go profile
     key = "swesmith/gin-gonic__gin.3c12d2a8"
-    profile_cls = global_registry.get(key)
-    inst = profile_cls()
+    repo_profile = global_registry.get(key)
     log = """
 --- PASS: TestFoo (0.01s)
 --- FAIL: TestBar (0.02s)
@@ -79,7 +75,7 @@ def test_golang_log_parser():
     old = harness_constants.TestStatus
     harness_constants.TestStatus = DummyStatus
     try:
-        result = inst.log_parser(log)
+        result = repo_profile.log_parser(log)
         assert result["TestFoo"] == "PASSED"
         assert result["TestBar"] == "FAILED"
         assert result["TestBaz"] == "SKIPPED"
