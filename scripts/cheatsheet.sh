@@ -5,9 +5,6 @@
 ## The scripts are written such that you do *not* need to have the repository installed locally (run `pip install swesmith`).
 ## *Although*, some scripts require config files (you can download them from the repo).
 
-## NOTE: If you want to create repositories + task instances under your own account,
-## change swesmith/constants.py:29 (the `ORG_NAME` variable) to your own account.
-
 
 ###### MARK: Create Environment for Repository ######
 

@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from enum import Enum
 from ghapi.all import GhApi
 from pathlib import Path
-from swesmith.constants import ORG_NAME
+from swesmith.constants import ORG_NAME_GH
 from typing import Any
 
 
@@ -153,7 +153,9 @@ def get_arch_and_platform() -> tuple[str, str]:
     return arch, pltf
 
 
-def clone_repo(repo: str, dest: str | None = None, org: str = ORG_NAME) -> str | None:
+def clone_repo(
+    repo: str, dest: str | None = None, org: str = ORG_NAME_GH
+) -> str | None:
     """Clone a repository from GitHub."""
     if not os.path.exists(dest or repo):
         clone_cmd = (
@@ -180,7 +182,7 @@ def generate_hash(s):
     )
 
 
-def repo_exists(repo: str, org_name: str = ORG_NAME) -> bool:
+def repo_exists(repo: str, org_name: str = ORG_NAME_GH) -> bool:
     """
     Check if a repository exists in project organization.
     """

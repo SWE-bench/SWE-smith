@@ -49,7 +49,7 @@ from swesmith.constants import (
     KEY_PATCH,
     KEY_TIMED_OUT,
     LOG_DIR_TASKS,
-    ORG_NAME,
+    ORG_NAME_GH,
     REF_SUFFIX,
 )
 from swesmith.profiles import global_registry
@@ -106,7 +106,7 @@ def check_if_branch_exists(
     branch_exists = None
     branch_commit = None
     try:
-        api.repos.get_branch(ORG_NAME, repo_name, subfolder)
+        api.repos.get_branch(ORG_NAME_GH, repo_name, subfolder)
         subprocess.run(f"cd {repo_name}; git checkout {subfolder}", **SUBPROCESS_ARGS)
         if override_branch:
             # Delete the branch remotely

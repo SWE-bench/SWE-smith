@@ -37,7 +37,7 @@ from swesmith.bug_gen.utils import (
 )
 from swesmith.constants import (
     LOG_DIR_BUG_GEN,
-    ORG_NAME,
+    ORG_NAME_GH,
     PREFIX_BUG,
     PREFIX_METADATA,
 )
@@ -112,7 +112,7 @@ def main(
     n_bugs: int,
     repo: str,
     n_workers: int = 1,
-    org: str = ORG_NAME,
+    org: str = ORG_NAME_GH,
     **kwargs,
 ):
     # Check arguments
@@ -233,7 +233,7 @@ if __name__ == "__main__":
         "--org",
         type=str,
         help="Organization name (default: SWE-smith)",
-        default=ORG_NAME,
+        default=ORG_NAME_GH,
     )
     parser.add_argument("-y", "--yes", action="store_true", help="Skip confirmation")
     args = parser.parse_args()

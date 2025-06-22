@@ -21,7 +21,7 @@ from swesmith.bug_gen.utils import (
 )
 from swesmith.constants import (
     LOG_DIR_BUG_GEN,
-    ORG_NAME,
+    ORG_NAME_GH,
     PREFIX_BUG,
     PREFIX_METADATA,
 )
@@ -130,7 +130,7 @@ def main(
     max_bugs: int,
     seed: int,
 ):
-    assert repo_exists(repo), f"Repository {repo} does not exist in {ORG_NAME}."
+    assert repo_exists(repo), f"Repository {repo} does not exist in {ORG_NAME_GH}."
     random.seed(seed)
 
     total = 0
