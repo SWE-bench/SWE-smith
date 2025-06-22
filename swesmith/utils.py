@@ -153,13 +153,6 @@ def get_arch_and_platform() -> tuple[str, str]:
     return arch, pltf
 
 
-def get_repo_name(repo, commit) -> str:
-    """
-    Get the SWE-smith GitHub repository name for a repository at a specific commit.
-    """
-    return f"{repo.replace('/', '__')}.{commit[:8]}"
-
-
 def clone_repo(repo: str, dest: str | None = None, org: str = ORG_NAME) -> str | None:
     """Clone a repository from GitHub."""
     if not os.path.exists(dest or repo):
