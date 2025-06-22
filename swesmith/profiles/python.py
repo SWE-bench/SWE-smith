@@ -8,7 +8,6 @@ from swebench.harness.dockerfiles import get_dockerfile_env
 from swesmith.constants import LOG_DIR_ENV, ENV_NAME
 from swesmith.profiles.base import RepoProfile, global_registry
 from swesmith.profiles.utils import INSTALL_BAZEL, INSTALL_CMAKE
-from swesmith.utils import get_arch_and_platform
 
 
 class PythonProfile(RepoProfile):
@@ -32,7 +31,6 @@ class PythonProfile(RepoProfile):
         client = docker.from_env()
         reqs = open(self._env_yml).read()
 
-        arch, platform = get_arch_and_platform()
         setup_commands = [
             "#!/bin/bash",
             "set -euxo pipefail",
@@ -47,14 +45,14 @@ class PythonProfile(RepoProfile):
             'echo "Current environment: $CONDA_DEFAULT_ENV"',
         ] + self.install_cmds
         dockerfile = get_dockerfile_env(
-            platform, arch, "py", base_image_key=BASE_IMAGE_KEY
+            self.pltf, self.arch, "py", base_image_key=BASE_IMAGE_KEY
         )
 
         build_image_sweb(
             image_name=self.image_name,
             setup_scripts={"setup_env.sh": "\n".join(setup_commands) + "\n"},
             dockerfile=dockerfile,
-            platform=platform,
+            platform=self.pltf,
             client=client,
             build_dir=LOG_DIR_ENV / self.repo_name,
         )

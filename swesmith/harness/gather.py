@@ -53,7 +53,6 @@ from swesmith.constants import (
     REF_SUFFIX,
 )
 from swesmith.profiles import global_registry
-from swesmith.utils import clone_repo
 from tqdm.auto import tqdm
 
 load_dotenv()
@@ -234,8 +233,7 @@ def _main(
         task_instance["repo"] = rp.mirror_name
 
         # Clone repository
-        cloned = clone_repo(rp.repo_name)
-        if cloned:
+        if rp.clone():
             created_repos.append(rp.repo_name)
         main_branch = (
             subprocess.run(

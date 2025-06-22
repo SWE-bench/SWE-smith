@@ -37,7 +37,6 @@ from swesmith.constants import (
     PREFIX_METADATA,
 )
 from swesmith.profiles import global_registry, RepoProfile
-from swesmith.utils import clone_repo
 from tqdm.auto import tqdm
 from unidiff import PatchSet
 
@@ -260,7 +259,7 @@ def process_single_instance(inst, repo, model, api_key=None):
         os.makedirs(log_path, exist_ok=True)
 
         os.chdir(temp_dir)
-        clone_repo(repo)
+        global_registry.get(repo).clone()
 
         # Check if we should attempt recovery
         attempt_recovery, reason = should_attempt_recovery(inst, repo)

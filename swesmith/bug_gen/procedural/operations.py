@@ -1,7 +1,7 @@
 import libcst
 
 from swesmith.bug_gen.procedural import FLIPPED_OPERATORS, PythonProceduralModifier
-from swesmith.utils import CodeProperty
+from swesmith.constants import CodeProperty
 
 
 class OperationChangeModifier(PythonProceduralModifier):

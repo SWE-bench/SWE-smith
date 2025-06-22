@@ -24,6 +24,7 @@ def build_profile_image(profile):
         tuple: (profile_name, success: bool, error_message: str)
     """
     try:
+        profile.create_mirror()
         profile.build_image()
         return (profile.image_name, True, None)
     except Exception as e:

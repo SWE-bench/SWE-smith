@@ -5,7 +5,7 @@ from typing import Any
 
 from pathlib import Path
 from swebench.harness.constants import FAIL_TO_PASS
-from swesmith.utils import clone_repo
+from swesmith.profiles import global_registry
 
 
 def extract_pytest_test(
@@ -56,7 +56,7 @@ def get_test_function(instance: dict, idx: int | None = None) -> dict[str, Any]:
     # Clone repo for instance
     repo = instance["repo"]
     repo_name = repo.split("/")[-1]
-    cloned = clone_repo(repo_name)
+    cloned = global_registry.get(repo_name).clone()
 
     # Update test_file to be relative to the repo
     test_file = os.path.join(repo_name, test_file)

@@ -40,44 +40,36 @@ from swesmith.constants import (
     TEST_OUTPUT_START,
     TIMEOUT,
 )
-from swesmith.profiles import global_registry
-from swesmith.utils import clone_repo
+from swesmith.profiles import global_registry, RepoProfile
 from unidiff import PatchSet
 
 
 repo_lock = Lock()
 
 
-def get_test_paths(dir_path: str, ext: str = ".py") -> list[Path]:
-    """
-    Get all testing file paths relative to the given directory.
-    """
-    return [
-        Path(os.path.relpath(os.path.join(root, file), dir_path))
-        for root, _, files in os.walk(Path(dir_path).resolve())
-        for file in files
-        if (
-            (
-                any([x in root.split("/") for x in ["tests", "test", "specs"]])
-                or file.lower().startswith("test")
-                or file.rsplit(".", 1)[0].endswith("test")
-            )
-            and (ext is None or file.endswith(ext))
-        )
-    ]
-
-
 @lru_cache(maxsize=None)
-def get_cached_test_paths(repo_name):
+def get_cached_test_paths(rp: RepoProfile, ext: str = ".py") -> list[Path]:
+    """
+    Clone the repo, get all testing file paths relative to the repo directory, then clean up.
+    """
     with repo_lock:  # Only one process enters this block at a time
-        if not os.path.exists(repo_name):
-            clone_repo(repo_name)
-
-        test_paths = get_test_paths(repo_name)
-
-        if os.path.exists(repo_name):
-            shutil.rmtree(repo_name)
-
+        rp.clone()
+        dir_path = rp.repo_name
+        test_paths = [
+            Path(os.path.relpath(os.path.join(root, file), dir_path))
+            for root, _, files in os.walk(Path(dir_path).resolve())
+            for file in files
+            if (
+                (
+                    any([x in root.split("/") for x in ["tests", "test", "specs"]])
+                    or file.lower().startswith("test")
+                    or file.rsplit(".", 1)[0].endswith("test")
+                )
+                and (ext is None or file.endswith(ext))
+            )
+        ]
+        if os.path.exists(rp.repo_name):
+            shutil.rmtree(rp.repo_name)
     return test_paths
 
 
@@ -120,7 +112,7 @@ def get_test_command(instance: dict):
         return test_command, []
 
     # Get all testing related file paths in the repo
-    test_paths = get_cached_test_paths(rp.repo_name)
+    test_paths = get_cached_test_paths(rp)
 
     if (
         INSTANCE_REF in instance

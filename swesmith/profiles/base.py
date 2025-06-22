@@ -6,6 +6,7 @@ installation and testing configurations for different repositories.
 """
 
 import os
+import platform
 import shutil
 import subprocess
 
@@ -14,11 +15,11 @@ from dotenv import load_dotenv
 from ghapi.all import GhApi
 from swebench.harness.constants import KEY_INSTANCE_ID
 from swesmith.constants import ORG_NAME_DH, ORG_NAME_GH
-from swesmith.utils import repo_exists, get_arch_and_platform
 
 
 load_dotenv()
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
+api = GhApi(token=GITHUB_TOKEN)
 
 
 class RepoProfile(ABC):
@@ -35,6 +36,8 @@ class RepoProfile(ABC):
     commit: str
     org_dh: str = ORG_NAME_DH
     org_gh: str = ORG_NAME_GH
+    arch = "x86_64" if platform.machine() not in {"aarch64", "arm64"} else "arm64"
+    pltf = "linux/x86_64" if arch == "x86_64" else "linux/arm64/v8"
 
     # Install + Test specifications
     install_cmds: list[str] = None
@@ -54,15 +57,14 @@ class RepoProfile(ABC):
         """Build a Docker image (execution environment) for this repository profile."""
         pass
 
-    @property
-    def image_name(self, arch: str | None = None) -> str:
-        arch, _ = get_arch_and_platform()
-        return f"{self.org_dh}/swesmith.{arch}.{self.owner}_1776_{self.repo}.{self.commit[:8]}".lower()
-
     @abstractmethod
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse test output logs and extract relevant information."""
         pass
+
+    @property
+    def image_name(self) -> str:
+        return f"{self.org_dh}/swesmith.{self.arch}.{self.owner}_1776_{self.repo}.{self.commit[:8]}".lower()
 
     @property
     def mirror_name(self):
@@ -72,13 +74,40 @@ class RepoProfile(ABC):
     def repo_name(self):
         return f"{self.owner}__{self.repo}.{self.commit[:8]}"
 
-    def create_mirror_repo(self):
-        """
-        Create a mirror of this repository at the specified commit.
-        """
-        api = GhApi(token=GITHUB_TOKEN)
+    def _mirror_exists(self):
+        """Check if mirror repository exists under organization"""
+        return self.repo_name in [
+            x["name"]
+            for page in range(1, 3)  # TODO: Need to update over time
+            for x in api.repos.list_for_org(self.org_gh, per_page=100, page=page)
+        ]
 
-        if repo_exists(self.repo_name, self.org_gh):
+    def clone(self, dest: str | None = None) -> str | None:
+        """Clone repository locally"""
+        if not self._mirror_exists:
+            raise ValueError(
+                "Mirror clone repo must be created first (call .create_mirror)"
+            )
+        dest = self.repo_name if not dest else dest
+        if not os.path.exists(dest):
+            clone_cmd = (
+                f"git clone git@github.com:{self.mirror_name}.git"
+                if dest is None
+                else f"git clone git@github.com:{self.mirror_name}.git {dest}"
+            )
+            subprocess.run(
+                clone_cmd,
+                check=True,
+                shell=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+            return dest
+        return None
+
+    def create_mirror(self):
+        """Create a mirror of this repository at the specified commit."""
+        if self._mirror_exists:
             return
         if self.repo_name in os.listdir():
             shutil.rmtree(self.repo_name)

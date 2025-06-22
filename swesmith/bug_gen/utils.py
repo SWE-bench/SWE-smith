@@ -5,8 +5,7 @@ from dotenv import load_dotenv
 from itertools import combinations
 from pathlib import Path
 from swesmith.bug_gen.adapters import get_entities_from_file
-from swesmith.constants import TEMP_PATCH
-from swesmith.utils import BugRewrite, CodeEntity
+from swesmith.constants import TEMP_PATCH, BugRewrite, CodeEntity
 
 load_dotenv()
 

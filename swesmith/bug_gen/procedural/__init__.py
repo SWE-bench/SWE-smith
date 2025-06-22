@@ -1,8 +1,7 @@
 import libcst
 import random
 
-from swesmith.constants import DEFAULT_PM_LIKELIHOOD
-from swesmith.utils import CodeEntity
+from swesmith.constants import DEFAULT_PM_LIKELIHOOD, CodeEntity
 
 
 class PythonProceduralModifier(libcst.CSTTransformer):
