@@ -84,7 +84,7 @@ class RepoProfile(ABC):
 
     def clone(self, dest: str | None = None) -> str | None:
         """Clone repository locally"""
-        if not self._mirror_exists:
+        if not self._mirror_exists():
             raise ValueError(
                 "Mirror clone repo must be created first (call .create_mirror)"
             )
@@ -107,11 +107,11 @@ class RepoProfile(ABC):
 
     def create_mirror(self):
         """Create a mirror of this repository at the specified commit."""
-        if self._mirror_exists:
+        if self._mirror_exists():
             return
         if self.repo_name in os.listdir():
             shutil.rmtree(self.repo_name)
-        api.repos.create_in_org(self.org, self.repo_name)
+        api.repos.create_in_org(self.org_gh, self.repo_name)
         for cmd in [
             f"git clone git@github.com:{self.mirror_name}.git {self.repo_name}",
             (
