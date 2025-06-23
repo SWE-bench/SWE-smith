@@ -96,9 +96,7 @@ def test_get_entities_from_file_php_no_entities(tmp_path):
 def test_php_entity_one_line_function(tmp_path):
     """Correctly pick up a function that lives entirely on one line."""
     one_line_file = tmp_path / "one_line.php"
-    one_line_file.write_text(
-        "<?php\nfunction one_line_function() { return 42; }\n"
-    )
+    one_line_file.write_text("<?php\nfunction one_line_function() { return 42; }\n")
 
     entities: list = []
     get_entities_from_file_php(entities, one_line_file)
