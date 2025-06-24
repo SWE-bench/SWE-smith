@@ -247,8 +247,7 @@ def get_eval_report(
     test_output, found = read_test_output(test_log_path)
     if not found:
         return report_map
-    repo = inst[KEY_INSTANCE_ID].split(".")[0].replace("__", "/")  # TODO: Remove
-    test_status_map = global_registry.get(repo).log_parser(test_output)
+    test_status_map = global_registry.get(inst["repo"]).log_parser(test_output)
 
     # Identify relevant test files
     _, test_files = global_registry.get(inst["repo"]).get_test_cmd(inst)
