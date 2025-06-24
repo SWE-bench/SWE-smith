@@ -13,8 +13,15 @@ import subprocess
 from abc import ABC, abstractmethod
 from dotenv import load_dotenv
 from ghapi.all import GhApi
-from swebench.harness.constants import KEY_INSTANCE_ID
-from swesmith.constants import ORG_NAME_DH, ORG_NAME_GH
+from functools import lru_cache
+from multiprocessing import Lock
+from pathlib import Path
+from swebench.harness.constants import FAIL_TO_PASS, KEY_INSTANCE_ID
+from swesmith.constants import KEY_PATCH, ORG_NAME_DH, ORG_NAME_GH, INSTANCE_REF
+from unidiff import PatchSet
+
+
+CODE_EXTS = [".py", ".go", ".rb", ".php", ".java"]
 
 
 load_dotenv()
@@ -51,6 +58,14 @@ class RepoProfile(ABC):
     # performed instead of running the entire test suite
     # Affects valid.py
     min_pregold: bool = False
+
+    def __init__(self):
+        """Initialize the repository profile with an instance-level lock."""
+        # NOTE on this design: the lock is to prevent concurrent clones of the same repository.
+        # In this repo, all subclasses of RepoProfile are meant to be Singletons (only one instance
+        # of the class will ever be created). If this changes for some reason in the future,
+        # this design may have to be updated.
+        self._lock = Lock()
 
     @abstractmethod
     def build_image(self):
@@ -138,6 +153,119 @@ class RepoProfile(ABC):
                 stderr=subprocess.DEVNULL,
             )
 
+
+    @lru_cache(maxsize=None)
+    def _get_cached_test_paths(self, exts: str = CODE_EXTS) -> list[Path]:
+        """Clone the repo, get all testing file paths relative to the repo directory, then clean up."""
+        with self._lock: # Only one process enters this block at a time
+            self.clone()
+            test_paths = [
+                Path(os.path.relpath(os.path.join(root, file), self.repo_name))
+                for root,_, files in os.walk(Path(self.repo_name).resolve())
+                for file in files
+                if (
+                    (
+                        any([x in root.split("/") for x in ["tests", "test", "specs"]])
+                        or file.lower().startswith("test")
+                        or file.rsplit(".", 1)[0].endswith("test")
+                    )
+                    and (
+                        len(exts) == 0
+                        or any([file.endswith(ext) for ext in exts])
+                    )
+                )
+            ]
+            if os.path.exists(self.repo_name):
+                shutil.rmtree(self.repo_name)
+        return test_paths
+
+    
+    def get_test_cmd(self, instance: dict, is_eval: bool = False):
+        assert instance[KEY_INSTANCE_ID].rsplit(".", 1)[0] == self.repo_name, \
+            f"WARNING: {instance[KEY_INSTANCE_ID]} not from {self.repo_name}"
+        test_command = self.test_cmd
+
+        if is_eval and "pytest" in test_command:
+            f2p_files = sorted(list(set([
+                x.split("::", 1)[0] for x in instance[FAIL_TO_PASS]
+            ])))
+            test_command += f" {' '.join(f2p_files)}"
+            return test_command, f2p_files
+            
+        if self.min_testing or KEY_PATCH not in instance:
+            # If min testing is not enabled or there's no patch
+            # return test command as is (usually = run whole test suite)
+            return test_command, []
+        
+        # Get all testing related file paths in the repo
+        test_paths = self._get_cached_test_paths()
+
+        # For PR Mirroring (SWE-bench style) instances
+        if (
+            INSTANCE_REF in instance
+            and len(instance[INSTANCE_REF]["test_patch"].strip()) > 0
+        ):
+            # if test patch is available, use that information
+            test_patch = instance[INSTANCE_REF]["test_patch"]
+            rv = []
+            for x in PatchSet(test_patch):
+                for test_path in test_paths:
+                    if str(test_path).endswith(x.path) or str(test_path).endswith(
+                        Path(x.path).name
+                    ):
+                        rv.append(str(test_path))
+            if len(rv) > 0:
+                test_command += f" {' '.join(rv)}"
+                return test_command, rv
+        
+        # Identify relevant test files based on the patch
+        patch_paths = [Path(f.path) for f in PatchSet(instance[KEY_PATCH])]
+        rv = []
+        for patch_path in patch_paths:
+            file_name = patch_path.name.strip(".py")
+            parent_dir = patch_path.parent.name
+            for test_path in test_paths:
+                # Check for common test file naming conventions first
+                # If found, add to list and break
+                common_test_names = [
+                    f"test_{file_name}.py",
+                    f"test{file_name}.py",
+                    f"{file_name}_test.py",
+                    f"{file_name}test.py",
+                ]
+                if any(
+                    [
+                        str(test_path).endswith(f"{parent_dir}/{name}")
+                        or str(test_path).endswith(name)
+                        for name in common_test_names
+                    ]
+                ):
+                    rv.append(str(test_path))
+                    break
+            else:
+                for test_path in test_paths:
+                    if parent_dir == test_path.parent.name:
+                        # If similar testing folder found, add to list and break
+                        rv.append(str(test_path.parent))
+                        break
+                    elif any(
+                        [
+                            x.format(parent_dir) == test_path.name
+                            for x in ["test_{}.py", "test{}.py", "{}_test.py", "{}test.py"]
+                        ]
+                    ):
+                        rv.append(str(test_path))
+
+        if len(rv) > 0:
+            # Remove duplicates
+            test_files = [x for x in rv if x.endswith(".py")]
+            final = [x for x in rv if not x.endswith(".py")]
+            for test_file in test_files:
+                if os.path.dirname(test_file) not in final:
+                    final.append(test_file)
+            test_command += f" {' '.join(set(final))}"
+
+        return test_command, rv
 
 ### MARK: Profile Registry ###
 

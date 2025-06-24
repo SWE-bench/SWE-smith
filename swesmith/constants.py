@@ -14,6 +14,7 @@ from typing import Any
 
 DEFAULT_PM_LIKELIHOOD = 0.2
 ENV_NAME = "testbed"
+INSTANCE_REF = "instance_ref"
 KEY_IMAGE_NAME = "image_name"
 KEY_PATCH = "patch"
 KEY_TIMED_OUT = "timed_out"

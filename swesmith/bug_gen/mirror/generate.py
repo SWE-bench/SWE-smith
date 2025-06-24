@@ -35,6 +35,7 @@ from swesmith.constants import (
     KEY_PATCH,
     PREFIX_BUG,
     PREFIX_METADATA,
+    INSTANCE_REF,
 )
 from swesmith.profiles import global_registry, RepoProfile
 from tqdm.auto import tqdm
@@ -49,7 +50,6 @@ logger = logging.getLogger(__name__)
 logging.getLogger("LiteLLM").setLevel(logging.WARNING)
 litellm.suppress_debug_info = True
 
-INSTANCE_REF = "instance_ref"
 MIRROR_PR = "pr_mirror"
 KEY_COST = "cost"
 KEY_PULL_NUM = "pull_number"

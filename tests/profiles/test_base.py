@@ -4,6 +4,12 @@ from swesmith.profiles.utils import INSTALL_CMAKE, INSTALL_BAZEL
 from unittest.mock import patch
 import subprocess
 import pytest
+import os
+import shutil
+from pathlib import Path
+from swebench.harness.constants import FAIL_TO_PASS, KEY_INSTANCE_ID
+from swesmith.constants import KEY_PATCH
+from swesmith.bug_gen.mirror.generate import INSTANCE_REF
 
 
 def test_registry_keys_and_lookup():
@@ -361,3 +367,227 @@ def test_clone_subprocess_error():
     ):
         with pytest.raises(subprocess.CalledProcessError):
             repo_profile.clone()
+
+
+class MockRepoProfile(RepoProfile):
+    """Mock RepoProfile for testing that uses a local directory instead of cloning."""
+
+    def __init__(self, test_dir: str):
+        super().__init__()  # Call parent __init__ to create the lock
+        self.owner = "test"
+        self.repo = "test_repo"
+        self.commit = "test12345678"
+        self.test_cmd = "pytest"
+        self.min_testing = False
+        self._test_dir = test_dir
+
+    def build_image(self):
+        pass
+
+    def log_parser(self, log: str) -> dict[str, str]:
+        return {}
+
+    def clone(self, dest: str | None = None) -> str | None:
+        """Override clone to use the test directory instead of git clone."""
+        dest = self.repo_name if not dest else dest
+        if not os.path.exists(dest):
+            # Copy the test directory to the expected repo name
+            shutil.copytree(self._test_dir, dest)
+            return dest
+        return None
+
+
+def test_get_cached_test_paths(tmp_path):
+    """Test the _get_cached_test_paths method."""
+    # Create directory structure
+    (tmp_path / "tests").mkdir()
+    (tmp_path / "src").mkdir()
+    (tmp_path / "specs").mkdir()
+    # Test files
+    test_files = [
+        tmp_path / "tests" / "test_foo.py",
+        tmp_path / "tests" / "foo_test.py",
+        tmp_path / "specs" / "bar_test.py",
+        tmp_path / "src" / "test_bar.py",
+        tmp_path / "src" / "baz_test.py",
+    ]
+    # Non-test files
+    non_test_files = [
+        tmp_path / "src" / "foo.py",
+        tmp_path / "src" / "bar.txt",
+        tmp_path / "src" / "gin.py",
+    ]
+    for f in test_files + non_test_files:
+        f.parent.mkdir(parents=True, exist_ok=True)
+        f.write_text("# test file" if f in test_files else "# not a test file")
+
+    # Create mock RepoProfile
+    mock_rp = MockRepoProfile(str(tmp_path))
+
+    # Call _get_cached_test_paths
+    result = mock_rp._get_cached_test_paths()
+    result_set = set(str(p) for p in result)
+    # Expected: all test_files, relative to tmp_path
+    expected = set(str(f.relative_to(tmp_path)) for f in test_files)
+    assert result_set == expected
+
+
+def test_get_test_cmd_basic():
+    """Test get_test_cmd with basic instance (no patch, no eval)."""
+    mock_rp = MockRepoProfile("dummy_dir")
+    mock_rp.test_cmd = "pytest"
+    
+    instance = {
+        KEY_INSTANCE_ID: "test__test_repo.test1234.suffix"
+    }
+    
+    test_command, test_files = mock_rp.get_test_cmd(instance)
+    assert test_command == "pytest"
+    assert test_files == []
+
+
+def test_get_test_cmd_eval_mode():
+    """Test get_test_cmd in evaluation mode with FAIL_TO_PASS."""
+    mock_rp = MockRepoProfile("dummy_dir")
+    mock_rp.test_cmd = "pytest"
+    
+    instance = {
+        KEY_INSTANCE_ID: "test__test_repo.test1234.suffix",
+        FAIL_TO_PASS: ["test_file.py::test_function", "other_file.py::test_other"]
+    }
+    
+    test_command, test_files = mock_rp.get_test_cmd(instance, is_eval=True)
+    # Order of files may vary, so check set equality
+    parts = test_command.split()
+    assert parts[0] == "pytest"
+    assert set(parts[1:]) == {"test_file.py", "other_file.py"}
+    assert set(test_files) == {"test_file.py", "other_file.py"}
+
+
+def test_get_test_cmd_min_testing():
+    """Test get_test_cmd when min_testing is enabled."""
+    mock_rp = MockRepoProfile("dummy_dir")
+    mock_rp.test_cmd = "pytest"
+    mock_rp.min_testing = True
+    
+    instance = {
+        KEY_INSTANCE_ID: "test__test_repo.test1234.suffix",
+        KEY_PATCH: "dummy patch content"
+    }
+    
+    test_command, test_files = mock_rp.get_test_cmd(instance)
+    assert test_command == "pytest"
+    assert test_files == []
+
+
+def test_get_test_cmd_no_patch():
+    """Test get_test_cmd when no patch is provided."""
+    mock_rp = MockRepoProfile("dummy_dir")
+    mock_rp.test_cmd = "pytest"
+    
+    instance = {
+        KEY_INSTANCE_ID: "test__test_repo.test1234.suffix"
+        # No KEY_PATCH
+    }
+    
+    test_command, test_files = mock_rp.get_test_cmd(instance)
+    assert test_command == "pytest"
+    assert test_files == []
+
+
+def test_get_test_cmd_with_test_patch(tmp_path):
+    """Test get_test_cmd with test patch from INSTANCE_REF."""
+    # Create test directory structure
+    (tmp_path / "tests").mkdir()
+    test_file = tmp_path / "tests" / "test_example.py"
+    test_file.write_text("# test file")
+    
+    mock_rp = MockRepoProfile(str(tmp_path))
+    mock_rp.test_cmd = "pytest"
+    
+    # Create a test patch that references the test file
+    test_patch = """diff --git a/tests/test_example.py b/tests/test_example.py
+index 1234567..abcdefg 100644
+--- a/tests/test_example.py
++++ b/tests/test_example.py
+@@ -1,1 +1,1 @@
+-# test file
++# updated test file
+"""
+    
+    instance = {
+        KEY_INSTANCE_ID: "test__test_repo.test1234.suffix",
+        KEY_PATCH: "dummy patch content",
+        INSTANCE_REF: {
+            "test_patch": test_patch
+        }
+    }
+    
+    test_command, test_files = mock_rp.get_test_cmd(instance)
+    assert "tests/test_example.py" in test_command
+    assert len(test_files) > 0
+
+
+def test_get_test_cmd_with_code_patch(tmp_path):
+    """Test get_test_cmd with code patch that should match test files."""
+    # Create test directory structure
+    (tmp_path / "src").mkdir()
+    (tmp_path / "tests").mkdir()
+    
+    # Create source file
+    src_file = tmp_path / "src" / "example.py"
+    src_file.write_text("# source file")
+    
+    # Create corresponding test file
+    test_file = tmp_path / "tests" / "test_example.py"
+    test_file.write_text("# test file")
+    
+    mock_rp = MockRepoProfile(str(tmp_path))
+    mock_rp.test_cmd = "pytest"
+    
+    # Create a patch that modifies the source file
+    code_patch = """diff --git a/src/example.py b/src/example.py
+index 1234567..abcdefg 100644
+--- a/src/example.py
++++ b/src/example.py
+@@ -1,1 +1,1 @@
+-# source file
++# updated source file
+"""
+    
+    instance = {
+        KEY_INSTANCE_ID: "test__test_repo.test1234.suffix",
+        KEY_PATCH: code_patch
+    }
+    
+    test_command, test_files = mock_rp.get_test_cmd(instance)
+    assert "tests/test_example.py" in test_command
+    assert len(test_files) > 0
+
+
+def test_get_test_cmd_instance_id_mismatch():
+    """Test get_test_cmd with mismatched instance ID."""
+    mock_rp = MockRepoProfile("dummy_dir")
+    mock_rp.test_cmd = "pytest"
+    
+    instance = {
+        KEY_INSTANCE_ID: "different__repo.12345678.suffix"
+    }
+    
+    with pytest.raises(AssertionError, match="WARNING: different__repo.12345678.suffix not from test__test_repo.test1234"):
+        mock_rp.get_test_cmd(instance)
+
+
+def test_get_test_cmd_non_pytest_eval():
+    """Test get_test_cmd in eval mode with non-pytest command."""
+    mock_rp = MockRepoProfile("dummy_dir")
+    mock_rp.test_cmd = "go test"
+    
+    instance = {
+        KEY_INSTANCE_ID: "test__test_repo.test1234.suffix",
+        FAIL_TO_PASS: ["test_file.go::test_function"]
+    }
+    
+    test_command, test_files = mock_rp.get_test_cmd(instance, is_eval=True)
+    assert test_command == "go test"
+    assert test_files == []
