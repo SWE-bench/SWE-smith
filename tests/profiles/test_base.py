@@ -1,15 +1,15 @@
-from swesmith.constants import ORG_NAME_GH
-from swesmith.profiles import global_registry, RepoProfile
-from swesmith.profiles.utils import INSTALL_CMAKE, INSTALL_BAZEL
-from unittest.mock import patch
 import subprocess
 import pytest
 import os
 import shutil
-from pathlib import Path
+
 from swebench.harness.constants import FAIL_TO_PASS, KEY_INSTANCE_ID
-from swesmith.constants import KEY_PATCH
 from swesmith.bug_gen.mirror.generate import INSTANCE_REF
+from swesmith.constants import KEY_PATCH
+from swesmith.constants import ORG_NAME_GH
+from swesmith.profiles import global_registry, RepoProfile
+from swesmith.profiles.utils import INSTALL_CMAKE, INSTALL_BAZEL
+from unittest.mock import patch
 
 
 def test_registry_keys_and_lookup():
@@ -243,7 +243,7 @@ def test_registry_values():
     registry.register_profile(TestProfile2)
 
     values = registry.values()
-    assert len(values) == 2
+    assert len(values) == 4  # Because 2 keys per RepoProfile
     assert all(isinstance(v, RepoProfile) for v in values)
     assert any(v.owner == "test1" for v in values)
     assert any(v.owner == "test2" for v in values)
@@ -436,11 +436,9 @@ def test_get_test_cmd_basic():
     """Test get_test_cmd with basic instance (no patch, no eval)."""
     mock_rp = MockRepoProfile("dummy_dir")
     mock_rp.test_cmd = "pytest"
-    
-    instance = {
-        KEY_INSTANCE_ID: "test__test_repo.test1234.suffix"
-    }
-    
+
+    instance = {KEY_INSTANCE_ID: "test__test_repo.test1234.suffix"}
+
     test_command, test_files = mock_rp.get_test_cmd(instance)
     assert test_command == "pytest"
     assert test_files == []
@@ -450,13 +448,13 @@ def test_get_test_cmd_eval_mode():
     """Test get_test_cmd in evaluation mode with FAIL_TO_PASS."""
     mock_rp = MockRepoProfile("dummy_dir")
     mock_rp.test_cmd = "pytest"
-    
+
     instance = {
         KEY_INSTANCE_ID: "test__test_repo.test1234.suffix",
-        FAIL_TO_PASS: ["test_file.py::test_function", "other_file.py::test_other"]
+        FAIL_TO_PASS: ["test_file.py::test_function", "other_file.py::test_other"],
     }
-    
-    test_command, test_files = mock_rp.get_test_cmd(instance, is_eval=True)
+
+    test_command, test_files = mock_rp.get_test_cmd(instance)
     # Order of files may vary, so check set equality
     parts = test_command.split()
     assert parts[0] == "pytest"
@@ -469,12 +467,12 @@ def test_get_test_cmd_min_testing():
     mock_rp = MockRepoProfile("dummy_dir")
     mock_rp.test_cmd = "pytest"
     mock_rp.min_testing = True
-    
+
     instance = {
         KEY_INSTANCE_ID: "test__test_repo.test1234.suffix",
-        KEY_PATCH: "dummy patch content"
+        KEY_PATCH: "dummy patch content",
     }
-    
+
     test_command, test_files = mock_rp.get_test_cmd(instance)
     assert test_command == "pytest"
     assert test_files == []
@@ -484,12 +482,12 @@ def test_get_test_cmd_no_patch():
     """Test get_test_cmd when no patch is provided."""
     mock_rp = MockRepoProfile("dummy_dir")
     mock_rp.test_cmd = "pytest"
-    
+
     instance = {
         KEY_INSTANCE_ID: "test__test_repo.test1234.suffix"
         # No KEY_PATCH
     }
-    
+
     test_command, test_files = mock_rp.get_test_cmd(instance)
     assert test_command == "pytest"
     assert test_files == []
@@ -501,10 +499,10 @@ def test_get_test_cmd_with_test_patch(tmp_path):
     (tmp_path / "tests").mkdir()
     test_file = tmp_path / "tests" / "test_example.py"
     test_file.write_text("# test file")
-    
+
     mock_rp = MockRepoProfile(str(tmp_path))
     mock_rp.test_cmd = "pytest"
-    
+
     # Create a test patch that references the test file
     test_patch = """diff --git a/tests/test_example.py b/tests/test_example.py
 index 1234567..abcdefg 100644
@@ -514,15 +512,13 @@ index 1234567..abcdefg 100644
 -# test file
 +# updated test file
 """
-    
+
     instance = {
         KEY_INSTANCE_ID: "test__test_repo.test1234.suffix",
         KEY_PATCH: "dummy patch content",
-        INSTANCE_REF: {
-            "test_patch": test_patch
-        }
+        INSTANCE_REF: {"test_patch": test_patch},
     }
-    
+
     test_command, test_files = mock_rp.get_test_cmd(instance)
     assert "tests/test_example.py" in test_command
     assert len(test_files) > 0
@@ -533,18 +529,18 @@ def test_get_test_cmd_with_code_patch(tmp_path):
     # Create test directory structure
     (tmp_path / "src").mkdir()
     (tmp_path / "tests").mkdir()
-    
+
     # Create source file
     src_file = tmp_path / "src" / "example.py"
     src_file.write_text("# source file")
-    
+
     # Create corresponding test file
     test_file = tmp_path / "tests" / "test_example.py"
     test_file.write_text("# test file")
-    
+
     mock_rp = MockRepoProfile(str(tmp_path))
     mock_rp.test_cmd = "pytest"
-    
+
     # Create a patch that modifies the source file
     code_patch = """diff --git a/src/example.py b/src/example.py
 index 1234567..abcdefg 100644
@@ -554,12 +550,12 @@ index 1234567..abcdefg 100644
 -# source file
 +# updated source file
 """
-    
+
     instance = {
         KEY_INSTANCE_ID: "test__test_repo.test1234.suffix",
-        KEY_PATCH: code_patch
+        KEY_PATCH: code_patch,
     }
-    
+
     test_command, test_files = mock_rp.get_test_cmd(instance)
     assert "tests/test_example.py" in test_command
     assert len(test_files) > 0
@@ -569,12 +565,13 @@ def test_get_test_cmd_instance_id_mismatch():
     """Test get_test_cmd with mismatched instance ID."""
     mock_rp = MockRepoProfile("dummy_dir")
     mock_rp.test_cmd = "pytest"
-    
-    instance = {
-        KEY_INSTANCE_ID: "different__repo.12345678.suffix"
-    }
-    
-    with pytest.raises(AssertionError, match="WARNING: different__repo.12345678.suffix not from test__test_repo.test1234"):
+
+    instance = {KEY_INSTANCE_ID: "different__repo.12345678.suffix"}
+
+    with pytest.raises(
+        AssertionError,
+        match="WARNING: different__repo.12345678.suffix not from test__test_repo.test1234",
+    ):
         mock_rp.get_test_cmd(instance)
 
 
@@ -582,12 +579,12 @@ def test_get_test_cmd_non_pytest_eval():
     """Test get_test_cmd in eval mode with non-pytest command."""
     mock_rp = MockRepoProfile("dummy_dir")
     mock_rp.test_cmd = "go test"
-    
+
     instance = {
         KEY_INSTANCE_ID: "test__test_repo.test1234.suffix",
-        FAIL_TO_PASS: ["test_file.go::test_function"]
+        FAIL_TO_PASS: ["test_file.go::test_function"],
     }
-    
-    test_command, test_files = mock_rp.get_test_cmd(instance, is_eval=True)
+
+    test_command, test_files = mock_rp.get_test_cmd(instance)
     assert test_command == "go test"
     assert test_files == []

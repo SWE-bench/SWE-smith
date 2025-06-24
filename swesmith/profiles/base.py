@@ -21,9 +21,6 @@ from swesmith.constants import KEY_PATCH, ORG_NAME_DH, ORG_NAME_GH, INSTANCE_REF
 from unidiff import PatchSet
 
 
-CODE_EXTS = [".py", ".go", ".rb", ".php", ".java"]
-
-
 load_dotenv()
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 api = GhApi(token=GITHUB_TOKEN)
@@ -49,9 +46,10 @@ class RepoProfile(ABC):
     # Install + Test specifications
     install_cmds: list[str] = None
     test_cmd: str = None
+    test_exts: str = [".py", ".go", ".rb", ".php", ".java"]
 
     # `min_testing`: If set, then subset of tests (not all) are run for post-bug validation
-    # Affects get_test_command, get_valid_report
+    # Affects get_test_cmd, get_valid_report
     min_testing: bool = False
 
     # `min_pregold`: If set, then for pre-bug validation, individual runs are
@@ -153,15 +151,14 @@ class RepoProfile(ABC):
                 stderr=subprocess.DEVNULL,
             )
 
-
     @lru_cache(maxsize=None)
-    def _get_cached_test_paths(self, exts: str = CODE_EXTS) -> list[Path]:
+    def _get_cached_test_paths(self) -> list[Path]:
         """Clone the repo, get all testing file paths relative to the repo directory, then clean up."""
-        with self._lock: # Only one process enters this block at a time
+        with self._lock:  # Only one process enters this block at a time
             self.clone()
             test_paths = [
                 Path(os.path.relpath(os.path.join(root, file), self.repo_name))
-                for root,_, files in os.walk(Path(self.repo_name).resolve())
+                for root, _, files in os.walk(Path(self.repo_name).resolve())
                 for file in files
                 if (
                     (
@@ -170,8 +167,8 @@ class RepoProfile(ABC):
                         or file.rsplit(".", 1)[0].endswith("test")
                     )
                     and (
-                        len(exts) == 0
-                        or any([file.endswith(ext) for ext in exts])
+                        len(self.test_exts) == 0
+                        or any([file.endswith(ext) for ext in self.test_exts])
                     )
                 )
             ]
@@ -179,24 +176,25 @@ class RepoProfile(ABC):
                 shutil.rmtree(self.repo_name)
         return test_paths
 
-    
-    def get_test_cmd(self, instance: dict, is_eval: bool = False):
-        assert instance[KEY_INSTANCE_ID].rsplit(".", 1)[0] == self.repo_name, \
+    def get_test_cmd(self, instance: dict):
+        assert instance[KEY_INSTANCE_ID].rsplit(".", 1)[0] == self.repo_name, (
             f"WARNING: {instance[KEY_INSTANCE_ID]} not from {self.repo_name}"
+        )
         test_command = self.test_cmd
 
-        if is_eval and "pytest" in test_command:
-            f2p_files = sorted(list(set([
-                x.split("::", 1)[0] for x in instance[FAIL_TO_PASS]
-            ])))
+        if FAIL_TO_PASS in instance and "pytest" in test_command:
+            # NOTE: Using F2P key as indicator that this is eval instance, not validation
+            f2p_files = sorted(
+                list(set([x.split("::", 1)[0] for x in instance[FAIL_TO_PASS]]))
+            )
             test_command += f" {' '.join(f2p_files)}"
             return test_command, f2p_files
-            
+
         if self.min_testing or KEY_PATCH not in instance:
             # If min testing is not enabled or there's no patch
             # return test command as is (usually = run whole test suite)
             return test_command, []
-        
+
         # Get all testing related file paths in the repo
         test_paths = self._get_cached_test_paths()
 
@@ -217,7 +215,7 @@ class RepoProfile(ABC):
             if len(rv) > 0:
                 test_command += f" {' '.join(rv)}"
                 return test_command, rv
-        
+
         # Identify relevant test files based on the patch
         patch_paths = [Path(f.path) for f in PatchSet(instance[KEY_PATCH])]
         rv = []
@@ -251,7 +249,12 @@ class RepoProfile(ABC):
                     elif any(
                         [
                             x.format(parent_dir) == test_path.name
-                            for x in ["test_{}.py", "test{}.py", "{}_test.py", "{}test.py"]
+                            for x in [
+                                "test_{}.py",
+                                "test{}.py",
+                                "{}_test.py",
+                                "{}test.py",
+                            ]
                         ]
                     ):
                         rv.append(str(test_path))
@@ -266,6 +269,7 @@ class RepoProfile(ABC):
             test_command += f" {' '.join(set(final))}"
 
         return test_command, rv
+
 
 ### MARK: Profile Registry ###
 
@@ -286,6 +290,7 @@ class Registry:
             # Create an instance to get the mirror name
             p = profile_class()
             self._profiles[p.repo_name] = profile_class
+            self._profiles[p.mirror_name] = profile_class
 
     def get(self, key: str) -> RepoProfile:
         """Get a profile class by mirror name."""

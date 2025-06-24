@@ -2,10 +2,10 @@ import docker
 import re
 
 from pathlib import Path
-from swebench.harness.constants import TestStatus
+from swebench.harness.constants import FAIL_TO_PASS, TestStatus
 from swebench.harness.docker_build import build_image as build_image_sweb
 from swebench.harness.dockerfiles import get_dockerfile_env
-from swesmith.constants import LOG_DIR_ENV, ENV_NAME
+from swesmith.constants import LOG_DIR_ENV, ENV_NAME, INSTANCE_REF
 from swesmith.profiles.base import RepoProfile, global_registry
 from swesmith.profiles.utils import INSTALL_BAZEL, INSTALL_CMAKE
 
@@ -22,6 +22,7 @@ class PythonProfile(RepoProfile):
     python_version: str = "3.10"
     install_cmds: list[str] = ["python -m pip install -e ."]
     test_cmd: str = "pytest --disable-warnings --color=no --tb=no --verbose"
+    test_exts: list = [".py"]
 
     def build_image(self):
         BASE_IMAGE_KEY = "jyangballin/swesmith.x86_64"
@@ -920,6 +921,18 @@ class MypyE93f06ce(PythonProfile):
     ]
     test_cmd = "pytest --color=no -rA -k"
     min_testing = True
+
+    def get_test_cmd(self, instance: str) -> tuple[str, list]:
+        pattern = r"\[case ([^\]]+)\]"
+        if FAIL_TO_PASS in instance:
+            test_keys = " or ".join(
+                [x.rsplit("::", 1)[-1] for x in instance[FAIL_TO_PASS]]
+            )
+        elif INSTANCE_REF in instance and "test_patch" in instance[INSTANCE_REF]:
+            test_keys = " or ".join(
+                re.findall(pattern, instance[INSTANCE_REF]["test_patch"])
+            )
+        return f'{self.test_cmd} "{test_keys}"'
 
     def log_parser(self, log: str) -> dict[str, str]:
         test_status_map = {}
