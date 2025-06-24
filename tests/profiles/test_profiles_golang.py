@@ -283,3 +283,45 @@ def test_gin_profile_go_test_command():
     assert "go test" in profile.test_cmd
     assert "-v" in profile.test_cmd  # Verbose output
     assert "./..." in profile.test_cmd  # Test all packages recursively
+
+
+def test_gin_profile_log_parser_with_real_gotest_output(test_output_gotest):
+    """Test Gin3c12d2a8.log_parser method with real gotest output"""
+    profile = Gin3c12d2a8()
+    
+    # Read the actual gotest output file
+    log_content = test_output_gotest.read_text()
+    
+    # Parse the log using the profile's log_parser method
+    result = profile.log_parser(log_content)
+    
+    # Verify the result is a dictionary with string keys and values
+    assert isinstance(result, dict)
+    assert all(
+        isinstance(key, str) and isinstance(value, str)
+        for key, value in result.items()
+    )
+    
+    # Test specific test results that we know should be in the output
+    expected_results = [
+        ("TestRouteStaticNoListing", "FAILED"),
+        ("TestBasicAuth", "PASSED"),
+        ("TestContextGetInt8", "PASSED"),
+        (
+            "TestContextInitQueryCache/queryCache_should_remain_unchanged_if_already_not_nil",
+            "PASSED",
+        ),
+    ]
+    
+    for test_name, expected_status in expected_results:
+        assert test_name in result, f"Test {test_name} not found in parsed results"
+        assert result[test_name] == expected_status, f"Expected {test_name} to be {expected_status}, got {result[test_name]}"
+    
+    # Verify that we have a reasonable number of test results
+    # The actual file contains many more tests, so we should have a substantial number
+    assert len(result) > 100, f"Expected many test results, got {len(result)}"
+    
+    # Verify that all status values are valid
+    valid_statuses = {"PASSED", "FAILED", "SKIPPED"}
+    for status in result.values():
+        assert status in valid_statuses, f"Invalid status: {status}"
