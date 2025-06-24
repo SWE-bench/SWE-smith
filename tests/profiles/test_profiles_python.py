@@ -243,20 +243,19 @@ def test_python_profile_custom_log_parser_inheritance():
 def test_python_profile_log_parser_with_real_pytest_output(test_output_pytest):
     """Test PythonProfile.log_parser method with real pytest output"""
     profile = PythonProfile()
-    
+
     # Read the actual pytest output file
     log_content = test_output_pytest.read_text()
-    
+
     # Parse the log using the profile's log_parser method
     result = profile.log_parser(log_content)
-    
+
     # Verify the result is a dictionary with string keys and values
     assert isinstance(result, dict)
     assert all(
-        isinstance(key, str) and isinstance(value, str)
-        for key, value in result.items()
+        isinstance(key, str) and isinstance(value, str) for key, value in result.items()
     )
-    
+
     # Test specific test results that we know should be in the output
     expected_results = [
         ("tests/test_money.py::test_keep_decimal_places[<lambda>3-1]", "FAILED"),
@@ -272,26 +271,32 @@ def test_python_profile_log_parser_with_real_pytest_output(test_output_pytest):
         ("tests/test_models.py::TestGetOrCreate::test_currency_field_lookup", "PASSED"),
         ("tests/test_money.py::test_get_current_locale[sv-se-sv_SE]", "PASSED"),
     ]
-    
+
     for test_name, expected_status in expected_results:
         assert test_name in result, f"Test {test_name} not found in parsed results"
-        assert result[test_name] == expected_status, f"Expected {test_name} to be {expected_status}, got {result[test_name]}"
-    
+        assert result[test_name] == expected_status, (
+            f"Expected {test_name} to be {expected_status}, got {result[test_name]}"
+        )
+
     # Verify that we have a reasonable number of test results
     # The actual file contains many more tests, so we should have a substantial number
     assert len(result) > 100, f"Expected many test results, got {len(result)}"
-    
+
     # Verify that all status values are valid
     valid_statuses = {"PASSED", "FAILED", "SKIPPED"}
     for status in result.values():
         assert status in valid_statuses, f"Invalid status: {status}"
-    
+
     # Verify that we have both passed and failed tests
     status_counts = {}
     for status in result.values():
         status_counts[status] = status_counts.get(status, 0) + 1
-    
+
     assert "PASSED" in status_counts, "No PASSED tests found"
     assert "FAILED" in status_counts, "No FAILED tests found"
-    assert status_counts["PASSED"] == 377, f"Expected many PASSED tests, got {status_counts['PASSED']}"
-    assert status_counts["FAILED"] == 9, f"Expected at least 9 FAILED tests, got {status_counts['FAILED']}"
+    assert status_counts["PASSED"] == 377, (
+        f"Expected many PASSED tests, got {status_counts['PASSED']}"
+    )
+    assert status_counts["FAILED"] == 9, (
+        f"Expected at least 9 FAILED tests, got {status_counts['FAILED']}"
+    )
