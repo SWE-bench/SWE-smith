@@ -16,7 +16,6 @@ from swesmith.constants import (
     TEST_OUTPUT_END,
     TEST_OUTPUT_START,
 )
-from swesmith.harness.log_parsers import MAP_REPO_TO_PARSER, parse_log_pytest
 from swesmith.harness.utils import get_test_command
 from swesmith.profiles import global_registry
 
@@ -246,12 +245,11 @@ def get_eval_report(
     report_map["patch_exists"] = True
 
     # Get evaluation logs
-    repo = inst[KEY_INSTANCE_ID].split(".")[0].replace("__", "/")
-    log_parser = MAP_REPO_TO_PARSER.get(repo, parse_log_pytest)
     test_output, found = read_test_output(test_log_path)
     if not found:
         return report_map
-    test_status_map = log_parser(test_output)
+    repo = inst[KEY_INSTANCE_ID].split(".")[0].replace("__", "/")  # TODO: Remove
+    test_status_map = global_registry.get(repo).log_parser(test_output)
 
     # Identify relevant test files
     _, test_files = get_test_command(inst)

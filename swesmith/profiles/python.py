@@ -651,6 +651,24 @@ class PythonSlugify872b3750(PythonProfile):
     commit = "872b37509399a7f02e53f46ad9881f63f66d334b"
     test_cmd = "python test.py --verbose"
 
+    def log_parser(self, log: str) -> dict[str, str]:
+        test_status_map = {}
+        pattern = r"^([a-zA-Z0-9_\-,\.\s\(\)']+)\s\.{3}\s"
+        for line in log.split("\n"):
+            is_match = re.match(f"{pattern}ok$", line)
+            if is_match:
+                test_status_map[is_match.group(1)] = TestStatus.PASSED.value
+                continue
+            for keyword, status in {
+                "FAIL": TestStatus.FAILED,
+                "ERROR": TestStatus.ERROR,
+            }.items():
+                is_match = re.match(f"{pattern}{keyword}$", line)
+                if is_match:
+                    test_status_map[is_match.group(1)] = status.value
+                    continue
+        return test_status_map
+
 
 class Radon54b88e58(PythonProfile):
     owner = "rubik"
