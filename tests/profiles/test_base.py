@@ -89,7 +89,7 @@ def test_repo_profile_clone():
         result = repo_profile.clone(custom_dest)
         mock_exists.assert_called_once_with(custom_dest)
         mock_run.assert_not_called()
-        assert result is None
+        assert result == custom_dest
 
 
 def test_python_log_parser():
@@ -393,8 +393,7 @@ class MockRepoProfile(RepoProfile):
         if not os.path.exists(dest):
             # Copy the test directory to the expected repo name
             shutil.copytree(self._test_dir, dest)
-            return dest
-        return None
+        return dest
 
 
 def test_get_cached_test_paths(tmp_path):

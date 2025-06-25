@@ -112,7 +112,7 @@ class RepoProfile(ABC):
                 stderr=subprocess.STDOUT,
             )
 
-    def clone(self, dest: str | None = None) -> str | None:
+    def clone(self, dest: str | None = None) -> str:
         """Clone repository locally"""
         if not self._mirror_exists():
             raise ValueError(
@@ -132,8 +132,7 @@ class RepoProfile(ABC):
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
             )
-            return dest
-        return None
+        return dest
 
     def create_mirror(self):
         """Create a mirror of this repository at the specified commit."""
