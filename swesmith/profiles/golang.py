@@ -1,36 +1,18 @@
 import re
-import subprocess
 
 from swebench.harness.constants import TestStatus
-from swesmith.constants import LOG_DIR_ENV
 from swesmith.profiles.base import RepoProfile, global_registry
 
 
-class Gin3c12d2a8(RepoProfile):
-    owner = "gin-gonic"
-    repo = "gin"
-    commit = "3c12d2a80e40930632fc4a4a4e1a45140f33fb12"
-    test_cmd = "go test -v ./..."
+class GoProfile(RepoProfile):
+    """
+    Profile for Golang repositories.
 
-    def build_image(self):
-        dockerfile = f"""FROM golang:1.24
-RUN git clone https://github.com/{self.mirror_name} /testbed
-WORKDIR /testbed
-RUN go mod tidy
-RUN go test ./...
-"""
-        env_dir = LOG_DIR_ENV / self.repo_name
-        env_dir.mkdir(parents=True, exist_ok=True)
-        dockerfile_path = env_dir / "Dockerfile"
-        with open(dockerfile_path, "w") as f:
-            f.write(dockerfile)
-        with open(env_dir / "build_image.log", "w") as log_file:
-            subprocess.run(
-                f"docker build -f {dockerfile_path} -t {self.image_name} .",
-                shell=True,
-                stdout=log_file,
-                stderr=subprocess.STDOUT,
-            )
+    This class provides Golang-specific defaults and functionality for
+    repository profiles.
+    """
+
+    test_cmd: str = "go test -v ./..."
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parser for test logs generated with 'go test'"""
@@ -42,7 +24,7 @@ RUN go test ./...
         for line in log.split("\n"):
             match = re.match(pattern, line.strip())
             if match:
-                status, test_name, _duration = match.groups()
+                status, test_name, _ = match.groups()
                 if status == "PASS":
                     test_status_map[test_name] = TestStatus.PASSED.value
                 elif status == "FAIL":
@@ -53,7 +35,22 @@ RUN go test ./...
         return test_status_map
 
 
+class Gin3c12d2a8(GoProfile):
+    owner = "gin-gonic"
+    repo = "gin"
+    commit = "3c12d2a80e40930632fc4a4a4e1a45140f33fb12"
+
+    @property
+    def dockerfile(self):
+        return f"""FROM golang:1.24
+RUN git clone https://github.com/{self.mirror_name} /testbed
+WORKDIR /testbed
+RUN go mod tidy
+RUN go test ./...
+"""
+
+
 # Register all Go profiles with the global registry
 for name, obj in list(globals().items()):
-    if isinstance(obj, type) and issubclass(obj, RepoProfile) and obj != RepoProfile:
+    if isinstance(obj, type) and issubclass(obj, GoProfile) and obj != GoProfile:
         global_registry.register_profile(obj)

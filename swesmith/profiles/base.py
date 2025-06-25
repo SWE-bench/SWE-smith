@@ -17,7 +17,13 @@ from functools import lru_cache
 from multiprocessing import Lock
 from pathlib import Path
 from swebench.harness.constants import FAIL_TO_PASS, KEY_INSTANCE_ID
-from swesmith.constants import KEY_PATCH, ORG_NAME_DH, ORG_NAME_GH, INSTANCE_REF
+from swesmith.constants import (
+    KEY_PATCH,
+    LOG_DIR_ENV,
+    ORG_NAME_DH,
+    ORG_NAME_GH,
+    INSTANCE_REF,
+)
 from unidiff import PatchSet
 
 
@@ -42,6 +48,7 @@ class RepoProfile(ABC):
     org_gh: str = ORG_NAME_GH
     arch = "x86_64" if platform.machine() not in {"aarch64", "arm64"} else "arm64"
     pltf = "linux/x86_64" if arch == "x86_64" else "linux/arm64/v8"
+    dockerfile: str
 
     # Install + Test specifications
     install_cmds: list[str] = None
@@ -64,11 +71,6 @@ class RepoProfile(ABC):
         # of the class will ever be created). If this changes for some reason in the future,
         # this design may have to be updated.
         self._lock = Lock()
-
-    @abstractmethod
-    def build_image(self):
-        """Build a Docker image (execution environment) for this repository profile."""
-        pass
 
     @abstractmethod
     def log_parser(self, log: str) -> dict[str, str]:
@@ -94,6 +96,21 @@ class RepoProfile(ABC):
             for page in range(1, 3)  # TODO: Need to update over time
             for x in api.repos.list_for_org(self.org_gh, per_page=100, page=page)
         ]
+
+    def build_image(self):
+        """Build a Docker image (execution environment) for this repository profile."""
+        env_dir = LOG_DIR_ENV / self.repo_name
+        env_dir.mkdir(parents=True, exist_ok=True)
+        dockerfile_path = env_dir / "Dockerfile"
+        with open(dockerfile_path, "w") as f:
+            f.write(self.dockerfile)
+        with open(env_dir / "build_image.log", "w") as log_file:
+            subprocess.run(
+                f"docker build -f {dockerfile_path} -t {self.image_name} .",
+                shell=True,
+                stdout=log_file,
+                stderr=subprocess.STDOUT,
+            )
 
     def clone(self, dest: str | None = None) -> str | None:
         """Clone repository locally"""

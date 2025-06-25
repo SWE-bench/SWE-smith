@@ -7,6 +7,7 @@ Usage: python -m swesmith.build_repo.create_images --max-workers 4
 import argparse
 import docker
 import traceback
+from collections import OrderedDict
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from tqdm import tqdm
 
@@ -70,6 +71,13 @@ def build_all_images(max_workers=4, profile_filter=None, proceed=False):
     if not profiles_to_build:
         print("No profiles to build.")
         return [], []
+
+    # Deduplicate profiles_to_build by image_name (more efficiently)
+    profiles_to_build = list(
+        OrderedDict(
+            (profile.image_name, profile) for profile in profiles_to_build
+        ).values()
+    )
 
     print(f"Total profiles to build: {len(profiles_to_build)}")
     for profile in profiles_to_build:
@@ -151,9 +159,9 @@ def main():
     )
 
     if failed:
-        print(f"\nFailed builds: {failed}")
+        print(f"- Failed builds: {failed}")
     if successful:
-        print(f"\nSuccessful builds: {len(successful)}")
+        print(f"- Successful builds: {len(successful)}")
 
 
 if __name__ == "__main__":
