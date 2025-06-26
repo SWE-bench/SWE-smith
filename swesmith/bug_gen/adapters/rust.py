@@ -1,10 +1,9 @@
 import re
-
-from swesmith.constants import TODO_REWRITE
-from swesmith.utils import CodeEntity
-from tree_sitter import Language, Parser, Query
 import tree_sitter_rust as tsrs
 import warnings
+
+from swesmith.constants import TODO_REWRITE, CodeEntity
+from tree_sitter import Language, Parser, Query
 
 RUST_LANGUAGE = Language(tsrs.language())
 
