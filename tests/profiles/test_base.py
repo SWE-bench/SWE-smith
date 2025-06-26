@@ -2,6 +2,7 @@ import subprocess
 import pytest
 import os
 import shutil
+from dataclasses import dataclass
 
 from swebench.harness.constants import FAIL_TO_PASS, KEY_INSTANCE_ID
 from swesmith.bug_gen.mirror.generate import INSTANCE_REF
@@ -10,6 +11,20 @@ from swesmith.constants import ORG_NAME_GH
 from swesmith.profiles import global_registry, RepoProfile
 from swesmith.profiles.utils import INSTALL_CMAKE, INSTALL_BAZEL
 from unittest.mock import patch
+
+
+@pytest.fixture(autouse=True)
+def clear_singleton_cache():
+    """Clear singleton cache between tests to prevent interference."""
+    from swesmith.profiles.base import SingletonMeta
+
+    SingletonMeta._instances.clear()
+    yield
+
+
+@pytest.fixture(autouse=True)
+def clear_test_paths_cache():
+    RepoProfile._test_paths_cache.clear()
 
 
 def test_registry_keys_and_lookup():
@@ -162,10 +177,11 @@ def test_registry_register_profile():
     registry = Registry()
 
     # Test registering a valid profile class
+    @dataclass
     class TestProfile(RepoProfile):
-        owner = "test"
-        repo = "test-repo"
-        commit = "1234567890abcdef"
+        owner: str = "test"
+        repo: str = "test-repo"
+        commit: str = "1234567890abcdef"
 
         def build_image(self):
             pass
@@ -190,10 +206,11 @@ def test_registry_get_from_inst():
 
     registry = Registry()
 
+    @dataclass
     class TestProfile(RepoProfile):
-        owner = "test"
-        repo = "test-repo"
-        commit = "1234567890abcdef"
+        owner: str = "test"
+        repo: str = "test-repo"
+        commit: str = "1234567890abcdef"
 
         def build_image(self):
             pass
@@ -217,10 +234,11 @@ def test_registry_values():
 
     registry = Registry()
 
+    @dataclass
     class TestProfile1(RepoProfile):
-        owner = "test1"
-        repo = "test-repo1"
-        commit = "1234567890abcdef"
+        owner: str = "test1"
+        repo: str = "test-repo1"
+        commit: str = "1234567890abcdef"
 
         def build_image(self):
             pass
@@ -228,10 +246,11 @@ def test_registry_values():
         def log_parser(self, log: str) -> dict[str, str]:
             return {}
 
+    @dataclass
     class TestProfile2(RepoProfile):
-        owner = "test2"
-        repo = "test-repo2"
-        commit = "abcdef1234567890"
+        owner: str = "test2"
+        repo: str = "test-repo2"
+        commit: str = "abcdef1234567890"
 
         def build_image(self):
             pass

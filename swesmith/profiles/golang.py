@@ -1,9 +1,11 @@
 import re
+from dataclasses import dataclass
 
 from swebench.harness.constants import TestStatus
 from swesmith.profiles.base import RepoProfile, global_registry
 
 
+@dataclass
 class GoProfile(RepoProfile):
     """
     Profile for Golang repositories.
@@ -35,10 +37,11 @@ class GoProfile(RepoProfile):
         return test_status_map
 
 
+@dataclass
 class Gin3c12d2a8(GoProfile):
-    owner = "gin-gonic"
-    repo = "gin"
-    commit = "3c12d2a80e40930632fc4a4a4e1a45140f33fb12"
+    owner: str = "gin-gonic"
+    repo: str = "gin"
+    commit: str = "3c12d2a80e40930632fc4a4a4e1a45140f33fb12"
 
     @property
     def dockerfile(self):
@@ -52,5 +55,9 @@ RUN go test ./...
 
 # Register all Go profiles with the global registry
 for name, obj in list(globals().items()):
-    if isinstance(obj, type) and issubclass(obj, GoProfile) and obj != GoProfile:
+    if (
+        isinstance(obj, type)
+        and issubclass(obj, GoProfile)
+        and obj.__name__ != "GoProfile"
+    ):
         global_registry.register_profile(obj)

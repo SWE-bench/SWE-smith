@@ -10,10 +10,11 @@ import platform
 import shutil
 import subprocess
 
-from abc import ABC, abstractmethod
+from abc import ABC, abstractmethod, ABCMeta
+from collections import UserDict
+from dataclasses import dataclass, field
 from dotenv import load_dotenv
 from ghapi.all import GhApi
-from functools import lru_cache
 from multiprocessing import Lock
 from pathlib import Path
 from swebench.harness.constants import FAIL_TO_PASS, KEY_INSTANCE_ID
@@ -32,7 +33,17 @@ GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 api = GhApi(token=GITHUB_TOKEN)
 
 
-class RepoProfile(ABC):
+class SingletonMeta(ABCMeta):
+    _instances = {}
+
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super().__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+
+@dataclass
+class RepoProfile(ABC, metaclass=SingletonMeta):
     """
     Base class for repository profiles that define installation and testing specifications.
 
@@ -41,19 +52,20 @@ class RepoProfile(ABC):
     installation and testing patterns while maintaining a consistent API.
     """
 
-    owner: str
-    repo: str
-    commit: str
+    owner: str = ""
+    repo: str = ""
+    commit: str = ""
     org_dh: str = ORG_NAME_DH
     org_gh: str = ORG_NAME_GH
-    arch = "x86_64" if platform.machine() not in {"aarch64", "arm64"} else "arm64"
-    pltf = "linux/x86_64" if arch == "x86_64" else "linux/arm64/v8"
-    dockerfile: str
+    arch: str = "x86_64" if platform.machine() not in {"aarch64", "arm64"} else "arm64"
+    pltf: str = "linux/x86_64" if arch == "x86_64" else "linux/arm64/v8"
 
     # Install + Test specifications
-    install_cmds: list[str] = None
-    test_cmd: str = None
-    test_exts: str = [".py", ".go", ".rb", ".php", ".java"]
+    install_cmds: list[str] = field(default_factory=list)
+    test_cmd: str = ""
+    test_exts: list[str] = field(
+        default_factory=lambda: [".py", ".go", ".rb", ".php", ".java"]
+    )
 
     # `min_testing`: If set, then subset of tests (not all) are run for post-bug validation
     # Affects get_test_cmd, get_valid_report
@@ -64,13 +76,14 @@ class RepoProfile(ABC):
     # Affects valid.py
     min_pregold: bool = False
 
-    def __init__(self):
-        """Initialize the repository profile with an instance-level lock."""
-        # NOTE on this design: the lock is to prevent concurrent clones of the same repository.
-        # In this repo, all subclasses of RepoProfile are meant to be Singletons (only one instance
-        # of the class will ever be created). If this changes for some reason in the future,
-        # this design may have to be updated.
-        self._lock = Lock()
+    # The lock is to prevent concurrent clones of the same repository.
+    # In this repo, all subclasses of RepoProfile are meant to be Singletons (only one instance
+    # of the class will ever be created). If this changes for some reason in the future,
+    # this design may have to be updated.
+    _lock: Lock = field(default_factory=Lock, init=False, repr=False, compare=False)
+
+    # Class-level cache for test paths, keyed by repo_name
+    _test_paths_cache = {}
 
     @abstractmethod
     def log_parser(self, log: str) -> dict[str, str]:
@@ -167,30 +180,40 @@ class RepoProfile(ABC):
                 stderr=subprocess.DEVNULL,
             )
 
-    @lru_cache(maxsize=None)
     def _get_cached_test_paths(self) -> list[Path]:
         """Clone the repo, get all testing file paths relative to the repo directory, then clean up."""
-        with self._lock:  # Only one process enters this block at a time
-            self.clone()
-            test_paths = [
-                Path(os.path.relpath(os.path.join(root, file), self.repo_name))
-                for root, _, files in os.walk(Path(self.repo_name).resolve())
-                for file in files
-                if (
-                    (
-                        any([x in root.split("/") for x in ["tests", "test", "specs"]])
-                        or file.lower().startswith("test")
-                        or file.rsplit(".", 1)[0].endswith("test")
+        # Use repo_name as cache key since it's unique per repository profile
+        cache_key = self.repo_name
+
+        if cache_key not in self._test_paths_cache:
+            with self._lock:  # Only one process enters this block at a time
+                self.clone()
+                test_paths = [
+                    Path(os.path.relpath(os.path.join(root, file), self.repo_name))
+                    for root, _, files in os.walk(Path(self.repo_name).resolve())
+                    for file in files
+                    if (
+                        (
+                            any(
+                                [
+                                    x in root.split("/")
+                                    for x in ["tests", "test", "specs"]
+                                ]
+                            )
+                            or file.lower().startswith("test")
+                            or file.rsplit(".", 1)[0].endswith("test")
+                        )
+                        and (
+                            len(self.test_exts) == 0
+                            or any([file.endswith(ext) for ext in self.test_exts])
+                        )
                     )
-                    and (
-                        len(self.test_exts) == 0
-                        or any([file.endswith(ext) for ext in self.test_exts])
-                    )
-                )
-            ]
-            if os.path.exists(self.repo_name):
-                shutil.rmtree(self.repo_name)
-        return test_paths
+                ]
+                if os.path.exists(self.repo_name):
+                    shutil.rmtree(self.repo_name)
+                self._test_paths_cache[cache_key] = test_paths
+
+        return self._test_paths_cache[cache_key]
 
     def get_test_cmd(self, instance: dict):
         assert instance[KEY_INSTANCE_ID].rsplit(".", 1)[0] == self.repo_name, (
@@ -290,40 +313,37 @@ class RepoProfile(ABC):
 ### MARK: Profile Registry ###
 
 
-class Registry:
-    """Simple registry for mapping mirror names to profile classes."""
-
-    def __init__(self):
-        self._profiles = {}
+class Registry(UserDict):
+    """A registry mapping repo/mirror names to RepoProfile subclasses."""
 
     def register_profile(self, profile_class: type):
-        """Register a single profile class."""
-        if (
-            isinstance(profile_class, type)
-            and issubclass(profile_class, RepoProfile)
-            and profile_class != RepoProfile
-        ):
-            # Create an instance to get the mirror name
-            p = profile_class()
-            self._profiles[p.repo_name] = profile_class
-            self._profiles[p.mirror_name] = profile_class
+        """Register a RepoProfile subclass (except base types)."""
+        # Skip base types
+        if profile_class.__name__ in {"RepoProfile", "PythonProfile", "GoProfile"}:
+            # TODO: Update for new languages
+            return
+        # Create temporary instance to get properties
+        p = profile_class()
+        self.data[p.repo_name] = profile_class
+        self.data[p.mirror_name] = profile_class
 
     def get(self, key: str) -> RepoProfile:
-        """Get a profile class by mirror name."""
-        return self._profiles.get(key)()
+        """Get a profile class by mirror name or repo name."""
+        cls = self.data.get(key)
+        if cls is None:
+            raise KeyError(f"No profile registered for key: {key}")
+        return cls()
 
     def get_from_inst(self, instance: dict) -> RepoProfile:
-        """Get a profile class by a SWE-smith instance"""
+        """Get a profile class by a SWE-smith instance dict."""
         key = instance[KEY_INSTANCE_ID].rsplit(".", 1)[0]
-        return self._profiles.get(key)()
+        return self.get(key)
 
-    def keys(self) -> list[str]:
-        """Get all available profile keys (mirror names)."""
-        return list(self._profiles.keys())
+    def keys(self):
+        return self.data.keys()
 
-    def values(self) -> list[RepoProfile]:
-        """Get all profile classes."""
-        return [p() for p in self._profiles.values()]
+    def values(self):
+        return [cls() for cls in self.data.values()]
 
 
 # Global registry instance that can be shared across modules
