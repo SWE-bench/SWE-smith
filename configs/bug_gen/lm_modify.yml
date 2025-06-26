@@ -1,4 +1,3 @@
-version: 2
 name: lm_modify
 parameters:
   bug_examples:

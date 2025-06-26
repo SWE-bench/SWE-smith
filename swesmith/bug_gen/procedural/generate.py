@@ -21,16 +21,12 @@ from swesmith.bug_gen.utils import (
 )
 from swesmith.constants import (
     LOG_DIR_BUG_GEN,
-    ORG_NAME,
     PREFIX_BUG,
     PREFIX_METADATA,
-)
-from swesmith.utils import (
     BugRewrite,
     CodeEntity,
-    clone_repo,
-    repo_exists,
 )
+from swesmith.profiles import global_registry
 from tqdm.auto import tqdm
 
 from swesmith.bug_gen.procedural import PythonProceduralModifier
@@ -130,11 +126,9 @@ def main(
     max_bugs: int,
     seed: int,
 ):
-    assert repo_exists(repo), f"Repository {repo} does not exist in {ORG_NAME}."
     random.seed(seed)
-
     total = 0
-    clone_repo(repo)
+    global_registry.get(repo).clone()
     print(f"Cloned {repo} repository.")
     entities = extract_entities_from_directory(repo)
     print(f"Found {len(entities)} entities in {repo}.")

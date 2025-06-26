@@ -5,7 +5,6 @@ from swebench.harness.constants import (
     KEY_MODEL,
     KEY_PREDICTION,
 )
-from swesmith.constants import KEY_IMAGE_NAME
 from swesmith.harness.grading import (
     get_eval_report,
     get_valid_report,
@@ -75,6 +74,6 @@ def test_get_valid_report(logs_run_validation):
     report = get_valid_report(
         logs_run_validation / "test_output.txt",
         logs_run_validation / "test_output_pre_gold.txt",
-        {KEY_IMAGE_NAME: "swesmith.x86_64.pandas-dev__pandas.95280573"},
+        {"repo": "pandas-dev__pandas.95280573"},
     )
     assert report == json.load(open(logs_run_validation / "report.json"))

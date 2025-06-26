@@ -1,7 +1,6 @@
 import re
 
-from swesmith.constants import TODO_REWRITE
-from swesmith.utils import CodeEntity
+from swesmith.constants import TODO_REWRITE, CodeEntity
 from tree_sitter import Language, Parser, Query
 import tree_sitter_go as tsgo
 import warnings
@@ -65,6 +64,37 @@ class GoEntity(CodeEntity):
     @property
     def stub(self) -> str:
         return f"{self.signature} {{\n\t// {TODO_REWRITE}\n}}"
+
+    @property
+    def complexity(self) -> int:
+        def walk(node):
+            score = 0
+            if node.type in [
+                "!=",
+                "&&",
+                "<",
+                "<-",
+                "<=",
+                "==",
+                ">",
+                ">=",
+                "||",
+                "case",
+                "default",
+                "defer",
+                "else",
+                "for",
+                "go",
+                "if",
+            ]:
+                score += 1
+
+            for child in node.children:
+                score += walk(child)
+
+            return score
+
+        return 1 + walk(self.node)
 
     @staticmethod
     def _extract_text_from_first_match(query, node, capture_name: str) -> str | None:

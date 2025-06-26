@@ -155,3 +155,63 @@ def test_get_entities_from_file_go_stubs(entities):
     ]
     for stub in expected_stubs:
         assert stub in stubs, f"Expected stub '{stub}' not found in {stubs}"
+
+
+def test_get_entities_from_file_go_complexity(entities):
+    complexity_scores = [(e.name, e.complexity) for e in entities]
+    expected_scores = [
+        ("LogFormatterParams.StatusCodeColor", 18),
+        ("LogFormatterParams.MethodColor", 9),
+        ("LogFormatterParams.ResetColor", 1),
+        ("LogFormatterParams.IsOutputColor", 5),
+        ("DisableConsoleColor", 1),
+        ("ForceConsoleColor", 1),
+        ("ErrorLogger", 1),
+        ("ErrorLoggerT", 3),
+        ("Logger", 1),
+        ("LoggerWithFormatter", 1),
+        ("LoggerWithWriter", 1),
+        ("LoggerWithConfig", 19),
+    ]
+    assert complexity_scores == expected_scores
+
+
+def test_get_entities_from_file_go_complexity_else(tmp_path):
+    if_else_file = tmp_path / "if_else.go"
+    if_else_file.write_text(
+        """
+func f(i int) {
+	if i == 1 {
+
+	} else if i == 2 {
+
+	} else {
+
+	}
+}
+    """.strip()
+    )
+    entities = []
+    get_entities_from_file_go(entities, if_else_file)
+    assert len(entities) == 1
+    assert entities[0].complexity == 7
+
+
+@pytest.mark.parametrize(
+    "func_definition",
+    [
+        ("func f() { defer func() {}() }"),
+        ("func f() { go func() {}() }"),
+        ("func f(c chan struct{}) { <-c }"),
+        ("func f(c chan struct{}) { c <- struct{}{} }"),
+    ],
+)
+def test_get_entities_from_file_go_complexity_other_statements(
+    tmp_path, func_definition
+):
+    stmt_file = tmp_path / "stmt.go"
+    stmt_file.write_text(func_definition)
+    entities = []
+    get_entities_from_file_go(entities, stmt_file)
+    assert len(entities) == 1
+    assert entities[0].complexity == 2

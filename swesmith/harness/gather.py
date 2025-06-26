@@ -49,10 +49,10 @@ from swesmith.constants import (
     KEY_PATCH,
     KEY_TIMED_OUT,
     LOG_DIR_TASKS,
-    ORG_NAME,
+    ORG_NAME_GH,
     REF_SUFFIX,
 )
-from swesmith.utils import clone_repo, get_full_commit, get_image_name, get_repo_name
+from swesmith.profiles import global_registry
 from tqdm.auto import tqdm
 
 load_dotenv()
@@ -105,7 +105,7 @@ def check_if_branch_exists(
     branch_exists = None
     branch_commit = None
     try:
-        api.repos.get_branch(ORG_NAME, repo_name, subfolder)
+        api.repos.get_branch(ORG_NAME_GH, repo_name, subfolder)
         subprocess.run(f"cd {repo_name}; git checkout {subfolder}", **SUBPROCESS_ARGS)
         if override_branch:
             # Delete the branch remotely
@@ -221,30 +221,23 @@ def _main(
             )
             continue
 
-        repo = subfolder.rsplit(".", 2)[0].replace("__", "/")
-        commit = get_full_commit(repo, subfolder.rsplit(".", 2)[1])
-        repo_name = repo.split("/")[1]
-
-        # Create repository if it doesn't exist
-        repo_name = get_repo_name(repo, commit)
-
         task_instance = {
             KEY_INSTANCE_ID: subfolder,
-            "repo": f"{ORG_NAME}/{repo_name}",
             KEY_PATCH: open(path_patch).read(),
             FAIL_TO_PASS: results[FAIL_TO_PASS],
             PASS_TO_PASS: results[PASS_TO_PASS],
             "created_at": datetime.now().isoformat(),
-            KEY_IMAGE_NAME: get_image_name(repo, commit),
         }
+        rp = global_registry.get_from_inst(task_instance)
+        task_instance[KEY_IMAGE_NAME] = rp.image_name
+        task_instance["repo"] = rp.mirror_name
 
         # Clone repository
-        cloned = clone_repo(repo_name)
-        if cloned:
-            created_repos.append(repo_name)
+        if rp.clone():
+            created_repos.append(rp.repo_name)
         main_branch = (
             subprocess.run(
-                f"cd {repo_name}; git rev-parse --abbrev-ref HEAD",
+                f"cd {rp.repo_name}; git rev-parse --abbrev-ref HEAD",
                 capture_output=True,
                 shell=True,
                 check=True,
@@ -255,7 +248,7 @@ def _main(
 
         # Check if branch already created for this problem
         branch_exists, branch_commit = check_if_branch_exists(
-            api, repo_name, subfolder, main_branch, override_branch, verbose
+            api, rp.repo_name, subfolder, main_branch, override_branch, verbose
         )
         if branch_exists:
             task_instance["base_commit"] = branch_commit
@@ -274,7 +267,7 @@ def _main(
         applied = False
         for git_apply in GIT_APPLY_CMDS:
             output = subprocess.run(
-                f"cd {repo_name}; {git_apply} ../{path_patch}",
+                f"cd {rp.repo_name}; {git_apply} ../{path_patch}",
                 capture_output=True,
                 shell=True,
             )
@@ -283,25 +276,27 @@ def _main(
                 break
             else:
                 # Remove any artifacts
-                subprocess.run(f"cd {repo_name}; git reset --hard", **SUBPROCESS_ARGS)
+                subprocess.run(
+                    f"cd {rp.repo_name}; git reset --hard", **SUBPROCESS_ARGS
+                )
         if not applied:
-            raise Exception(f"[{subfolder}] Failed to apply patch to {repo_name}")
+            raise Exception(f"[{subfolder}] Failed to apply patch to {rp.repo_name}")
         if verbose:
             print(f"[{subfolder}] Bug patch applied successfully")
 
         # Create a branch, check it out, commit, push the branch, and cleanup
         cmds = [
-            f"cd {repo_name}; git config user.email 'swesmith@swesmith.ai'",
-            f"cd {repo_name}; git config user.name 'swesmith'",
-            f"cd {repo_name}; git config commit.gpgsign false",
-            f"cd {repo_name}; git checkout -b {subfolder}",
-            f"cd {repo_name}; git add .",
-            f"cd {repo_name}; git commit -m 'Bug Patch'",
-            f"cd {repo_name}; git push origin {subfolder}",
-            f"cd {repo_name}; git rev-parse HEAD",
-            f"cd {repo_name}; git checkout {main_branch}",
-            f"cd {repo_name}; git reset --hard",
-            f"cd {repo_name}; git branch -D {subfolder}",
+            f"cd {rp.repo_name}; git config user.email 'swesmith@swesmith.ai'",
+            f"cd {rp.repo_name}; git config user.name 'swesmith'",
+            f"cd {rp.repo_name}; git config commit.gpgsign false",
+            f"cd {rp.repo_name}; git checkout -b {subfolder}",
+            f"cd {rp.repo_name}; git add .",
+            f"cd {rp.repo_name}; git commit -m 'Bug Patch'",
+            f"cd {rp.repo_name}; git push origin {subfolder}",
+            f"cd {rp.repo_name}; git rev-parse HEAD",
+            f"cd {rp.repo_name}; git checkout {main_branch}",
+            f"cd {rp.repo_name}; git reset --hard",
+            f"cd {rp.repo_name}; git branch -D {subfolder}",
         ]
         bug_commit = None
         for cmd in cmds:
