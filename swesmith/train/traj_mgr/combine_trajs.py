@@ -44,7 +44,7 @@ def merge_and_shuffle_jsonl(
         print("Index | Filename | # Trajectories")
         for idx, file in enumerate(all_trajs):
             if file.endswith(".jsonl"):
-                num_trajs = len(open(sft_dir / file, "r", encoding="utf-8").readlines())
+                num_trajs = sum(1 for _ in open(sft_dir / file, "r", encoding="utf-8"))
                 print(f"{idx}: {file} ({num_trajs})")
         selected_indices = input(
             "Enter the indices of the files to merge (specify indices or range of indices, e.g. `7 11-13`): "
