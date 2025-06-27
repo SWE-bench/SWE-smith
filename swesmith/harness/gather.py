@@ -294,7 +294,7 @@ def _main(
             f"cd {rp.repo_name}; git config commit.gpgsign false",
             f"cd {rp.repo_name}; git checkout -b {subfolder}",
             f"cd {rp.repo_name}; git add .",
-            f"cd {rp.repo_name}; git commit -m 'Bug Patch'",
+            f"cd {rp.repo_name}; git commit --no-gpg-sign -m 'Bug Patch'",
             f"cd {rp.repo_name}; git push origin {subfolder}",
             f"cd {rp.repo_name}; git rev-parse HEAD",
             f"cd {rp.repo_name}; git checkout {main_branch}",

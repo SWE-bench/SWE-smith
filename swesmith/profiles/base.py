@@ -165,7 +165,7 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
                 'git config user.email "swesmith@anon.com"; '
                 "rm -rf .github/workflows; "
                 "git add .; "
-                "git commit -m 'Initial commit'; "
+                "git commit --no-gpg-sign -m 'Initial commit'; "
                 "git branch -M main; "
                 f"git remote add origin git@github.com:{self.mirror_name}.git; "
                 "git push -u origin main",
