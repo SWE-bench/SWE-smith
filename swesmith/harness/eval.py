@@ -205,7 +205,9 @@ def main(
 
 
 def get_cli_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser("Evaluate predications on SWEFT bugs")
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     parser.add_argument("--dataset_path", type=str, help="Path to dataset")
     parser.add_argument("--predictions_path", type=str, help="Path to predictions")
     parser.add_argument("--run_id", type=str, help="Unique identifier for this run")

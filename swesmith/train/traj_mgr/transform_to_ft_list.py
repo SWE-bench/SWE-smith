@@ -33,7 +33,9 @@ def main(traj_list_file: Path, out_path: Path) -> None:
 
 
 def get_cli_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     parser.add_argument(
         "--traj_list",
         type=Path,

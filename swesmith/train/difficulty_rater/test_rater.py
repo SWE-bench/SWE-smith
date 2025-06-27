@@ -48,7 +48,9 @@ def main(base_url: str):
 
 
 def get_cli_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     parser.add_argument("--base_url", type=str, default="http://localhost:8000")
     return parser
 

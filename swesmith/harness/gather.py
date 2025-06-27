@@ -340,7 +340,7 @@ def _main(
 
 def get_cli_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Convert validation logs to SWE-bench style dataset"
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument(
         "validation_logs_path", type=str, help="Path to the validation logs"

@@ -35,7 +35,7 @@ def main(bug_type: str) -> None:
 
 def get_cli_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Determine the total cost of generating bugs across all repositories"
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument(
         dest="bug_type",

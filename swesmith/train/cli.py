@@ -1,9 +1,5 @@
 """
 Training and trajectory management commands.
-
-For nested commands, use:
-    swesmith train difficulty_rater <subcommand>
-    swesmith train traj_mgr <subcommand>
 """
 
 import sys

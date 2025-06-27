@@ -125,7 +125,7 @@ def build_all_images(max_workers=4, profile_filter=None, proceed=False):
 
 def get_cli_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Build Docker images for all registered repository profiles"
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument(
         "--max-workers",

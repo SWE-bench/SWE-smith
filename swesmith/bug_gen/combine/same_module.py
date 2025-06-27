@@ -223,7 +223,9 @@ def main(
 
 
 def get_cli_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser("Combine patches from the same module")
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     parser.add_argument("bug_gen_dir", type=str, help="Path to the bug_gen dir")
     parser.add_argument(
         "--num_patches",

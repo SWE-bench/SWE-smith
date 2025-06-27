@@ -149,7 +149,9 @@ def main(dataset_path: str | Path) -> None:
 
 
 def get_cli_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     parser.add_argument("dataset_path", type=str, help="Path to the dataset file")
     return parser
 

@@ -110,7 +110,7 @@ def main(base_url, dataset_path, overwrite=False):
 
 def get_cli_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Get difficulty ratings for different bugs"
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument(
         "--base_url", type=str, required=True, help="Base URL of the Model API"

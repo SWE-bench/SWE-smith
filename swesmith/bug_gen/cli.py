@@ -1,11 +1,5 @@
 """
 Bug generation utilities.
-
-For nested commands, use:
-    swesmith bug_gen procedural <subcommand>
-    swesmith bug_gen mirror <subcommand>
-    swesmith bug_gen combine <subcommand>
-    swesmith bug_gen llm <subcommand>
 """
 
 import sys

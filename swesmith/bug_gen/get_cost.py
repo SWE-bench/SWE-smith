@@ -29,7 +29,7 @@ def main(repo_path: str, bug_type: str) -> float:
 
 def get_cli_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Determine the total cost of generating bugs for a given repository."
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument("repo_path", help="Path to the bug_gen logs.")
     parser.add_argument(

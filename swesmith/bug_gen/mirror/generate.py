@@ -500,7 +500,7 @@ def main(
 
 def get_cli_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Given a pull request, mirror the bug in a repository."
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument(
         "sweb_insts_files",

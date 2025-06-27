@@ -178,7 +178,7 @@ def main(
 
 def get_cli_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Generate bug patches for functions/classes/objects in a repository."
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument(
         "repo", type=str, help="Repository to generate bug patches for."

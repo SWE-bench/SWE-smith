@@ -79,7 +79,7 @@ def main(bug_gen_path: str | Path, bug_type: str = "all", num_bugs: int = -1):
 
 def get_cli_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Collect all the patches into a single json file that can be fed into swesmith.harness.valid"
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument("bug_gen_path", help="Path to the bug_gen logs.")
     parser.add_argument(

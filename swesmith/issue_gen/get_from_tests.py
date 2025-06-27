@@ -286,7 +286,9 @@ def main(dataset_path: str, config_file: str | None, model: str | None, n_worker
 
 
 def get_cli_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     parser.add_argument("dataset_path", type=str, help="Dataset files to process")
     parser.add_argument(
         "--config_file", type=str, help="Path to the configuration file."

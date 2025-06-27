@@ -128,7 +128,7 @@ def main(
 
 def get_cli_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Merge multiple function-level patches from the same file into a single patch."
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument(
         "bug_gen_dir", help="Path to the bug_gen directory for a specific repository."

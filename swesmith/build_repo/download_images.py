@@ -112,7 +112,9 @@ def main(repo: str, proceed: bool = True):
 
 
 def get_cli_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     parser.add_argument("--repo", type=str, help="Repository name", default=None)
     parser.add_argument(
         "-y",

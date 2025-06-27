@@ -217,7 +217,7 @@ def main(
 
 def get_cli_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Transform a bunch of patches that cause bugs into a SWE-bench style dataset."
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument(
         "bug_patches",
