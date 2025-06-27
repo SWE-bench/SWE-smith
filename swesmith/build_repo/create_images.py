@@ -123,7 +123,7 @@ def build_all_images(max_workers=4, profile_filter=None, proceed=False):
     return successful, failed
 
 
-def main():
+def get_cli_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Build Docker images for all registered repository profiles"
     )
@@ -145,17 +145,23 @@ def main():
     parser.add_argument(
         "--list-envs", action="store_true", help="List all available profiles and exit"
     )
+    return parser
 
-    args = parser.parse_args()
 
-    if args.list_envs:
+def run_from_cli(args: list[str] | None = None) -> None:
+    cli_parser = get_cli_parser()
+    cli_args = cli_parser.parse_args(args)
+
+    if cli_args.list_envs:
         print("All execution environment Docker images:")
         for profile in global_registry.values():
             print(f"  {profile.image_name}")
         return
 
     successful, failed = build_all_images(
-        max_workers=args.max_workers, profile_filter=args.profiles, proceed=args.proceed
+        max_workers=cli_args.max_workers,
+        profile_filter=cli_args.profiles,
+        proceed=cli_args.proceed,
     )
 
     if failed:
@@ -165,4 +171,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    run_from_cli()

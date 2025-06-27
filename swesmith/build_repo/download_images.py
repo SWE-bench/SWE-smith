@@ -111,7 +111,7 @@ def main(repo: str, proceed: bool = True):
         client.images.pull(f"{DOCKER_ORG}/{r['name']}:{TAG}")
 
 
-if __name__ == "__main__":
+def get_cli_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo", type=str, help="Repository name", default=None)
     parser.add_argument(
@@ -120,5 +120,14 @@ if __name__ == "__main__":
         action="store_true",
         help="Proceed with downloading images",
     )
-    args = parser.parse_args()
-    main(**vars(args))
+    return parser
+
+
+def run_from_cli(args: list[str] | None = None) -> None:
+    cli_parser = get_cli_parser()
+    cli_args = cli_parser.parse_args(args)
+    main(**vars(cli_args))
+
+
+if __name__ == "__main__":
+    run_from_cli()

@@ -498,7 +498,7 @@ def main(
     print(f"- Recovery Fail: {results['recover_fail']}")
 
 
-if __name__ == "__main__":
+def get_cli_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Given a pull request, mirror the bug in a repository."
     )
@@ -531,5 +531,14 @@ if __name__ == "__main__":
         type=int,
         default=1,
     )
-    args = parser.parse_args()
-    main(**vars(args))
+    return parser
+
+
+def run_from_cli(args: list[str] | None = None) -> None:
+    cli_parser = get_cli_parser()
+    cli_args = cli_parser.parse_args(args)
+    main(**vars(cli_args))
+
+
+if __name__ == "__main__":
+    run_from_cli()

@@ -32,7 +32,7 @@ def main(traj_list_file: Path, out_path: Path) -> None:
     print(f"Wrote {len(traj_paths)} trajectories to {out_path}")
 
 
-if __name__ == "__main__":
+def get_cli_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--traj_list",
@@ -43,5 +43,14 @@ if __name__ == "__main__":
     parser.add_argument(
         "--out_path", type=Path, required=True, help="Path to output .jsonlfile"
     )
-    args = parser.parse_args()
-    main(traj_list_file=args.traj_list, out_path=args.out_path)
+    return parser
+
+
+def run_from_cli(args: list[str] | None = None) -> None:
+    cli_parser = get_cli_parser()
+    cli_args = cli_parser.parse_args(args)
+    main(traj_list_file=cli_args.traj_list, out_path=cli_args.out_path)
+
+
+if __name__ == "__main__":
+    run_from_cli()

@@ -154,7 +154,7 @@ def main(
     print(f"Generated {total} bugs for {repo}.")
 
 
-if __name__ == "__main__":
+def get_cli_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Generate bugs for a given repository and commit."
     )
@@ -175,6 +175,14 @@ if __name__ == "__main__":
         default=-1,
         help="Maximum number of bugs to generate.",
     )
+    return parser
 
-    args = parser.parse_args()
-    main(**vars(args))
+
+def run_from_cli(args: list[str] | None = None) -> None:
+    cli_parser = get_cli_parser()
+    cli_args = cli_parser.parse_args(args)
+    main(**vars(cli_args))
+
+
+if __name__ == "__main__":
+    run_from_cli()

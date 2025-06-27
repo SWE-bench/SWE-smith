@@ -200,7 +200,7 @@ def main(
     shutil.rmtree(repo)
 
 
-if __name__ == "__main__":
+def get_cli_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "repo",
@@ -229,5 +229,14 @@ if __name__ == "__main__":
         "--n_workers", type=int, help="Number of workers to use", default=1
     )
     parser.add_argument("-y", "--yes", action="store_true", help="Skip confirmation")
-    args = parser.parse_args()
-    main(**vars(args))
+    return parser
+
+
+def run_from_cli(args: list[str] | None = None) -> None:
+    cli_parser = get_cli_parser()
+    cli_args = cli_parser.parse_args(args)
+    main(**vars(cli_args))
+
+
+if __name__ == "__main__":
+    run_from_cli()

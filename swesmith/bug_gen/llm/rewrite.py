@@ -176,7 +176,7 @@ def main(
     shutil.rmtree(repo)
 
 
-if __name__ == "__main__":
+def get_cli_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Generate bug patches for functions/classes/objects in a repository."
     )
@@ -196,5 +196,14 @@ if __name__ == "__main__":
     parser.add_argument(
         "--max_bugs", type=int, help="Maximum number of bugs to generate."
     )
-    args = parser.parse_args()
-    main(**vars(args))
+    return parser
+
+
+def run_from_cli(args: list[str] | None = None) -> None:
+    cli_parser = get_cli_parser()
+    cli_args = cli_parser.parse_args(args)
+    main(**vars(cli_args))
+
+
+if __name__ == "__main__":
+    run_from_cli()

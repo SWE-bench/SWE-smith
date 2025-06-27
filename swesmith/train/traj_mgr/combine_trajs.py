@@ -130,7 +130,7 @@ def merge_and_shuffle_jsonl(
         )
 
 
-if __name__ == "__main__":
+def get_cli_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Merge and shuffle multiple JSONL files."
     )
@@ -145,6 +145,14 @@ if __name__ == "__main__":
     parser.add_argument(
         "-s", "--seed", type=int, default=24, help="Random seed for shuffling."
     )
+    return parser
 
-    args = parser.parse_args()
-    merge_and_shuffle_jsonl(**vars(args))
+
+def run_from_cli(args: list[str] | None = None) -> None:
+    cli_parser = get_cli_parser()
+    cli_args = cli_parser.parse_args(args)
+    merge_and_shuffle_jsonl(**vars(cli_args))
+
+
+if __name__ == "__main__":
+    run_from_cli()

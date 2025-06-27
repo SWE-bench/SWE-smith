@@ -108,7 +108,7 @@ def main(base_url, dataset_path, overwrite=False):
     print(f"Saved to {difficulties_path}")
 
 
-if __name__ == "__main__":
+def get_cli_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Get difficulty ratings for different bugs"
     )
@@ -123,5 +123,14 @@ if __name__ == "__main__":
         action="store_true",
         help="Whether to overwrite existing difficulties",
     )
-    args = parser.parse_args()
-    main(**vars(args))
+    return parser
+
+
+def run_from_cli(args: list[str] | None = None) -> None:
+    cli_parser = get_cli_parser()
+    cli_args = cli_parser.parse_args(args)
+    main(**vars(cli_args))
+
+
+if __name__ == "__main__":
+    run_from_cli()

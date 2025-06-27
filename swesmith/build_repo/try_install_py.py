@@ -139,7 +139,7 @@ def main(
             cleanup(p.repo, ENV_NAME)
 
 
-if __name__ == "__main__":
+def get_cli_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "repo", type=str, help="Repository name in the format of 'owner/repo'"
@@ -166,6 +166,14 @@ if __name__ == "__main__":
         action="store_true",
         help="Force overwrite of existing conda environment file (if it exists)",
     )
+    return parser
 
-    args = parser.parse_args()
-    main(**vars(args))
+
+def run_from_cli(args: list[str] | None = None) -> None:
+    cli_parser = get_cli_parser()
+    cli_args = cli_parser.parse_args(args)
+    main(**vars(cli_args))
+
+
+if __name__ == "__main__":
+    run_from_cli()

@@ -316,7 +316,7 @@ class IssueGen:
             json.dump(temp, f, indent=4)
 
 
-if __name__ == "__main__":
+def get_cli_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "dataset_path", type=Path, help="Path to the dataset to annotate with bugs."
@@ -350,13 +350,22 @@ if __name__ == "__main__":
         help="Number of workers to use for generation.",
         default=1,
     )
-    args = parser.parse_args()
-    if not args.use_existing:
+    return parser
+
+
+def run_from_cli(args: list[str] | None = None) -> None:
+    cli_parser = get_cli_parser()
+    cli_args = cli_parser.parse_args(args)
+    if not cli_args.use_existing:
         logger.warning(
             "!!! Warning: This script will not reuse existing issue texts but APPEND new versions."
         )
-    if args.n_workers == 1:
+    if cli_args.n_workers == 1:
         logger.warning(
             "Using only 1 worker for generation. You can speed up the generation by setting --n_workers > 1."
         )
-    IssueGen(**vars(args)).run()
+    IssueGen(**vars(cli_args)).run()
+
+
+if __name__ == "__main__":
+    run_from_cli()

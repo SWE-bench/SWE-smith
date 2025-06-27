@@ -204,7 +204,7 @@ def main(
     print(f"Wrote report to {log_dir_parent / LOG_REPORT}")
 
 
-if __name__ == "__main__":
+def get_cli_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser("Evaluate predications on SWEFT bugs")
     parser.add_argument("--dataset_path", type=str, help="Path to dataset")
     parser.add_argument("--predictions_path", type=str, help="Path to predictions")
@@ -226,5 +226,14 @@ if __name__ == "__main__":
     parser.add_argument(
         "--report_only", action="store_true", help="Regenerate reports only"
     )
-    args = parser.parse_args()
-    main(**vars(args))
+    return parser
+
+
+def run_from_cli(args: list[str] | None = None) -> None:
+    cli_parser = get_cli_parser()
+    cli_args = cli_parser.parse_args(args)
+    main(**vars(cli_args))
+
+
+if __name__ == "__main__":
+    run_from_cli()

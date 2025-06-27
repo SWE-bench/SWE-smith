@@ -222,7 +222,7 @@ def main(
     subprocess.run(["rm", "-rf", repo], check=True)
 
 
-if __name__ == "__main__":
+def get_cli_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser("Combine patches from the same module")
     parser.add_argument("bug_gen_dir", type=str, help="Path to the bug_gen dir")
     parser.add_argument(
@@ -252,5 +252,14 @@ if __name__ == "__main__":
         help="Depth of the module to combine patches from",
         default=3,
     )
-    args = parser.parse_args()
-    main(**vars(args))
+    return parser
+
+
+def run_from_cli(args: list[str] | None = None) -> None:
+    cli_parser = get_cli_parser()
+    cli_args = cli_parser.parse_args(args)
+    main(**vars(cli_args))
+
+
+if __name__ == "__main__":
+    run_from_cli()

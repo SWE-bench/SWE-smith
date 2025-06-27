@@ -87,7 +87,7 @@ def main(
     print(f"Wrote trajectories to {out_path}")
 
 
-if __name__ == "__main__":
+def get_cli_parser() -> argparse.ArgumentParser:
     user = os.getenv("USER")
 
     arg_parser = argparse.ArgumentParser(
@@ -128,5 +128,14 @@ if __name__ == "__main__":
         default="trajectories_sft/",
         help="Path to output directory",
     )
-    args = arg_parser.parse_args()
-    main(**vars(args))
+    return arg_parser
+
+
+def run_from_cli(args: list[str] | None = None) -> None:
+    cli_parser = get_cli_parser()
+    cli_args = cli_parser.parse_args(args)
+    main(**vars(cli_args))
+
+
+if __name__ == "__main__":
+    run_from_cli()

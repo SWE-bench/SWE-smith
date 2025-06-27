@@ -27,7 +27,7 @@ def main(repo_path: str, bug_type: str) -> float:
     return total_cost, total_bugs, per_instance
 
 
-if __name__ == "__main__":
+def get_cli_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Determine the total cost of generating bugs for a given repository."
     )
@@ -39,5 +39,14 @@ if __name__ == "__main__":
         help="Type of patches to collect. (default: all)",
         default="all",
     )
-    args = parser.parse_args()
-    print(main(**vars(args)))
+    return parser
+
+
+def run_from_cli(args: list[str] | None = None) -> None:
+    cli_parser = get_cli_parser()
+    cli_args = cli_parser.parse_args(args)
+    print(main(**vars(cli_args)))
+
+
+if __name__ == "__main__":
+    run_from_cli()

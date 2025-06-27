@@ -77,7 +77,7 @@ def main(bug_gen_path: str | Path, bug_type: str = "all", num_bugs: int = -1):
         print(f"No patches found for `{bug_type}` in {bug_gen_path}")
 
 
-if __name__ == "__main__":
+def get_cli_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Collect all the patches into a single json file that can be fed into swesmith.harness.valid"
     )
@@ -96,5 +96,14 @@ if __name__ == "__main__":
         help="Number of bugs to collect. (default: all)",
         default=-1,
     )
-    args = parser.parse_args()
-    main(**vars(args))
+    return parser
+
+
+def run_from_cli(args: list[str] | None = None) -> None:
+    cli_parser = get_cli_parser()
+    cli_args = cli_parser.parse_args(args)
+    main(**vars(cli_args))
+
+
+if __name__ == "__main__":
+    run_from_cli()

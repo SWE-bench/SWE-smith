@@ -285,7 +285,7 @@ def main(dataset_path: str, config_file: str | None, model: str | None, n_worker
             subprocess.run(f"rm -rf {repo}", shell=True)
 
 
-if __name__ == "__main__":
+def get_cli_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser()
     parser.add_argument("dataset_path", type=str, help="Dataset files to process")
     parser.add_argument(
@@ -295,5 +295,14 @@ if __name__ == "__main__":
     parser.add_argument(
         "-n", "--n_workers", type=int, default=1, help="Number of workers to use"
     )
-    args = parser.parse_args()
-    main(**vars(args))
+    return parser
+
+
+def run_from_cli(args: list[str] | None = None) -> None:
+    cli_parser = get_cli_parser()
+    cli_args = cli_parser.parse_args(args)
+    main(**vars(cli_args))
+
+
+if __name__ == "__main__":
+    run_from_cli()

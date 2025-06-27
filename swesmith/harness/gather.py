@@ -338,7 +338,7 @@ def _main(
     print(f"- {stats['new_tasks']} new instances")
 
 
-if __name__ == "__main__":
+def get_cli_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Convert validation logs to SWE-bench style dataset"
     )
@@ -365,6 +365,14 @@ if __name__ == "__main__":
         action="store_true",
         help="Debug mode (output subprocess output)",
     )
-    args = parser.parse_args()
+    return parser
 
-    main(**vars(args))
+
+def run_from_cli(args: list[str] | None = None) -> None:
+    cli_parser = get_cli_parser()
+    cli_args = cli_parser.parse_args(args)
+    main(**vars(cli_args))
+
+
+if __name__ == "__main__":
+    run_from_cli()
