@@ -48,7 +48,7 @@ from tqdm.contrib.logging import logging_redirect_tqdm
 from typing import Any
 
 
-load_dotenv(dotenv_path=os.getenv("SWEFT_DOTENV_PATH"))
+load_dotenv()
 
 logging.getLogger("LiteLLM").setLevel(logging.WARNING)
 litellm.suppress_debug_info = True

@@ -10,7 +10,7 @@ def main(args: list[str] | None = None):
     command_mapping = {
         "download_images": (
             "swesmith.build_repo.download_images::run_from_cli",
-            "Download all SWEFT Docker images",
+            "Download all SWE-smith Docker images",
         ),
         "create_images": (
             "swesmith.build_repo.create_images::run_from_cli",

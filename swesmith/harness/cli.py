@@ -10,7 +10,7 @@ def main(args: list[str] | None = None):
     command_mapping = {
         "eval": (
             "swesmith.harness.eval::run_from_cli",
-            "Evaluate predictions on SWEFT bugs",
+            "Evaluate predictions on SWE-smith bugs",
         ),
         "valid": (
             "swesmith.harness.valid::run_from_cli",

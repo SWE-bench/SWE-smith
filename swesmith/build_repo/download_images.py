@@ -1,5 +1,5 @@
 """
-Purpose: Standalone script to download all SWEFT images
+Purpose: Standalone script to download all SWE-smith images
 
 Usage: swesmith build_repo download_images
 """
