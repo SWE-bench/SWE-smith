@@ -1,7 +1,7 @@
 """
 Purpose: Determine the total cost of LLM generated bugs (bug__func*.json) for a given repository.
 
-Usage: python -m swesmith.bug_gen.get_cost logs/bug_gen/<repo>
+Usage: swesmith bug_gen get_cost logs/bug_gen/<repo>
 """
 
 import argparse

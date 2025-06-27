@@ -1,7 +1,7 @@
 """
 Purpose: Given a repository, procedurally generate a variety of bugs for functions/classes/objects in the repository.
 
-Usage: python -m swesmith.bug_gen.procedural.generate \
+Usage: swesmith bug_gen procedural generate \
     --repo <repo> \
     --commit <commit>
 """

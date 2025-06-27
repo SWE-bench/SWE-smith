@@ -1,7 +1,7 @@
 """
 Purpose: Given a bug patch, retrieve the issue text from the PR that the bug was created from.
 
-python swesmith/issue_gen/get_from_pr.py logs/experiments/*.json
+swesmith issue_gen get_from_pr logs/experiments/*.json
 """
 
 import argparse

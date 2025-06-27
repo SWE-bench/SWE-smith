@@ -24,7 +24,7 @@ dataset aims for two goals:
 * To be runnable in SWE-agent
 * To be easy to evaluate with our custom scripts.
 
-Usage: python -m swesmith.harness.gather logs/run_validation/<run_id>
+Usage: swesmith harness gather logs/run_validation/<run_id>
 """
 
 import argparse

@@ -1,7 +1,7 @@
 """
 Purpose: Automated construction of Docker images for repositories using profile registry.
 
-Usage: python -m swesmith.build_repo.create_images --max-workers 4
+Usage: swesmith build_repo create_images --max-workers 4
 """
 
 import argparse

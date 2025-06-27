@@ -1,7 +1,7 @@
 """
 Purpose: Standalone script to download all SWEFT images
 
-Usage: python -m swesmith.build_repo.download_images
+Usage: swesmith build_repo download_images
 """
 
 import argparse

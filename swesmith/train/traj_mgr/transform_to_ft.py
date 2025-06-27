@@ -23,7 +23,7 @@ and transforms them into a fine-tuning compatible format, namely...
 ]
 
 Usage: (from SWE-agent directory)
-python -m swesmith.train.traj_mgr.transform_to_ft --traj_dir <path> \
+swesmith train traj_mgr transform_to_ft --traj_dir <path> \
     --eval_dir <path> \
     --resolved_only
 """

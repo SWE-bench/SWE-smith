@@ -1,7 +1,7 @@
 """
 Purpose: Test out whether a set of installation commands works for a given repository at a specific commit.
 
-Usage: python -m swesmith.build_repo.try_install_py owner/repo --commit <commit>
+Usage: swesmith build_repo try_install_py owner/repo --commit <commit>
 """
 
 import argparse

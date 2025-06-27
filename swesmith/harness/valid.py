@@ -1,7 +1,7 @@
 """
 Purpose: Transform a bunch of patches that cause bugs into a SWE-bench style dataset.
 
-Usage: python -m swesmith.harness.valid \
+Usage: swesmith harness valid \
     <path to directory containing patches> \
     --run_id <unique identifier for this run> \
     --max_workers <number of workers to use>

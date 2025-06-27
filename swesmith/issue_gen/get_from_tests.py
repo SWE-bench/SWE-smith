@@ -1,7 +1,7 @@
 """
 Purpose: Given a task instance, use the execution output of running tests as issue text.
 
-python swesmith/issue_gen/get_from_tests.py logs/experiments/*.json \
+swesmith issue_gen get_from_tests logs/experiments/*.json \
     --config_file configs/issue_gen/ig_tests.yaml \
     --model anthropic/claude-3-7-sonnet-20250219 \
     --n_workers 1

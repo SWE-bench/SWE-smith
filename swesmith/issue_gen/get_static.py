@@ -1,7 +1,7 @@
 """
 Purpose: Given a task instance, attached a fixed problem statement to the issue text.
 
-python swesmith/issue_gen/get_fixed.py logs/experiments/*.json
+swesmith issue_gen get_static logs/experiments/*.json
 """
 
 import argparse

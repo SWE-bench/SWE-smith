@@ -1,7 +1,7 @@
 """
 Purpose: Given a repository, generate bug patches for functions/classes/objects in the repository.
 
-Usage: python -m swesmith.bug_gen.llm.modify \
+Usage: swesmith bug_gen llm modify \
     --n_bugs <n_bugs> \
     --config_file <config_file> \
     --model <model> \
@@ -11,7 +11,7 @@ Where model follows the litellm format.
 
 Example:
 
-python -m swesmith.bug_gen.llm.modify tkrajina__gpxpy.09fc46b3 --config_file configs/bug_gen/class_basic.yml --model claude-3-7-sonnet-20250219 --n_bugs 1
+swesmith bug_gen llm modify tkrajina__gpxpy.09fc46b3 --config_file configs/bug_gen/class_basic.yml --model claude-3-7-sonnet-20250219 --n_bugs 1
 """
 
 import argparse

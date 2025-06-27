@@ -1,7 +1,7 @@
 """
 Purpose: Given a repository, blank out various functions/classes, then ask the model to rewrite them.
 
-Usage: python -m swesmith.bug_gen.llm.rewrite \
+Usage: swesmith bug_gen llm rewrite \
     --model <model> \
     repo  # e.g., tkrajina__gpxpy.09fc46b3
 
@@ -9,7 +9,7 @@ Where model follows the litellm format.
 
 Example:
 
-python -m swesmith.bug_gen.llm.rewrite tkrajina__gpxpy.09fc46b3 --model claude-3-7-sonnet-20250219
+swesmith bug_gen llm rewrite tkrajina__gpxpy.09fc46b3 --model claude-3-7-sonnet-20250219
 """
 
 import argparse

@@ -1,7 +1,7 @@
 """
 Purpose: Given predictions by SWE-agent, evaluate its performance (% resolved).
 
-Usage: python -m swesmith.harness.eval \
+Usage: swesmith harness eval \
     --dataset_path <path to dataset> \
     --predictions_path <gold / path to predictions> \
     --run_id <unique identifier for this run> \

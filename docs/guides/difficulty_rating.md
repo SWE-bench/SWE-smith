@@ -20,7 +20,7 @@ N_HOURS=4 N_GPUS=4 modal run --detach swesmith/train/serve_sglang.py \
 3. Run the following script:
 
 ```bash
-python swesmith/train/difficulty_rater/get_difficulties.py \
+swesmith train difficulty_rater get_difficulties \
     --base_url <URL where model is hosted> \
     --dataset_path path/to/dataset.json
 ```

@@ -1,7 +1,7 @@
 """
 Purpose: Combine multiple patches from the same file into a single patch.
 
-Usage: python swesmith/bug_gen/combine/same_file.py \
+Usage: swesmith bug_gen combine same_file \
     --bug_gen_dir <path to bug_gen dir> \
     --num_patches <number of patches to merge> \
     --limit_per_file <limit per file> \

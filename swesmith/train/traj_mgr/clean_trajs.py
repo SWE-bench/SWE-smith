@@ -1,7 +1,7 @@
 """
 Remove unnecessary files from the trajectories directory.
 
-Usage: python swesmith/
+Usage: swesmith train traj_mgr clean_trajs
 """
 
 import argparse

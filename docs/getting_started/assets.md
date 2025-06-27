@@ -4,7 +4,7 @@ In addition to the paper and codebase, we release the following assets created w
 
 1. **Environments for 128 GitHub repositories.** You can download the environments (Docker images) locally by running the following command from the root directory of SWE-smith:
 ```bash
-python swesmith/build_repo/download_images.py
+swesmith build_repo download_images
 ```
 
 2. **SWE-smith dataset of 50k+ task instances**, made available as a [HuggingFace dataset](https://huggingface.co/datasets/SWE-bench/SWE-smith).

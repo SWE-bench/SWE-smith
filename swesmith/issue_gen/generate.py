@@ -1,7 +1,7 @@
 """
 Purpose: Given a bug patch, generate a GitHub-style issue that describes the bug.
 
-python swesmith/issue_gen/generate.py \
+swesmith issue_gen generate \
     --dataset logs/experiments/*.json \
     --config configs/issue_gen/*.yaml \
     --model anthropic/claude-3-7-sonnet-20250219 \

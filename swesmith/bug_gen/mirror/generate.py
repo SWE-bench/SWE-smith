@@ -1,7 +1,7 @@
 """
 Purpose: Given a pull request, mirror the bug in the current form of the repository.
 
-Usage: python -m swesmith.bug_gen.mirror.main \
+Usage: swesmith bug_gen mirror generate \
     /path/to/swe-bench-task-instances.json
 """
 

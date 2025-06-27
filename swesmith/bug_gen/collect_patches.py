@@ -1,7 +1,7 @@
 """
 Purpose: Collect all the patches into a single json file that can be fed into swesmith.harness.valid
 
-Usage: python -m swesmith.bug_gen.collect_patches logs/bug_gen/<repo>
+Usage: swesmith bug_gen collect_patches logs/bug_gen/<repo>
 
 NOTE: Must be with respect to a logs/bug_gen/<...>/ directory
 """

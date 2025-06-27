@@ -4,7 +4,7 @@ SFT datasets of SWE-agent expert trajectories.
 
 Usage: You should run this script in the root directory of the SWE-agent repository.
 
-python -m swesmith.train.traj_mgr.combine_trajs
+swesmith train traj_mgr combine_trajs
 """
 
 import argparse
