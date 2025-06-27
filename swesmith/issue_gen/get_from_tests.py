@@ -33,16 +33,14 @@ from swebench.harness.docker_utils import (
 from swesmith.constants import (
     ENV_NAME,
     KEY_IMAGE_NAME,
-    KEY_TEST_CMD,
     LOG_DIR_ISSUE_GEN,
-    MAP_REPO_TO_SPECS,
     TEST_OUTPUT_END,
     TEST_OUTPUT_START,
     TEST_PYTEST,
     TIMEOUT,
 )
 from swesmith.issue_gen.utils import get_test_function
-from swesmith.utils import get_repo_commit_from_image_name
+from swesmith.profiles import global_registry
 from tqdm.auto import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
 
@@ -69,8 +67,7 @@ def get_verbose_test_cmd(instance: dict, test_idx: int | None = None):
     """
     Get test command that runs a random F2P test verbosely.
     """
-    repo, commit = get_repo_commit_from_image_name(instance[KEY_IMAGE_NAME])
-    test_cmd = MAP_REPO_TO_SPECS[repo][commit][KEY_TEST_CMD]
+    test_cmd = global_registry.get(instance["repo"].split("/")[-1]).test_cmd
     if TEST_PYTEST in test_cmd:
         test_cmd = test_cmd.replace(
             TEST_PYTEST, "pytest -v --showlocals --tb=long --color=no"

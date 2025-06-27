@@ -13,15 +13,10 @@ from swebench.harness.constants import (
 )
 from swebench.harness.grading import get_resolution_status
 from swesmith.constants import (
-    KEY_IMAGE_NAME,
-    KEY_MIN_TESTING,
-    MAP_REPO_TO_SPECS,
     TEST_OUTPUT_END,
     TEST_OUTPUT_START,
 )
-from swesmith.harness.log_parsers import MAP_REPO_TO_PARSER, parse_log_pytest
-from swesmith.harness.utils import get_test_command
-from swesmith.utils import get_repo_commit_from_image_name
+from swesmith.profiles import global_registry
 
 
 def read_test_output(filename: str):
@@ -57,13 +52,12 @@ def get_valid_report(
     Returns:
         report (dict): map of type of status change to list of test cases
     """
-    repo, commit = get_repo_commit_from_image_name(instance[KEY_IMAGE_NAME])
-    log_parser = MAP_REPO_TO_PARSER.get(repo, parse_log_pytest)
-    is_min_testing = KEY_MIN_TESTING in MAP_REPO_TO_SPECS[repo][commit]
+    rp = global_registry.get(instance["repo"])
+
     val_pregold_output, found_pregold = read_test_output(val_pregold_path)
     val_postgold_output, found_postgold = read_test_output(val_postgold_path)
-    pregold_sm = log_parser(val_pregold_output) if found_pregold else {}
-    postgold_sm = log_parser(val_postgold_output) if found_postgold else {}
+    pregold_sm = rp.log_parser(val_pregold_output) if found_pregold else {}
+    postgold_sm = rp.log_parser(val_postgold_output) if found_postgold else {}
 
     report = {
         FAIL_TO_PASS: [],
@@ -74,7 +68,7 @@ def get_valid_report(
 
     for test_case in postgold_sm:
         if test_case not in pregold_sm:
-            if is_min_testing:
+            if rp.min_testing:
                 # If min_testing is enabled, we ignore the test case
                 # if it is not present in the pre-gold (bug) log
                 continue
@@ -250,15 +244,13 @@ def get_eval_report(
     report_map["patch_exists"] = True
 
     # Get evaluation logs
-    repo = inst[KEY_INSTANCE_ID].split(".")[0].replace("__", "/")
-    log_parser = MAP_REPO_TO_PARSER.get(repo, parse_log_pytest)
     test_output, found = read_test_output(test_log_path)
     if not found:
         return report_map
-    test_status_map = log_parser(test_output)
+    test_status_map = global_registry.get(inst["repo"]).log_parser(test_output)
 
     # Identify relevant test files
-    _, test_files = get_test_command(inst)
+    _, test_files = global_registry.get(inst["repo"]).get_test_cmd(inst)
     filter_irrelevant_tests = (
         lambda tests: [x for x in tests if any([x.startswith(y) for y in test_files])]
         if len(test_files) > 0

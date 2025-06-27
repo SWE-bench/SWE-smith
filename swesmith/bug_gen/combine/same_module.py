@@ -18,9 +18,10 @@ from swesmith.constants import (
     LOG_DIR_TASKS,
     PREFIX_BUG,
     PREFIX_METADATA,
+    generate_hash,
 )
 from swesmith.bug_gen.utils import apply_patches, get_combos
-from swesmith.utils import clone_repo, generate_hash
+from swesmith.profiles import global_registry
 from tqdm.auto import tqdm
 from unidiff import PatchSet
 
@@ -178,7 +179,7 @@ def main(
     )
 
     # For each module
-    clone_repo(repo)
+    global_registry.get(repo).clone()
     total_success, total_fails = 0, 0
     for path, patches in tqdm(map_path_to_patches.items()):
         combos = get_combos(patches, num_patches, max_combos)

@@ -9,7 +9,7 @@ Where model follows the litellm format.
 
 Example:
 
-python -m swesmith.bug_gen.llm.rewrite tkrajina__gpxpy.09fc46b3 --model claude-3-7-sonnet-20250219 --type class
+python -m swesmith.bug_gen.llm.rewrite tkrajina__gpxpy.09fc46b3 --model claude-3-7-sonnet-20250219
 """
 
 import argparse
@@ -34,12 +34,14 @@ from swesmith.bug_gen.utils import (
     extract_entities_from_directory,
     get_patch,
 )
-from swesmith.constants import LOG_DIR_BUG_GEN, PREFIX_BUG, PREFIX_METADATA
-from swesmith.utils import (
+from swesmith.constants import (
+    LOG_DIR_BUG_GEN,
+    PREFIX_BUG,
+    PREFIX_METADATA,
     BugRewrite,
     CodeEntity,
-    clone_repo,
 )
+from swesmith.profiles import global_registry
 from tqdm.auto import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
 from typing import Any
@@ -62,8 +64,8 @@ def main(
     **kwargs,
 ):
     configs = yaml.safe_load(open(config_file))
-    print(f"Cloning {repo}...")
-    clone_repo(repo)
+    global_registry.get(repo).clone()
+
     print(f"Extracting entities from {repo}...")
     candidates = extract_entities_from_directory(repo)
     if max_bugs:

@@ -1,274 +1,167 @@
 """
-Purpose: Automated construction of Docker images for a Python repository at a specific commit.
+Purpose: Automated construction of Docker images for repositories using profile registry.
 
-Usage: python -m swesmith.build_repo.create_images --force-rebuild --max-workers 4
+Usage: python -m swesmith.build_repo.create_images --max-workers 4
 """
 
 import argparse
 import docker
 import traceback
-
-from copy import deepcopy
+from collections import OrderedDict
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from swesmith.build_repo.create_mirror_repo import create_mirror_repo
-from swebench.harness.constants import (
-    BASE_IMAGE_BUILD_DIR,
-    ENV_IMAGE_BUILD_DIR,
-    DOCKER_WORKDIR,
-)
-from swebench.harness.docker_build import (
-    build_image,
-    remove_image,
-    BuildImageError,
-)
-from swebench.harness.dockerfiles import (
-    get_dockerfile_base,
-    get_dockerfile_env,
-)
-from swesmith.constants import (
-    _DOCKERFILE_BASE_EXTENDED,
-    CONDA_VERSION,
-    ENV_NAME,
-    MAP_REPO_TO_SPECS,
-    ORG_NAME,
-    UBUNTU_VERSION,
-)
-from swesmith.utils import (
-    get_arch_and_platform,
-    get_env_yml_path,
-    get_repo_commit_from_image_name,
-    get_image_name,
-    get_repo_name,
-)
 from tqdm import tqdm
 
+from swesmith.profiles import global_registry
 
-def get_repo_setup_script(repo: str, commit: str, org: str):
+
+def build_profile_image(profile):
     """
-    Create a setup script for a repository at a specific commit.
+    Build a Docker image for a specific profile.
+
+    Args:
+        profile: A RepoProfile instance
+
+    Returns:
+        tuple: (profile_name, success: bool, error_message: str)
     """
-    # Get environment.yml path
-    path_to_reqs = "swesmith_environment.yml"
-    env_yml_path = get_env_yml_path(repo, commit)
-
-    # Construct setup script
-    HEREDOC_DELIMITER = "EOF_59812759871"
-    specs = MAP_REPO_TO_SPECS[repo][commit]
-    reqs = open(env_yml_path).read()
-
-    repo_name = get_repo_name(repo, commit)
-    setup_commands = [
-        "#!/bin/bash",
-        "set -euxo pipefail",
-        f"git clone -o origin https://github.com/{org}/{repo_name} {DOCKER_WORKDIR}",
-        f"cd {DOCKER_WORKDIR}",
-        "source /opt/miniconda3/bin/activate",
-        f"cat <<'{HEREDOC_DELIMITER}' > {path_to_reqs}\n{reqs}\n{HEREDOC_DELIMITER}",
-        f"conda env create --file {path_to_reqs}",
-        f"conda activate {ENV_NAME} && conda install python={specs['python']} -y",
-        f"rm {path_to_reqs}",
-        f"conda activate {ENV_NAME}",
-        'echo "Current environment: $CONDA_DEFAULT_ENV"',
-    ] + specs["install"]
-    return "\n".join(setup_commands) + "\n"
-
-
-def build_base_image(
-    client: docker.DockerClient,
-    force_rebuild: bool = False,
-):
-    """
-    Build the base image for the current architecture and platform.
-    """
-    arch, platform = get_arch_and_platform()
-    base_dockerfile = (
-        get_dockerfile_base(
-            platform,
-            arch,
-            "py",
-            ubuntu_version=UBUNTU_VERSION,
-            conda_version=CONDA_VERSION,
-        )
-        + _DOCKERFILE_BASE_EXTENDED
-    )
-    base_image_key = f"swesmith.{arch}"
     try:
-        # Check if the base image already exists
-        client.images.get(base_image_key)
-        if force_rebuild:
-            # Remove the base image if it exists and force rebuild is enabled
-            remove_image(client, base_image_key, "quiet")
-        else:
-            print(f"Base image {base_image_key} already exists, skipping build.")
-            return base_image_key
-    except docker.errors.ImageNotFound:
-        pass
-    # Build the base image (if it does not exist or force rebuild is enabled)
-    print(f"Building base image ({base_image_key})")
-    build_image(
-        image_name=base_image_key,
-        setup_scripts={},
-        dockerfile=base_dockerfile,
-        platform=platform,
-        client=client,
-        build_dir=BASE_IMAGE_BUILD_DIR / base_image_key,
-    )
-    return base_image_key
+        profile.create_mirror()
+        profile.build_image()
+        return (profile.image_name, True, None)
+    except Exception as e:
+        error_msg = f"Error building {profile.image_name}: {str(e)}"
+        return (profile.image_name, False, error_msg)
 
 
-def build_repo_image(
-    image_name: str,
-    setup_scripts: dict,
-    dockerfile: str,
-    platform: str,
-    client: docker.DockerClient,
-    build_dir: str,
-    org: str,
-):
-    repo, commit = get_repo_commit_from_image_name(image_name)
-    create_mirror_repo(repo, commit, org)
-    build_image(
-        image_name=image_name,
-        setup_scripts=setup_scripts,
-        dockerfile=dockerfile,
-        platform=platform,
-        client=client,
-        build_dir=build_dir,
-    )
-
-
-def build_repo_images(
-    client: docker.DockerClient,
-    force_rebuild: bool = False,
-    max_workers: int = 4,
-    repos: str = None,
-    org: str = ORG_NAME,
-    proceed: bool = False,
-):
+def build_all_images(max_workers=4, profile_filter=None, proceed=False):
     """
-    Build Docker images for each repository at a specific commit(s).
+    Build Docker images for all registered profiles in parallel.
+
+    Args:
+        max_workers: Maximum number of parallel workers
+        profile_filter: Optional list of profile mirror names to filter by
+        proceed: Whether to proceed without confirmation
+
+    Returns:
+        tuple: (successful_builds, failed_builds)
     """
-    # Construct base image
-    arch, platform = get_arch_and_platform()
-    base_image_key = build_base_image(client, force_rebuild)
-    env_dockerfile = get_dockerfile_env(
-        platform, arch, "py", base_image_key=base_image_key
+    # Get all available profiles
+    all_profiles = global_registry.values()
+
+    # Remove environments that have already been built
+    client = docker.from_env()
+
+    # Filter out profiles that already have images built
+    profiles_to_build = []
+    for profile in all_profiles:
+        try:
+            # Check if image already exists
+            client.images.get(profile.image_name)
+        except docker.errors.ImageNotFound:
+            profiles_to_build.append(profile)
+
+    # Filter profiles if specified
+    if profile_filter:
+        filtered_profiles = []
+        for profile in profiles_to_build:
+            if profile.image_name in profile_filter:
+                filtered_profiles.append(profile)
+        profiles_to_build = filtered_profiles
+
+    if not profiles_to_build:
+        print("No profiles to build.")
+        return [], []
+
+    # Deduplicate profiles_to_build by image_name (more efficiently)
+    profiles_to_build = list(
+        OrderedDict(
+            (profile.image_name, profile) for profile in profiles_to_build
+        ).values()
     )
 
-    # Filter out repositories
-    map_repo_to_specs = deepcopy(MAP_REPO_TO_SPECS)
-    if repos is not None:
-        repos = repos.split()
-        map_repo_to_specs = {
-            repo: specs for repo, specs in map_repo_to_specs.items() if repo in repos
-        }
-        if not map_repo_to_specs:
-            print("No repositories to build.")
-            return None, None
-
-    # Construct repo level build scripts
-    repo_build_scripts = {}
-    for repo, specs in map_repo_to_specs.items():
-        for commit, spec in specs.items():
-            image_name = get_image_name(repo, commit)
-            image_exists = False
-            if not force_rebuild:
-                try:
-                    client.images.get(image_name)
-                    image_exists = True
-                except docker.errors.ImageNotFound:
-                    pass
-            if not image_exists:
-                repo_build_scripts[image_name] = {
-                    "setup_script": get_repo_setup_script(repo, commit, org),
-                    "dockerfile": env_dockerfile,
-                    "platform": platform,
-                }
-    if not repo_build_scripts:
-        print("No images to build.")
-        return None, None
-
-    print(f"Total repo images to build: {len(repo_build_scripts)}")
-    for image_name in repo_build_scripts:
-        print(f"- {image_name}")
+    print(f"Total profiles to build: {len(profiles_to_build)}")
+    for profile in profiles_to_build:
+        print(f"- {profile.image_name}")
 
     if not proceed:
         proceed = input("Proceed with building images? (y/n): ").lower() == "y"
     if not proceed:
-        return None, None
+        return [], []
 
-    # Build repo images in parallel
-    successful, failed = list(), list()
+    # Build images in parallel
+    successful, failed = [], []
+
     with tqdm(
-        total=len(repo_build_scripts), smoothing=0, desc="Building environment images"
+        total=len(profiles_to_build), smoothing=0, desc="Building environment images"
     ) as pbar:
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            # Create a future for each image to build
-            futures = {
-                executor.submit(
-                    build_repo_image,
-                    image_name,
-                    {"setup_env.sh": config["setup_script"]},
-                    config["dockerfile"],
-                    config["platform"],
-                    client,
-                    ENV_IMAGE_BUILD_DIR / image_name,
-                    org,
-                ): image_name
-                for image_name, config in repo_build_scripts.items()
+            # Submit all build tasks
+            future_to_profile = {
+                executor.submit(build_profile_image, profile): profile
+                for profile in profiles_to_build
             }
 
-            # Wait for each future to complete
-            for future in as_completed(futures):
+            # Process completed tasks
+            for future in as_completed(future_to_profile):
                 pbar.update(1)
-                try:
-                    # Update progress bar, check if image built successfully
-                    future.result()
-                    successful.append(futures[future])
-                except BuildImageError as e:
-                    print(f"BuildImageError {e.image_name}")
-                    traceback.print_exc()
-                    failed.append(futures[future])
-                    continue
-                except Exception:
-                    print("Error building image")
-                    traceback.print_exc()
-                    failed.append(futures[future])
-                    continue
+                profile_name, success, error_msg = future.result()
 
-    # Show how many images failed to build
+                if success:
+                    successful.append(profile_name)
+                else:
+                    failed.append(profile_name)
+                    if error_msg:
+                        print(f"\n{error_msg}")
+                        traceback.print_exc()
+
+    # Show results
     if len(failed) == 0:
         print("All environment images built successfully.")
     else:
         print(f"{len(failed)} environment images failed to build.")
 
-    # Return the list of (un)successfuly built images
     return successful, failed
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--force-rebuild", action="store_true")
-    parser.add_argument("--max-workers", type=int, default=4)
-    parser.add_argument(
-        "--repos",
-        type=str,
-        default=None,
-        help="List of space-separated repositories to build",
+    parser = argparse.ArgumentParser(
+        description="Build Docker images for all registered repository profiles"
     )
     parser.add_argument(
-        "--org",
+        "--max-workers",
+        type=int,
+        default=4,
+        help="Maximum number of parallel workers (default: 4)",
+    )
+    parser.add_argument(
+        "--profiles",
         type=str,
-        default=ORG_NAME,
-        help="GitHub organization to create repo for (default: 'swesmith')",
+        nargs="+",
+        help="Specific profile mirror names to build (space-separated)",
     )
     parser.add_argument(
         "-y", "--proceed", action="store_true", help="Proceed without confirmation"
     )
+    parser.add_argument(
+        "--list-envs", action="store_true", help="List all available profiles and exit"
+    )
+
     args = parser.parse_args()
 
-    client = docker.from_env()
-    build_repo_images(client, **vars(args))
+    if args.list_envs:
+        print("All execution environment Docker images:")
+        for profile in global_registry.values():
+            print(f"  {profile.image_name}")
+        return
+
+    successful, failed = build_all_images(
+        max_workers=args.max_workers, profile_filter=args.profiles, proceed=args.proceed
+    )
+
+    if failed:
+        print(f"- Failed builds: {failed}")
+    if successful:
+        print(f"- Successful builds: {len(successful)}")
 
 
 if __name__ == "__main__":

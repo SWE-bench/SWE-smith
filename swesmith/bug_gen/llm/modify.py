@@ -37,11 +37,12 @@ from swesmith.bug_gen.utils import (
 )
 from swesmith.constants import (
     LOG_DIR_BUG_GEN,
-    ORG_NAME,
     PREFIX_BUG,
     PREFIX_METADATA,
+    BugRewrite,
+    CodeEntity,
 )
-from swesmith.utils import BugRewrite, CodeEntity, clone_repo, repo_exists
+from swesmith.profiles import global_registry
 from tqdm.auto import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
 from typing import Any
@@ -112,21 +113,19 @@ def main(
     n_bugs: int,
     repo: str,
     n_workers: int = 1,
-    org: str = ORG_NAME,
     **kwargs,
 ):
     # Check arguments
-    assert repo_exists(repo, org), f"Repository {repo} does not exist in {org}."
     assert os.path.exists(config_file), f"{config_file} not found"
     assert n_bugs > 0, "n_bugs must be greater than 0"
     configs = yaml.safe_load(open(config_file))
-    assert all(key in configs for key in PROMPT_KEYS + ["criteria", "name"]), (
+    assert all(key in configs for key in PROMPT_KEYS + ["name"]), (
         f"Missing keys in {config_file}"
     )
 
     # Clone repository, identify valid candidates
     print("Cloning repository...")
-    clone_repo(repo)
+    global_registry.get(repo).clone()
     print("Extracting candidates...")
     candidates = extract_entities_from_directory(repo)
     print(f"{len(candidates)} candidates found in {repo}")
@@ -228,12 +227,6 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--n_workers", type=int, help="Number of workers to use", default=1
-    )
-    parser.add_argument(
-        "--org",
-        type=str,
-        help="Organization name (default: SWE-smith)",
-        default=ORG_NAME,
     )
     parser.add_argument("-y", "--yes", action="store_true", help="Skip confirmation")
     args = parser.parse_args()

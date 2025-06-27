@@ -109,9 +109,6 @@ def main(repo: str, proceed: bool = True):
     for r in repos:
         print(f"Downloading {r['name']}...")
         client.images.pull(f"{DOCKER_ORG}/{r['name']}:{TAG}")
-        # Rename images via tagging
-        new_name = f"{r['name'].replace('_1776_', '__')}:{TAG}"
-        client.images.get(f"{DOCKER_ORG}/{r['name']}:{TAG}").tag(new_name)
 
 
 if __name__ == "__main__":

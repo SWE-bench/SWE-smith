@@ -1,8 +1,7 @@
 import libcst
 import random
 
-from swesmith.constants import DEFAULT_PM_LIKELIHOOD
-from swesmith.utils import CodeEntity
+from swesmith.constants import DEFAULT_PM_LIKELIHOOD, CodeEntity
 
 
 class PythonProceduralModifier(libcst.CSTTransformer):
@@ -22,7 +21,7 @@ class PythonProceduralModifier(libcst.CSTTransformer):
         """Check if the CodeEntity satisfies the conditions of the modifier."""
         return (
             all(c in code_entity._tags for c in self.conditions)
-            and self.min_complexity <= code_entity.complexity() <= self.max_complexity
+            and self.min_complexity <= code_entity.complexity <= self.max_complexity
         )
 
 

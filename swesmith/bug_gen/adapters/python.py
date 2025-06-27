@@ -2,8 +2,7 @@ import ast
 import astor
 
 from dataclasses import dataclass
-from swesmith.constants import TODO_REWRITE
-from swesmith.utils import CodeEntity, CodeProperty
+from swesmith.constants import TODO_REWRITE, CodeEntity, CodeProperty
 
 
 @dataclass

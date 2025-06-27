@@ -1,7 +1,6 @@
 import re
 
-from swesmith.constants import TODO_REWRITE
-from swesmith.utils import CodeEntity
+from swesmith.constants import TODO_REWRITE, CodeEntity
 from tree_sitter import Language, Parser
 import tree_sitter_ruby as tsr
 import warnings
