@@ -32,7 +32,7 @@ class Jsoncd55b5a0(RustProfile):
 
     @property
     def dockerfile(self):
-        return f"""FROM rust:1.81
+        return f"""FROM rust:1.88
 ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=Etc/UTC
 
@@ -45,7 +45,7 @@ RUN cargo test --verbose
 """
 
 
-# Register all Go profiles with the global registry
+# Register all Rust profiles with the global registry
 for name, obj in list(globals().items()):
     if (
         isinstance(obj, type)
