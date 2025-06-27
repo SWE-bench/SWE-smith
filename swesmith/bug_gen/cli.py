@@ -16,85 +16,26 @@ For nested commands, use:
     swesmith bug_gen llm <subcommand>
 """
 
-import argparse
 import sys
-
-import rich
-
-
-def get_cli():
-    parser = argparse.ArgumentParser(
-        add_help=False, prog="swesmith bug_gen", description=__doc__
-    )
-    parser.add_argument(
-        "command",
-        choices=[
-            "collect_patches",
-            "get_cost",
-            "procedural",
-            "mirror",
-            "combine",
-            "llm",
-        ],
-        nargs="?",
-    )
-    parser.add_argument(
-        "-h", "--help", action="store_true", help="Show this help message and exit"
-    )
-    return parser
+from swesmith.cli_utils import dispatch_sub_cli
 
 
 def main(args: list[str] | None = None):
-    if args is None:
-        args = sys.argv[1:]
-    cli = get_cli()
-    parsed_args, remaining_args = cli.parse_known_args(args)  # type: ignore
-    command = parsed_args.command
-    show_help = parsed_args.help
+    command_mapping = {
+        "collect_patches": ("swesmith.bug_gen.collect_patches", "run_from_cli"),
+        "get_cost": ("swesmith.bug_gen.get_cost", "run_from_cli"),
+        "procedural": ("swesmith.bug_gen.procedural.cli", "main"),
+        "mirror": ("swesmith.bug_gen.mirror.cli", "main"),
+        "combine": ("swesmith.bug_gen.combine.cli", "main"),
+        "llm": ("swesmith.bug_gen.llm.cli", "main"),
+    }
 
-    if show_help:
-        if not command:
-            # Show main help
-            rich.print(__doc__)
-            sys.exit(0)
-        else:
-            # Add to remaining_args
-            remaining_args.append("--help")
-    elif not command:
-        cli.print_help()
-        sys.exit(2)
-
-    # Handle direct commands
-    if command == "collect_patches":
-        from swesmith.bug_gen.collect_patches import (
-            run_from_cli as collect_patches_main,
-        )
-
-        collect_patches_main(remaining_args)
-    elif command == "get_cost":
-        from swesmith.bug_gen.get_cost import run_from_cli as get_cost_main
-
-        get_cost_main(remaining_args)
-    # Handle nested commands
-    elif command == "procedural":
-        from swesmith.bug_gen.procedural.cli import main as procedural_main
-
-        procedural_main(remaining_args)
-    elif command == "mirror":
-        from swesmith.bug_gen.mirror.cli import main as mirror_main
-
-        mirror_main(remaining_args)
-    elif command == "combine":
-        from swesmith.bug_gen.combine.cli import main as combine_main
-
-        combine_main(remaining_args)
-    elif command == "llm":
-        from swesmith.bug_gen.llm.cli import main as llm_main
-
-        llm_main(remaining_args)
-    else:
-        msg = f"Unknown command: {command}"
-        raise ValueError(msg)
+    dispatch_sub_cli(
+        args=args,
+        command_mapping=command_mapping,
+        prog_name="swesmith bug_gen",
+        module_doc=__doc__,
+    )
 
 
 if __name__ == "__main__":
