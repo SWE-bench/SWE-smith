@@ -1,11 +1,5 @@
 """
 SWE-smith: A toolkit for generating software engineering bugs and benchmarks.
-
-Usage:
-    swesmith <command> [<args>...]
-
-For help on a specific command, use:
-    swesmith <command> --help
 """
 
 import sys
