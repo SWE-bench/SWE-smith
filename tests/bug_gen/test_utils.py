@@ -54,7 +54,7 @@ class Bar:
             "git add a.py",
             'git config user.email "you@example.com"',
             'git config user.name "Your Name"',
-            "git commit -m init",
+            "git commit --no-gpg-sign -m init",
         ]:
             subprocess.run(
                 cmd.split(),
@@ -122,7 +122,7 @@ class Bar:
             "git add b.py",
             'git config user.email "you@example.com"',
             'git config user.name "Your Name"',
-            "git commit -m init",
+            "git commit --no-gpg-sign -m init",
         ]:
             subprocess.run(
                 cmd.split(),

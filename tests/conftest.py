@@ -36,6 +36,16 @@ def test_file_ruby():
 
 
 @pytest.fixture
+def test_file_php():
+    return Path(repo_root) / "tests/test_logs/files/php/ControllerDispatcher.php"
+
+
+@pytest.fixture
+def test_file_rust():
+    return Path(repo_root) / "tests/test_logs/files/rust/cookie.rs"
+
+
+@pytest.fixture
 def test_output_gotest():
     return (
         Path(repo_root)
