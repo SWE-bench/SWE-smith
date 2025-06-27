@@ -42,7 +42,7 @@ def filter_<criteria>(code_entity: CodeEntity) -> bool:
 
 Once you create the `.yaml` with a specified criteria, from this repo, run:
 ```bash
-python -m swesmith.bug_gen.llm.modify \
+swesmith bug_gen llm modify \
     --repo datamade/usaddress \
     --model openai/gpt-4o \
     --prompt_config configs/bug_gen/func_<your config>.yml \

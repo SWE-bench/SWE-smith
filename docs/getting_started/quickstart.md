@@ -6,25 +6,25 @@ If you run into issues, please consult the [tutorials](../guides/index.md) first
 ### Creating Task Instances
 ```bash
 # Run LM rewrite strategy to produce bugs
-python -m swesmith.bug_gen.llm.modify pandas-dev__pandas.95280573 \
+swesmith bug_gen llm modify pandas-dev__pandas.95280573 \
     --config_file configs/bug_gen/lm_modify.yml \
     --model claude-3-7-sonnet-20250219 \
     --n_bugs 1 \
     --n_workers=20
 
 # Collect all task instances into a single file for validation
-python -m swesmith.bug_gen.collect_patches logs/bug_gen/pandas-dev__pandas.95280573/
+swesmith bug_gen collect_patches logs/bug_gen/pandas-dev__pandas.95280573/
 
 # Run validation on the collected task instances
-python -m swesmith.harness.valid logs/bug_gen/pandas-dev__pandas.95280573_all_patches.json \
+swesmith harness valid logs/bug_gen/pandas-dev__pandas.95280573_all_patches.json \
   --run_id pandas_test \
   --max_workers=8
 
 # Gather valid task instances
-python -m swesmith.harness.gather logs/run_validation/pandas_test
+swesmith harness gather logs/run_validation/pandas_test
 
 # Generate issues for the valid task instances
-python -m swesmith.issue_gen.generate \
+swesmith issue_gen generate \
     --dataset_path logs/run_validation/basic/pandas_test.json \
   --model claude-3-7-sonnet-20250219 \
   --n_workers=1 \

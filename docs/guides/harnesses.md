@@ -17,7 +17,7 @@ Once you've generated task instance candidates, follow these steps to validate t
 1. Collect the candidates
 
 ```bash
-python -m swesmith.bug_gen.collect_patches logs/bug_gen/<repo>
+swesmith bug_gen collect_patches logs/bug_gen/<repo>
 ```
 
 This produces a `logs/bug_gen/<repo>_all_patches.json` file with all the candidate task instances.
@@ -25,7 +25,7 @@ This produces a `logs/bug_gen/<repo>_all_patches.json` file with all the candida
 2. Run validation
 
 ```bash
-python -m swesmith.harness.valid \
+swesmith harness valid \
     logs/bug_gen/<repo>_all_patches.json \
     --run_id <run_id>
 ```
@@ -46,7 +46,7 @@ For each task instance, the validation harness produces a `logs/run_validation/<
 3. Collect validated task instances
 
 ```bash
-python -m swesmith.harness.gather logs/run_validation/<run_id>
+swesmith harness gather logs/run_validation/<run_id>
 ```
 
 Task instances with 1+ `FAIL_TO_PASS` test cases and 1+ `PASS_TO_PASS` test cases are considered valid.
@@ -75,7 +75,7 @@ The evaluation harness is used to check if the proposed solution for a task inst
 You can run this script to sanity check that testing for validated task instances works as expected:
 
 ```bash
-python -m swesmith.harness.eval \
+swesmith harness eval \
     --dataset_path bugs/task_insts/{repo}.json \
     --predictions_path gold \
     --run_id sanity

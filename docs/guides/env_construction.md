@@ -14,7 +14,7 @@ Coming soon!
 ## Create an Execution Environment
 First, create the conda environment for the target repository.
 ```bash
-python -m swesmith.build_repo.try_install_py Instagram/MonkeyType install_repo.sh \
+swesmith build_repo try_install_py Instagram/MonkeyType install_repo.sh \
     --commit 70c3acf62950be5dfb28743c7a719bfdecebcd84
 ```
 where `install_repo.sh` is the script that installs the repository.
@@ -27,7 +27,7 @@ If successful, two artifacts will be produced under `logs/build_repo/records/`:
 Next, run the following command to create a Docker image for the repository.
 
 ```bash
-python -m swesmith.build_repo.create_images --repos Instagram/MonkeyType
+swesmith build_repo create_images --repos Instagram/MonkeyType
 ```
 
 This command will create two artifacts:
@@ -46,5 +46,5 @@ Within the container, run the testing suite (e.g. `pytest`) to ensure that the c
 
     All repositories represented in the SWE-smith [dataset](https://huggingface.co/datasets/SWE-bench/SWE-smith) are available to download. Simply run:
     ```bash
-    python -m swesmith.build_repo.download_images
+    swesmith build_repo download_images
     ```

@@ -62,7 +62,7 @@ We'll now determine which trajectories correspond to resolved instances, convert
 
 1. (From SWE-smith) Run evaluation on training task instances.
 ```bash
-python -m swesmith.harness.eval \
+swesmith harness eval \
     --dataset_path path/to/subset0.json \
     --predictions_path path/to/trajectories/<username>/<run ID>/preds.json \
     --run_id <run ID> \
@@ -79,7 +79,7 @@ folder with a `report.json` file indicating which instance IDs were successfully
 2. (From SWE-smith) Convert trajectories into SFT format.
 
 ```bash
-python -m swesmith.train.traj_mgr.transform_to_ft \
+swesmith train traj_mgr transform_to_ft \
     --traj_dir path/to/trajectories/<username>/<run ID>/ \
     --eval_dir logs/run_evaluation/<run ID>/ \
     --only_resolved

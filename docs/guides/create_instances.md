@@ -45,7 +45,7 @@ Per entity, we prompt a language model to either:
 **How do I run it?**
 To prompt an LM to modify a function to introduce a bug:
 ```bash
-python -m swesmith.bug_gen.llm.modify $repo \
+swesmith bug_gen llm modify $repo \
   --n_bugs 1 \
   --model openai/gpt-4o \
   --config_file configs/bug_gen/lm_modify.yml
@@ -53,7 +53,7 @@ python -m swesmith.bug_gen.llm.modify $repo \
 
 To prompt an LM to rewrite a function from scratch:
 ```bash
-python -m swesmith.bug_gen.llm.rewrite $repo \
+swesmith bug_gen llm rewrite $repo \
   --model anthropic/claude-3-7-sonnet-20250219 \
   --type func \
   --config_file configs/bug_gen/lm_rewrite.yml \
@@ -95,7 +95,7 @@ Because AST's give us a rigorous representation that allow modifications of spec
 
 **How do I run it?**
 ```bash
-python -m swesmith.bug_gen.procedural.generate $repo \
+swesmith bug_gen procedural generate $repo \
   --type [func|class|object] \
   --max_bugs 10
 ```
@@ -137,7 +137,7 @@ If this process succeeds, we create a candidate task instance that effectively u
 
 **How do I run it?**
 ```bash
-python -m swesmith.bug_gen.mirror.generate $file \
+swesmith bug_gen mirror generate $file \
     --model openai/o3-mini
 ```
 
@@ -177,14 +177,14 @@ You can control
 
 **How do I run it?**
 ```bash
-python -m swesmith.bug_gen.combine.same_file logs/bug_gen/<repo> \
+swesmith bug_gen combine same_file logs/bug_gen/<repo> \
   --num_patches 3 \
   --limit_per_file 15 \
   --max_combos 100
 ```
 
 ```bash
-python -m swesmith.bug_gen.combine.same_module logs/bug_gen/<repo> \
+swesmith bug_gen combine same_module logs/bug_gen/<repo> \
   --num_patches 2 \
   --limit_per_module 20 \
   --max_combos 200 \
