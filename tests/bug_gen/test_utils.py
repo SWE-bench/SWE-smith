@@ -3,7 +3,9 @@ import os
 import shutil
 import tempfile
 import unittest
+from unittest.mock import Mock
 
+from pathlib import Path
 from swesmith.bug_gen.adapters.python import _build_entity
 from swesmith.bug_gen import utils
 
@@ -85,6 +87,14 @@ class Bar:
         )
         self.assertTrue(any(e.src_code.startswith("def foo") for e in entities))
         self.assertTrue(any("class Bar" in e.src_code for e in entities))
+
+    def test_get_bug_directory(self):
+        mock_entity = Mock()
+        mock_entity.name = "verify"
+        mock_entity.signature = "public <T> T verify(T mock)"
+        mock_entity.file_path = "some/file/path"
+        bug_dir = utils.get_bug_directory(Path("some-log-dir"), mock_entity)
+        self.assertEqual(Path("some-log-dir/some__file__path/verify_1ae25e6d"), bug_dir)
 
     def test_get_combos(self):
         items = [1, 2, 3]
