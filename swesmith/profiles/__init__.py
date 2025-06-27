@@ -10,5 +10,6 @@ from .base import RepoProfile, global_registry
 # Auto-import all profile modules to populate the registry
 from . import python
 from . import golang
+from . import rust
 
 __all__ = ["RepoProfile", "global_registry"]

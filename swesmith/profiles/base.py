@@ -155,7 +155,7 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
             shutil.rmtree(self.repo_name)
         api.repos.create_in_org(self.org_gh, self.repo_name)
         for cmd in [
-            f"git clone git@github.com:{self.mirror_name}.git {self.repo_name}",
+            f"git clone git@github.com:{self.owner}/{self.repo}.git {self.repo_name}",
             (
                 f"cd {self.repo_name}; "
                 f"git checkout {self.commit}; "
@@ -319,7 +319,12 @@ class Registry(UserDict):
     def register_profile(self, profile_class: type):
         """Register a RepoProfile subclass (except base types)."""
         # Skip base types
-        if profile_class.__name__ in {"RepoProfile", "PythonProfile", "GoProfile"}:
+        if profile_class.__name__ in {
+            "RepoProfile",
+            "PythonProfile",
+            "GoProfile",
+            "RustProfile",
+        }:
             # TODO: Update for new languages
             return
         # Create temporary instance to get properties
