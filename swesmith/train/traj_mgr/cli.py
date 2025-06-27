@@ -1,11 +1,5 @@
 """
 Trajectory management utilities.
-
-Available commands:
-    transform_to_ft_list  Transform a list of trajectories to fine-tuning format
-    clean_trajs          Remove unnecessary files from trajectories directory
-    transform_to_ft      Transform trajectories to fine-tuning format
-    combine_trajs        Combine multiple trajectory files and shuffle
 """
 
 import sys
@@ -15,12 +9,21 @@ from swesmith.cli_utils import dispatch_sub_cli
 def main(args: list[str] | None = None):
     command_mapping = {
         "transform_to_ft_list": (
-            "swesmith.train.traj_mgr.transform_to_ft_list",
-            "run_from_cli",
+            "swesmith.train.traj_mgr.transform_to_ft_list::run_from_cli",
+            "Transform a list of trajectories to fine-tuning format",
         ),
-        "clean_trajs": ("swesmith.train.traj_mgr.clean_trajs", "run_from_cli"),
-        "transform_to_ft": ("swesmith.train.traj_mgr.transform_to_ft", "run_from_cli"),
-        "combine_trajs": ("swesmith.train.traj_mgr.combine_trajs", "run_from_cli"),
+        "clean_trajs": (
+            "swesmith.train.traj_mgr.clean_trajs::run_from_cli",
+            "Remove unnecessary files from trajectories directory",
+        ),
+        "transform_to_ft": (
+            "swesmith.train.traj_mgr.transform_to_ft::run_from_cli",
+            "Transform trajectories to fine-tuning format",
+        ),
+        "combine_trajs": (
+            "swesmith.train.traj_mgr.combine_trajs::run_from_cli",
+            "Combine multiple trajectory files and shuffle",
+        ),
     }
 
     dispatch_sub_cli(

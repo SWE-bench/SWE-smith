@@ -21,16 +21,24 @@ def dispatch_sub_cli(
 
     Args:
         args: Command line arguments (None for sys.argv[1:])
-        command_mapping: Dict mapping command names to (import_path, function_name) tuples
+        command_mapping: Dict mapping command names to (import_path, description) tuples
         prog_name: Program name for the parser
         module_doc: Module docstring for help text (can be None)
     """
     if args is None:
         args = sys.argv[1:]
 
+    # Generate available commands list
+    commands_list = "\n\nAvailable commands:\n"
+    for cmd, (import_path, description) in command_mapping.items():
+        commands_list += f"    {cmd:<20} {description}\n"
+
+    # Combine module doc with commands list
+    full_description = (module_doc or "") + commands_list
+
     # Create parser
     parser = argparse.ArgumentParser(
-        add_help=False, prog=prog_name, description=module_doc
+        add_help=False, prog=prog_name, description=full_description
     )
     parser.add_argument(
         "command",
@@ -50,7 +58,7 @@ def dispatch_sub_cli(
     if show_help:
         if not command:
             # Show main help
-            rich.print(module_doc or "")
+            rich.print(full_description)
             sys.exit(0)
         else:
             # Add to remaining_args
@@ -60,16 +68,17 @@ def dispatch_sub_cli(
         sys.exit(2)
 
     # Dispatch to command
-    import_path, function_name = command_mapping[command]
+    import_path, _ = command_mapping[command]
+
+    # Parse import path and function name
+    if "::" in import_path:
+        module_path, function_name = import_path.split("::", 1)
+    else:
+        module_path = import_path
+        function_name = "main"  # default function name
 
     # Dynamic import and call
-    if "." in import_path:
-        module_path, module_name = import_path.rsplit(".", 1)
-        module = importlib.import_module(import_path)
-        func = getattr(module, function_name)
-    else:
-        # Simple import for nested CLI modules
-        module = importlib.import_module(import_path)
-        func = getattr(module, function_name)
+    module = importlib.import_module(module_path)
+    func = getattr(module, function_name)
 
     func(remaining_args)

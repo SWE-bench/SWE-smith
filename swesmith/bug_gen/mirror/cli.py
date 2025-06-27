@@ -1,8 +1,5 @@
 """
 Mirror bug generation utilities.
-
-Available commands:
-    generate  Mirror bugs from pull requests
 """
 
 import sys
@@ -11,7 +8,10 @@ from swesmith.cli_utils import dispatch_sub_cli
 
 def main(args: list[str] | None = None):
     command_mapping = {
-        "generate": ("swesmith.bug_gen.mirror.generate", "run_from_cli"),
+        "generate": (
+            "swesmith.bug_gen.mirror.generate::run_from_cli",
+            "Mirror bugs from pull requests",
+        ),
     }
 
     dispatch_sub_cli(

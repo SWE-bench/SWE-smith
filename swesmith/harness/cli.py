@@ -1,10 +1,5 @@
 """
 Evaluation and validation harness commands.
-
-Available commands:
-    eval     Evaluate predictions on SWEFT bugs
-    valid    Run validation on bug patches
-    gather   Convert validation logs to SWE-bench style dataset
 """
 
 import sys
@@ -13,9 +8,18 @@ from swesmith.cli_utils import dispatch_sub_cli
 
 def main(args: list[str] | None = None):
     command_mapping = {
-        "eval": ("swesmith.harness.eval", "run_from_cli"),
-        "valid": ("swesmith.harness.valid", "run_from_cli"),
-        "gather": ("swesmith.harness.gather", "run_from_cli"),
+        "eval": (
+            "swesmith.harness.eval::run_from_cli",
+            "Evaluate predictions on SWEFT bugs",
+        ),
+        "valid": (
+            "swesmith.harness.valid::run_from_cli",
+            "Run validation on bug patches",
+        ),
+        "gather": (
+            "swesmith.harness.gather::run_from_cli",
+            "Convert validation logs to SWE-bench style dataset",
+        ),
     }
 
     dispatch_sub_cli(
