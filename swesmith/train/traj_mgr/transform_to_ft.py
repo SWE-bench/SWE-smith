@@ -1,6 +1,6 @@
 """
 Given a folder of SWE-agent trajectories, extracts the trajectories
-and transforms them into a fine-tuning compatible format, namely...
+and transforms them into a fine-tuning compatible jsonl format, namely...
 
 [
   {
@@ -113,6 +113,7 @@ if __name__ == "__main__":
         type=str,
         required=False,
         default="xml",
+        choices=list(MAP_STYLE_TO_FUNC.keys()),
         help="Style of the trajectories",
     )
     arg_parser.add_argument(

@@ -60,7 +60,7 @@ def test_transform_traj_xml_basic(logs_trajectories, ft_xml_example):
 def test_transform_to_ft_basic(logs_trajectories, logs_run_evaluation, ft_xml_example):
     with tempfile.TemporaryDirectory() as tmpdir:
         transform_to_ft(
-            tmpdir,
+            Path(tmpdir),
             logs_trajectories,
             logs_run_evaluation,
             style="xml",

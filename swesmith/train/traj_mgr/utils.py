@@ -5,13 +5,14 @@ Utility functions for transforming SWE-agent trajectories to fine-tuning format.
 import json
 import yaml
 
+from swesmith import REPO_DIR
+
 XML_STR_REPLACES = ["old_str", "new_str", "file_text"]
 
 
-# TODO: Fix this, this is hardcoded, so will break if not called from root of a directory
-SYSTEM_PROMPT = yaml.safe_load(open("agent/swesmith_infer.yaml", "r"))["agent"][
-    "templates"
-]["system_template"]
+SYSTEM_PROMPT = yaml.safe_load(
+    (REPO_DIR / "agent" / "swesmith_infer.yaml").read_text()
+)["agent"]["templates"]["system_template"]
 
 
 def get_messages(traj: dict) -> list[dict]:
@@ -86,6 +87,8 @@ def transform_traj_xml(traj: dict) -> dict:
                 action = "\n".join(tool_call_to_action(message["tool_calls"]))
                 content = f"{message['thought']}\n\n{action}"
         elif message["role"] == "system":
+            # We replace the system prompt that was used for generating the training trajectories
+            # with the system prompt that SWE-agent-LM will use for inference.
             content = SYSTEM_PROMPT
         else:
             if isinstance(message["content"], list):
