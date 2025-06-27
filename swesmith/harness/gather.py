@@ -49,7 +49,6 @@ from swesmith.constants import (
     KEY_PATCH,
     KEY_TIMED_OUT,
     LOG_DIR_TASKS,
-    ORG_NAME_GH,
     REF_SUFFIX,
 )
 from swesmith.profiles import global_registry
@@ -99,18 +98,18 @@ def skip_print(reason, pbar, stats, verbose):
     return stats
 
 
-def check_if_branch_exists(
-    api, repo_name, subfolder, main_branch, override_branch, verbose
-):
+def check_if_branch_exists(api, rp, subfolder, main_branch, override_branch, verbose):
     branch_exists = None
     branch_commit = None
     try:
-        api.repos.get_branch(ORG_NAME_GH, repo_name, subfolder)
-        subprocess.run(f"cd {repo_name}; git checkout {subfolder}", **SUBPROCESS_ARGS)
+        api.repos.get_branch(rp.org_gh, rp.repo_name, subfolder)
+        subprocess.run(
+            f"cd {rp.repo_name}; git checkout {subfolder}", **SUBPROCESS_ARGS
+        )
         if override_branch:
             # Delete the branch remotely
             subprocess.run(
-                f"cd {repo_name}; git push --delete origin {subfolder}",
+                f"cd {rp.repo_name}; git push --delete origin {subfolder}",
                 **SUBPROCESS_ARGS,
             )
             if verbose:
@@ -119,7 +118,7 @@ def check_if_branch_exists(
         else:
             branch_commit = (
                 subprocess.run(
-                    f"cd {repo_name}; git rev-parse HEAD",
+                    f"cd {rp.repo_name}; git rev-parse HEAD",
                     capture_output=True,
                     **SUBPROCESS_ARGS,
                 )
@@ -127,8 +126,12 @@ def check_if_branch_exists(
                 .strip()
             )
             branch_exists = True
-        subprocess.run(f"cd {repo_name}; git checkout {main_branch}", **SUBPROCESS_ARGS)
-        subprocess.run(f"cd {repo_name}; git branch -D {subfolder}", **SUBPROCESS_ARGS)
+        subprocess.run(
+            f"cd {rp.repo_name}; git checkout {main_branch}", **SUBPROCESS_ARGS
+        )
+        subprocess.run(
+            f"cd {rp.repo_name}; git branch -D {subfolder}", **SUBPROCESS_ARGS
+        )
     except Exception:
         branch_exists = False
         pass
