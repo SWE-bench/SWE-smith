@@ -15,6 +15,7 @@ python -m swesmith.bug_gen.llm.modify tkrajina__gpxpy.09fc46b3 --config_file con
 """
 
 import argparse
+import dataclasses
 import shutil
 import jinja2
 import json
@@ -25,7 +26,6 @@ import random
 import yaml
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from dataclasses import asdict
 from dotenv import load_dotenv
 from litellm import completion
 from litellm.cost_calculator import completion_cost
@@ -73,7 +73,12 @@ def gen_bug_from_code_lm(
 
         env.filters["shuffle"] = jinja_shuffle
         template = env.from_string(prompt)
-        return template.render(**asdict(candidate), **config.get("parameters", {}))
+
+        candidate_dict = {
+            field.name: getattr(candidate, field.name)
+            for field in dataclasses.fields(candidate)
+        }
+        return template.render(**candidate_dict, **config.get("parameters", {}))
 
     def get_role(key: str) -> str:
         if key == "system":
