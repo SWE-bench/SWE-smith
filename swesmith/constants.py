@@ -14,6 +14,7 @@ from typing import Any
 
 DEFAULT_PM_LIKELIHOOD = 0.2
 ENV_NAME = "testbed"
+HF_DATASET = "SWE-bench/SWE-smith"
 INSTANCE_REF = "instance_ref"
 KEY_IMAGE_NAME = "image_name"
 KEY_PATCH = "patch"

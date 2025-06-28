@@ -12,6 +12,7 @@ import argparse
 import json
 import os
 
+from datasets import load_dataset
 from swebench.harness.constants import (
     KEY_INSTANCE_ID,
     KEY_MODEL,
@@ -22,7 +23,7 @@ from swebench.harness.constants import (
 )
 from swebench.harness.docker_build import close_logger
 from swebench.harness.utils import run_threadpool
-from swesmith.constants import KEY_PATCH, KEY_TIMED_OUT, TIMEOUT
+from swesmith.constants import HF_DATASET, KEY_PATCH, KEY_TIMED_OUT, TIMEOUT
 from swesmith.harness.grading import get_eval_report
 from swesmith.harness.utils import run_patch_in_container
 
@@ -77,10 +78,10 @@ def run_evaluation(
 
 
 def main(
-    dataset_path: str,
     predictions_path: str,
     run_id: str,
     max_workers: int,
+    dataset_path: str = HF_DATASET,
     instance_ids: list | None = None,
     report_only: bool = False,
     timeout: int = TIMEOUT,
@@ -91,18 +92,29 @@ def main(
     """
     assert len(run_id) > 0, "Run ID must be provided"
 
+    # Get dataset
+    if dataset_path.endswith(".json"):
+        dataset = json.load(open(dataset_path))
+    elif dataset_path.endswith(".jsonl"):
+        dataset = [json.loads(x) for x in open(dataset_path)]
+    elif dataset_path == HF_DATASET:
+        dataset = load_dataset(dataset_path, split="train")
+    else:
+        raise ValueError("Dataset must be in .json or .jsonl format")
+    dataset = {x[KEY_INSTANCE_ID]: x for x in dataset}
+
     # Get predictions
     predictions = None
     is_gold = False
     if predictions_path == "gold":
         is_gold = True
         predictions = {
-            x[KEY_INSTANCE_ID]: {
-                KEY_INSTANCE_ID: x[KEY_INSTANCE_ID],
-                KEY_PREDICTION: x[KEY_PATCH],
+            inst_id: {
+                KEY_INSTANCE_ID: inst_id,
+                KEY_PREDICTION: inst[KEY_PATCH],
                 KEY_MODEL: "gold",
             }
-            for x in json.load(open(dataset_path))
+            for inst_id, inst in dataset.items()
         }
         print("Using gold predictions for eval (ignoring `predictions_path` argument)")
     else:
@@ -123,16 +135,6 @@ def main(
     if len(predictions) == 0:
         print("No predictions to evaluate.")
         return
-
-    # Get dataset
-    dataset = None
-    if dataset_path.endswith(".json"):
-        dataset = json.load(open(dataset_path))
-    elif dataset_path.endswith(".jsonl"):
-        dataset = [json.loads(x) for x in open(dataset_path)]
-    else:
-        raise ValueError("Dataset must be in .json or .jsonl format")
-    dataset = {x[KEY_INSTANCE_ID]: x for x in dataset}
 
     # Create logging directory
     log_dir_parent = RUN_EVALUATION_LOG_DIR / run_id
@@ -206,7 +208,9 @@ def main(
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("Evaluate predications on SWEFT bugs")
-    parser.add_argument("--dataset_path", type=str, help="Path to dataset")
+    parser.add_argument(
+        "--dataset_path", type=str, help="Path to dataset", default=HF_DATASET
+    )
     parser.add_argument("--predictions_path", type=str, help="Path to predictions")
     parser.add_argument("--run_id", type=str, help="Unique identifier for this run")
     parser.add_argument(
