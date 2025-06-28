@@ -211,7 +211,7 @@ def get_cli_parser() -> argparse.ArgumentParser:
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument(
-      "--dataset_path", type=str, help="Path to dataset", default=HF_DATASET)
+        "--dataset_path", type=str, help="Path to dataset", default=HF_DATASET
     )
     parser.add_argument("--predictions_path", type=str, help="Path to predictions")
     parser.add_argument("--run_id", type=str, help="Unique identifier for this run")
