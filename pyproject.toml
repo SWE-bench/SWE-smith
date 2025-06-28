@@ -39,12 +39,13 @@ dependencies = [
     "swebench",
     "tiktoken",
     "tqdm",
-    "tree-sitter",
+    "tree-sitter>=0.23",
     "tree-sitter-go",
     "tree-sitter-ruby",
     "tree-sitter-rust==v0.23.2",
     "unidiff",
     "textual",
+    "tree-sitter-php>=0.23.11",
 ]
 
 [project.optional-dependencies]
