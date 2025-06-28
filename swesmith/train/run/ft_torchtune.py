@@ -72,5 +72,5 @@ def main(config: str):
     # load yaml config
     config_name = os.path.basename(config)
     with open(config, "r") as f:
-        config = yaml.safe_load(f)
-    run_train.remote(config_name=config_name, config=config, n_gpus=N_GPUS)
+        _config = yaml.safe_load(f)
+    run_train.remote(config_name=config_name, config=_config, n_gpus=N_GPUS)
