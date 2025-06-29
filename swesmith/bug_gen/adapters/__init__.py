@@ -1,3 +1,6 @@
+from swesmith.bug_gen.adapters.c import (
+    get_entities_from_file_c,
+)
 from swesmith.bug_gen.adapters.golang import (
     get_entities_from_file_go,
 )
@@ -13,6 +16,7 @@ from swesmith.bug_gen.adapters.rust import (
 )
 
 get_entities_from_file = {
+    "c": get_entities_from_file_c,
     "go": get_entities_from_file_go,
     "php": get_entities_from_file_php,
     "py": get_entities_from_file_py,
