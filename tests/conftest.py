@@ -41,6 +41,11 @@ def test_file_rust():
 
 
 @pytest.fixture
+def test_file_js():
+    return Path(repo_root) / "tests/test_logs/files/javascript/sample.js"
+
+
+@pytest.fixture
 def test_output_gotest():
     return (
         Path(repo_root)
