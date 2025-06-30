@@ -1,6 +1,4 @@
 import pytest
-import re
-import warnings
 
 from swesmith.bug_gen.adapters.c import (
     get_entities_from_file_c,
@@ -35,21 +33,6 @@ def test_get_entities_from_file_c_no_functions(tmp_path):
     entities = []
     get_entities_from_file_c(entities, no_functions_file)
     assert len(entities) == 0
-
-
-def test_get_entities_from_file_c_malformed(tmp_path):
-    malformed_file = tmp_path / "malformed.c"
-    malformed_file.write_text("(malformed")
-    entities = []
-    with warnings.catch_warnings(record=True) as ws:
-        warnings.simplefilter("always")
-        get_entities_from_file_c(entities, malformed_file)
-        assert any(
-            [
-                re.search(r"Error encountered parsing .*malformed.c", str(w.message))
-                for w in ws
-            ]
-        )
 
 
 def test_get_entities_from_file_c_names(entities):

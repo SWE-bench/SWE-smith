@@ -1,6 +1,5 @@
 import re
 import tree_sitter_c as tsc
-import warnings
 
 from swesmith.constants import TODO_REWRITE, CodeEntity
 from tree_sitter import Language, Parser, Query
@@ -68,9 +67,8 @@ def get_entities_from_file_c(
         if 0 <= max_entities == len(entities):
             return
 
-        if node.type == "ERROR":
-            warnings.warn(f"Error encountered parsing {file_path}")
-            return
+        # not checking for error nodes here because tree-sitter-c frequently
+        # generates them parsing valid processor directives
 
         if node.type == "function_definition":
             entities.append(_build_entity(node, lines, file_path))
