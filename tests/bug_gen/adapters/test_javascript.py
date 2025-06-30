@@ -91,15 +91,15 @@ def test_get_entities_from_file_js_line_ranges(entities):
 
 
 def test_get_entities_from_file_js_extensions(entities):
-    assert all(
-        e.ext == "js" for e in entities
-    ), "All entities should have the extension 'js'"
+    assert all(e.ext == "js" for e in entities), (
+        "All entities should have the extension 'js'"
+    )
 
 
 def test_get_entities_from_file_js_file_paths(entities, test_file_js):
-    assert all(
-        e.file_path == str(test_file_js) for e in entities
-    ), "All entities should have the correct file path"
+    assert all(e.file_path == str(test_file_js) for e in entities), (
+        "All entities should have the correct file path"
+    )
 
 
 def test_get_entities_from_file_js_signatures(entities):
@@ -118,9 +118,9 @@ def test_get_entities_from_file_js_signatures(entities):
         "function innerFunction(y)",
     ]
     for signature in expected_signatures:
-        assert (
-            signature in signatures
-        ), f"Expected signature '{signature}' not found in {signatures}"
+        assert signature in signatures, (
+            f"Expected signature '{signature}' not found in {signatures}"
+        )
 
 
 def test_get_entities_from_file_js_stubs(entities):
