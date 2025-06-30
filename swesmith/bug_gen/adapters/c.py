@@ -30,6 +30,9 @@ class CEntity(CodeEntity):
             body_node = matches[0][1]["body"][0]
             body_start_byte = body_node.start_byte - self.node.start_byte
             signature = self.node.text[:body_start_byte].strip().decode("utf-8")
+            signature = re.sub(r"\(\s+", "(", signature).strip()
+            signature = re.sub(r"\s+\)", ")", signature).strip()
+            signature = re.sub(r"\s+", " ", signature).strip()
             return signature
         return ""
 

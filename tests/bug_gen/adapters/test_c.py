@@ -130,6 +130,17 @@ def test_get_entities_from_file_c_signatures(entities):
     assert signatures == expected_signatures
 
 
+def test_get_entities_from_file_c_multi_line_signature(tmp_path):
+    multi_line_signature_file = tmp_path / "multi_line_sig.c"
+    multi_line_signature_file.write_text(
+        "void multi_line(\n\tint a1,\n\tint a2,\n\tint a3\n)\n{\n}"
+    )
+    entities = []
+    get_entities_from_file_c(entities, multi_line_signature_file)
+    assert len(entities) == 1
+    assert entities[0].signature == "void multi_line(int a1, int a2, int a3)"
+
+
 def test_get_entities_from_file_c_stubs(entities):
     stubs = [e.stub for e in entities]
     expected_stubs = [
