@@ -17,6 +17,7 @@ from rich import print
 from swesmith.bug_gen.utils import (
     apply_code_change,
     extract_entities_from_directory,
+    get_bug_directory,
     get_patch,
 )
 from swesmith.constants import (
@@ -104,7 +105,7 @@ def _process_candidate(
     )
 
     # Create artifacts
-    bug_dir = log_dir / candidate.file_path.replace("/", "__") / candidate.name
+    bug_dir = get_bug_directory(log_dir, candidate)
     bug_dir.mkdir(parents=True, exist_ok=True)
     uuid_str = f"{pm.name}__{bug.get_hash()}"
     metadata_path = f"{PREFIX_METADATA}__{uuid_str}.json"

@@ -32,6 +32,7 @@ from swesmith.bug_gen.llm.utils import (
 from swesmith.bug_gen.utils import (
     apply_code_change,
     extract_entities_from_directory,
+    get_bug_directory,
     get_patch,
 )
 from swesmith.constants import (
@@ -80,7 +81,7 @@ def main(
         print("Skipping existing bugs.")
 
     def _process_candidate(candidate: CodeEntity) -> dict[str, Any]:
-        bug_dir = log_dir / candidate.file_path.replace("/", "__") / candidate.name
+        bug_dir = get_bug_directory(log_dir, candidate)
         if not redo_existing:
             if bug_dir.exists() and any(
                 [

@@ -9,7 +9,7 @@ import json
 import os
 
 
-def main(repo_path: str, bug_type: str) -> float:
+def main(repo_path: str, bug_type: str) -> tuple[float, int, float]:
     total_cost = 0.0
     total_bugs = 0
     prefix = "metadata__"

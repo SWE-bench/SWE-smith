@@ -61,7 +61,6 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
     pltf: str = "linux/x86_64" if arch == "x86_64" else "linux/arm64/v8"
 
     # Install + Test specifications
-    install_cmds: list[str] = field(default_factory=list)
     test_cmd: str = ""
     test_exts: list[str] = field(
         default_factory=lambda: [".py", ".go", ".rb", ".php", ".java"]
@@ -229,7 +228,7 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
             test_command += f" {' '.join(f2p_files)}"
             return test_command, f2p_files
 
-        if self.min_testing or KEY_PATCH not in instance:
+        if not self.min_testing or KEY_PATCH not in instance:
             # If min testing is not enabled or there's no patch
             # return test command as is (usually = run whole test suite)
             return test_command, []
