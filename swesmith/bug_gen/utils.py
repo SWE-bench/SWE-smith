@@ -1,3 +1,4 @@
+import hashlib
 import os
 import subprocess
 
@@ -94,6 +95,7 @@ def extract_entities_from_directory(
                 file.startswith("test_")
                 or file.rsplit(".", 1)[0].endswith("_spec")
                 or file.rsplit(".", 1)[0].endswith("_test")
+                or file.rsplit(".", 1)[0].endswith("Test")
             ):
                 continue
 
@@ -110,6 +112,16 @@ def extract_entities_from_directory(
             get_entities_from_file[file_ext](entities, file_path, max_entities)
 
     return entities
+
+
+def get_bug_directory(log_dir, candidate: CodeEntity):
+    """Get the bug directory path for a given candidate."""
+    signature_hash = hashlib.sha256(candidate.signature.encode()).hexdigest()[:8]
+    return (
+        log_dir
+        / candidate.file_path.replace("/", "__")
+        / f"{candidate.name}_{signature_hash}"
+    )
 
 
 def get_combos(items, r, max_combos) -> list[tuple]:

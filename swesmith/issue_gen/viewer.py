@@ -8,7 +8,7 @@ from textual.widgets import Header, Footer, Static
 from textual.binding import Binding
 from pathlib import Path
 import json
-from typing import List, Any
+from typing import Any
 from rich.markup import escape
 
 
@@ -62,7 +62,7 @@ class IssueViewer(App):
     def __init__(self, root_dir: str):
         super().__init__()
         self.root_dir = Path(root_dir)
-        self.folders: List[Path] = []
+        self.folders: list[Path] = []
         self.current_index = 0
         self._find_valid_folders()
 

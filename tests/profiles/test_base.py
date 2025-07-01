@@ -397,7 +397,7 @@ class MockRepoProfile(RepoProfile):
         self.repo = "test_repo"
         self.commit = "test12345678"
         self.test_cmd = "pytest"
-        self.min_testing = False
+        self.min_testing = True
         self._test_dir = test_dir
 
     def build_image(self):
@@ -484,7 +484,7 @@ def test_get_test_cmd_min_testing():
     """Test get_test_cmd when min_testing is enabled."""
     mock_rp = MockRepoProfile("dummy_dir")
     mock_rp.test_cmd = "pytest"
-    mock_rp.min_testing = True
+    mock_rp.min_testing = False
 
     instance = {
         KEY_INSTANCE_ID: "test__test_repo.test1234.suffix",

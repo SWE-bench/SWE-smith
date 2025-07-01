@@ -1,6 +1,6 @@
 """
 Given a folder of SWE-agent trajectories, extracts the trajectories
-and transforms them into a fine-tuning compatible format, namely...
+and transforms them into a fine-tuning compatible jsonl format, namely...
 
 [
   {
@@ -56,7 +56,7 @@ def main(
     if only_resolved and eval_dir.exists():
         print("Only keeping trajectories for resolved instances")
 
-    out_path = os.path.join(out_dir, f"ft_{style}_{os.path.basename(eval_dir)}.jsonl")
+    out_path = out_dir / f"ft_{style}_{eval_dir.name}.jsonl"
 
     num_trajs = 0
     with open(out_path, "w") as f:
@@ -68,7 +68,7 @@ def main(
 
             if only_resolved:
                 report_path = eval_dir / folder / "report.json"
-                report = json.load(open(report_path, "r"))
+                report = json.loads(report_path.read_text())
                 is_resolved = (
                     report.get("resolved", False)
                     if folder not in report
@@ -78,7 +78,7 @@ def main(
                     continue
 
             traj_path = traj_dir / folder / f"{folder}.traj"
-            traj = transform_traj(json.load(open(traj_path, "r")))
+            traj = transform_traj(json.loads(traj_path.read_text()))
             traj["instance_id"] = folder
             f.write(json.dumps(traj) + "\n")
             num_trajs += 1
@@ -113,6 +113,7 @@ if __name__ == "__main__":
         type=str,
         required=False,
         default="xml",
+        choices=list(MAP_STYLE_TO_FUNC.keys()),
         help="Style of the trajectories",
     )
     arg_parser.add_argument(

@@ -25,7 +25,6 @@ from swebench.harness.docker_utils import (
 )
 from swebench.harness.utils import EvaluationError
 from swesmith.constants import (
-    ENV_NAME,
     GIT_APPLY_CMDS,
     LOG_DIR_RUN_VALIDATION,
     TEST_OUTPUT_END,
@@ -144,8 +143,6 @@ def run_patch_in_container(
                 [
                     "#!/bin/bash",
                     "set -uxo pipefail",
-                    "source /opt/miniconda3/bin/activate",
-                    f"conda activate {ENV_NAME}",
                     f"cd {DOCKER_WORKDIR}",
                     f": '{TEST_OUTPUT_START}'",
                     test_command,

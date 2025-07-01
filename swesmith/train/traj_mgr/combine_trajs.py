@@ -18,24 +18,33 @@ from pathlib import Path
 from sparklines import sparklines
 from swebench.harness.constants import KEY_INSTANCE_ID
 
-SFT_DIR = Path("trajectories_sft/")
-
 
 def merge_and_shuffle_jsonl(
     max_per_inst: int = 3,
-    output_file: str = None,
+    output_file: Path | None = None,
     seed: int = 24,
+    sft_dir: Path = Path("trajectories_sft/"),
 ):
+    """
+    Merge multiple JSONL files containing SWE-agent expert trajectories and shuffle the combined data.
+
+    Args:
+        max_per_inst: Maximum number of trajectories to include per instance ID. If an instance
+            has more trajectories than this limit, a random sample will be selected.
+        output_file: Path to the output JSONL file. If None, user will be prompted to enter
+            a filename.
+        seed: Random seed for shuffling trajectories and sampling when max_per_inst is exceeded.
+        sft_dir: Directory containing the SFT trajectory JSONL files to merge.
+    """
+
     # List all .jsonl files in expert_trajs/
     try:
-        all_trajs = sorted([f for f in os.listdir(SFT_DIR) if f.endswith(".jsonl")])
+        all_trajs = sorted([f for f in os.listdir(sft_dir) if f.endswith(".jsonl")])
         print("Select 2+ files to merge:")
         print("Index | Filename | # Trajectories")
         for idx, file in enumerate(all_trajs):
             if file.endswith(".jsonl"):
-                num_trajs = len(
-                    open(os.path.join(SFT_DIR, file), "r", encoding="utf-8").readlines()
-                )
+                num_trajs = sum(1 for _ in open(sft_dir / file, "r", encoding="utf-8"))
                 print(f"{idx}: {file} ({num_trajs})")
         selected_indices = input(
             "Enter the indices of the files to merge (specify indices or range of indices, e.g. `7 11-13`): "
@@ -48,13 +57,11 @@ def merge_and_shuffle_jsonl(
         selected_indices = [
             idx for part in selected_indices.split() for idx in process_idx(part)
         ]
-        files = [os.path.join(SFT_DIR, all_trajs[idx]) for idx in selected_indices]
+        files = [sft_dir / all_trajs[idx] for idx in selected_indices]
 
         if not output_file:
-            output_file = input("Name of output file (without extension): ") + ".jsonl"
-            output_file = Path(os.path.join(SFT_DIR, output_file))
-        else:
-            output_file = Path(output_file)
+            filename = input("Name of output file (without extension): ") + ".jsonl"
+            output_file = sft_dir / filename
     except KeyboardInterrupt:
         print("\nExiting...")
         return
@@ -106,7 +113,7 @@ def merge_and_shuffle_jsonl(
         f"Merged and shuffled content written to {output_file} ({len(all_trajs)} lines)"
     )
 
-    metadata_file = str(output_file.parent / f"metadata__{output_file.stem}.json")
+    metadata_file = output_file.parent / f"metadata__{output_file.stem}.json"
     print(f"Writing metadata to {metadata_file}")
     with open(metadata_file, "w") as f:
         json.dump(
@@ -117,7 +124,7 @@ def merge_and_shuffle_jsonl(
                 "max_per_inst": max_per_inst,
                 "bug_types_dist": bug_types,
                 "seed": seed,
-                "files": files,
+                "files": [str(f) for f in files],
                 "repo_count": [
                     f"{repo} | {count}"
                     for repo, count in sorted(
@@ -141,9 +148,18 @@ if __name__ == "__main__":
         default=3,
         help="Max number of trajectories per instance.",
     )
-    parser.add_argument("-o", "--output_file", help="Name of the output file.")
+    parser.add_argument(
+        "-o", "--output_file", type=Path, help="Name of the output file."
+    )
     parser.add_argument(
         "-s", "--seed", type=int, default=24, help="Random seed for shuffling."
+    )
+    parser.add_argument(
+        "-d",
+        "--sft_dir",
+        type=Path,
+        default=Path("trajectories_sft/"),
+        help="Directory containing the SFT trajectory JSONL files to merge.",
     )
 
     args = parser.parse_args()

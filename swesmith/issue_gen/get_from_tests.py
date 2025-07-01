@@ -31,16 +31,15 @@ from swebench.harness.docker_utils import (
     exec_run_with_timeout,
 )
 from swesmith.constants import (
-    ENV_NAME,
     KEY_IMAGE_NAME,
     LOG_DIR_ISSUE_GEN,
     TEST_OUTPUT_END,
     TEST_OUTPUT_START,
-    TEST_PYTEST,
     TIMEOUT,
 )
 from swesmith.issue_gen.utils import get_test_function
 from swesmith.profiles import global_registry
+from swesmith.profiles.python import PythonProfile
 from tqdm.auto import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
 
@@ -68,10 +67,13 @@ def get_verbose_test_cmd(instance: dict, test_idx: int | None = None):
     Get test command that runs a random F2P test verbosely.
     """
     test_cmd = global_registry.get(instance["repo"].split("/")[-1]).test_cmd
-    if TEST_PYTEST in test_cmd:
+
+    # TODO: This should probably be changed, or incorporated into the profile
+    if test_cmd == PythonProfile.test_cmd:
         test_cmd = test_cmd.replace(
-            TEST_PYTEST, "pytest -v --showlocals --tb=long --color=no"
+            PythonProfile.test_cmd, "pytest -v --showlocals --tb=long --color=no"
         )
+
     f2p_test = (
         random.choice(instance[FAIL_TO_PASS])
         if test_idx is None
@@ -110,8 +112,6 @@ def run_command_in_container(instance: dict, command: str):
             [
                 "#!/bin/bash",
                 "set -uxo pipefail",
-                "source /opt/miniconda3/bin/activate",
-                f"conda activate {ENV_NAME}",
                 f"cd {DOCKER_WORKDIR}",
                 "git fetch",
                 f"git checkout {instance[KEY_INSTANCE_ID]}",
