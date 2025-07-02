@@ -170,7 +170,7 @@ class Cantools0c6a7871(PythonProfile):
     owner: str = "cantools"
     repo: str = "cantools"
     commit: str = "0c6a78711409e4307de34582f795ddb426d58dd8"
-    install_cmds = ["pip install -e .[dev,plot]"]
+    install_cmds: list = field(default_factory=lambda: ["pip install -e .[dev,plot]"])
 
 
 @dataclass
@@ -178,7 +178,9 @@ class ChannelsA144b4b8(PythonProfile):
     owner: str = "django"
     repo: str = "channels"
     commit: str = "a144b4b8881a93faa567a6bdf2d7f518f4c16cd2"
-    install_cmds = ["pip install -e .[tests,daphne]"]
+    install_cmds: list = field(
+        default_factory=lambda: ["pip install -e .[tests,daphne]"]
+    )
 
 
 @dataclass
@@ -235,7 +237,7 @@ class Dataset5c2dc8d3(PythonProfile):
     owner: str = "pudo"
     repo: str = "dataset"
     commit: str = "5c2dc8d3af1e0af0290dcd7ae2cae92589f305a1"
-    install_cmds = ["python setup.py install"]
+    install_cmds: list = field(default_factory=lambda: ["python setup.py install"])
 
 
 @dataclass
@@ -243,7 +245,12 @@ class DeepdiffEd252022(PythonProfile):
     owner: str = "seperman"
     repo: str = "deepdiff"
     commit: str = "ed2520229d0369813f6e54cdf9c7e68e8073ef62"
-    install_cmds = ["pip install -r requirements-dev.txt", "pip install -e ."]
+    install_cmds: list = field(
+        default_factory=lambda: [
+            "pip install -r requirements-dev.txt",
+            "pip install -e .",
+        ]
+    )
 
 
 @dataclass
@@ -251,7 +258,9 @@ class DjangoMoney835c1ab8(PythonProfile):
     owner: str = "django-money"
     repo: str = "django-money"
     commit: str = "835c1ab867d11137b964b94936692bea67a038ec"
-    install_cmds = ["pip install -e .[test,exchange]"]
+    install_cmds: list = field(
+        default_factory=lambda: ["pip install -e .[test,exchange]"]
+    )
 
 
 @dataclass
@@ -273,7 +282,9 @@ class DrfNestedRouters6144169d(PythonProfile):
     owner: str = "alanjds"
     repo: str = "drf-nested-routers"
     commit: str = "6144169d5c33a1c5134b2fedac1d6cfa312c174e"
-    install_cmds = ["pip install -r requirements.txt", "pip install -e ."]
+    install_cmds: list = field(
+        default_factory=lambda: ["pip install -r requirements.txt", "pip install -e ."]
+    )
 
 
 @dataclass
@@ -281,7 +292,7 @@ class Environs73c372df(PythonProfile):
     owner: str = "sloria"
     repo: str = "environs"
     commit: str = "73c372df71002312615ad0349ae11274bb3edc69"
-    install_cmds = ["pip install -e .[dev]"]
+    install_cmds: list = field(default_factory=lambda: ["pip install -e .[dev]"])
 
 
 @dataclass
@@ -526,7 +537,9 @@ class Nikola0f4c230e(PythonProfile):
     owner: str = "getnikola"
     repo: str = "nikola"
     commit: str = "0f4c230e5159e4e937463eb8d6d2ddfcbb09def2"
-    install_cmds = ["pip install -e '.[extras,tests]'"]
+    install_cmds: list = field(
+        default_factory=lambda: ["pip install -e '.[extras,tests]'"]
+    )
 
 
 @dataclass
@@ -573,7 +586,7 @@ class Parso338a5760(PythonProfile):
     owner: str = "davidhalter"
     repo: str = "parso"
     commit: str = "338a57602740ad0645b2881e8c105ffdc959e90d"
-    install_cmds = ["python setup.py install"]
+    install_cmds: list = field(default_factory=lambda: ["python setup.py install"])
 
 
 @dataclass
@@ -581,7 +594,7 @@ class PatsyA5d16484(PythonProfile):
     owner: str = "pydata"
     repo: str = "patsy"
     commit: str = "a5d1648401b0ea0649b077f4b98da27db947d2d0"
-    install_cmds = ["pip install -e .[test]"]
+    install_cmds: list = field(default_factory=lambda: ["pip install -e .[test]"])
 
 
 @dataclass
@@ -596,10 +609,12 @@ class Pdfplumber02ff4313(PythonProfile):
     owner: str = "jsvine"
     repo: str = "pdfplumber"
     commit: str = "02ff4313f846380fefccec9c73fb4c8d8a80d0ee"
-    install_cmds = [
-        "apt-get update && apt-get install ghostscript -y",
-        "pip install -e .",
-    ]
+    install_cmds: list = field(
+        default_factory=lambda: [
+            "apt-get update && apt-get install ghostscript -y",
+            "pip install -e .",
+        ]
+    )
 
 
 @dataclass
@@ -607,10 +622,12 @@ class PipdeptreeC31b6418(PythonProfile):
     owner: str = "tox-dev"
     repo: str = "pipdeptree"
     commit: str = "c31b641817f8235df97adf178ffd8e4426585f7a"
-    install_cmds = [
-        "apt-get update && apt-get install graphviz -y",
-        "pip install -e .[test,graphviz]",
-    ]
+    install_cmds: list = field(
+        default_factory=lambda: [
+            "apt-get update && apt-get install graphviz -y",
+            "pip install -e .[test,graphviz]",
+        ]
+    )
 
 
 @dataclass
@@ -799,13 +816,15 @@ class Scrapy35212ec5(PythonProfile):
     owner: str = "scrapy"
     repo: str = "scrapy"
     commit: str = "35212ec5b05a3af14c9f87a6193ab24e33d62f9f"
-    install_cmds = [
-        "apt-get update && apt-get install -y libxml2-dev libxslt-dev libjpeg-dev",
-        "python -m pip install -e .",
-        "rm tests/test_feedexport.py",
-        "rm tests/test_pipeline_files.py",
-    ]
-    min_testing = True
+    install_cmds: list = field(
+        default_factory=lambda: [
+            "apt-get update && apt-get install -y libxml2-dev libxslt-dev libjpeg-dev",
+            "python -m pip install -e .",
+            "rm tests/test_feedexport.py",
+            "rm tests/test_pipeline_files.py",
+        ]
+    )
+    min_testing: bool = True
 
 
 @dataclass
@@ -834,7 +853,7 @@ class Sqlfluff50a1c4b6(PythonProfile):
     owner: str = "sqlfluff"
     repo: str = "sqlfluff"
     commit: str = "50a1c4b6ff171188b6b70b39afe82a707b4919ac"
-    min_testing = True
+    min_testing: bool = True
 
 
 @dataclass
@@ -842,8 +861,8 @@ class Sqlglot036601ba(PythonProfile):
     owner: str = "tobymao"
     repo: str = "sqlglot"
     commit: str = "036601ba9cbe4d175d6a9d38bc27587eab858968"
-    install_cmds = ['pip install -e ".[dev]"']
-    min_testing = True
+    install_cmds: list = field(default_factory=lambda: ['pip install -e ".[dev]"'])
+    min_testing: bool = True
 
 
 @dataclass
@@ -880,8 +899,8 @@ class SunpyF8edfd5c(PythonProfile):
     repo: str = "sunpy"
     commit: str = "f8edfd5c4be873fbd28dec4583e7f737a045f546"
     python_version = "3.11"
-    install_cmds = ['pip install -e ".[dev]"']
-    min_testing = True
+    install_cmds: list = field(default_factory=lambda: ['pip install -e ".[dev]"'])
+    min_testing: bool = True
 
 
 @dataclass
@@ -889,9 +908,9 @@ class Sympy2ab64612(PythonProfile):
     owner: str = "sympy"
     repo: str = "sympy"
     commit: str = "2ab64612efb287f09822419f4127878a4b664f71"
-    install_cmds = ["pip install -e ."]
-    min_testing = True
-    min_pregold = True
+    install_cmds: list = field(default_factory=lambda: ["pip install -e ."])
+    min_testing: bool = True
+    min_pregold: bool = True
 
 
 @dataclass
@@ -913,7 +932,9 @@ class TextdistanceC3aca916(PythonProfile):
     owner: str = "life4"
     repo: str = "textdistance"
     commit: str = "c3aca916bd756a8cb71114688b469ec90ef5b232"
-    install_cmds = ['pip install -e ".[benchmark,test]"']
+    install_cmds: list = field(
+        default_factory=lambda: ['pip install -e ".[benchmark,test]"']
+    )
 
 
 @dataclass
@@ -942,7 +963,7 @@ class Tldextract3d1bf184(PythonProfile):
     owner: str = "john-kurkowski"
     repo: str = "tldextract"
     commit: str = "3d1bf184d4f20fbdbadd6274560ccd438939160e"
-    install_cmds = ["pip install -e .[testing]"]
+    install_cmds: list = field(default_factory=lambda: ["pip install -e .[testing]"])
 
 
 @dataclass
@@ -986,7 +1007,9 @@ class Tweepy91a41c6e(PythonProfile):
     owner: str = "tweepy"
     repo: str = "tweepy"
     commit: str = "91a41c6e1c955d278c370d51d5cf43b05f7cd979"
-    install_cmds = ["pip install -e '.[dev,test,async]'"]
+    install_cmds: list = field(
+        default_factory=lambda: ["pip install -e '.[dev,test,async]'"]
+    )
 
 
 @dataclass
@@ -994,7 +1017,7 @@ class TypeguardB6a7e438(PythonProfile):
     owner: str = "agronholm"
     repo: str = "typeguard"
     commit: str = "b6a7e4387c30a9f7d635712157c889eb073c1ea3"
-    install_cmds = ["pip install -e .[test,doc]"]
+    install_cmds: list = field(default_factory=lambda: ["pip install -e .[test,doc]"])
 
 
 @dataclass
@@ -1002,7 +1025,7 @@ class UsaddressA42a8f0c(PythonProfile):
     owner: str = "datamade"
     repo: str = "usaddress"
     commit: str = "a42a8f0c14bd2e273939fd51c604f10826301e73"
-    install_cmds = ["pip install -e .[dev]"]
+    install_cmds: list = field(default_factory=lambda: ["pip install -e .[dev]"])
 
 
 @dataclass
@@ -1046,8 +1069,8 @@ class Moto694ce1f4(PythonProfile):
     repo: str = "moto"
     commit: str = "694ce1f4880c784fed0553bc19b2ace6691bc109"
     python_version = "3.12"
-    install_cmds = ["make init"]
-    min_testing = True
+    install_cmds: list = field(default_factory=lambda: ["make init"])
+    min_testing: bool = True
 
 
 @dataclass
@@ -1056,14 +1079,16 @@ class MypyE93f06ce(PythonProfile):
     repo: str = "mypy"
     commit: str = "e93f06ceab81d8ff1f777c7587d04c339cfd5a16"
     python_version = "3.12"
-    install_cmds = [
-        "git submodule update --init mypy/typeshed || true",
-        "python -m pip install -r test-requirements.txt",
-        "python -m pip install -e .",
-        "hash -r",
-    ]
+    install_cmds: list = field(
+        default_factory=lambda: [
+            "git submodule update --init mypy/typeshed || true",
+            "python -m pip install -r test-requirements.txt",
+            "python -m pip install -e .",
+            "hash -r",
+        ]
+    )
     test_cmd = "pytest --color=no -rA -k"
-    min_testing = True
+    min_testing: bool = True
 
     def get_test_cmd(self, instance: str) -> tuple[str, list]:
         pattern = r"\[case ([^\]]+)\]"
@@ -1097,14 +1122,16 @@ class MONAIa09c1f08(PythonProfile):
     repo: str = "MONAI"
     commit: str = "a09c1f08461cec3d2131fde3939ef38c3c4ad5fc"
     python_version = "3.12"
-    install_cmds = [
-        r"sed -i '/^git+https:\/\/github.com\/Project-MONAI\//d' requirements-dev.txt",
-        "python -m pip install -U -r requirements-dev.txt",
-        "python -m pip install -e .",
-    ]
+    install_cmds: list = field(
+        default_factory=lambda: [
+            r"sed -i '/^git+https:\/\/github.com\/Project-MONAI\//d' requirements-dev.txt",
+            "python -m pip install -U -r requirements-dev.txt",
+            "python -m pip install -e .",
+        ]
+    )
     test_cmd = "pytest --disable-warnings --color=no --tb=no --verbose"
-    min_pregold = True
-    min_testing = True
+    min_pregold: bool = True
+    min_testing: bool = True
 
 
 @dataclass
@@ -1112,8 +1139,8 @@ class Dvc1d6ea681(PythonProfile):
     owner: str = "iterative"
     repo: str = "dvc"
     commit: str = "1d6ea68133289ceab2637ce7095772678af792c6"
-    install_cmds = ['pip install -e ".[dev]"']
-    min_testing = True
+    install_cmds: list = field(default_factory=lambda: ['pip install -e ".[dev]"'])
+    min_testing: bool = True
 
 
 @dataclass
@@ -1121,11 +1148,13 @@ class Hydra0f03eb60(PythonProfile):
     owner: str = "facebookresearch"
     repo: str = "hydra"
     commit: str = "0f03eb60c2ecd1fbdb25ede9a2c4faeac81de491"
-    install_cmds = [
-        "apt-get update && apt-get install -y openjdk-17-jdk openjdk-17-jre",
-        "pip install -e .",
-    ]
-    min_testing = True
+    install_cmds: list = field(
+        default_factory=lambda: [
+            "apt-get update && apt-get install -y openjdk-17-jdk openjdk-17-jre",
+            "pip install -e .",
+        ]
+    )
+    min_testing: bool = True
 
 
 @dataclass
@@ -1133,8 +1162,13 @@ class Dask5f61e423(PythonProfile):
     owner: str = "dask"
     repo: str = "dask"
     commit: str = "5f61e42324c3a6cd4da17b5d5ebe4663aa4b8783"
-    install_cmds = ["python -m pip install graphviz", "python -m pip install -e ."]
-    min_testing = True
+    install_cmds: list = field(
+        default_factory=lambda: [
+            "python -m pip install graphviz",
+            "python -m pip install -e .",
+        ]
+    )
+    min_testing: bool = True
 
 
 @dataclass
@@ -1142,9 +1176,9 @@ class Modin8c7799fd(PythonProfile):
     owner: str = "modin-project"
     repo: str = "modin"
     commit: str = "8c7799fdbbc2fb0543224160dd928215852b7757"
-    install_cmds = ['pip install -e ".[all]"']
-    min_pregold = True
-    min_testing = True
+    install_cmds: list = field(default_factory=lambda: ['pip install -e ".[all]"'])
+    min_pregold: bool = True
+    min_testing: bool = True
 
 
 @dataclass
@@ -1152,13 +1186,15 @@ class PydanticAcb0f10f(PythonProfile):
     owner: str = "pydantic"
     repo: str = "pydantic"
     commit: str = "acb0f10fda1c78441e052c57b4288bc91431f852"
-    install_cmds = [
-        "apt-get update && apt-get install -y locales pipx",
-        "pipx install uv",
-        "pipx install pre-commit",
-        'export PATH="$HOME/.local/bin:$PATH"',
-        "make install",
-    ]
+    install_cmds: list = field(
+        default_factory=lambda: [
+            "apt-get update && apt-get install -y locales pipx",
+            "pipx install uv",
+            "pipx install pre-commit",
+            'export PATH="$HOME/.local/bin:$PATH"',
+            "make install",
+        ]
+    )
     test_cmd = (
         "/root/.local/bin/uv run pytest --disable-warnings --color=no --tb=no --verbose"
     )
@@ -1180,7 +1216,7 @@ class Conan86f29e13(PythonProfile):
             "python -m pip install -e .",
         ]
     )
-    min_testing = True
+    min_testing: bool = True
 
 
 @dataclass
@@ -1188,14 +1224,16 @@ class Pandas95280573(PythonProfile):
     owner: str = "pandas-dev"
     repo: str = "pandas"
     commit: str = "95280573e15be59036f98d82a8792599c10c6603"
-    install_cmds = [
-        "git remote add upstream https://github.com/pandas-dev/pandas.git",
-        "git fetch upstream --tags",
-        "python -m pip install -ve . --no-build-isolation -Ceditable-verbose=true",
-        """sed -i 's/__version__="[^"]*"/__version__="3.0.0.dev0+1992.g95280573e1"/' build/cp310/_version_meson.py""",
-    ]
-    min_pregold = True
-    min_testing = True
+    install_cmds: list = field(
+        default_factory=lambda: [
+            "git remote add upstream https://github.com/pandas-dev/pandas.git",
+            "git fetch upstream --tags",
+            "python -m pip install -ve . --no-build-isolation -Ceditable-verbose=true",
+            """sed -i 's/__version__="[^"]*"/__version__="3.0.0.dev0+1992.g95280573e1"/' build/cp310/_version_meson.py""",
+        ]
+    )
+    min_pregold: bool = True
+    min_testing: bool = True
 
 
 @dataclass

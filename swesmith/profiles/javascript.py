@@ -1,9 +1,11 @@
 import re
 
 from dataclasses import dataclass
+from swesmith.constants import KEY_PATCH
 from swebench.harness.constants import TestStatus
 from swesmith.profiles.base import RepoProfile, global_registry
 from swesmith.profiles.utils import X11_DEPS
+from unidiff import PatchSet
 
 
 @dataclass
@@ -11,6 +13,32 @@ class JavaScriptProfile(RepoProfile):
     """
     Profile for JavaScript repositories.
     """
+
+
+def parse_log_jest(log: str) -> dict[str, str]:
+    """
+    Parser for test logs generated with Jest. Assumes --verbose flag.
+
+    Args:
+        log (str): log content
+    Returns:
+        dict: test case to test status mapping
+    """
+    test_status_map = {}
+
+    pattern = r"^\s*(✓|✕|○)\s(.+?)(?:\s\((\d+\s*m?s)\))?$"
+
+    for line in log.split("\n"):
+        match = re.match(pattern, line.strip())
+        if match:
+            status_symbol, test_name, _duration = match.groups()
+            if status_symbol == "✓":
+                test_status_map[test_name] = TestStatus.PASSED.value
+            elif status_symbol == "✕":
+                test_status_map[test_name] = TestStatus.FAILED.value
+            elif status_symbol == "○":
+                test_status_map[test_name] = TestStatus.SKIPPED.value
+    return test_status_map
 
 
 @dataclass
@@ -75,6 +103,37 @@ RUN npm test
                 test = re.match(pass_pattern, line).group(1)
                 test_status_map[test.strip()] = TestStatus.PASSED.value
         return test_status_map
+
+
+@dataclass
+class Babel2ea3fc8f(JavaScriptProfile):
+    owner: str = "babel"
+    repo: str = "babel"
+    commit: str = "2ea3fc8f9b33a911840f17fbc407e7bfae2ed66f"
+    test_cmd: str = "yarn jest --verbose"
+
+    @property
+    def dockerfile(self):
+        return f"""FROM node:20-bullseye
+RUN apt update && apt install -y git
+RUN git clone https://github.com/{self.mirror_name} /testbed
+WORKDIR /testbed
+RUN make bootstrap
+RUN make build
+"""
+
+    def log_parser(self, log: str) -> dict[str, str]:
+        return parse_log_jest(log)
+
+    def get_test_cmd(self, instance: dict):
+        if KEY_PATCH not in instance:
+            return self.test_cmd, []
+        test_folders = []
+        for f in PatchSet(instance[KEY_PATCH]):
+            parts = f.path.split("/")
+            if len(parts) >= 2 and parts[0] == "packages":
+                test_folders.append("/".join(parts[:2]))
+        return f"{self.test_cmd} {' '.join(test_folders)}", test_folders
 
 
 # Register all Java profiles with the global registry
