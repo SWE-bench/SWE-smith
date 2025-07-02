@@ -16,8 +16,18 @@ if repo_root not in sys.path:
 
 
 @pytest.fixture
+def test_file_c():
+    return Path(repo_root) / "tests/test_logs/files/c/tini.c"
+
+
+@pytest.fixture
 def test_file_go():
     return Path(repo_root) / "tests/test_logs/files/go/logger.go"
+
+
+@pytest.fixture
+def test_file_php():
+    return Path(repo_root) / "tests/test_logs/files/php/ControllerDispatcher.php"
 
 
 @pytest.fixture
@@ -33,11 +43,6 @@ def test_file_py():
 @pytest.fixture
 def test_file_ruby():
     return Path(repo_root) / "tests/test_logs/files/ruby/query_parser.rb"
-
-
-@pytest.fixture
-def test_file_php():
-    return Path(repo_root) / "tests/test_logs/files/php/ControllerDispatcher.php"
 
 
 @pytest.fixture

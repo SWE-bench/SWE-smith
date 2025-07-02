@@ -1,3 +1,4 @@
+from swesmith.bug_gen.adapters.c import get_entities_from_file_c
 from swesmith.bug_gen.adapters.golang import get_entities_from_file_go
 from swesmith.bug_gen.adapters.java import get_entities_from_file_java
 from swesmith.bug_gen.adapters.php import get_entities_from_file_php
@@ -6,6 +7,7 @@ from swesmith.bug_gen.adapters.ruby import get_entities_from_file_rb
 from swesmith.bug_gen.adapters.rust import get_entities_from_file_rs
 
 get_entities_from_file = {
+    "c": get_entities_from_file_c,
     "go": get_entities_from_file_go,
     "java": get_entities_from_file_java,
     "php": get_entities_from_file_php,

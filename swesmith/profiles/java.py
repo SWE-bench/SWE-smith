@@ -52,7 +52,7 @@ RUN mvn clean install -B -pl gson -DskipTests -am
         return test_status_map
 
 
-# Register all Rust profiles with the global registry
+# Register all Java profiles with the global registry
 for name, obj in list(globals().items()):
     if (
         isinstance(obj, type)

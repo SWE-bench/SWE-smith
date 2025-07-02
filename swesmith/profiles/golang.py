@@ -1,6 +1,6 @@
 import re
-from dataclasses import dataclass
 
+from dataclasses import dataclass
 from swebench.harness.constants import TestStatus
 from swesmith.profiles.base import RepoProfile, global_registry
 
