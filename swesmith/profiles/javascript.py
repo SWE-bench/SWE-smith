@@ -28,7 +28,7 @@ WORKDIR /testbed
 RUN npm install
 RUN npm test
 """
-    
+
     def log_parser(self, log: str) -> dict[str, str]:
         test_status_map = {}
         fail_pattern = r"^\s*✖\s(.*?)\s\([\.\d]+ms\)"
