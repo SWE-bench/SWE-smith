@@ -118,7 +118,7 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
             f.write(self.dockerfile)
         with open(env_dir / "build_image.log", "w") as log_file:
             subprocess.run(
-                f"docker build -f {dockerfile_path} -t {self.image_name} .",
+                f"docker build -f {dockerfile_path} --no-cache -t {self.image_name} .",
                 shell=True,
                 stdout=log_file,
                 stderr=subprocess.STDOUT,
@@ -153,31 +153,59 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
         if self.repo_name in os.listdir():
             shutil.rmtree(self.repo_name)
         api.repos.create_in_org(self.org_gh, self.repo_name)
-        for cmd in [
+
+        # Clone the repository
+        subprocess.run(
             f"git clone git@github.com:{self.owner}/{self.repo}.git {self.repo_name}",
-            (
-                f"cd {self.repo_name}; "
-                f"git checkout {self.commit}; "
-                "rm -rf .git; "
-                "git init; "
-                'git config user.name "swesmith"; '
-                'git config user.email "swesmith@anon.com"; '
-                "rm -rf .github/workflows; "
-                "git add .; "
-                "git commit --no-gpg-sign -m 'Initial commit'; "
-                "git branch -M main; "
-                f"git remote add origin git@github.com:{self.mirror_name}.git; "
+            shell=True,
+            check=True,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+
+        # Build the git commands
+        git_cmds = [
+            f"cd {self.repo_name}",
+            f"git checkout {self.commit}",
+        ]
+
+        # Add submodule update if submodules exist
+        if os.path.exists(os.path.join(self.repo_name, ".gitmodules")):
+            git_cmds.append("git submodule update --init --recursive")
+
+        # Add the rest of the commands
+        git_cmds.extend(
+            [
+                "rm -rf .git",
+                "git init",
+                'git config user.name "swesmith"',
+                'git config user.email "swesmith@anon.com"',
+                "rm -rf .github/workflows",
+                "git add .",
+                "git commit --no-gpg-sign -m 'Initial commit'",
+                "git branch -M main",
+                f"git remote add origin git@github.com:{self.mirror_name}.git",
                 "git push -u origin main",
-            ),
+            ]
+        )
+
+        # Execute the commands
+        subprocess.run(
+            "; ".join(git_cmds),
+            shell=True,
+            check=True,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+
+        # Clean up
+        subprocess.run(
             f"rm -rf {self.repo_name}",
-        ]:
-            subprocess.run(
-                cmd,
-                shell=True,
-                check=True,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
+            shell=True,
+            check=True,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
 
     def _get_cached_test_paths(self) -> list[Path]:
         """Clone the repo, get all testing file paths relative to the repo directory, then clean up."""
