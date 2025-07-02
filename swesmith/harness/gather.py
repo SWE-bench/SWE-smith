@@ -172,7 +172,7 @@ def _main(
     task_instances_path = LOG_DIR_TASKS / f"{run_id}.json"
     print(f"Out Path: {task_instances_path}")
     task_instances = []
-    created_repos = []
+    created_repos = set()
 
     completed_ids = []
     subfolders = os.listdir(validation_logs_path)
@@ -237,7 +237,7 @@ def _main(
 
         # Clone repository
         if rp.clone():
-            created_repos.append(rp.repo_name)
+            created_repos.add(rp.repo_name)
         main_branch = (
             subprocess.run(
                 f"cd {rp.repo_name}; git rev-parse --abbrev-ref HEAD",
