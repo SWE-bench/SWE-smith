@@ -31,3 +31,22 @@ INSTALL_BAZEL = [
         f"mv bazel-{v}-linux-x86_64 /usr/share/bazel-{v}/bin/bazel",
     ]
 ]
+
+X11_DEPS = " ".join(
+    [
+        "libx11-xcb1",
+        "libxcomposite1",
+        "libxcursor1",
+        "libxdamage1",
+        "libxi6",
+        "libxtst6",
+        "libnss3",
+        "libcups2",
+        "libxss1",
+        "libxrandr2",
+        "libasound2",
+        "libatk1.0-0",
+        "libgtk-3-0",
+        "x11-utils",
+    ]
+)
