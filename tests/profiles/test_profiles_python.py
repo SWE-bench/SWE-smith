@@ -1,4 +1,5 @@
 import pytest
+from swesmith.constants import ENV_NAME
 from unittest.mock import patch, MagicMock, mock_open
 from pathlib import Path
 
@@ -16,7 +17,7 @@ def test_python_profile_defaults():
     assert profile.install_cmds == ["python -m pip install -e ."]
     assert profile.test_cmd == (
         "source /opt/miniconda3/bin/activate; "
-        f"conda activate testbed; "
+        f"conda activate {ENV_NAME}; "
         "pytest --disable-warnings --color=no --tb=no --verbose"
     )
 
@@ -144,7 +145,7 @@ def test_python_profile_custom_test_cmd():
     profile = Gpxpy09fc46b3()
     assert profile.test_cmd == (
         "source /opt/miniconda3/bin/activate; "
-        f"conda activate testbed; "
+        f"conda activate {ENV_NAME}; "
         "pytest test.py --verbose --color=no --tb=no --disable-warnings"
     )
     assert profile.test_cmd != PythonProfile().test_cmd
