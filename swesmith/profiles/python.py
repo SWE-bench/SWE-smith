@@ -25,7 +25,11 @@ class PythonProfile(RepoProfile):
     install_cmds: list[str] = field(
         default_factory=lambda: ["python -m pip install -e ."]
     )
-    test_cmd: str = "pytest --disable-warnings --color=no --tb=no --verbose"
+    test_cmd: str = (
+        "source /opt/miniconda3/bin/activate; "
+        f"conda activate {ENV_NAME}; "
+        "pytest --disable-warnings --color=no --tb=no --verbose"
+    )
     test_exts: list[str] = field(default_factory=lambda: [".py"])
 
     def build_image(self):
@@ -384,7 +388,11 @@ class Gpxpy09fc46b3(PythonProfile):
     owner: str = "tkrajina"
     repo: str = "gpxpy"
     commit: str = "09fc46b3cad16b5bf49edf8e7ae873794a959620"
-    test_cmd: str = "pytest test.py --verbose --color=no --tb=no --disable-warnings"
+    test_cmd: str = (
+        "source /opt/miniconda3/bin/activate; "
+        f"conda activate {ENV_NAME}; "
+        "pytest test.py --verbose --color=no --tb=no --disable-warnings"
+    )
 
 
 @dataclass
@@ -463,7 +471,11 @@ class JaxEbd90e06f(PythonProfile):
     repo: str = "jax"
     commit: str = "ebd90e06fa7caad087e2342431e3899cfd2fdf98"
     install_cmds: list = field(default_factory=lambda: ['pip install -e ".[cpu]"'])
-    test_cmd: str = "pytest --disable-warnings --color=no --tb=no --verbose -n auto"
+    test_cmd: str = (
+        "source /opt/miniconda3/bin/activate; "
+        f"conda activate {ENV_NAME}; "
+        "pytest --disable-warnings --color=no --tb=no --verbose -n auto"
+    )
     min_testing: bool = True
     min_pregold: bool = True
 
@@ -522,7 +534,11 @@ class MidoA0158ff9(PythonProfile):
     owner: str = "mido"
     repo: str = "mido"
     commit: str = "a0158ff95a08f9a4eef628a2e7c793fd3a466640"
-    test_cmd = "pytest --disable-warnings --color=no --tb=no --verbose -rs -c /dev/null"
+    test_cmd: str = (
+        "source /opt/miniconda3/bin/activate; "
+        f"conda activate {ENV_NAME}; "
+        "pytest --disable-warnings --color=no --tb=no --verbose -rs -c /dev/null"
+    )
 
 
 @dataclass
@@ -554,7 +570,11 @@ class Paramiko23f92003(PythonProfile):
     owner: str = "paramiko"
     repo: str = "paramiko"
     commit: str = "23f92003898b060df0e2b8b1d889455264e63a3e"
-    test_cmd = "pytest -rA --color=no --disable-warnings"
+    test_cmd: str = (
+        "source /opt/miniconda3/bin/activate; "
+        f"conda activate {ENV_NAME}; "
+        "pytest -rA --color=no --disable-warnings"
+    )
 
     def log_parser(self, log: str) -> dict[str, str]:
         test_status_map = {}
@@ -755,7 +775,11 @@ class PythonSlugify872b3750(PythonProfile):
     owner: str = "un33k"
     repo: str = "python-slugify"
     commit: str = "872b37509399a7f02e53f46ad9881f63f66d334b"
-    test_cmd = "python test.py --verbose"
+    test_cmd: str = (
+        "source /opt/miniconda3/bin/activate; "
+        f"conda activate {ENV_NAME}; "
+        "python test.py --verbose"
+    )
 
     def log_parser(self, log: str) -> dict[str, str]:
         test_status_map = {}
@@ -978,7 +1002,11 @@ class TornadoD5ac65c1(PythonProfile):
     owner: str = "tornadoweb"
     repo: str = "tornado"
     commit: str = "d5ac65c1f1453c2aeddd089d8e68c159645c13e1"
-    test_cmd = "python -m tornado.test --verbose"
+    test_cmd: str = (
+        "source /opt/miniconda3/bin/activate; "
+        f"conda activate {ENV_NAME}; "
+        "python -m tornado.test --verbose"
+    )
 
     def log_parser(self, log: str) -> dict[str, str]:
         test_status_map = {}
@@ -1087,7 +1115,11 @@ class MypyE93f06ce(PythonProfile):
             "hash -r",
         ]
     )
-    test_cmd = "pytest --color=no -rA -k"
+    test_cmd: str = (
+        "source /opt/miniconda3/bin/activate; "
+        f"conda activate {ENV_NAME}; "
+        "pytest --color=no -rA -k"
+    )
     min_testing: bool = True
 
     def get_test_cmd(self, instance: str) -> tuple[str, list]:
@@ -1129,7 +1161,11 @@ class MONAIa09c1f08(PythonProfile):
             "python -m pip install -e .",
         ]
     )
-    test_cmd = "pytest --disable-warnings --color=no --tb=no --verbose"
+    test_cmd: str = (
+        "source /opt/miniconda3/bin/activate; "
+        f"conda activate {ENV_NAME}; "
+        "pytest --disable-warnings --color=no --tb=no --verbose"
+    )
     min_pregold: bool = True
     min_testing: bool = True
 
@@ -1195,7 +1231,7 @@ class PydanticAcb0f10f(PythonProfile):
             "make install",
         ]
     )
-    test_cmd = (
+    test_cmd: str = (
         "/root/.local/bin/uv run pytest --disable-warnings --color=no --tb=no --verbose"
     )
 

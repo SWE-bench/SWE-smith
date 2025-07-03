@@ -1,10 +1,7 @@
 """
 Purpose: Transform a bunch of patches that cause bugs into a SWE-bench style dataset.
 
-Usage: python -m swesmith.harness.valid \
-    <path to directory containing patches> \
-    --run_id <unique identifier for this run> \
-    --max_workers <number of workers to use>
+Usage: python -m swesmith.harness.valid logs/bug_gen/*_patches.json --max_workers #
 """
 
 import argparse
@@ -57,7 +54,7 @@ def print_report(log_dir: Path) -> None:
 
 
 def run_validation(
-    instance: dict, run_id: str, timeout: int = TIMEOUT, run_min_pregold: bool = False
+    instance: dict, timeout: int = TIMEOUT, run_min_pregold: bool = False
 ) -> None:
     """
     Run per-instance validation. Steps are generally:
@@ -65,7 +62,7 @@ def run_validation(
     2. Get the report from the test output.
     """
     instance_id = instance[KEY_INSTANCE_ID]
-    valid_folder = LOG_DIR_RUN_VALIDATION / run_id
+    valid_folder = LOG_DIR_RUN_VALIDATION / instance["repo"]
     val_postgold_path = (
         valid_folder / f"{instance['repo']}{REF_SUFFIX}" / LOG_TEST_OUTPUT
     )
@@ -75,7 +72,7 @@ def run_validation(
         ref_inst_id = f"{instance[KEY_INSTANCE_ID]}{REF_SUFFIX}"
         logger, timed_out = run_patch_in_container(
             {**instance, KEY_INSTANCE_ID: ref_inst_id},
-            run_id,
+            instance["repo"],
             LOG_DIR_RUN_VALIDATION,
             timeout=timeout,
         )
@@ -99,7 +96,7 @@ def run_validation(
 
     logger, timed_out = run_patch_in_container(
         instance,
-        run_id,
+        instance["repo"],
         LOG_DIR_RUN_VALIDATION,
         patch=instance[KEY_PATCH],
         timeout=timeout,
@@ -112,10 +109,22 @@ def run_validation(
         close_logger(logger)
         return
 
+    val_pregold_path = valid_folder / instance_id / LOG_TEST_OUTPUT
+    if not val_pregold_path.exists():
+        logger.info(f"Pre-gold for {instance_id} failed to run. Exiting early.")
+        with open(report_path, "w") as f:
+            f.write(
+                json.dumps(
+                    {KEY_TIMED_OUT: True, "missing_pregold_output": True}, indent=4
+                )
+            )
+        close_logger(logger)
+        return
+
     # Get report from test output
     logger.info(f"Grading answer for {instance_id}...")
     report = get_valid_report(
-        val_pregold_path=valid_folder / instance_id / LOG_TEST_OUTPUT,
+        val_pregold_path=val_pregold_path,
         val_postgold_path=val_postgold_path,
         instance=instance,
     )
@@ -129,7 +138,6 @@ def run_validation(
 
 def main(
     bug_patches: str,
-    run_id: str,
     max_workers: int,
     timeout: int,
     timeout_ref: int,
@@ -141,7 +149,7 @@ def main(
     #     "patch" / "model_patch": <bug inducing patch>,
     #     "repo": <mirror repo name>,
     # }
-    print(f"[{run_id}] Running validation for {bug_patches}...")
+    print(f"Running validation for {bug_patches}...")
     bug_patches = json.load(open(bug_patches, "r"))
     bug_patches = [
         {
@@ -153,23 +161,23 @@ def main(
     print(f"Found {len(bug_patches)} candidate patches.")
 
     completed = []
-    log_dir_parent = LOG_DIR_RUN_VALIDATION / run_id
-    if not redo_existing and log_dir_parent.exists():
-        for folder in os.listdir(log_dir_parent):
-            # Identify completed instances (does report.json exist)
-            log_report_path = log_dir_parent / folder / LOG_REPORT
-            if log_report_path.exists():
-                completed.append(folder)
-        print(
-            f"Skipping {len(completed)} completed instances... (--redo_existing to skip this step)"
-        )
-    bug_patches = [x for x in bug_patches if x[KEY_INSTANCE_ID] not in completed]
-    log_dir_parent.mkdir(parents=True, exist_ok=True)
+    for repo in set([bp["repo"] for bp in bug_patches]):
+        log_dir_parent = LOG_DIR_RUN_VALIDATION / repo
+        log_dir_parent.mkdir(parents=True, exist_ok=True)
+        if not redo_existing and log_dir_parent.exists():
+            for folder in os.listdir(log_dir_parent):
+                # Identify completed instances (does report.json exist)
+                log_report_path = log_dir_parent / folder / LOG_REPORT
+                if log_report_path.exists():
+                    completed.append(folder)
+    if len(completed) > 0:
+        print(f"Skipping {len(completed)} instances... (--redo_existing to not skip)")
+        bug_patches = [x for x in bug_patches if x[KEY_INSTANCE_ID] not in completed]
 
     # Group patches by image_name:
     repo_to_bug_patches = defaultdict(list)
-    for bug_patch in bug_patches:
-        repo_to_bug_patches[bug_patch["repo"]].append(bug_patch)
+    for bp in bug_patches:
+        repo_to_bug_patches[bp["repo"]].append(bp)
 
     # Log
     if len(repo_to_bug_patches) == 0:
@@ -187,13 +195,13 @@ def main(
     for repo, bug_patches in repo_to_bug_patches.items():
         p = global_registry.get(repo)
         ref_inst = f"{p.repo_name}{REF_SUFFIX}"
-        ref_dir = LOG_DIR_RUN_VALIDATION / run_id / ref_inst
+        ref_dir = LOG_DIR_RUN_VALIDATION / repo / ref_inst
         if not p.min_pregold and not os.path.exists(ref_dir):
             # Run pytest for each repo/commit to get pre-gold behavior.
             print(f"Running pre-gold for {repo}...")
             logger, timed_out = run_patch_in_container(
                 {KEY_INSTANCE_ID: ref_inst},
-                run_id,
+                repo,
                 LOG_DIR_RUN_VALIDATION,
                 timeout=timeout_ref,
             )
@@ -208,7 +216,7 @@ def main(
 
         # Add payloads
         for bug_patch in bug_patches:
-            payloads.append((bug_patch, run_id, timeout, p.min_pregold))
+            payloads.append((bug_patch, timeout, p.min_pregold))
 
     run_threadpool(run_validation, payloads, max_workers)
     print("All instances run.")
@@ -225,10 +233,7 @@ if __name__ == "__main__":
         help="Json file containing bug patches.",
     )
     parser.add_argument(
-        "--run_id", type=str, required=True, help="Unique identifier for this run."
-    )
-    parser.add_argument(
-        "--max_workers", type=int, default=4, help="Number of workers to use."
+        "-w", "--max_workers", type=int, default=4, help="Number of workers to use."
     )
     parser.add_argument(
         "--timeout", type=int, default=TIMEOUT, help="Timeout for each run."
