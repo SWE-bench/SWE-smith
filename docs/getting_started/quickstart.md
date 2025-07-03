@@ -17,7 +17,6 @@ python -m swesmith.bug_gen.collect_patches logs/bug_gen/pandas-dev__pandas.95280
 
 # Run validation on the collected task instances
 python -m swesmith.harness.valid logs/bug_gen/pandas-dev__pandas.95280573_all_patches.json \
-  --run_id pandas_test \
   --max_workers=8
 
 # Gather valid task instances

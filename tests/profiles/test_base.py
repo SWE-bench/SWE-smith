@@ -481,8 +481,8 @@ def test_get_test_cmd_eval_mode():
     # Order of files may vary, so check set equality
     parts = test_command.split()
     assert parts[0] == "pytest"
+    assert set([str(f) for f in test_files]) == {"test_file.py", "other_file.py"}
     assert set(parts[1:]) == {"test_file.py", "other_file.py"}
-    assert set(test_files) == {"test_file.py", "other_file.py"}
 
 
 def test_get_test_cmd_min_testing():

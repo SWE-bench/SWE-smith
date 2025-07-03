@@ -246,19 +246,20 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
 
         return self._test_paths_cache[cache_key]
 
-    def get_test_cmd(self, instance: dict):
+    def get_test_cmd(self, instance: dict) -> tuple[str, list[Path]]:
         assert instance[KEY_INSTANCE_ID].rsplit(".", 1)[0] == self.repo_name, (
             f"WARNING: {instance[KEY_INSTANCE_ID]} not from {self.repo_name}"
         )
         test_command = self.test_cmd
 
-        if FAIL_TO_PASS in instance and "pytest" in test_command:
+        if FAIL_TO_PASS in instance:
             # NOTE: Using F2P key as indicator that this is eval instance, not validation
-            f2p_files = sorted(
-                list(set([x.split("::", 1)[0] for x in instance[FAIL_TO_PASS]]))
-            )
-            test_command += f" {' '.join(f2p_files)}"
-            return test_command, f2p_files
+            if "pytest" in test_command:
+                f2p_files = sorted(
+                    list(set([x.split("::", 1)[0] for x in instance[FAIL_TO_PASS]]))
+                )
+                test_command += f" {' '.join(f2p_files)}"
+                return test_command, f2p_files
 
         if not self.min_testing or KEY_PATCH not in instance:
             # If min testing is not enabled or there's no patch
@@ -281,62 +282,49 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
                     if str(test_path).endswith(x.path) or str(test_path).endswith(
                         Path(x.path).name
                     ):
-                        rv.append(str(test_path))
+                        rv.append(test_path)
             if len(rv) > 0:
-                test_command += f" {' '.join(rv)}"
+                test_command += f" {' '.join([str(v) for v in rv])}"
                 return test_command, rv
 
         # Identify relevant test files based on the patch
         patch_paths = [Path(f.path) for f in PatchSet(instance[KEY_PATCH])]
         rv = []
-        for patch_path in patch_paths:
-            file_name = patch_path.name.strip(".py")
-            parent_dir = patch_path.parent.name
+        for pp in patch_paths:
             for test_path in test_paths:
                 # Check for common test file naming conventions first
                 # If found, add to list and break
                 common_test_names = [
-                    f"test_{file_name}.py",
-                    f"test{file_name}.py",
-                    f"{file_name}_test.py",
-                    f"{file_name}test.py",
+                    f"test_{pp.stem}{pp.suffix}",
+                    f"test{pp.stem}{pp.suffix}",
+                    f"{pp.stem}_test{pp.suffix}",
+                    f"{pp.stem}test{pp.suffix}",
                 ]
-                if any(
-                    [
-                        str(test_path).endswith(f"{parent_dir}/{name}")
-                        or str(test_path).endswith(name)
-                        for name in common_test_names
-                    ]
-                ):
-                    rv.append(str(test_path))
+                if any([
+                    str(test_path).endswith(name)
+                    for name in common_test_names
+                ]):
+                    rv.append(test_path)
                     break
             else:
                 for test_path in test_paths:
-                    if parent_dir == test_path.parent.name:
+                    if pp.parent.name == test_path.parent.name:
                         # If similar testing folder found, add to list and break
-                        rv.append(str(test_path.parent))
+                        rv.append(test_path.parent)
                         break
                     elif any(
-                        [
-                            x.format(parent_dir) == test_path.name
-                            for x in [
-                                "test_{}.py",
-                                "test{}.py",
-                                "{}_test.py",
-                                "{}test.py",
-                            ]
-                        ]
+                        [test_path.stem in {f"test_{pp.parent.name}", f"test{pp.parent.name}", f"{pp.parent.name}_test", f"{pp.parent.name}test"}]
                     ):
-                        rv.append(str(test_path))
+                        rv.append(test_path)
 
         if len(rv) > 0:
             # Remove duplicates
-            test_files = [x for x in rv if x.endswith(".py")]
-            final = [x for x in rv if not x.endswith(".py")]
+            test_files = [x for x in rv if x.is_file()]
+            final = [x for x in rv if not x.is_file()]
             for test_file in test_files:
                 if os.path.dirname(test_file) not in final:
                     final.append(test_file)
-            test_command += f" {' '.join(set(final))}"
+            test_command += f" {' '.join(sorted([str(v) for v in set((final))]))}"
 
         return test_command, rv
 

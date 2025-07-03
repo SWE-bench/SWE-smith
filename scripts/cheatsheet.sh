@@ -71,8 +71,7 @@ python -m swesmith.bug_gen.mirror.generate path/to/task_candidates.jsonl --model
 python -m swesmith.bug_gen.collect_patches logs/bug_gen/$repo
 
 # Run validation
-python -m swesmith.harness.valid logs/bug_gen/$repo_all_patches.json \
-    --run_id $repo
+python -m swesmith.harness.valid logs/bug_gen/$repo_all_patches.json
 
 # Collect task instances with 1+ F2P
 python -m swesmith.harness.gather logs/run_validation/$repo

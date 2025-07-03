@@ -25,9 +25,7 @@ This produces a `logs/bug_gen/<repo>_all_patches.json` file with all the candida
 2. Run validation
 
 ```bash
-python -m swesmith.harness.valid \
-    logs/bug_gen/<repo>_all_patches.json \
-    --run_id <run_id>
+python -m swesmith.harness.valid logs/bug_gen/<repo>_all_patches.json
 ```
 
 The validation harness works in two steps.
