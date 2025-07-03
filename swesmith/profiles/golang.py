@@ -49,14 +49,14 @@ class Gin3c12d2a8(GoProfile):
     owner: str = "gin-gonic"
     repo: str = "gin"
     commit: str = "3c12d2a80e40930632fc4a4a4e1a45140f33fb12"
-    
+
 
 @dataclass
 class Fzf976001e4(GoProfile):
     owner: str = "junegunn"
     repo: str = "fzf"
     commit: str = "976001e47459973b5e72565f3047cc9d9e20241d"
-    
+
 
 @dataclass
 class Beego8fd113aa(GoProfile):

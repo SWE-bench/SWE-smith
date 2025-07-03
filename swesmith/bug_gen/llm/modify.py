@@ -145,7 +145,9 @@ def main(
         max_candidates = max_bugs // n_bugs
         if max_candidates < len(candidates):
             candidates = candidates[:max_candidates]
-            print(f"Limited to {len(candidates)} candidates to generate ~{len(candidates) * n_bugs} bugs (max: {max_bugs})")
+            print(
+                f"Limited to {len(candidates)} candidates to generate ~{len(candidates) * n_bugs} bugs (max: {max_bugs})"
+            )
         else:
             print(f"Will generate {len(candidates) * n_bugs} bugs (max: {max_bugs})")
 
@@ -248,7 +250,7 @@ if __name__ == "__main__":
         "--max_bugs",
         type=int,
         help="Total, maximum number of bugs to generate",
-        default=-1
+        default=-1,
     )
     parser.add_argument(
         "-w", "--n_workers", type=int, help="Number of workers to use", default=1

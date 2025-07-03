@@ -64,9 +64,7 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
 
     # Install + Test specifications
     test_cmd: str = ""
-    test_exts: list[str] = field(
-        default_factory=lambda: SUPPORTED_EXTS
-    )
+    test_exts: list[str] = field(default_factory=lambda: SUPPORTED_EXTS)
 
     # `min_testing`: If set, then subset of tests (not all) are run for post-bug validation
     # Affects get_test_cmd, get_valid_report
@@ -300,10 +298,7 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
                     f"{pp.stem}_test{pp.suffix}",
                     f"{pp.stem}test{pp.suffix}",
                 ]
-                if any([
-                    str(test_path).endswith(name)
-                    for name in common_test_names
-                ]):
+                if any([str(test_path).endswith(name) for name in common_test_names]):
                     rv.append(test_path)
                     break
             else:
@@ -313,7 +308,15 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
                         rv.append(test_path.parent)
                         break
                     elif any(
-                        [test_path.stem in {f"test_{pp.parent.name}", f"test{pp.parent.name}", f"{pp.parent.name}_test", f"{pp.parent.name}test"}]
+                        [
+                            test_path.stem
+                            in {
+                                f"test_{pp.parent.name}",
+                                f"test{pp.parent.name}",
+                                f"{pp.parent.name}_test",
+                                f"{pp.parent.name}test",
+                            }
+                        ]
                     ):
                         rv.append(test_path)
 

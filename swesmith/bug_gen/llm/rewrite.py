@@ -120,7 +120,9 @@ def main(
         ]
         messages = [x for x in messages if x["content"]]
         try:
-            response: Any = completion(model=model, messages=messages, n=1, temperature=0)
+            response: Any = completion(
+                model=model, messages=messages, n=1, temperature=0
+            )
         except litellm.ContextWindowExceededError:
             return {"n_generation_failed": 1, "cost": 0.0}
         choice = response.choices[0]
@@ -190,7 +192,11 @@ if __name__ == "__main__":
         "repo", type=str, help="Repository to generate bug patches for."
     )
     parser.add_argument(
-        "-c", "--config_file", type=str, help="Path to the configuration file.", required=True
+        "-c",
+        "--config_file",
+        type=str,
+        help="Path to the configuration file.",
+        required=True,
     )
     parser.add_argument("--model", type=str, help="Model to use for rewriting.")
     parser.add_argument(

@@ -211,7 +211,9 @@ if __name__ == "__main__":
     parser.add_argument(
         "-d", "--dataset_path", type=str, help="Path to dataset", default=HF_DATASET
     )
-    parser.add_argument("-p", "--predictions_path", type=str, help="Path to predictions")
+    parser.add_argument(
+        "-p", "--predictions_path", type=str, help="Path to predictions"
+    )
     parser.add_argument("--run_id", type=str, help="Unique identifier for this run")
     parser.add_argument(
         "--max_workers", type=int, help="Number of workers to use", default=4
