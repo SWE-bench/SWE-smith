@@ -17,7 +17,7 @@ from dotenv import load_dotenv
 from ghapi.all import GhApi
 from multiprocessing import Lock
 from pathlib import Path
-from swesmith.bug_gen.adapters import get_entities_from_file
+from swesmith.bug_gen.adapters import get_entities_from_file, SUPPORTED_EXTS
 from swebench.harness.constants import FAIL_TO_PASS, KEY_INSTANCE_ID
 from swesmith.constants import (
     KEY_PATCH,
@@ -65,7 +65,7 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
     # Install + Test specifications
     test_cmd: str = ""
     test_exts: list[str] = field(
-        default_factory=lambda: [".py", ".go", ".rb", ".php", ".java"]
+        default_factory=lambda: SUPPORTED_EXTS
     )
 
     # `min_testing`: If set, then subset of tests (not all) are run for post-bug validation

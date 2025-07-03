@@ -119,7 +119,10 @@ def main(
             if k in configs
         ]
         messages = [x for x in messages if x["content"]]
-        response: Any = completion(model=model, messages=messages, n=1, temperature=0)
+        try:
+            response: Any = completion(model=model, messages=messages, n=1, temperature=0)
+        except litellm.ContextWindowExceededError:
+            return {"n_generation_failed": 1, "cost": 0.0}
         choice = response.choices[0]
         message = choice.message
 
@@ -144,6 +147,8 @@ def main(
         )
         apply_code_change(candidate, rewrite)
         patch = get_patch(repo, reset_changes=True)
+        if not patch or len(patch.strip()) == 0:
+            return {"n_generation_failed": 0, "cost": cost}
 
         # Log the bug
         bug_dir.mkdir(parents=True, exist_ok=True)
@@ -185,17 +190,17 @@ if __name__ == "__main__":
         "repo", type=str, help="Repository to generate bug patches for."
     )
     parser.add_argument(
-        "--config_file", type=str, help="Path to the configuration file.", required=True
+        "-c", "--config_file", type=str, help="Path to the configuration file.", required=True
     )
     parser.add_argument("--model", type=str, help="Model to use for rewriting.")
     parser.add_argument(
-        "--n_workers", type=int, help="Number of workers to use", default=1
+        "-w", "--n_workers", type=int, help="Number of workers to use", default=1
     )
     parser.add_argument(
         "--redo_existing", action="store_true", help="Redo existing bugs."
     )
     parser.add_argument(
-        "--max_bugs", type=int, help="Maximum number of bugs to generate."
+        "-m", "--max_bugs", type=int, help="Maximum number of bugs to generate."
     )
     args = parser.parse_args()
     main(**vars(args))

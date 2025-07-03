@@ -118,6 +118,7 @@ def main(
     n_bugs: int,
     repo: str,
     n_workers: int = 1,
+    max_bugs: int = -1,
     **kwargs,
 ):
     # Check arguments
@@ -138,6 +139,15 @@ def main(
     if not candidates:
         print(f"No candidates found in {repo}.")
         return
+
+    # Adjust candidates if max_bugs is specified
+    if max_bugs > 0:
+        max_candidates = max_bugs // n_bugs
+        if max_candidates < len(candidates):
+            candidates = candidates[:max_candidates]
+            print(f"Limited to {len(candidates)} candidates to generate ~{len(candidates) * n_bugs} bugs (max: {max_bugs})")
+        else:
+            print(f"Will generate {len(candidates) * n_bugs} bugs (max: {max_bugs})")
 
     print(f"Generating bugs in {repo} using {model}...")
     if not kwargs.get("yes", False):
@@ -214,6 +224,7 @@ if __name__ == "__main__":
         help="Name of a SWE-smith repository to generate bugs for.",
     )
     parser.add_argument(
+        "-c",
         "--config_file",
         type=str,
         help="Configuration file containing bug gen. strategy prompts",
@@ -226,13 +237,21 @@ if __name__ == "__main__":
         default="openai/gpt-4o",
     )
     parser.add_argument(
+        "-n",
         "--n_bugs",
         type=int,
         help="Number of bugs to generate per entity",
         default=1,
     )
     parser.add_argument(
-        "--n_workers", type=int, help="Number of workers to use", default=1
+        "-m",
+        "--max_bugs",
+        type=int,
+        help="Total, maximum number of bugs to generate",
+        default=-1
+    )
+    parser.add_argument(
+        "-w", "--n_workers", type=int, help="Number of workers to use", default=1
     )
     parser.add_argument("-y", "--yes", action="store_true", help="Skip confirmation")
     args = parser.parse_args()

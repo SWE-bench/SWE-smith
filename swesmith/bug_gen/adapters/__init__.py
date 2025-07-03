@@ -17,3 +17,5 @@ get_entities_from_file = {
     "rb": get_entities_from_file_rb,
     "rs": get_entities_from_file_rs,
 }
+
+SUPPORTED_EXTS = list(get_entities_from_file.keys())
