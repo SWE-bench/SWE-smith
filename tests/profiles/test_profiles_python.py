@@ -14,7 +14,11 @@ def test_python_profile_defaults():
 
     assert profile.python_version == "3.10"
     assert profile.install_cmds == ["python -m pip install -e ."]
-    assert profile.test_cmd == "pytest --disable-warnings --color=no --tb=no --verbose"
+    assert profile.test_cmd == (
+        "source /opt/miniconda3/bin/activate; "
+        f"conda activate testbed; "
+        "pytest --disable-warnings --color=no --tb=no --verbose"
+    )
 
 
 def test_python_profile_build_image():
@@ -138,8 +142,11 @@ def test_python_profile_custom_test_cmd():
     from swesmith.profiles.python import Gpxpy09fc46b3
 
     profile = Gpxpy09fc46b3()
-    expected_cmd = "pytest test.py --verbose --color=no --tb=no --disable-warnings"
-    assert profile.test_cmd == expected_cmd
+    assert profile.test_cmd == (
+        "source /opt/miniconda3/bin/activate; "
+        f"conda activate testbed; "
+        "pytest test.py --verbose --color=no --tb=no --disable-warnings"
+    )
     assert profile.test_cmd != PythonProfile().test_cmd
 
 
