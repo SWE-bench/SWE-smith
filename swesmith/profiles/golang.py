@@ -149,6 +149,11 @@ class Natsserver2ee2e24c(GoProfile):
     commit: str = "2ee2e24cb10924adb699ecb68b89e8ce2523ea75"
 
 
+@dataclass
+class Addressec203a4f(GoProfile):
+    owner: str = "bojanz"
+    repo: str = "address"
+    commit: str = "ec203a4f7f569c03a0f83e2e749b63947481fe4c"
 
 
 @dataclass
@@ -170,6 +175,20 @@ class Gozero75cebb65(GoProfile):
     owner: str = "zeromicro"
     repo: str = "go-zero"
     commit: str = "75cebb65f88cc6019d9e16e34c4a567e621f4dd5"
+
+
+@dataclass
+class Goatcounter854b1dd2(GoProfile):
+    owner: str = "arp242"
+    repo: str = "goatcounter"
+    commit: str = "854b1dd2408ca95645ad03ea3fd01ccfe267261a"
+
+
+@dataclass
+class Gotests16a93f6e(GoProfile):
+    owner: str = "cweill"
+    repo: str = "gotests"
+    commit: str = "16a93f6eb6519118b1d282e2f233596a98dd7e96"
 
 
 # Register all Go profiles with the global registry
