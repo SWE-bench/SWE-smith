@@ -40,6 +40,7 @@ RUN go mod tidy
                 if match:
                     test_name = match.group(1)
                     test_status_map[test_name] = status
+                    break
 
         return test_status_map
 

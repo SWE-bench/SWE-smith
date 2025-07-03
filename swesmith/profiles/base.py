@@ -64,7 +64,7 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
 
     # Install + Test specifications
     test_cmd: str = ""
-    test_exts: list[str] = field(default_factory=lambda: SUPPORTED_EXTS)
+    test_exts: list[str] = field(default_factory=lambda: [f".{ext}" for ext in SUPPORTED_EXTS])
 
     # `min_testing`: If set, then subset of tests (not all) are run for post-bug validation
     # Affects get_test_cmd, get_valid_report
