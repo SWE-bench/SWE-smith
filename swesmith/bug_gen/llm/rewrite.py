@@ -60,7 +60,7 @@ def main(
     model: str,
     n_workers: int,
     redo_existing: bool = False,
-    max_bugs: int = None,
+    max_bugs: int | None = None,
     **kwargs,
 ):
     configs = yaml.safe_load(open(config_file))
