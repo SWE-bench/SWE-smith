@@ -37,8 +37,10 @@ def convert_to_path(folder: str):
     return path
 
 
-def get_patches_from_folder(folder_path, include_patches=[]):
+def get_patches_from_folder(folder_path, include_patches=None):
     """Get all patch file paths from a folder."""
+    if include_patches is None:
+        include_patches = []
     patch_files = []
     for root, _, files in os.walk(folder_path):
         for file in files:
