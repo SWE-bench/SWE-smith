@@ -68,7 +68,20 @@ def get_valid_report(
 
     for test_case in postgold_sm:
         if test_case not in pregold_sm:
-            continue
+            if rp.min_testing:
+                # If min_testing is enabled, we ignore the test case
+                # if it is not present in the pre-gold (bug) log
+                continue
+            elif postgold_sm[test_case] == TestStatus.PASSED.value:
+                # If the test case is not present in the pre-gold
+                # log and is passing in the post-gold log, it is
+                # considered a fail-to-pass case
+                report[FAIL_TO_PASS].append(test_case)
+            elif postgold_sm[test_case] == TestStatus.FAILED.value:
+                # If the test case is not present in the pre-gold
+                # log and is failing in the post-gold log, it is
+                # considered a pass-to-fail case
+                report[PASS_TO_FAIL].append(test_case)
         elif (
             pregold_sm[test_case] == TestStatus.PASSED.value
             and postgold_sm[test_case] == TestStatus.PASSED.value
