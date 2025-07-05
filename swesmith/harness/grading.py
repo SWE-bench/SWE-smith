@@ -68,20 +68,7 @@ def get_valid_report(
 
     for test_case in postgold_sm:
         if test_case not in pregold_sm:
-            if rp.min_testing:
-                # If min_testing is enabled, we ignore the test case
-                # if it is not present in the pre-gold (bug) log
-                continue
-            elif postgold_sm[test_case] == TestStatus.PASSED.value:
-                # If the test case is not present in the pre-gold
-                # log and is passing in the post-gold log, it is
-                # considered a fail-to-pass case
-                report[FAIL_TO_PASS].append(test_case)
-            elif postgold_sm[test_case] == TestStatus.FAILED.value:
-                # If the test case is not present in the pre-gold
-                # log and is failing in the post-gold log, it is
-                # considered a pass-to-fail case
-                report[PASS_TO_FAIL].append(test_case)
+            continue
         elif (
             pregold_sm[test_case] == TestStatus.PASSED.value
             and postgold_sm[test_case] == TestStatus.PASSED.value
@@ -145,21 +132,13 @@ def get_eval_tests_report(
     """
 
     def test_passed(case: str, sm: dict[str, str]) -> bool:
-        # NOTE: This metric is slightly different than SWE-bench's.
-        # The reason originates in wanting to run the test suite efficently (under 90 seconds)
-        # Because of this design, sometimes, we don't run the full test suite, but a subset of it.
-        # Therefore, if a test case does not appear in the eval_sm, we just assume that it was a pass.
-        # Given the uniformity of the testing procedure for SWE-bench repos, this is a safe assumption.
-        return case not in sm or sm[case] in [
+        return case in sm and sm[case] in [
             TestStatus.PASSED.value,
             TestStatus.XFAIL.value,
         ]
 
     def test_failed(case: str, sm: dict[str, str]) -> bool:
-        # NOTE: This metric is slightly different than SWE-bench's.
-        # In SWE-bench, if a test case does not appear, then it is considered a fail.
-        # Here, we look for explicit failures
-        return case in sm and sm[case] in [
+        return case not in sm or sm[case] in [
             TestStatus.FAILED.value,
             TestStatus.ERROR.value,
         ]
