@@ -3,7 +3,6 @@ from swebench.harness.constants import (
     APPLY_PATCH_FAIL,
     FAIL_TO_FAIL,
     FAIL_TO_PASS,
-    KEY_INSTANCE_ID,
     KEY_PREDICTION,
     PASS_TO_FAIL,
     PASS_TO_PASS,
@@ -196,19 +195,13 @@ def get_eval_report(
     inst: dict,
     test_log_path: str,
 ):
-    report_map = {}
-
-    instance_id = prediction[KEY_INSTANCE_ID]
     report_map = {
-        "patch_is_None": False,
         "patch_exists": False,
-        "patch_successfully_applied": False,
         "resolved": False,
     }
 
     # Check if model patch exists
     if prediction[KEY_PREDICTION] is None:
-        report_map["patch_is_None"] = True
         return report_map
     report_map["patch_exists"] = True
 
@@ -216,25 +209,10 @@ def get_eval_report(
     test_output, found = read_test_output(test_log_path)
     if not found:
         return report_map
-    test_status_map = global_registry.get(inst["repo"]).log_parser(test_output)
-
-    # Identify relevant test files
-    _, test_files = global_registry.get(inst["repo"]).get_test_cmd(inst)
-    filter_irrelevant_tests = (
-        lambda tests: [x for x in tests if any([x.startswith(y) for y in test_files])]
-        if len(test_files) > 0
-        else tests
-    )
-
-    # Construct gold test reference object
-    eval_ref = {
-        KEY_INSTANCE_ID: instance_id,
-        FAIL_TO_PASS: filter_irrelevant_tests(inst[FAIL_TO_PASS]),
-        PASS_TO_PASS: filter_irrelevant_tests(inst[PASS_TO_PASS]),
-    }
+    test_status_map = global_registry.get_from_inst(inst).log_parser(test_output)
 
     # Get evaluation test report
-    report = get_eval_tests_report(test_status_map, eval_ref)
+    report = get_eval_tests_report(test_status_map, inst)
     if get_resolution_status(report) == ResolvedStatus.FULL.value:
         report_map["resolved"] = True
     report_map["tests_status"] = report
