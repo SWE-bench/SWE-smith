@@ -18,7 +18,7 @@ from ghapi.all import GhApi
 from multiprocessing import Lock
 from pathlib import Path
 from swesmith.bug_gen.adapters import get_entities_from_file, SUPPORTED_EXTS
-from swebench.harness.constants import FAIL_TO_PASS, KEY_INSTANCE_ID
+from swebench.harness.constants import KEY_INSTANCE_ID
 from swesmith.constants import (
     KEY_PATCH,
     LOG_DIR_ENV,
@@ -253,15 +253,6 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
             f"WARNING: {instance[KEY_INSTANCE_ID]} not from {self.repo_name}"
         )
         test_command = self.test_cmd
-
-        if FAIL_TO_PASS in instance:
-            # NOTE: Using F2P key as indicator that this is eval instance, not validation
-            if "pytest" in test_command:
-                f2p_files = sorted(
-                    list(set([x.split("::", 1)[0] for x in instance[FAIL_TO_PASS]]))
-                )
-                test_command += f" {' '.join(f2p_files)}"
-                return test_command, f2p_files
 
         if not self.min_testing or KEY_PATCH not in instance:
             # If min testing is not enabled or there's no patch
