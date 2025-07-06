@@ -67,8 +67,8 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
     test_exts: list[str] = field(
         default_factory=lambda: [f".{ext}" for ext in SUPPORTED_EXTS]
     )
-    timeout: int = 60  # timeout (sec) for running test suite for a single instance
-    timeout_ref: int = 600  # timeout for running entire test suite
+    timeout: int = 90  # timeout (sec) for running test suite for a single instance
+    timeout_ref: int = 900  # timeout for running entire test suite
 
     # `min_testing`: If set, then subset of tests (not all) are run for post-bug validation
     # Affects get_test_cmd, get_valid_report
@@ -109,7 +109,7 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
         """Check if mirror repository exists under organization"""
         return self.repo_name in [
             x["name"]
-            for page in range(1, 3)  # TODO: Need to update over time
+            for page in range(1, 5)  # TODO: Need to update over time
             for x in api.repos.list_for_org(self.org_gh, per_page=100, page=page)
         ]
 

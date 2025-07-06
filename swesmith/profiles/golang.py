@@ -344,8 +344,6 @@ class Roaring(GoProfile):
     owner: str = "RoaringBitmap"
     repo: str = "roaring"
     commit: str = "09c46a0a47d21ebbe4bedb01bbcf0ba96f22a46d"
-    timeout: int = 90
-    timeout_ref: int = 90
 
 
 @dataclass
