@@ -18,7 +18,7 @@ from ghapi.all import GhApi
 from multiprocessing import Lock
 from pathlib import Path
 from swesmith.bug_gen.adapters import get_entities_from_file, SUPPORTED_EXTS
-from swebench.harness.constants import KEY_INSTANCE_ID
+from swebench.harness.constants import FAIL_TO_PASS, KEY_INSTANCE_ID
 from swesmith.constants import (
     KEY_PATCH,
     LOG_DIR_ENV,
@@ -112,6 +112,10 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
             return True
         except:
             return False
+
+    def _get_f2p_test_files(self, instance: dict):
+        """Given an instance, return files corresponding to F2P tests"""
+        return instance[FAIL_TO_PASS]
 
     def build_image(self):
         """Build a Docker image (execution environment) for this repository profile."""
@@ -248,11 +252,18 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
 
         return self._test_paths_cache[cache_key]
 
-    def get_test_cmd(self, instance: dict) -> tuple[str, list[Path]]:
+    def get_test_cmd(
+        self, instance: dict, f2p_only: bool = False
+    ) -> tuple[str, list[Path]]:
         assert instance[KEY_INSTANCE_ID].rsplit(".", 1)[0] == self.repo_name, (
             f"WARNING: {instance[KEY_INSTANCE_ID]} not from {self.repo_name}"
         )
         test_command = self.test_cmd
+
+        if f2p_only:
+            f2p_files = self._get_f2p_test_files(instance)
+            test_command += f" {' '.join(f2p_files)}"
+            return test_command, f2p_files
 
         if not self.min_testing or KEY_PATCH not in instance:
             # If min testing is not enabled or there's no patch

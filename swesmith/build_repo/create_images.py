@@ -33,12 +33,12 @@ def build_profile_image(profile):
         return (profile.image_name, False, error_msg)
 
 
-def build_all_images(max_workers=4, profile_filter=None, proceed=False):
+def build_all_images(workers=4, profile_filter=None, proceed=False):
     """
     Build Docker images for all registered profiles in parallel.
 
     Args:
-        max_workers: Maximum number of parallel workers
+        workers: Maximum number of parallel workers
         profile_filter: Optional list of profile mirror names to filter by
         proceed: Whether to proceed without confirmation
 
@@ -94,7 +94,7 @@ def build_all_images(max_workers=4, profile_filter=None, proceed=False):
     with tqdm(
         total=len(profiles_to_build), smoothing=0, desc="Building environment images"
     ) as pbar:
-        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        with ThreadPoolExecutor(max_workers=workers) as executor:
             # Submit all build tasks
             future_to_profile = {
                 executor.submit(build_profile_image, profile): profile
@@ -128,7 +128,7 @@ def main():
         description="Build Docker images for all registered repository profiles"
     )
     parser.add_argument(
-        "--max-workers",
+        "--workers",
         type=int,
         default=4,
         help="Maximum number of parallel workers (default: 4)",
@@ -155,7 +155,7 @@ def main():
         return
 
     successful, failed = build_all_images(
-        max_workers=args.max_workers, profile_filter=args.profiles, proceed=args.proceed
+        workers=args.workers, profile_filter=args.profiles, proceed=args.proceed
     )
 
     if failed:

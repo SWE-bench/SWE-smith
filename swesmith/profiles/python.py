@@ -3,7 +3,7 @@ import re
 from dataclasses import dataclass, field
 
 from pathlib import Path
-from swebench.harness.constants import TestStatus
+from swebench.harness.constants import FAIL_TO_PASS, TestStatus
 from swebench.harness.docker_build import build_image as build_image_sweb
 from swebench.harness.dockerfiles import get_dockerfile_env
 from swesmith.constants import LOG_DIR_ENV, ENV_NAME, INSTANCE_REF
@@ -31,6 +31,9 @@ class PythonProfile(RepoProfile):
         "pytest --disable-warnings --color=no --tb=no --verbose"
     )
     test_exts: list[str] = field(default_factory=lambda: [".py"])
+
+    def _get_f2p_test_files(self, instance: dict):
+        return sorted(list(set([x.split("::", 1)[0] for x in instance[FAIL_TO_PASS]])))
 
     def build_image(self):
         BASE_IMAGE_KEY = "jyangballin/swesmith.x86_64"

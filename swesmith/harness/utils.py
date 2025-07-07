@@ -71,6 +71,7 @@ def run_patch_in_container(
     timeout: int,
     patch: str | None = None,
     commit: str | None = None,
+    f2p_only: bool = False,
     is_gold: bool = False,
 ) -> tuple[Logger, bool] | None:
     """
@@ -136,7 +137,7 @@ def run_patch_in_container(
 
         # Copy eval script to container
         eval_file = Path(log_dir / "eval.sh")
-        test_command, _ = rp.get_test_cmd(instance)
+        test_command, _ = rp.get_test_cmd(instance, f2p_only=f2p_only)
         eval_file.write_text(
             "\n".join(
                 [

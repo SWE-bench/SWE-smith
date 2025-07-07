@@ -194,11 +194,13 @@ def get_eval_report(
     prediction: dict,
     inst: dict,
     test_log_path: str,
+    f2p_only: bool = False,
 ):
     report_map = {
         "patch_exists": False,
         "resolved": False,
     }
+    rp = global_registry.get_from_inst(inst)
 
     # Check if model patch exists
     if prediction[KEY_PREDICTION] is None:
@@ -209,7 +211,20 @@ def get_eval_report(
     test_output, found = read_test_output(test_log_path)
     if not found:
         return report_map
-    test_status_map = global_registry.get_from_inst(inst).log_parser(test_output)
+    test_status_map = rp.log_parser(test_output)
+
+    if f2p_only:
+        # Only examine f2p tests
+        test_files = rp._get_f2p_test_files(inst)
+        filter_irrelevant_tests = (
+            lambda tests: [
+                x for x in tests if any([x.startswith(y) for y in test_files])
+            ]
+            if len(test_files) > 0
+            else tests
+        )
+        inst[FAIL_TO_PASS] = filter_irrelevant_tests
+        inst[PASS_TO_PASS] = filter_irrelevant_tests
 
     # Get evaluation test report
     report = get_eval_tests_report(test_status_map, inst)

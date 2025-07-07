@@ -33,6 +33,7 @@ def run_evaluation(
     pred: dict,
     instance: dict,
     run_id: str,
+    f2p_only: bool = False,
     is_gold: bool = False,
 ) -> None:
     """
@@ -47,6 +48,7 @@ def run_evaluation(
         rp.timeout,
         patch=pred[KEY_PREDICTION],
         commit=instance_id,  # NOTE: could use `base_commit`
+        f2p_only=f2p_only,
         is_gold=is_gold,
     )
 
@@ -69,7 +71,7 @@ def run_evaluation(
     # Get report from test output
     logger.info(f"Grading answer for {instance_id}...")
     eval_folder = RUN_EVALUATION_LOG_DIR / run_id
-    report = get_eval_report(pred, instance, test_log_path)
+    report = get_eval_report(pred, instance, test_log_path, f2p_only=f2p_only)
     report[KEY_MODEL] = pred[KEY_MODEL]
 
     # Write report to report.json
@@ -83,6 +85,7 @@ def main(
     workers: int,
     predictions_path: str = "gold",
     dataset_path: str = HF_DATASET,
+    f2p_only: bool = False,
     instance_ids: list | None = None,
     report_only: bool = False,
     redo_existing: bool = False,
@@ -162,6 +165,7 @@ def main(
                 prediction,
                 instance,
                 run_id,
+                f2p_only,
                 is_gold,
             )
         )
@@ -224,6 +228,12 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "-i", "--instance_ids", type=str, help="Instance IDs to evaluate", nargs="+"
+    )
+    parser.add_argument(
+        "-f",
+        "--f2p_only",
+        action="store_true",
+        help="(Speed up) Run evaluation using only files with f2p tests",
     )
     parser.add_argument(
         "--report_only", action="store_true", help="Regenerate reports only"
