@@ -61,12 +61,12 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
     org_gh: str = ORG_NAME_GH
     arch: str = "x86_64" if platform.machine() not in {"aarch64", "arm64"} else "arm64"
     pltf: str = "linux/x86_64" if arch == "x86_64" else "linux/arm64/v8"
+    exts: list[str] = field(
+        default_factory=lambda: [f".{ext}" for ext in SUPPORTED_EXTS]
+    )
 
     # Install + Test specifications
     test_cmd: str = ""
-    test_exts: list[str] = field(
-        default_factory=lambda: [f".{ext}" for ext in SUPPORTED_EXTS]
-    )
     timeout: int = 90  # timeout (sec) for running test suite for a single instance
     timeout_ref: int = 900  # timeout for running entire test suite
 
@@ -237,8 +237,8 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
                             or file.rsplit(".", 1)[0].endswith("test")
                         )
                         and (
-                            len(self.test_exts) == 0
-                            or any([file.endswith(ext) for ext in self.test_exts])
+                            len(self.exts) == 0
+                            or any([file.endswith(ext) for ext in self.exts])
                         )
                     )
                 ]
@@ -380,7 +380,7 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
                     continue
 
                 file_ext = Path(file_path).suffix[1:]
-                if file_ext not in get_entities_from_file:
+                if file_ext not in get_entities_from_file or file_ext not in self.exts:
                     continue
                 get_entities_from_file[file_ext](entities, file_path, max_entities)
         if cloned:

@@ -1,6 +1,6 @@
 import re
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from swebench.harness.constants import TestStatus
 from swesmith.profiles.base import RepoProfile, global_registry
 
@@ -14,6 +14,7 @@ class GoProfile(RepoProfile):
     repository profiles.
     """
 
+    exts: list[str] = field(default_factory=lambda: [".go"])
     test_cmd: str = "go test -v ./..."
 
     @property

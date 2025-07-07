@@ -30,7 +30,7 @@ class PythonProfile(RepoProfile):
         f"conda activate {ENV_NAME}; "
         "pytest --disable-warnings --color=no --tb=no --verbose"
     )
-    test_exts: list[str] = field(default_factory=lambda: [".py"])
+    exts: list[str] = field(default_factory=lambda: [".py"])
 
     def _get_f2p_test_files(self, instance: dict) -> list[str]:
         return sorted(list(set([x.split("::", 1)[0] for x in instance[FAIL_TO_PASS]])))
