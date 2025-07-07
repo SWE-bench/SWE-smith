@@ -8,14 +8,14 @@ from swesmith.bug_gen.adapters.ruby import get_entities_from_file_rb
 from swesmith.bug_gen.adapters.rust import get_entities_from_file_rs
 
 get_entities_from_file = {
-    "c": get_entities_from_file_c,
-    "go": get_entities_from_file_go,
-    "java": get_entities_from_file_java,
-    "js": get_entities_from_file_js,
-    "php": get_entities_from_file_php,
-    "py": get_entities_from_file_py,
-    "rb": get_entities_from_file_rb,
-    "rs": get_entities_from_file_rs,
+    ".c": get_entities_from_file_c,
+    ".go": get_entities_from_file_go,
+    ".java": get_entities_from_file_java,
+    ".js": get_entities_from_file_js,
+    ".php": get_entities_from_file_php,
+    ".py": get_entities_from_file_py,
+    ".rb": get_entities_from_file_rb,
+    ".rs": get_entities_from_file_rs,
 }
 
 SUPPORTED_EXTS = list(get_entities_from_file.keys())

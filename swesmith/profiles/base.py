@@ -61,9 +61,7 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
     org_gh: str = ORG_NAME_GH
     arch: str = "x86_64" if platform.machine() not in {"aarch64", "arm64"} else "arm64"
     pltf: str = "linux/x86_64" if arch == "x86_64" else "linux/arm64/v8"
-    exts: list[str] = field(
-        default_factory=lambda: [f".{ext}" for ext in SUPPORTED_EXTS]
-    )
+    exts: list[str] = field(default_factory=lambda: SUPPORTED_EXTS)
 
     # Install + Test specifications
     test_cmd: str = ""
@@ -379,8 +377,8 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
                 except:
                     continue
 
-                file_ext = Path(file_path).suffix[1:]
-                if file_ext not in get_entities_from_file or file_ext not in self.exts:
+                file_ext = Path(file_path).suffix
+                if file_ext not in self.exts:
                     continue
                 get_entities_from_file[file_ext](entities, file_path, max_entities)
         if cloned:
