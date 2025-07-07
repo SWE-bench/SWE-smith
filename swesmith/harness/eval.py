@@ -5,7 +5,7 @@ Usage: python -m swesmith.harness.eval \
     --dataset_path <path to dataset> \
     --predictions_path <gold / path to predictions> \
     --run_id <unique identifier for this run> \
-    --max_workers <number of workers to use>
+    --workers <number of workers to use>
 """
 
 import argparse
@@ -80,7 +80,7 @@ def run_evaluation(
 
 def main(
     run_id: str,
-    max_workers: int,
+    workers: int,
     predictions_path: str = "gold",
     dataset_path: str = HF_DATASET,
     instance_ids: list | None = None,
@@ -170,7 +170,7 @@ def main(
     if report_only:
         print("Regenerating reports only (skipping eval run)")
     else:
-        run_threadpool(run_evaluation, payloads, max_workers)
+        run_threadpool(run_evaluation, payloads, workers)
         print("All instances run.")
 
     # Get number of task instances resolved
@@ -215,7 +215,7 @@ if __name__ == "__main__":
     )
     parser.add_argument("--run_id", type=str, help="Unique identifier for this run")
     parser.add_argument(
-        "-w", "--max_workers", type=int, help="Number of workers to use", default=4
+        "-w", "--workers", type=int, help="Number of workers to use", default=4
     )
     parser.add_argument(
         "--redo_existing",

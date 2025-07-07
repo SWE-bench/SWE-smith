@@ -66,7 +66,7 @@ python -m swesmith.harness.eval \
     --dataset_path path/to/subset0.json \
     --predictions_path path/to/trajectories/<username>/<run ID>/preds.json \
     --run_id <run ID> \
-    --max_workers 10 \
+    --workers 10 \
     --timeout 240
 ```
 

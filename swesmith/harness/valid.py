@@ -1,7 +1,7 @@
 """
 Purpose: Transform a bunch of patches that cause bugs into a SWE-bench style dataset.
 
-Usage: python -m swesmith.harness.valid logs/bug_gen/*_patches.json --max_workers #
+Usage: python -m swesmith.harness.valid logs/bug_gen/*_patches.json --workers #
 """
 
 import argparse
@@ -138,7 +138,7 @@ def run_validation(instance: dict) -> None:
 
 def main(
     bug_patches: str,
-    max_workers: int,
+    workers: int,
     redo_existing: bool = False,
 ) -> None:
     # Bug patch should be a dict that looks like this:
@@ -214,7 +214,7 @@ def main(
         for bug_patch in bug_patches:
             payloads.append((bug_patch,))
 
-    run_threadpool(run_validation, payloads, max_workers)
+    run_threadpool(run_validation, payloads, workers)
     print("All instances run.")
     print_report(log_dir_parent)
 
@@ -229,7 +229,7 @@ if __name__ == "__main__":
         help="Json file containing bug patches.",
     )
     parser.add_argument(
-        "-w", "--max_workers", type=int, default=4, help="Number of workers to use."
+        "-w", "--workers", type=int, default=4, help="Number of workers to use."
     )
     parser.add_argument(
         "--redo_existing",
