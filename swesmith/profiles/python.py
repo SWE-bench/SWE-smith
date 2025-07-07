@@ -32,7 +32,7 @@ class PythonProfile(RepoProfile):
     )
     test_exts: list[str] = field(default_factory=lambda: [".py"])
 
-    def _get_f2p_test_files(self, instance: dict):
+    def _get_f2p_test_files(self, instance: dict) -> list[str]:
         return sorted(list(set([x.split("::", 1)[0] for x in instance[FAIL_TO_PASS]])))
 
     def build_image(self):

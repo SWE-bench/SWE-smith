@@ -18,7 +18,7 @@ from ghapi.all import GhApi
 from multiprocessing import Lock
 from pathlib import Path
 from swesmith.bug_gen.adapters import get_entities_from_file, SUPPORTED_EXTS
-from swebench.harness.constants import FAIL_TO_PASS, KEY_INSTANCE_ID
+from swebench.harness.constants import KEY_INSTANCE_ID
 from swesmith.constants import (
     KEY_PATCH,
     LOG_DIR_ENV,
@@ -112,10 +112,6 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
             return True
         except:
             return False
-
-    def _get_f2p_test_files(self, instance: dict):
-        """Given an instance, return files corresponding to F2P tests"""
-        return instance[FAIL_TO_PASS]
 
     def build_image(self):
         """Build a Docker image (execution environment) for this repository profile."""
@@ -251,6 +247,10 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
                 self._test_paths_cache[cache_key] = test_paths
 
         return self._test_paths_cache[cache_key]
+
+    def _get_f2p_test_files(self, instance: dict):
+        """Given an instance, return files corresponding to F2P tests"""
+        raise NotImplementedError("F2P test file identification not implemented")
 
     def get_test_cmd(
         self, instance: dict, f2p_only: bool = False
