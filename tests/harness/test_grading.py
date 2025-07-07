@@ -4,18 +4,15 @@ from swebench.harness.constants import (
     KEY_INSTANCE_ID,
     KEY_MODEL,
     KEY_PREDICTION,
+    TestStatus,
 )
-from swesmith.harness.grading import (
-    get_eval_report,
-    get_valid_report,
-    read_test_output,
-)
+from swesmith.harness import grading
 
 
 def test_read_test_output(logs_run_evaluation):
     instance_id = "pandas-dev__pandas.95280573.pr_53652"
     test_output_path = logs_run_evaluation / instance_id / "test_output.txt"
-    test_output, found = read_test_output(test_output_path)
+    test_output, found = grading.read_test_output(test_output_path)
     assert found, "Test output should be found"
     expected = """\n+ pytest --disable-warnings --color=no --tb=no --verbose pandas/tests/indexing/test_datetime.py
 [1/1] Generating write_version_file with a custom command
@@ -53,7 +50,7 @@ pandas/tests/indexing/test_datetime.py::TestDatetimeIndex::test_getitem_pyarrow_
     assert test_output == expected
 
 
-def test_get_eval_tests(task_instance_path, logs_run_evaluation):
+def test_get_eval_report(task_instance_path, logs_run_evaluation):
     instance_id = "pandas-dev__pandas.95280573.pr_53652"
     task_instance = json.load(open(task_instance_path))
     expected = json.load(open(logs_run_evaluation / instance_id / "report.json"))
@@ -62,7 +59,7 @@ def test_get_eval_tests(task_instance_path, logs_run_evaluation):
         KEY_INSTANCE_ID: instance_id,
         KEY_PREDICTION: "example_patch",
     }
-    report_map = get_eval_report(
+    report_map = grading.get_eval_report(
         mock_prediction,
         task_instance,
         logs_run_evaluation / instance_id / "test_output.txt",
@@ -71,9 +68,61 @@ def test_get_eval_tests(task_instance_path, logs_run_evaluation):
 
 
 def test_get_valid_report(logs_run_validation):
-    report = get_valid_report(
+    report = grading.get_valid_report(
         logs_run_validation / "test_output.txt",
         logs_run_validation / "test_output_pre_gold.txt",
         {"repo": "pandas-dev__pandas.95280573"},
     )
     assert report == json.load(open(logs_run_validation / "report.json"))
+
+
+def test_get_eval_tests_report_basic():
+    # Use the imported TestStatus
+    gold_results = {
+        "FAIL_TO_PASS": ["test1", "test2"],
+        "PASS_TO_PASS": ["test3"],
+        "FAIL_TO_FAIL": ["test4"],
+        "PASS_TO_FAIL": ["test5"],
+    }
+    eval_status_map = {
+        "test1": TestStatus.PASSED.value,  # should be f2p_success
+        "test2": TestStatus.FAILED.value,  # should be f2p_failure
+        "test3": TestStatus.PASSED.value,  # should be p2p_success
+        "test4": TestStatus.PASSED.value,  # should be f2f_success (if calculate_to_fail)
+        "test5": TestStatus.FAILED.value,  # should be p2f_failure (if calculate_to_fail)
+    }
+    # Test without calculate_to_fail
+    report = grading.get_eval_tests_report(eval_status_map, gold_results)
+    assert report["FAIL_TO_PASS"]["success"] == ["test1"]
+    assert report["FAIL_TO_PASS"]["failure"] == ["test2"]
+    assert report["PASS_TO_PASS"]["success"] == ["test3"]
+    assert report["PASS_TO_PASS"]["failure"] == []
+    # Test with calculate_to_fail
+    report = grading.get_eval_tests_report(
+        eval_status_map, gold_results, calculate_to_fail=True
+    )
+    assert report["FAIL_TO_FAIL"]["success"] == ["test4"]
+    assert report["FAIL_TO_FAIL"]["failure"] == []
+    assert report["PASS_TO_FAIL"]["success"] == []
+    assert report["PASS_TO_FAIL"]["failure"] == ["test5"]
+
+
+def test_eval_tests_report_passed_and_failed():
+    sm = {
+        "a": TestStatus.PASSED.value,
+        "b": TestStatus.XFAIL.value,
+        "c": TestStatus.FAILED.value,
+        "d": TestStatus.ERROR.value,
+    }
+    # test_passed
+    assert grading.test_passed("a", sm)
+    assert grading.test_passed("b", sm)
+    assert not grading.test_passed("c", sm)
+    assert not grading.test_passed("d", sm)
+    assert not grading.test_passed("e", sm)  # not in map
+    # test_failed
+    assert not grading.test_failed("a", sm)
+    assert not grading.test_failed("b", sm)
+    assert grading.test_failed("c", sm)
+    assert grading.test_failed("d", sm)
+    assert grading.test_failed("e", sm)  # not in map

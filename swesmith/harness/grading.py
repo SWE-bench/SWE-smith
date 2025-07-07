@@ -92,6 +92,20 @@ def get_valid_report(
     return report
 
 
+def test_passed(case: str, sm: dict[str, str]) -> bool:
+    return case in sm and sm[case] in [
+        TestStatus.PASSED.value,
+        TestStatus.XFAIL.value,
+    ]
+
+
+def test_failed(case: str, sm: dict[str, str]) -> bool:
+    return case not in sm or sm[case] in [
+        TestStatus.FAILED.value,
+        TestStatus.ERROR.value,
+    ]
+
+
 def get_eval_tests_report(
     eval_status_map: dict[str, str],
     gold_results: dict[str, str],
@@ -119,37 +133,23 @@ def get_eval_tests_report(
     - Fail-Fail (F2F) + P: Success (Extra Credit)
     - Pass-Fail (P2F) + P: Not considered
     """
-
-    def test_passed(case: str, sm: dict[str, str]) -> bool:
-        return case in sm and sm[case] in [
-            TestStatus.PASSED.value,
-            TestStatus.XFAIL.value,
-        ]
-
-    def test_failed(case: str, sm: dict[str, str]) -> bool:
-        return case not in sm or sm[case] in [
-            TestStatus.FAILED.value,
-            TestStatus.ERROR.value,
-        ]
-
-    def check_pass_and_fail(test_case, eval_status_map, success, failed):
-        if test_passed(test_case, eval_status_map):
-            # Assume silent success for now (test case not in eval_sm)
-            success.append(test_case)
-        elif test_failed(test_case, eval_status_map):
-            failed.append(test_case)
-
     # Calculate resolution metrics
     f2p_success = []
     f2p_failure = []
     for test_case in gold_results[FAIL_TO_PASS]:
-        check_pass_and_fail(test_case, eval_status_map, f2p_success, f2p_failure)
+        if test_passed(test_case, eval_status_map):
+            f2p_success.append(test_case)
+        elif test_failed(test_case, eval_status_map):
+            f2p_failure.append(test_case)
 
     # Calculate maintenance metrics
     p2p_success = []
     p2p_failure = []
     for test_case in gold_results[PASS_TO_PASS]:
-        check_pass_and_fail(test_case, eval_status_map, p2p_success, p2p_failure)
+        if test_passed(test_case, eval_status_map):
+            p2p_success.append(test_case)
+        elif test_failed(test_case, eval_status_map):
+            p2p_failure.append(test_case)
 
     results = {
         FAIL_TO_PASS: {
@@ -169,11 +169,16 @@ def get_eval_tests_report(
     if calculate_to_fail:
         # Calculate "extra credit" metrics
         for test_case in gold_results[FAIL_TO_FAIL]:
-            check_pass_and_fail(test_case, eval_status_map, f2f_success, f2f_failure)
-
+            if test_passed(test_case, eval_status_map):
+                f2f_success.append(test_case)
+            elif test_failed(test_case, eval_status_map):
+                f2f_failure.append(test_case)
         # Calculate not considered metrics
         for test_case in gold_results[PASS_TO_FAIL]:
-            check_pass_and_fail(test_case, eval_status_map, p2f_success, p2f_failure)
+            if test_passed(test_case, eval_status_map):
+                p2f_success.append(test_case)
+            elif test_failed(test_case, eval_status_map):
+                p2f_failure.append(test_case)
 
     results.update(
         {
