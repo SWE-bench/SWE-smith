@@ -107,11 +107,11 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
 
     def _mirror_exists(self):
         """Check if mirror repository exists under organization"""
-        return self.repo_name in [
-            x["name"]
-            for page in range(1, 5)  # TODO: Need to update over time
-            for x in api.repos.list_for_org(self.org_gh, per_page=100, page=page)
-        ]
+        try:
+            api.repos.get(owner=self.org_gh, repo=self.repo_name)
+            return True
+        except:
+            return False
 
     def build_image(self):
         """Build a Docker image (execution environment) for this repository profile."""

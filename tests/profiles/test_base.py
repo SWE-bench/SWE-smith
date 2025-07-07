@@ -275,25 +275,21 @@ def test_mirror_exists():
     """Test _mirror_exists method"""
     repo_profile = global_registry.get("mewwts__addict.75284f95")
 
-    # Mock the GitHub API response
-    mock_repos = [
-        {"name": "mewwts__addict.75284f95"},
-        {"name": "other_repo"},
-    ]
-
-    with patch("swesmith.profiles.base.api") as mock_api:
-        mock_api.repos.list_for_org.return_value = mock_repos
+    # Test when mirror exists (api.repos.get does not raise)
+    with patch("swesmith.profiles.base.api.repos.get", return_value=None) as mock_get:
         assert repo_profile._mirror_exists() is True
+        mock_get.assert_called_once_with(
+            owner=repo_profile.org_gh, repo=repo_profile.repo_name
+        )
 
-    # Test when mirror doesn't exist
-    mock_repos_no_match = [
-        {"name": "other_repo1"},
-        {"name": "other_repo2"},
-    ]
-
-    with patch("swesmith.profiles.base.api") as mock_api:
-        mock_api.repos.list_for_org.return_value = mock_repos_no_match
+    # Test when mirror does not exist (api.repos.get raises Exception)
+    with patch(
+        "swesmith.profiles.base.api.repos.get", side_effect=Exception("not found")
+    ) as mock_get:
         assert repo_profile._mirror_exists() is False
+        mock_get.assert_called_once_with(
+            owner=repo_profile.org_gh, repo=repo_profile.repo_name
+        )
 
 
 def test_create_mirror():
