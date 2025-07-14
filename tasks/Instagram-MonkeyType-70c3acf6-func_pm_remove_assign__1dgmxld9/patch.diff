@@ -1,0 +1,34 @@
+diff --git a/monkeytype/stubs.py b/monkeytype/stubs.py
+index 9c1d3eb..2dc2db6 100644
+--- a/monkeytype/stubs.py
++++ b/monkeytype/stubs.py
+@@ -589,28 +589,15 @@ class ReplaceTypedDictsWithStubs(TypeRewriter):
+         name for both the generated classes."""
+         if container.__module__ != "typing":
+             return container
+-        args = getattr(container, "__args__", None)
+         if args is None:
+             return container
+         elif args == ((),) or args == ():  # special case of empty tuple `Tuple[()]`
+             elems: Tuple[Any, ...] = ()
+         else:
+-            # Avoid adding a suffix for the first one so that
+-            # single-element containers don't have a numeric suffix.
+-            elems, stub_lists = zip(
+-                *[
+-                    self.rewrite_and_get_stubs(
+-                        elem,
+-                        class_name_hint=self._class_name_hint
+-                        + ("" if index == 0 else str(index + 1)),
+-                    )
+-                    for index, elem in enumerate(args)
+-                ]
+-            )
+             for stubs in stub_lists:
+                 self.stubs.extend(stubs)
+         # Value of type "type" is not indexable.
+-        return cls[elems]  # type: ignore[no-any-return,index]
++        return cls[elems]
+ 
+     def _add_typed_dict_class_stub(
+         self,

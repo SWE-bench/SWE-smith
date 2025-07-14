@@ -1,0 +1,14 @@
+diff --git a/monkeytype/stubs.py b/monkeytype/stubs.py
+index 9c1d3eb..00040ca 100644
+--- a/monkeytype/stubs.py
++++ b/monkeytype/stubs.py
+@@ -202,9 +202,6 @@ def update_signature_return(
+         # the possibility of "incompatible annotation" errors.
+         if existing_annotation_strategy == ExistingAnnotationStrategy.OMIT:
+             return sig.replace(return_annotation=inspect.Signature.empty)
+-        # Don't change pre-existing annotations unless asked to
+-        if existing_annotation_strategy == ExistingAnnotationStrategy.REPLICATE:
+-            return sig
+     # NB: We cannot distinguish between functions that explicitly only
+     # return None and those that do so implicitly. In the case of generator
+     # functions both are typed as Iterator[<yield_type>]

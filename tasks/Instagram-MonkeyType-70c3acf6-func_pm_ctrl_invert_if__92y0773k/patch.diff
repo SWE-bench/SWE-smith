@@ -1,0 +1,16 @@
+diff --git a/monkeytype/encoding.py b/monkeytype/encoding.py
+index ef789b0..abc861a 100644
+--- a/monkeytype/encoding.py
++++ b/monkeytype/encoding.py
+@@ -109,9 +109,9 @@ def type_from_dict(d: TypeDict) -> type:
+     if d.get("is_typed_dict", False):
+         return typed_dict_from_dict(d)
+     if module == "builtins" and qualname in _HIDDEN_BUILTIN_TYPES:
+-        typ = _HIDDEN_BUILTIN_TYPES[qualname]
+-    else:
+         typ = get_name_in_module(module, qualname)
++    else:
++        typ = _HIDDEN_BUILTIN_TYPES[qualname]
+     if not (isinstance(typ, type) or is_any(typ) or is_generic(typ)):
+         raise InvalidTypeError(
+             f"Attribute specified by '{qualname}' in module '{module}' "

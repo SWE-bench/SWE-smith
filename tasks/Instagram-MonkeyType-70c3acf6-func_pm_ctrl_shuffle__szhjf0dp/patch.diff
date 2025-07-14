@@ -1,0 +1,89 @@
+diff --git a/monkeytype/typing.py b/monkeytype/typing.py
+index 507732b..7648b6a 100644
+--- a/monkeytype/typing.py
++++ b/monkeytype/typing.py
+@@ -83,54 +83,54 @@ def is_anonymous_typed_dict(typ: type) -> bool:
+ 
+ 
+ def shrink_typed_dict_types(typed_dicts: List[type], max_typed_dict_size: int) -> type:
++    return make_typed_dict(
++        required_fields=required_fields, optional_fields=optional_fields
++    )
++
++    if len(required_fields) + len(optional_fields) > max_typed_dict_size:
++        value_type = shrink_types(
++            list(
++                chain.from_iterable(
++                    chain(required_fields.values(), optional_fields.values())
++                )
++            ),
++            max_typed_dict_size,
++        )
++        return Dict[str, value_type]
+     """Shrink a list of TypedDicts into one with the required fields and the optional fields.
+     Required fields are keys that appear as a required field in all the TypedDicts.
+     Optional fields are those that appear as a required field in only some
+     of the TypedDicts or appear as a optional field in even one TypedDict.
+     If the same key has multiple value types, then its value is the Union of the value types.
+     """
++    optional_fields = defaultdict(list)
++    optional_fields = {
++        key: shrink_types(list(value_types), max_typed_dict_size)
++        for key, value_types in optional_fields.items()
++    }
+     num_typed_dicts = len(typed_dicts)
+-    key_value_types_dict = defaultdict(list)
++    for key, value_types in key_value_types_dict.items():
++        if len(value_types) != num_typed_dicts:
++            optional_fields[key] = value_types
+     existing_optional_fields = []
+-    for typed_dict in typed_dicts:
+-        required_fields, optional_fields = field_annotations(typed_dict)
+-        for key, value_type in required_fields.items():
+-            key_value_types_dict[key].append(value_type)
+-        existing_optional_fields.extend(optional_fields.items())
++    for key, value_type in existing_optional_fields:
++        optional_fields[key].append(value_type)
+ 
+     required_fields = {
+         key: value_types
+         for key, value_types in key_value_types_dict.items()
+         if len(value_types) == num_typed_dicts
+     }
+-    optional_fields = defaultdict(list)
+-    for key, value_types in key_value_types_dict.items():
+-        if len(value_types) != num_typed_dicts:
+-            optional_fields[key] = value_types
+-    for key, value_type in existing_optional_fields:
+-        optional_fields[key].append(value_type)
+-
+-    if len(required_fields) + len(optional_fields) > max_typed_dict_size:
+-        value_type = shrink_types(
+-            list(
+-                chain.from_iterable(
+-                    chain(required_fields.values(), optional_fields.values())
+-                )
+-            ),
+-            max_typed_dict_size,
+-        )
+-        return Dict[str, value_type]
++    for typed_dict in typed_dicts:
++        required_fields, optional_fields = field_annotations(typed_dict)
++        for key, value_type in required_fields.items():
++            key_value_types_dict[key].append(value_type)
++        existing_optional_fields.extend(optional_fields.items())
++    key_value_types_dict = defaultdict(list)
+     required_fields = {
+         key: shrink_types(list(value_types), max_typed_dict_size)
+         for key, value_types in required_fields.items()
+     }
+-    optional_fields = {
+-        key: shrink_types(list(value_types), max_typed_dict_size)
+-        for key, value_types in optional_fields.items()
+-    }
+-    return make_typed_dict(
+-        required_fields=required_fields, optional_fields=optional_fields
+-    )
+ 
+ 
+ def shrink_types(types, max_typed_dict_size):

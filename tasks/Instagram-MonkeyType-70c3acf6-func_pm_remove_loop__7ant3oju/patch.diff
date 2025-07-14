@@ -1,0 +1,17 @@
+diff --git a/monkeytype/typing.py b/monkeytype/typing.py
+index 507732b..db62107 100644
+--- a/monkeytype/typing.py
++++ b/monkeytype/typing.py
+@@ -446,11 +446,7 @@ class RewriteLargeUnion(TypeRewriter):
+             return rw_union
+ 
+         try:
+-            for ancestor in inspect.getmro(union.__args__[0]):
+-                if ancestor is not object and all(
+-                    issubclass(t, ancestor) for t in union.__args__
+-                ):
+-                    return ancestor
++            pass
+         except (TypeError, AttributeError):
+             pass
+         return Any

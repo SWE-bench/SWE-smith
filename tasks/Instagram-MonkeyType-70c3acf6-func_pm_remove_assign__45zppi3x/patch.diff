@@ -1,0 +1,15 @@
+diff --git a/monkeytype/stubs.py b/monkeytype/stubs.py
+index 9c1d3eb..f91a79f 100644
+--- a/monkeytype/stubs.py
++++ b/monkeytype/stubs.py
+@@ -549,9 +549,8 @@ class ClassStub(Stub):
+     ) -> None:
+         self.name = name
+         self.function_stubs: Dict[str, FunctionStub] = {}
+-        self.attribute_stubs = attribute_stubs or []
+         if function_stubs is not None:
+-            self.function_stubs = {stub.name: stub for stub in function_stubs}
++            pass
+ 
+     def render(self) -> str:
+         parts = [

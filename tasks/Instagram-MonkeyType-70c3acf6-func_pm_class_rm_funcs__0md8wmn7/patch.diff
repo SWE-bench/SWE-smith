@@ -1,0 +1,41 @@
+diff --git a/monkeytype/stubs.py b/monkeytype/stubs.py
+index 9c1d3eb..36ebb18 100644
+--- a/monkeytype/stubs.py
++++ b/monkeytype/stubs.py
+@@ -582,36 +582,6 @@ class ReplaceTypedDictsWithStubs(TypeRewriter):
+         self._class_name_hint = class_name_hint
+         self.stubs: List[ClassStub] = []
+ 
+-    def _rewrite_container(self, cls: type, container: type) -> type:
+-        """Rewrite while using the index of the inner type as a class name hint.
+-
+-        Otherwise, Tuple[TypedDict(...), TypedDict(...)] would give the same
+-        name for both the generated classes."""
+-        if container.__module__ != "typing":
+-            return container
+-        args = getattr(container, "__args__", None)
+-        if args is None:
+-            return container
+-        elif args == ((),) or args == ():  # special case of empty tuple `Tuple[()]`
+-            elems: Tuple[Any, ...] = ()
+-        else:
+-            # Avoid adding a suffix for the first one so that
+-            # single-element containers don't have a numeric suffix.
+-            elems, stub_lists = zip(
+-                *[
+-                    self.rewrite_and_get_stubs(
+-                        elem,
+-                        class_name_hint=self._class_name_hint
+-                        + ("" if index == 0 else str(index + 1)),
+-                    )
+-                    for index, elem in enumerate(args)
+-                ]
+-            )
+-            for stubs in stub_lists:
+-                self.stubs.extend(stubs)
+-        # Value of type "type" is not indexable.
+-        return cls[elems]  # type: ignore[no-any-return,index]
+-
+     def _add_typed_dict_class_stub(
+         self,
+         fields: Dict[str, type],

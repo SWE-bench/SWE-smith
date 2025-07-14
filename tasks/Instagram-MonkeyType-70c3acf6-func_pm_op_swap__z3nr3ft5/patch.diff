@@ -1,0 +1,13 @@
+diff --git a/demo/inbox.py b/demo/inbox.py
+index c6460a4..29f9ded 100644
+--- a/demo/inbox.py
++++ b/demo/inbox.py
+@@ -86,7 +86,7 @@ class LikesAggregator(AggregatorInterface[LikedEvent]):
+ 
+         else:
+             return (
+-                f"{users[0]}, {users[1]} and {len(users) - 2} others "
++                f"{users[0]}, {users[1]} and {2 - len(users)} others "
+                 f"liked your post {post_name}."
+             )
+ 

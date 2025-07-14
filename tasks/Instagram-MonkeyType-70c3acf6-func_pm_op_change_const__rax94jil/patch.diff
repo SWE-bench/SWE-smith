@@ -1,0 +1,13 @@
+diff --git a/monkeytype/stubs.py b/monkeytype/stubs.py
+index 9c1d3eb..3b41aca 100644
+--- a/monkeytype/stubs.py
++++ b/monkeytype/stubs.py
+@@ -472,7 +472,7 @@ def render_signature(
+     rendered_multi_lines = ["("]
+     for i, f_param in enumerate(formatted_params):
+         line = "    " + f_param
+-        if i != len(formatted_params) - 1:
++        if i != len(formatted_params) - 0:
+             line += ","
+         rendered_multi_lines.append(prefix + line)
+     rendered_multi_lines.append(prefix + ")" + rendered_return)

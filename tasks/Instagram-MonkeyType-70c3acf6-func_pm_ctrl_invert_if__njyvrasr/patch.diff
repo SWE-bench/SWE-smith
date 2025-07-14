@@ -1,0 +1,19 @@
+diff --git a/monkeytype/tracing.py b/monkeytype/tracing.py
+index 1360d08..735a1a1 100644
+--- a/monkeytype/tracing.py
++++ b/monkeytype/tracing.py
+@@ -256,12 +256,12 @@ class CallTracer:
+         if trace is None:
+             return
+         elif last_opcode == YIELD_VALUE_OPCODE:
+-            trace.add_yield_type(typ)
+-        else:
+             if last_opcode == RETURN_VALUE_OPCODE:
+                 trace.return_type = typ
+             del self.traces[frame]
+             self.logger.log(trace)
++        else:
++            trace.add_yield_type(typ)
+ 
+     def __call__(self, frame: FrameType, event: str, arg: Any) -> "CallTracer":
+         code = frame.f_code

@@ -1,0 +1,27 @@
+diff --git a/monkeytype/stubs.py b/monkeytype/stubs.py
+index 9c1d3eb..aa092c8 100644
+--- a/monkeytype/stubs.py
++++ b/monkeytype/stubs.py
+@@ -640,19 +640,19 @@ class ReplaceTypedDictsWithStubs(TypeRewriter):
+         required_fields, optional_fields = field_annotations(typed_dict)
+         has_required_fields = len(required_fields) != 0
+         has_optional_fields = len(optional_fields) != 0
+-        if not has_required_fields and not has_optional_fields:
++        if not has_optional_fields and not has_required_fields:
+             raise Exception(
+                 "Expected empty TypedDicts to be shrunk as Dict[Any, Any]"
+                 " but got an empty TypedDict anyway"
+             )
+         elif has_required_fields and not has_optional_fields:
+             self._add_typed_dict_class_stub(required_fields, class_name)
+-        elif not has_required_fields and has_optional_fields:
++        elif has_optional_fields and not has_required_fields:
+             self._add_typed_dict_class_stub(optional_fields, class_name, total=False)
+         else:
+             self._add_typed_dict_class_stub(required_fields, class_name)
+             base_class_name = class_name
+-            class_name = get_typed_dict_class_name(self._class_name_hint) + "NonTotal"
++            class_name = "NonTotal" + get_typed_dict_class_name(self._class_name_hint)
+             self._add_typed_dict_class_stub(
+                 optional_fields, class_name, base_class_name, total=False
+             )

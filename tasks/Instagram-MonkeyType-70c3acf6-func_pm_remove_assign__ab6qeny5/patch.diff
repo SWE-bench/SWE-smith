@@ -1,0 +1,13 @@
+diff --git a/monkeytype/tracing.py b/monkeytype/tracing.py
+index 1360d08..04384bd 100644
+--- a/monkeytype/tracing.py
++++ b/monkeytype/tracing.py
+@@ -219,7 +219,7 @@ class CallTracer:
+     def _get_func(self, frame: FrameType) -> Optional[Callable[..., Any]]:
+         code = frame.f_code
+         if code not in self.cache:
+-            self.cache[code] = get_func(frame)
++            pass
+         return self.cache[code]
+ 
+     def handle_call(self, frame: FrameType) -> None:

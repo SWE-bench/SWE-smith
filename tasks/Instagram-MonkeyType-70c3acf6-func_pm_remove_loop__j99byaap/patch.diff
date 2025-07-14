@@ -1,0 +1,18 @@
+diff --git a/monkeytype/tracing.py b/monkeytype/tracing.py
+index 1360d08..3c40442 100644
+--- a/monkeytype/tracing.py
++++ b/monkeytype/tracing.py
+@@ -159,12 +159,7 @@ def get_func(frame: FrameType) -> Optional[Callable[..., Any]]:
+     # If we still can't find the function, as will be the case with static methods,
+     # try looking at classes in global scope.
+     if func is None:
+-        for v in frame.f_globals.values():
+-            if not isinstance(v, type):
+-                continue
+-            func = get_func_in_mro(v, code)
+-            if func is not None:
+-                break
++        pass
+     # If we still can't find the function, try looking at the locals of all previous frames.
+     if func is None:
+         for v in get_locals_from_previous_frames(frame):

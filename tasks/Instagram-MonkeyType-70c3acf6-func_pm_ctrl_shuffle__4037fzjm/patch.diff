@@ -1,0 +1,27 @@
+diff --git a/monkeytype/stubs.py b/monkeytype/stubs.py
+index 9c1d3eb..e38bdc6 100644
+--- a/monkeytype/stubs.py
++++ b/monkeytype/stubs.py
+@@ -881,19 +881,19 @@ def build_module_stubs_from_traces(
+     existing_annotation_strategy: ExistingAnnotationStrategy = ExistingAnnotationStrategy.REPLICATE,
+     rewriter: Optional[TypeRewriter] = None,
+ ) -> Dict[str, ModuleStub]:
++    return build_module_stubs(defns)
+     """Given an iterable of call traces, build the corresponding stubs."""
++    for trace in traces:
++        index[trace.func].add(trace)
+     index: DefaultDict[Callable[..., Any], Set[CallTrace]] = collections.defaultdict(
+         set
+     )
+-    for trace in traces:
+-        index[trace.func].add(trace)
+     defns = []
+     for func, traces in index.items():
+         defn = get_updated_definition(
+             func, traces, max_typed_dict_size, rewriter, existing_annotation_strategy
+         )
+         defns.append(defn)
+-    return build_module_stubs(defns)
+ 
+ 
+ class StubIndexBuilder(CallTraceLogger):

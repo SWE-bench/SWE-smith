@@ -1,0 +1,15 @@
+diff --git a/monkeytype/typing.py b/monkeytype/typing.py
+index 507732b..8250bf0 100644
+--- a/monkeytype/typing.py
++++ b/monkeytype/typing.py
+@@ -555,10 +555,6 @@ class RewriteMostSpecificCommonBase(TypeRewriter):
+ 
+         all_bases = []
+ 
+-        for klass in klasses:
+-            klass_bases = self._compute_bases(klass)
+-            all_bases.append(klass_bases)
+-
+         common_bases = functools.reduce(self._merge_common_bases, all_bases)
+ 
+         if common_bases:

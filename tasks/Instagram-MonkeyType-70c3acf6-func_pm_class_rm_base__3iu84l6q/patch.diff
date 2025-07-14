@@ -1,0 +1,13 @@
+diff --git a/monkeytype/stubs.py b/monkeytype/stubs.py
+index 9c1d3eb..aadc0ca 100644
+--- a/monkeytype/stubs.py
++++ b/monkeytype/stubs.py
+@@ -667,7 +667,7 @@ class ReplaceTypedDictsWithStubs(TypeRewriter):
+         return rewritten_type, rewriter.stubs
+ 
+ 
+-class ModuleStub(Stub):
++class ModuleStub():
+     def __init__(
+         self,
+         function_stubs: Optional[Iterable[FunctionStub]] = None,

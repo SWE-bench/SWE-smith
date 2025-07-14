@@ -1,0 +1,26 @@
+id: Instagram-MonkeyType-70c3acf6-func_pm_class_rm_base__hiecftb9
+prompt: |
+  You are given a source code repository in /workdir/{MonkeyType}.
+
+  The repository have some failing tests. Can you fix the bugs and make all tests pass?
+
+  Note:
+  - you can use `run_test.sh` to run the tests.
+  - IMPORTANT: YOU SHOULD NOT MODIFY THE TEST FILES including `run_test.sh`.
+  - You are only allowed to modify the source code in the repository.
+  - Repository dependencies are installed in the conda `testbed` environment.
+
+
+
+metadata:
+  difficulty: medium
+  category: bug_fix
+  required_tools:
+    - bash
+    - str_replace_editor
+  tags:
+    - bug_fix
+    - python
+    - monkeytype
+  time_limit: 1800
+  required_resources: 2vcpu+8gib 

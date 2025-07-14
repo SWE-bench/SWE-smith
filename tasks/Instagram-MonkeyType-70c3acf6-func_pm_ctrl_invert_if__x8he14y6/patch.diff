@@ -1,0 +1,16 @@
+diff --git a/monkeytype/type_checking_imports_transformer.py b/monkeytype/type_checking_imports_transformer.py
+index 5879050..8c1bba3 100644
+--- a/monkeytype/type_checking_imports_transformer.py
++++ b/monkeytype/type_checking_imports_transformer.py
+@@ -185,9 +185,9 @@ class RemoveImportsTransformer(CSTTransformer):
+                 names_to_keep.append(name.with_changes(comma=MaybeSentinel.DEFAULT))
+ 
+         if not names_to_keep:
+-            return RemoveFromParent()
+-        else:
+             return updated_node.with_changes(names=names_to_keep)
++        else:
++            return RemoveFromParent()
+ 
+     def leave_ImportFrom(
+         self, original_node: ImportFrom, updated_node: ImportFrom

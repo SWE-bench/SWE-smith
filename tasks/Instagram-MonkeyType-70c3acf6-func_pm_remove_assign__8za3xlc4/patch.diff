@@ -1,0 +1,12 @@
+diff --git a/monkeytype/stubs.py b/monkeytype/stubs.py
+index 9c1d3eb..c1697fd 100644
+--- a/monkeytype/stubs.py
++++ b/monkeytype/stubs.py
+@@ -687,7 +687,6 @@ class ModuleStub(Stub):
+             self.typed_dict_class_stubs = list(typed_dict_class_stubs)
+ 
+     def render(self) -> str:
+-        parts = []
+         if self.imports_stub.imports:
+             parts.append(self.imports_stub.render())
+         for typed_dict_class_stub in sorted(

@@ -1,0 +1,29 @@
+diff --git a/monkeytype/typing.py b/monkeytype/typing.py
+index 507732b..062851f 100644
+--- a/monkeytype/typing.py
++++ b/monkeytype/typing.py
+@@ -437,24 +437,6 @@ class RewriteLargeUnion(TypeRewriter):
+                 return None
+         return Tuple[value_type, ...]
+ 
+-    def rewrite_Union(self, union):
+-        if len(union.__args__) <= self.max_union_len:
+-            return union
+-
+-        rw_union = self._rewrite_to_tuple(union)
+-        if rw_union is not None:
+-            return rw_union
+-
+-        try:
+-            for ancestor in inspect.getmro(union.__args__[0]):
+-                if ancestor is not object and all(
+-                    issubclass(t, ancestor) for t in union.__args__
+-                ):
+-                    return ancestor
+-        except (TypeError, AttributeError):
+-            pass
+-        return Any
+-
+ 
+ class RewriteAnonymousTypedDictToDict(TypeRewriter):
+     """TypedDict('Foo', {"k": v1, ...}) -> Dict[str, Union[v1, ...]]."""

@@ -1,0 +1,13 @@
+diff --git a/monkeytype/stubs.py b/monkeytype/stubs.py
+index 9c1d3eb..24a1ad0 100644
+--- a/monkeytype/stubs.py
++++ b/monkeytype/stubs.py
+@@ -271,7 +271,7 @@ class ImportBlockStub(Stub):
+             if module == "_io":
+                 module = module[1:]
+             if len(names) == 1:
+-                imports.append("from %s import %s" % (module, names[0]))
++                imports.append("from %s import %s" * (module, names[0]))
+             else:
+                 stanza = ["from %s import (" % (module,)]
+                 stanza.extend(["    %s," % (name,) for name in names])

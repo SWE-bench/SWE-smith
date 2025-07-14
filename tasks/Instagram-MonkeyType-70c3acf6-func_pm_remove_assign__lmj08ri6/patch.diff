@@ -1,0 +1,12 @@
+diff --git a/monkeytype/stubs.py b/monkeytype/stubs.py
+index 9c1d3eb..c821d40 100644
+--- a/monkeytype/stubs.py
++++ b/monkeytype/stubs.py
+@@ -135,7 +135,6 @@ def get_imports_for_annotation(anno: Any) -> ImportMap:
+             )
+         elem_types = getattr(anno, "__args__", None) or []
+         for et in elem_types:
+-            elem_imports = get_imports_for_annotation(et)
+             imports.merge(elem_imports)
+     else:
+         name = _get_import_for_qualname(anno.__qualname__)

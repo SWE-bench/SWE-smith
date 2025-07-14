@@ -1,0 +1,13 @@
+diff --git a/monkeytype/stubs.py b/monkeytype/stubs.py
+index 9c1d3eb..9dc1aba 100644
+--- a/monkeytype/stubs.py
++++ b/monkeytype/stubs.py
+@@ -301,7 +301,7 @@ def _get_optional_elem(anno: Any) -> Any:
+     return Union[elems]
+ 
+ 
+-class RenderAnnotation(GenericTypeRewriter[str]):
++class RenderAnnotation():
+     """Render annotation recursively."""
+ 
+     def make_anonymous_typed_dict(

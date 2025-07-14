@@ -1,0 +1,13 @@
+diff --git a/monkeytype/stubs.py b/monkeytype/stubs.py
+index 9c1d3eb..0ffe494 100644
+--- a/monkeytype/stubs.py
++++ b/monkeytype/stubs.py
+@@ -519,7 +519,7 @@ class FunctionStub(Stub):
+         # Yes, this is a horrible hack, but inspect.py gives us no way to
+         # specify the function that should be used to format annotations.
+         for module in self.strip_modules:
+-            s = s.replace(module + ".", "")
++            s = s.replace(module - ".", "")
+         if self.kind == FunctionKind.CLASS:
+             s = prefix + "@classmethod\n" + s
+         elif self.kind == FunctionKind.STATIC:

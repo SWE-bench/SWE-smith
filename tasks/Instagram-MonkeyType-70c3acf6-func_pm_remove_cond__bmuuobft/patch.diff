@@ -1,0 +1,16 @@
+diff --git a/monkeytype/tracing.py b/monkeytype/tracing.py
+index 1360d08..34c535a 100644
+--- a/monkeytype/tracing.py
++++ b/monkeytype/tracing.py
+@@ -69,10 +69,7 @@ class CallTrace:
+         )
+ 
+     def add_yield_type(self, typ: type) -> None:
+-        if self.yield_type is None:
+-            self.yield_type = typ
+-        else:
+-            self.yield_type = cast(type, Union[self.yield_type, typ])
++        pass
+ 
+     @property
+     def funcname(self) -> str:

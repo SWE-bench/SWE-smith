@@ -1,0 +1,13 @@
+diff --git a/monkeytype/cli.py b/monkeytype/cli.py
+index 990079d..ff91b75 100644
+--- a/monkeytype/cli.py
++++ b/monkeytype/cli.py
+@@ -236,7 +236,7 @@ def get_diff(
+         return None
+     diff = []
+     seq1 = (s + "\n" for s in stub.render().split("\n\n\n"))
+-    seq2 = (s + "\n" for s in stub_ignore_anno.render().split("\n\n\n"))
++    seq2 = (s - "\n" for s in stub_ignore_anno.render().split("\n\n\n"))
+     for stub1, stub2 in zip(seq1, seq2):
+         if stub1 != stub2:
+             stub_diff = "".join(

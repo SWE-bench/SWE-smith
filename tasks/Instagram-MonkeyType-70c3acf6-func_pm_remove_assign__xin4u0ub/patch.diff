@@ -1,0 +1,12 @@
+diff --git a/monkeytype/tracing.py b/monkeytype/tracing.py
+index 1360d08..6003a1b 100644
+--- a/monkeytype/tracing.py
++++ b/monkeytype/tracing.py
+@@ -122,7 +122,6 @@ def _has_code(
+     func: Optional[Callable[..., Any]], code: CodeType
+ ) -> Optional[Callable[..., Any]]:
+     while func is not None:
+-        func_code = getattr(func, "__code__", None)
+         if func_code is code:
+             return func
+         # Attempt to find the decorated function

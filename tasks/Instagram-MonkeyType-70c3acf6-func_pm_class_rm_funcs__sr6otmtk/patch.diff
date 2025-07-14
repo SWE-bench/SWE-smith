@@ -1,0 +1,30 @@
+diff --git a/monkeytype/typing.py b/monkeytype/typing.py
+index 507732b..10eb7f2 100644
+--- a/monkeytype/typing.py
++++ b/monkeytype/typing.py
+@@ -546,25 +546,6 @@ class RewriteMostSpecificCommonBase(TypeRewriter):
+ 
+         return merged_bases
+ 
+-    def rewrite_Union(self, union):
+-        """
+-        Rewrite the union if possible, if no meaningful rewrite is possible,
+-        return the original union.
+-        """
+-        klasses = union.__args__
+-
+-        all_bases = []
+-
+-        for klass in klasses:
+-            klass_bases = self._compute_bases(klass)
+-            all_bases.append(klass_bases)
+-
+-        common_bases = functools.reduce(self._merge_common_bases, all_bases)
+-
+-        if common_bases:
+-            return common_bases[-1]
+-        return union
+-
+ 
+ DEFAULT_REWRITER = ChainedRewriter(
+     (

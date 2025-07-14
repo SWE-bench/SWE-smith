@@ -1,0 +1,12 @@
+diff --git a/monkeytype/stubs.py b/monkeytype/stubs.py
+index 9c1d3eb..e0a70bf 100644
+--- a/monkeytype/stubs.py
++++ b/monkeytype/stubs.py
+@@ -267,7 +267,6 @@ class ImportBlockStub(Stub):
+     def render(self) -> str:
+         imports = []
+         for module in sorted(self.imports.keys()):
+-            names = sorted(self.imports[module])
+             if module == "_io":
+                 module = module[1:]
+             if len(names) == 1:

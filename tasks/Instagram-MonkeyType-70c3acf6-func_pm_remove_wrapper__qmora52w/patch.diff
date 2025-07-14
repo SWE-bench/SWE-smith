@@ -1,0 +1,18 @@
+diff --git a/monkeytype/cli.py b/monkeytype/cli.py
+index 990079d..1e3f6b0 100644
+--- a/monkeytype/cli.py
++++ b/monkeytype/cli.py
+@@ -115,12 +115,7 @@ def get_stub(
+     traces = []
+     failed_to_decode_count = 0
+     for thunk in thunks:
+-        try:
+-            traces.append(thunk.to_trace())
+-        except MonkeyTypeError as mte:
+-            if args.verbose:
+-                print(f"WARNING: Failed decoding trace: {mte}", file=stderr)
+-            failed_to_decode_count += 1
++        pass
+     if failed_to_decode_count and not args.verbose:
+         print(
+             f"{failed_to_decode_count} traces failed to decode; use -v for details",

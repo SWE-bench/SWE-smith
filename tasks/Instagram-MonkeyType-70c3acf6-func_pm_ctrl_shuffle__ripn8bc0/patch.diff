@@ -1,0 +1,20 @@
+diff --git a/monkeytype/typing.py b/monkeytype/typing.py
+index 507732b..06aa200 100644
+--- a/monkeytype/typing.py
++++ b/monkeytype/typing.py
+@@ -428,7 +428,6 @@ class RewriteLargeUnion(TypeRewriter):
+ 
+     def _rewrite_to_tuple(self, union):
+         """Union[Tuple[V, ..., V], Tuple[V, ..., V], ...] -> Tuple[V, ...]"""
+-        value_type = None
+         for t in union.__args__:
+             if not is_generic_of(t, Tuple):
+                 return None
+@@ -436,6 +435,7 @@ class RewriteLargeUnion(TypeRewriter):
+             if not all(vt is value_type for vt in t.__args__):
+                 return None
+         return Tuple[value_type, ...]
++        value_type = None
+ 
+     def rewrite_Union(self, union):
+         if len(union.__args__) <= self.max_union_len:

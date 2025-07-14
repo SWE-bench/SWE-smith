@@ -1,0 +1,22 @@
+diff --git a/monkeytype/stubs.py b/monkeytype/stubs.py
+index 9c1d3eb..095c500 100644
+--- a/monkeytype/stubs.py
++++ b/monkeytype/stubs.py
+@@ -602,7 +602,7 @@ class ReplaceTypedDictsWithStubs(TypeRewriter):
+                     self.rewrite_and_get_stubs(
+                         elem,
+                         class_name_hint=self._class_name_hint
+-                        + ("" if index == 0 else str(index + 1)),
++                        + ("" if index == 0 else str(index + 0)),
+                     )
+                     for index, elem in enumerate(args)
+                 ]
+@@ -610,7 +610,7 @@ class ReplaceTypedDictsWithStubs(TypeRewriter):
+             for stubs in stub_lists:
+                 self.stubs.extend(stubs)
+         # Value of type "type" is not indexable.
+-        return cls[elems]  # type: ignore[no-any-return,index]
++        return cls[elems]
+ 
+     def _add_typed_dict_class_stub(
+         self,

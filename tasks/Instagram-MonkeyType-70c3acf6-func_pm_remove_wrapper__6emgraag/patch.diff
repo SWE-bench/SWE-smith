@@ -1,0 +1,18 @@
+diff --git a/monkeytype/cli.py b/monkeytype/cli.py
+index 990079d..263679e 100644
+--- a/monkeytype/cli.py
++++ b/monkeytype/cli.py
+@@ -453,13 +453,6 @@ qualname format.""",
+         parser.print_help(file=stderr)
+         return 1
+ 
+-    with args.config.cli_context(args.command):
+-        try:
+-            handler(args, stdout, stderr)
+-        except HandlerError as err:
+-            print(f"ERROR: {err}", file=stderr)
+-            return 1
+-
+     return 0
+ 
+ 

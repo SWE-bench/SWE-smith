@@ -1,0 +1,27 @@
+diff --git a/monkeytype/util.py b/monkeytype/util.py
+index a7b27c4..76d6d36 100644
+--- a/monkeytype/util.py
++++ b/monkeytype/util.py
+@@ -32,11 +32,11 @@ def get_func_in_module(module: str, qualname: str) -> Callable[..., Any]:
+     elif isinstance(func, property):
+         if func.fget is not None:
+             if (func.fset is None) and (func.fdel is None):
+-                func = func.fget
+-            else:
+                 raise InvalidTypeError(
+                     f"Property {module}.{qualname} has setter or deleter."
+                 )
++            else:
++                func = func.fget
+         else:
+             raise InvalidTypeError(f"Property {module}.{qualname} is missing getter")
+     elif cached_property and isinstance(func, cached_property):
+@@ -45,7 +45,7 @@ def get_func_in_module(module: str, qualname: str) -> Callable[..., Any]:
+         raise InvalidTypeError(
+             f"{module}.{qualname} is of type '{type(func)}', not function."
+         )
+-    return func  # type: ignore[no-any-return]
++    return func
+ 
+ 
+ def get_name_in_module(

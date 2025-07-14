@@ -1,0 +1,13 @@
+diff --git a/monkeytype/type_checking_imports_transformer.py b/monkeytype/type_checking_imports_transformer.py
+index 5879050..fc3c101 100644
+--- a/monkeytype/type_checking_imports_transformer.py
++++ b/monkeytype/type_checking_imports_transformer.py
+@@ -160,7 +160,7 @@ class MoveImportsToTypeCheckingBlockVisitor(ContextAwareTransformer):
+         return tree
+ 
+ 
+-class RemoveImportsTransformer(CSTTransformer):
++class RemoveImportsTransformer():
+     def __init__(
+         self,
+         import_items_to_be_removed: List[ImportItem],

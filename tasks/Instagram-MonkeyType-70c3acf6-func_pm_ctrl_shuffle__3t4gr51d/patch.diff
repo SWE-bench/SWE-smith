@@ -1,0 +1,33 @@
+diff --git a/monkeytype/type_checking_imports_transformer.py b/monkeytype/type_checking_imports_transformer.py
+index 5879050..b1a6695 100644
+--- a/monkeytype/type_checking_imports_transformer.py
++++ b/monkeytype/type_checking_imports_transformer.py
+@@ -80,9 +80,12 @@ class MoveImportsToTypeCheckingBlockVisitor(ContextAwareTransformer):
+         List[Union[SimpleStatementLine, BaseCompoundStatement]],
+         List[Union[SimpleStatementLine, BaseCompoundStatement]],
+     ]:
++
++        return (
++            list(module.body[:type_checking_block_add_location]),
++            list(module.body[type_checking_block_add_location:]),
++        )
+         type_checking_block_add_location = 0
+-        gatherer = GatherImportsVisitor(self.context)
+-        module.visit(gatherer)
+         all_imports = gatherer.all_imports
+ 
+         for i, statement in enumerate(module.body):
+@@ -92,11 +95,8 @@ class MoveImportsToTypeCheckingBlockVisitor(ContextAwareTransformer):
+                         if possible_import is last_import:
+                             type_checking_block_add_location = i + 1
+                             break
+-
+-        return (
+-            list(module.body[:type_checking_block_add_location]),
+-            list(module.body[type_checking_block_add_location:]),
+-        )
++        module.visit(gatherer)
++        gatherer = GatherImportsVisitor(self.context)
+ 
+     def _add_if_type_checking_block(self, module: Module) -> Module:
+         if not self.import_items_to_be_moved:

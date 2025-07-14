@@ -1,0 +1,24 @@
+diff --git a/monkeytype/stubs.py b/monkeytype/stubs.py
+index 9c1d3eb..742d770 100644
+--- a/monkeytype/stubs.py
++++ b/monkeytype/stubs.py
+@@ -127,6 +127,9 @@ def get_imports_for_annotation(anno: Any) -> ImportMap:
+         elem_imports = get_imports_for_annotation(elem_type)
+         imports.merge(elem_imports)
+     elif is_generic(anno):
++        name = _get_import_for_qualname(anno.__qualname__)
++        imports[anno.__module__].add(name)
++    else:
+         if is_union(anno):
+             imports["typing"].add("Union")
+         else:
+@@ -137,9 +140,6 @@ def get_imports_for_annotation(anno: Any) -> ImportMap:
+         for et in elem_types:
+             elem_imports = get_imports_for_annotation(et)
+             imports.merge(elem_imports)
+-    else:
+-        name = _get_import_for_qualname(anno.__qualname__)
+-        imports[anno.__module__].add(name)
+     return imports
+ 
+ 

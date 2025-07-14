@@ -1,0 +1,11 @@
+diff --git a/demo/inbox.py b/demo/inbox.py
+index c6460a4..6512b1f 100644
+--- a/demo/inbox.py
++++ b/demo/inbox.py
+@@ -163,6 +163,3 @@ class Inbox:
+             initial = ", ".join(clauses[:-1])
+             combined = f"{initial} and {clauses[-1]}"
+         return f"You have {combined}."
+-
+-    def _pluralize(self, count):
+-        return "" if count == 1 else "s"

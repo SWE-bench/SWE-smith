@@ -1,0 +1,31 @@
+diff --git a/monkeytype/tracing.py b/monkeytype/tracing.py
+index 1360d08..dd0ccb7 100644
+--- a/monkeytype/tracing.py
++++ b/monkeytype/tracing.py
+@@ -263,26 +263,6 @@ class CallTracer:
+             del self.traces[frame]
+             self.logger.log(trace)
+ 
+-    def __call__(self, frame: FrameType, event: str, arg: Any) -> "CallTracer":
+-        code = frame.f_code
+-        if (
+-            event not in SUPPORTED_EVENTS
+-            or code.co_name == "trace_types"
+-            or self.should_trace
+-            and not self.should_trace(code)
+-        ):
+-            return self
+-        try:
+-            if event == EVENT_CALL:
+-                self.handle_call(frame)
+-            elif event == EVENT_RETURN:
+-                self.handle_return(frame, arg)
+-            else:
+-                logger.error("Cannot handle event %s", event)
+-        except Exception:
+-            logger.exception("Failed collecting trace")
+-        return self
+-
+ 
+ @contextmanager
+ def trace_calls(

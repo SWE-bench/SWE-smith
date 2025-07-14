@@ -1,0 +1,13 @@
+diff --git a/monkeytype/typing.py b/monkeytype/typing.py
+index 507732b..1ead19f 100644
+--- a/monkeytype/typing.py
++++ b/monkeytype/typing.py
+@@ -494,7 +494,7 @@ class RewriteGenerator(TypeRewriter):
+         return typ
+ 
+ 
+-class RewriteMostSpecificCommonBase(TypeRewriter):
++class RewriteMostSpecificCommonBase():
+     """
+     Relace a union of classes by the most specific
+     common base of its members (while avoiding multiple

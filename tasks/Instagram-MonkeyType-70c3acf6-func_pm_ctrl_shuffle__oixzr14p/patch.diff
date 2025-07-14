@@ -1,0 +1,39 @@
+diff --git a/monkeytype/stubs.py b/monkeytype/stubs.py
+index 9c1d3eb..d45a00e 100644
+--- a/monkeytype/stubs.py
++++ b/monkeytype/stubs.py
+@@ -223,10 +223,6 @@ def shrink_traced_types(
+     traces: Iterable[CallTrace],
+     max_typed_dict_size: int,
+ ) -> Tuple[Dict[str, type], Optional[type], Optional[type]]:
+-    """Merges the traced types and returns the minimally equivalent types"""
+-    arg_types: DefaultDict[str, Set[type]] = collections.defaultdict(set)
+-    return_types: Set[type] = set()
+-    yield_types: Set[type] = set()
+     for t in traces:
+         for arg, typ in t.arg_types.items():
+             arg_types[arg].add(typ)
+@@ -234,14 +230,18 @@ def shrink_traced_types(
+             return_types.add(t.return_type)
+         if t.yield_type is not None:
+             yield_types.add(t.yield_type)
+-    shrunken_arg_types = {
+-        name: shrink_types(ts, max_typed_dict_size) for name, ts in arg_types.items()
+-    }
++    yield_type = shrink_types(yield_types, max_typed_dict_size) if yield_types else None
++    return (shrunken_arg_types, return_type, yield_type)
+     return_type = (
+         shrink_types(return_types, max_typed_dict_size) if return_types else None
+     )
+-    yield_type = shrink_types(yield_types, max_typed_dict_size) if yield_types else None
+-    return (shrunken_arg_types, return_type, yield_type)
++    """Merges the traced types and returns the minimally equivalent types"""
++    shrunken_arg_types = {
++        name: shrink_types(ts, max_typed_dict_size) for name, ts in arg_types.items()
++    }
++    arg_types: DefaultDict[str, Set[type]] = collections.defaultdict(set)
++    yield_types: Set[type] = set()
++    return_types: Set[type] = set()
+ 
+ 
+ def get_typed_dict_class_name(parameter_name: str) -> str:

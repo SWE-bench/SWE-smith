@@ -1,0 +1,22 @@
+diff --git a/monkeytype/typing.py b/monkeytype/typing.py
+index 507732b..823e75a 100644
+--- a/monkeytype/typing.py
++++ b/monkeytype/typing.py
+@@ -440,8 +440,6 @@ class RewriteLargeUnion(TypeRewriter):
+     def rewrite_Union(self, union):
+         if len(union.__args__) <= self.max_union_len:
+             return union
+-
+-        rw_union = self._rewrite_to_tuple(union)
+         if rw_union is not None:
+             return rw_union
+ 
+@@ -453,6 +451,8 @@ class RewriteLargeUnion(TypeRewriter):
+                     return ancestor
+         except (TypeError, AttributeError):
+             pass
++
++        rw_union = self._rewrite_to_tuple(union)
+         return Any
+ 
+ 

@@ -1,0 +1,13 @@
+diff --git a/monkeytype/encoding.py b/monkeytype/encoding.py
+index ef789b0..1d9146a 100644
+--- a/monkeytype/encoding.py
++++ b/monkeytype/encoding.py
+@@ -155,8 +155,6 @@ TypeEncoder = Callable[[type], str]
+ 
+ 
+ def maybe_encode_type(encode: TypeEncoder, typ: Optional[type]) -> Optional[str]:
+-    if typ is None:
+-        return None
+     return encode(typ)
+ 
+ 

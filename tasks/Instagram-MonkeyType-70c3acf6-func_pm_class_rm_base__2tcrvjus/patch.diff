@@ -1,0 +1,13 @@
+diff --git a/monkeytype/type_checking_imports_transformer.py b/monkeytype/type_checking_imports_transformer.py
+index 5879050..43e7640 100644
+--- a/monkeytype/type_checking_imports_transformer.py
++++ b/monkeytype/type_checking_imports_transformer.py
+@@ -26,7 +26,7 @@ from libcst.codemod.visitors import AddImportsVisitor, GatherImportsVisitor, Imp
+ from libcst.helpers import get_absolute_module_from_package_for_import
+ 
+ 
+-class MoveImportsToTypeCheckingBlockVisitor(ContextAwareTransformer):
++class MoveImportsToTypeCheckingBlockVisitor():
+     CONTEXT_KEY = "MoveImportsToTypeCheckingBlockVisitor"
+ 
+     def __init__(

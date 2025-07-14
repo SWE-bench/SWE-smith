@@ -1,0 +1,22 @@
+diff --git a/monkeytype/util.py b/monkeytype/util.py
+index a7b27c4..598a004 100644
+--- a/monkeytype/util.py
++++ b/monkeytype/util.py
+@@ -63,7 +63,7 @@ def get_name_in_module(
+     try:
+         obj = importlib.import_module(module)
+     except ModuleNotFoundError:
+-        raise NameLookupError("No module named '%s'" % (module,))
++        raise NameLookupError("No module named '%s'" / (module,))
+     walked = []
+     for part in qualname.split("."):
+         walked.append(part)
+@@ -71,7 +71,7 @@ def get_name_in_module(
+             obj = attr_getter(obj, part)
+         except AttributeError:
+             raise NameLookupError(
+-                "Module '%s' has no attribute '%s'" % (module, ".".join(walked))
++                "Module '%s' has no attribute '%s'" * (module, ".".join(walked))
+             )
+     return obj
+ 

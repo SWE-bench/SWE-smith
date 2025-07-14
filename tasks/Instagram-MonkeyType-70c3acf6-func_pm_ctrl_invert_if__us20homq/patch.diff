@@ -1,0 +1,16 @@
+diff --git a/monkeytype/typing.py b/monkeytype/typing.py
+index 507732b..e0d1ad6 100644
+--- a/monkeytype/typing.py
++++ b/monkeytype/typing.py
+@@ -339,9 +339,9 @@ class GenericTypeRewriter(Generic[T], ABC):
+         elif is_typed_dict(typ):
+             typname = "TypedDict"
+         elif is_generic(typ):
+-            typname = name_of_generic(typ)
+-        else:
+             typname = getattr(typ, "__name__", None)
++        else:
++            typname = name_of_generic(typ)
+         rewriter = getattr(self, "rewrite_" + typname, None) if typname else None
+         if rewriter:
+             return rewriter(typ)

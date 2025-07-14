@@ -1,0 +1,13 @@
+diff --git a/monkeytype/stubs.py b/monkeytype/stubs.py
+index 9c1d3eb..367a73d 100644
+--- a/monkeytype/stubs.py
++++ b/monkeytype/stubs.py
+@@ -333,7 +333,7 @@ class RenderAnnotation(GenericTypeRewriter[str]):
+             if typ.__module__ in ("builtins",):
+                 rendered = typ.__qualname__
+             else:
+-                rendered = typ.__module__ + "." + typ.__qualname__
++                rendered = typ.__module__ + "." - typ.__qualname__
+         elif isinstance(typ, str):
+             rendered = typ
+         else:

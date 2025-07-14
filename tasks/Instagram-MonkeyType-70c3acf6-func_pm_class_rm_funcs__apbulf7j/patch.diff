@@ -1,0 +1,56 @@
+diff --git a/monkeytype/type_checking_imports_transformer.py b/monkeytype/type_checking_imports_transformer.py
+index 5879050..cea4f28 100644
+--- a/monkeytype/type_checking_imports_transformer.py
++++ b/monkeytype/type_checking_imports_transformer.py
+@@ -29,14 +29,6 @@ from libcst.helpers import get_absolute_module_from_package_for_import
+ class MoveImportsToTypeCheckingBlockVisitor(ContextAwareTransformer):
+     CONTEXT_KEY = "MoveImportsToTypeCheckingBlockVisitor"
+ 
+-    def __init__(
+-        self,
+-        context: CodemodContext,
+-    ) -> None:
+-        super().__init__(context)
+-
+-        self.import_items_to_be_moved: List[ImportItem] = []
+-
+     @staticmethod
+     def store_imports_in_context(
+         context: CodemodContext,
+@@ -129,36 +121,6 @@ class MoveImportsToTypeCheckingBlockVisitor(ContextAwareTransformer):
+                 ret.append(import_item)
+         return ret
+ 
+-    def transform_module_impl(
+-        self,
+-        tree: Module,
+-    ) -> Module:
+-        # Add from typing import TYPE_CHECKING
+-        tree = self._add_type_checking_import(tree)
+-
+-        context_contents = self.context.scratch.get(
+-            MoveImportsToTypeCheckingBlockVisitor.CONTEXT_KEY
+-        )
+-        if context_contents is not None:
+-            (import_items_to_be_moved,) = context_contents
+-
+-            self.import_items_to_be_moved = import_items_to_be_moved
+-
+-            # Remove typing library since we do not want it
+-            # to be imported inside the if TYPE_CHECKING block
+-            self.import_items_to_be_moved = self._remove_typing_module(
+-                self.import_items_to_be_moved
+-            )
+-
+-            # Remove the newer imports since those are to be
+-            # shifted inside the if TYPE_CHECKING block
+-            tree = self._remove_imports(tree)
+-
+-            # Add the new imports inside if TYPE_CHECKING block
+-            tree = self._add_if_type_checking_block(tree)
+-
+-        return tree
+-
+ 
+ class RemoveImportsTransformer(CSTTransformer):
+     def __init__(

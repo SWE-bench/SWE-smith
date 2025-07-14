@@ -1,0 +1,13 @@
+diff --git a/monkeytype/stubs.py b/monkeytype/stubs.py
+index 9c1d3eb..5b285dd 100644
+--- a/monkeytype/stubs.py
++++ b/monkeytype/stubs.py
+@@ -495,7 +495,7 @@ class AttributeStub(Stub):
+         return f"AttributeStub({self.name}, {self.typ})"
+ 
+ 
+-class FunctionStub(Stub):
++class FunctionStub():
+     def __init__(
+         self,
+         name: str,
