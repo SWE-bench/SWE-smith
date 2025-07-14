@@ -1,0 +1,9 @@
+# Repository file format: owner/repo_name,commit_hash
+# Lines starting with # are comments and will be ignored
+# Example entries:
+
+Instagram/MonkeyType,70c3acf62950be5dfb28743c7a719bfdecebcd84
+# facebook/react,a1b2c3d4e5f6789012345678901234567890abcd
+# microsoft/vscode,f1e2d3c4b5a6987654321098765432109876fedc
+
+# Add your repositories here following the same format 

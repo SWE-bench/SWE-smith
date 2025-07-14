@@ -57,7 +57,10 @@ def build_all_images(workers=4, profile_filter=None, proceed=False):
         try:
             # Check if image already exists
             client.images.get(profile.image_name)
+            print(f"Image {profile.image_name} already exists")
         except docker.errors.ImageNotFound:
+            print(f"Image {profile.image_name} not found")
+
             profiles_to_build.append(profile)
 
     # Filter profiles if specified
