@@ -50,7 +50,7 @@ def get_entities_from_file_c(
     entities: list[CEntity],
     file_path: str,
     max_entities: int = -1,
-) -> list[CEntity]:
+) -> None:
     """
     Parse a .c file and return up to max_entities top-level funcs and types.
     If max_entities < 0, collects them all.
@@ -62,13 +62,13 @@ def get_entities_from_file_c(
     root = tree.root_node
     lines = file_content.splitlines()
 
-    def walk(node):
+    def walk(node) -> None:
         # stop if we've hit the limit
         if 0 <= max_entities == len(entities):
             return
 
         # not checking for error nodes here because tree-sitter-c frequently
-        # generates them parsing valid processor directives
+        # generates them parsing valid pre-processor directives
 
         if node.type == "function_definition":
             entities.append(_build_entity(node, lines, file_path))
@@ -81,9 +81,9 @@ def get_entities_from_file_c(
     walk(root)
 
 
-def _build_entity(node, lines, file_path: str) -> CodeEntity:
+def _build_entity(node, lines, file_path: str) -> CEntity:
     """
-    Turn a Tree-sitter node into CodeEntity.
+    Turns a Tree-sitter node into a CEntity object.
     """
     # start_point/end_point are (row, col) zero-based
     start_row, _ = node.start_point

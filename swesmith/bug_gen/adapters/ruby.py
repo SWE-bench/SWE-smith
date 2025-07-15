@@ -60,7 +60,7 @@ class RubyEntity(CodeEntity):
 
     @property
     def complexity(self) -> int:
-        def walk(node):
+        def walk(node) -> int:
             score = 0
 
             if node.type in [
@@ -104,7 +104,7 @@ def get_entities_from_file_rb(
     entities: list[RubyEntity],
     file_path: str,
     max_entities: int = -1,
-) -> list[RubyEntity]:
+) -> None:
     """
     Parse a .rb file and return up to max_entities top-level funcs and types.
     If max_entities < 0, collects them all.
@@ -116,7 +116,7 @@ def get_entities_from_file_rb(
     root = tree.root_node
     lines = file_content.splitlines()
 
-    def walk(node):
+    def walk(node) -> None:
         # stop if we've hit the limit
         if 0 <= max_entities == len(entities):
             return
@@ -141,9 +141,9 @@ def get_entities_from_file_rb(
     walk(root)
 
 
-def _build_entity(node, lines, file_path: str) -> CodeEntity:
+def _build_entity(node, lines, file_path: str) -> RubyEntity:
     """
-    Turn a Tree-sitter node into CodeEntity.
+    Turns a Tree-sitter node into a RubyEntity object.
     """
     # start_point/end_point are (row, col) zero-based
     start_row, _ = node.start_point
