@@ -41,6 +41,7 @@ dependencies = [
     "tqdm",
     "tree-sitter>=0.23",
     "tree-sitter-c==0.23.4",
+    "tree-sitter-c-sharp",
     "tree-sitter-go",
     "tree-sitter-javascript",
     "tree-sitter-java",
