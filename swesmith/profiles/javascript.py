@@ -40,6 +40,7 @@ def parse_log_jest(log: str) -> dict[str, str]:
                 test_status_map[test_name] = TestStatus.SKIPPED.value
     return test_status_map
 
+
 def parse_log_mocha(log: str) -> dict[str, str]:
     test_status_map = {}
     pattern = r"^\s*(✔|✖|-)\s(.+?)(?:\s\((\d+\s*m?s)\))?$"
@@ -54,6 +55,7 @@ def parse_log_mocha(log: str) -> dict[str, str]:
             elif status_symbol == "-":
                 test_status_map[test_name] = TestStatus.SKIPPED.value
     return test_status_map
+
 
 @dataclass
 class ReactPDFee5c96b8(JavaScriptProfile):
@@ -169,6 +171,7 @@ RUN npm install
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
 
+
 @dataclass
 class Mongoose5f57a5bb(JavaScriptProfile):
     owner: str = "Automattic"
@@ -187,7 +190,6 @@ RUN npm install
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_mocha(log)
-
 
 
 # Register all JavaScript profiles with the global registry
