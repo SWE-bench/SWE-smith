@@ -40,6 +40,20 @@ def parse_log_jest(log: str) -> dict[str, str]:
                 test_status_map[test_name] = TestStatus.SKIPPED.value
     return test_status_map
 
+def parse_log_mocha(log: str) -> dict[str, str]:
+    test_status_map = {}
+    pattern = r"^\s*(✔|✖|-)\s(.+?)(?:\s\((\d+\s*m?s)\))?$"
+    for line in log.split("\n"):
+        match = re.match(pattern, line.strip())
+        if match:
+            status_symbol, test_name, _duration = match.groups()
+            if status_symbol == "✔":
+                test_status_map[test_name] = TestStatus.PASSED.value
+            elif status_symbol == "✖":
+                test_status_map[test_name] = TestStatus.FAILED.value
+            elif status_symbol == "-":
+                test_status_map[test_name] = TestStatus.SKIPPED.value
+    return test_status_map
 
 def parse_log_mocha(log: str) -> dict[str, str]:
     test_status_map = {}
@@ -170,7 +184,6 @@ RUN npm install
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
-
 
 @dataclass
 class Mongoose5f57a5bb(JavaScriptProfile):
