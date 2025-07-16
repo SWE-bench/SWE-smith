@@ -124,7 +124,7 @@ def run_command_in_container(instance: dict, command: str, rp: RepoProfile):
     # Checkout the commit corresponding to the bug + run testing command
     container.exec_run("git fetch", workdir=DOCKER_WORKDIR, user=DOCKER_USER)
     container.exec_run(
-        f"git checkout {instance['base_commit']}",
+        f"git checkout {instance['instance_id']}",
         workdir=DOCKER_WORKDIR,
         user=DOCKER_USER,
     )

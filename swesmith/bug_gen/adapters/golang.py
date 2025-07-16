@@ -39,9 +39,12 @@ class GoEntity(CodeEntity):
             receiver_query, self.node, "receiver_type"
         )
 
-        return (
-            f"{receiver_type}.{func_name}" if receiver_type and func_name else func_name
-        )
+        if receiver_type and func_name:
+            return f"{receiver_type}.{func_name}"
+        elif func_name:
+            return func_name
+        else:
+            return ""
 
     @property
     def signature(self) -> str:
@@ -107,7 +110,7 @@ def get_entities_from_file_go(
     entities: list[GoEntity],
     file_path: str,
     max_entities: int = -1,
-) -> list[GoEntity]:
+) -> None:
     """
     Parse a .go file and return up to max_entities top-level funcs and types.
     If max_entities < 0, collects them all.
@@ -119,7 +122,7 @@ def get_entities_from_file_go(
     root = tree.root_node
     lines = file_content.splitlines()
 
-    def walk(node):
+    def walk(node) -> None:
         # stop if we've hit the limit
         if 0 <= max_entities == len(entities):
             return
@@ -142,9 +145,9 @@ def get_entities_from_file_go(
     walk(root)
 
 
-def _build_entity(node, lines, file_path: str) -> CodeEntity:
+def _build_entity(node, lines, file_path: str) -> GoEntity:
     """
-    Turn a Tree-sitter node into CodeEntity.
+    Turns a Tree-sitter node into a GoEntity object.
     """
     # start_point/end_point are (row, col) zero-based
     start_row, _ = node.start_point

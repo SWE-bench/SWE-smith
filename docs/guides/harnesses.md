@@ -59,9 +59,7 @@ This script performs two actions:
     "patch": <The diff that, when applied, creates the bug>,
     "FAIL_TO_PASS": <List of broken test cases>,
     "PASS_TO_PASS": <List of passing test cases>,
-    "created_at": <timestamp>,
     "image_name": <docker image name>,
-    "base_commit": <base commit hash>,
 }
 ```
 * For each valid task instance, a branch called `<instance_id>` is created in the repository. The branch corresponds to the repository with the task instance's bug patch applied.

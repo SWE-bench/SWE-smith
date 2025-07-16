@@ -5,13 +5,11 @@ that can be run with SWE-agent. Each instances is of the form:
 {
     "instance_id":
     "repo":
-    "base_commit":
     "patch":
     "test_patch":
     "problem_statement":
     "FAIL_TO_PASS":
     "PASS_TO_PASS":
-    "created_at":
     "version":
 }
 
@@ -34,7 +32,6 @@ import os
 import shutil
 import subprocess
 
-from datetime import datetime
 from pathlib import Path
 from swebench.harness.constants import (
     FAIL_TO_PASS,
@@ -46,9 +43,9 @@ from swesmith.constants import (
     GIT_APPLY_CMDS,
     KEY_IMAGE_NAME,
     KEY_PATCH,
-    KEY_PATCH_TEST,
     KEY_TIMED_OUT,
     LOG_DIR_TASKS,
+    LOG_DIR_RUN_VALIDATION,
     REF_SUFFIX,
 )
 from swesmith.profiles import global_registry
@@ -103,7 +100,6 @@ def check_if_branch_exists(
     verbose: bool,
 ):
     branch_exists = None
-    branch_commit = None
     try:
         subprocess.run(f"git checkout {subfolder}", cwd=repo_name, **SUBPROCESS_ARGS)
         if override_branch:
@@ -117,23 +113,13 @@ def check_if_branch_exists(
                 print(f"[{subfolder}] Overriding existing branch")
             branch_exists = False
         else:
-            branch_commit = (
-                subprocess.run(
-                    "git rev-parse HEAD",
-                    cwd=repo_name,
-                    capture_output=True,
-                    **SUBPROCESS_ARGS,
-                )
-                .stdout.decode()
-                .strip()
-            )
             branch_exists = True
         subprocess.run(f"git checkout {main_branch}", cwd=repo_name, **SUBPROCESS_ARGS)
         subprocess.run(f"git branch -D {subfolder}", cwd=repo_name, **SUBPROCESS_ARGS)
     except Exception:
         branch_exists = False
         pass
-    return branch_exists, branch_commit
+    return branch_exists
 
 
 def _main(
@@ -157,8 +143,8 @@ def _main(
 
     validation_logs_path = Path(validation_logs_path)
     assert validation_logs_path.resolve().is_relative_to(
-        Path("logs/run_validation").resolve()
-    ), "Validation logs should be in logs/run_validation"
+        LOG_DIR_RUN_VALIDATION.resolve()
+    ), f"Validation logs should be in {LOG_DIR_RUN_VALIDATION}"
     assert validation_logs_path.exists(), (
         f"Validation logs path {validation_logs_path} does not exist"
     )
@@ -232,14 +218,14 @@ def _main(
             KEY_PATCH: patch_content,
             FAIL_TO_PASS: results[FAIL_TO_PASS],
             PASS_TO_PASS: results[PASS_TO_PASS],
-            "created_at": datetime.now().isoformat(),
         }
         rp = global_registry.get_from_inst(task_instance)
         task_instance[KEY_IMAGE_NAME] = rp.image_name
         task_instance["repo"] = rp.mirror_name
 
         # Clone repository
-        if rp.clone():
+        _, cloned = rp.clone()
+        if cloned:
             created_repos.add(rp.repo_name)
         main_branch = (
             subprocess.run(
@@ -254,14 +240,13 @@ def _main(
         )
 
         # Check if branch already created for this problem
-        branch_exists, branch_commit = check_if_branch_exists(
+        branch_exists = check_if_branch_exists(
             rp.repo_name, subfolder, main_branch, override_branch, verbose
         )
         if branch_exists:
-            task_instance["base_commit"] = branch_commit
             task_instances.append(task_instance)
             stats = skip_print(
-                f"{subfolder}: Already exists @ branch `{subfolder}` {branch_commit[:8]}",
+                f"{subfolder}: Branch `{subfolder}` exists",
                 pbar,
                 stats,
                 verbose,
@@ -305,7 +290,7 @@ def _main(
             subprocess.run(cmd, cwd=rp.repo_name, **SUBPROCESS_ARGS)
 
         # Create test patch by removing F2P test files
-        f2p_test_files = rp.get_f2p_test_files(task_instance)
+        f2p_test_files, _ = rp.get_test_files(task_instance)
         if f2p_test_files:
             # Remove the test files
             for test_file in f2p_test_files:
@@ -313,18 +298,7 @@ def _main(
                 if os.path.exists(test_file_path):
                     os.remove(test_file_path)
                     if verbose:
-                        print(f"[{subfolder}] Removed test file: {test_file}")
-
-            # Create diff of the removal
-            task_instance[KEY_PATCH_TEST] = subprocess.run(
-                "git diff HEAD",
-                capture_output=True,
-                check=True,
-                cwd=rp.repo_name,
-                shell=True,
-            ).stdout.decode()
-            if verbose:
-                print(f"[{subfolder}] Removed F2P test file(s)")
+                        print(f"[{subfolder}] Removed F2P test file: {test_file}")
 
             # Add and commit removal
             cmds = [
@@ -335,10 +309,10 @@ def _main(
                 if debug_subprocess:
                     print(f"[{subfolder}] {cmd}")
                 subprocess.run(cmd, cwd=rp.repo_name, **SUBPROCESS_ARGS)
-        else:
-            task_instance[KEY_PATCH_TEST] = ""
             if verbose:
-                print(f"[{subfolder}] No test files to remove")
+                print(f"[{subfolder}] Commit F2P test file(s) removal")
+        elif verbose:
+            print(f"[{subfolder}] No test files to remove")
 
         cmds = [
             f"git push origin {subfolder}",

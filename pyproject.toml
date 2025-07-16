@@ -25,7 +25,6 @@ dependencies = [
     "datasets",
     "docker",
     "ghapi",
-    "jupyter",
     "libcst",
     "litellm",
     "matplotlib",

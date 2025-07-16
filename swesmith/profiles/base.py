@@ -18,7 +18,7 @@ from ghapi.all import GhApi
 from multiprocessing import Lock
 from pathlib import Path
 from swesmith.bug_gen.adapters import get_entities_from_file, SUPPORTED_EXTS
-from swebench.harness.constants import KEY_INSTANCE_ID
+from swebench.harness.constants import FAIL_TO_PASS, KEY_INSTANCE_ID
 from swesmith.constants import (
     KEY_PATCH,
     LOG_DIR_ENV,
@@ -83,8 +83,9 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
     # this design may have to be updated.
     _lock: Lock = field(default_factory=Lock, init=False, repr=False, compare=False)
 
-    # Class-level cache for test paths (None if not cached yet)
-    _test_paths_cache = None
+    # Class-level caches
+    _cache_test_paths = None  # For test paths
+    _cache_branches = None
 
     @abstractmethod
     def log_parser(self, log: str) -> dict[str, str]:
@@ -102,6 +103,32 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
     @property
     def repo_name(self):
         return f"{self.owner}__{self.repo}.{self.commit[:8]}"
+
+    @property
+    def branches(self):
+        """Get task instance branches corresponding to this repo"""
+        if self._cache_branches is None:
+            self._cache_branches = []
+            increase, page = 0, 1
+            while page == 1 or increase > 0:
+                prev = len(self._cache_branches)
+                self._cache_branches.extend(
+                    api.repos.list_branches(
+                        owner=self.org_gh,
+                        repo=self.repo_name,
+                        prefix=self.repo_name,
+                        per_page=100,
+                        page=page,
+                    )
+                )
+                increase = len(self._cache_branches) - prev
+                page += 1
+            self._cache_branches = [
+                b.name
+                for b in self._cache_branches
+                if b.name.startswith(self.repo_name)
+            ]
+        return self._cache_branches
 
     def _mirror_exists(self):
         """Check if mirror repository exists under organization"""
@@ -230,10 +257,10 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
 
     def _get_cached_test_paths(self) -> list[Path]:
         """Clone the repo, get all testing file paths relative to the repo directory, then clean up."""
-        if self._test_paths_cache is None:
+        if self._cache_test_paths is None:
             with self._lock:  # Only one process enters this block at a time
                 dir_path, cloned = self.clone()
-                self._test_paths_cache = [
+                self._cache_test_paths = [
                     Path(os.path.relpath(os.path.join(root, file), self.repo_name))
                     for root, _, files in os.walk(Path(self.repo_name).resolve())
                     for file in files
@@ -242,11 +269,11 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
                 if cloned:
                     shutil.rmtree(dir_path)
 
-        return self._test_paths_cache
+        return self._cache_test_paths
 
-    def get_f2p_test_files(self, instance: dict) -> list[str]:
-        """Given an instance, return files corresponding to F2P tests"""
-        return []
+    def get_test_files(self, instance: dict) -> tuple[list[str], list[str]]:
+        """Given an instance, return files corresponding to F2P, P2P test files"""
+        return [], []
 
     def get_test_cmd(
         self, instance: dict, f2p_only: bool = False
@@ -257,9 +284,15 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
         test_command = self.test_cmd
 
         if f2p_only:
-            f2p_files = self.get_f2p_test_files(instance)
+            f2p_files, _ = self.get_test_files(instance)
             test_command += f" {' '.join(f2p_files)}"
             return test_command, f2p_files
+
+        if self.min_testing and FAIL_TO_PASS in instance:
+            f2p_files, p2p_files = self.get_test_files(instance)
+            if len(f2p_files + p2p_files) > 0:
+                test_command += f" {' '.join(f2p_files + p2p_files)}"
+            return test_command, f2p_files + p2p_files
 
         if not self.min_testing or KEY_PATCH not in instance:
             # If min testing is not enabled or there's no patch

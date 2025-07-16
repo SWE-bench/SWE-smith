@@ -70,7 +70,7 @@ def run_patch_in_container(
     run_id: str,
     log_dir: Path,
     timeout: int,
-    patches: list[str] | None = None,
+    patch: str | None = None,
     commit: str | None = None,
     f2p_only: bool = False,
     is_gold: bool = False,
@@ -91,9 +91,10 @@ def run_patch_in_container(
     client = docker.from_env()
     instance_id = instance[KEY_INSTANCE_ID]
     rp = global_registry.get_from_inst(instance)
+    is_eval = log_dir == RUN_EVALUATION_LOG_DIR
     try:
         container_type = None
-        if log_dir == RUN_EVALUATION_LOG_DIR:
+        if is_eval:
             container_type = "eval"
         elif log_dir == LOG_DIR_RUN_VALIDATION:
             container_type = "val"
@@ -127,31 +128,53 @@ def run_patch_in_container(
             if val.exit_code != 0:
                 logger.info(f"CHECKOUT FAILED: {val.output.decode(UTF8)}")
                 return logger, False
+            if is_eval:
+                # NOTE: Key assumption we make is that each branch has two commits
+                # 1. Bug commit
+                # 2. F2P Test File(s) removal commit (on top of 1).
+                # The `HEAD~1` corresponds to reverting the branch to (1), which
+                # effectively brings the tests back into the codebase.
+                val = container.exec_run(
+                    "git checkout HEAD~1", workdir=DOCKER_WORKDIR, user=DOCKER_USER
+                )
+                if val.exit_code != 0:
+                    logger.info(
+                        f"CHECKOUT TO BUG STAGE FAILED: {val.output.decode(UTF8)}"
+                    )
+                    return logger, False
 
         # If provided, copy patch to container and apply it to codebase
-        if patches is not None and len(patches) >= 1:
-            for patch in patches:
-                if len(patch.strip()) == 0:
-                    logger.info("Skipping patch apply (patch is empty)")
-                    continue
-                logger.info("Applying patch to container for...")
+        if patch is not None and len(patch) >= 1:
+            logger.info("Applying patch to container...")
 
-                # Revert any changes to those files in the container to ensure a clean state
-                changed_files = " ".join([x.path for x in PatchSet(patch)])
-                container.exec_run(
-                    f"git checkout -- {changed_files}",
-                    workdir=DOCKER_WORKDIR,
-                    user=DOCKER_USER,
-                )
+            # Revert any changes to those files in the container to ensure a clean state
+            changed_files = " ".join([x.path for x in PatchSet(patch)])
+            container.exec_run(
+                f"git checkout -- {changed_files}",
+                workdir=DOCKER_WORKDIR,
+                user=DOCKER_USER,
+            )
 
-                # Apply the patch inside the container
-                patch_file = Path(log_dir / "patch.diff")
-                patch_file.write_text(patch)
-                logger.info(
-                    f"Patch written to {patch_file}, now applying to container..."
-                )
-                copy_to_container(container, patch_file, Path(DOCKER_PATCH))
-                _apply_patch(instance_id, container, logger, is_gold)
+            # Apply the patch inside the container
+            patch_file = Path(log_dir / "patch.diff")
+            patch_file.write_text(patch)
+            logger.info(f"Patch written to {patch_file}, now applying to container...")
+            copy_to_container(container, patch_file, Path(DOCKER_PATCH))
+            _apply_patch(instance_id, container, logger, is_gold)
+
+            if is_eval:
+                # For evaluation, removes any changes to test related files.
+                f2p_files, p2p_files = rp.get_test_files(instance)
+                test_files = " ".join(f2p_files + p2p_files)
+                if test_files:
+                    container.exec_run(
+                        f"git checkout -- {test_files}",
+                        workdir=DOCKER_WORKDIR,
+                        user=DOCKER_USER,
+                    )
+                    logger.info(
+                        f"Reverted changes to test files in container: {test_files}"
+                    )
 
         # Copy eval script to container
         eval_file = Path(log_dir / "eval.sh")

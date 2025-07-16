@@ -23,7 +23,7 @@ from swebench.harness.constants import (
 )
 from swebench.harness.docker_build import close_logger
 from swebench.harness.utils import run_threadpool
-from swesmith.constants import HF_DATASET, KEY_PATCH, KEY_PATCH_TEST, KEY_TIMED_OUT
+from swesmith.constants import HF_DATASET, KEY_PATCH, KEY_TIMED_OUT
 from swesmith.harness.grading import get_eval_report
 from swesmith.harness.utils import run_patch_in_container
 from swesmith.profiles import global_registry
@@ -46,7 +46,7 @@ def run_evaluation(
         run_id,
         RUN_EVALUATION_LOG_DIR,
         rp.timeout,
-        patches=[pred[KEY_PREDICTION], instance[KEY_PATCH_TEST]],
+        patch=pred[KEY_PREDICTION],
         commit=instance_id,
         f2p_only=f2p_only,
         is_gold=is_gold,

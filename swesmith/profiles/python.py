@@ -3,7 +3,12 @@ import re
 from dataclasses import dataclass, field
 
 from pathlib import Path
-from swebench.harness.constants import FAIL_TO_PASS, TestStatus
+from swebench.harness.constants import (
+    FAIL_TO_PASS,
+    PASS_TO_PASS,
+    KEY_INSTANCE_ID,
+    TestStatus,
+)
 from swebench.harness.docker_build import build_image as build_image_sweb
 from swebench.harness.dockerfiles import get_dockerfile_env
 from swesmith.constants import LOG_DIR_ENV, ENV_NAME, INSTANCE_REF
@@ -32,8 +37,12 @@ class PythonProfile(RepoProfile):
     )
     exts: list[str] = field(default_factory=lambda: [".py"])
 
-    def get_f2p_test_files(self, instance: dict) -> list[str]:
-        return sorted(list(set([x.split("::", 1)[0] for x in instance[FAIL_TO_PASS]])))
+    def get_test_files(self, instance: dict) -> tuple[list[str], list[str]]:
+        assert FAIL_TO_PASS in instance and PASS_TO_PASS in instance, (
+            f"Instance {instance[KEY_INSTANCE_ID]} missing required keys {FAIL_TO_PASS} or {PASS_TO_PASS}"
+        )
+        _helper = lambda tests: sorted(list(set([x.split("::", 1)[0] for x in tests])))
+        return _helper(instance[FAIL_TO_PASS]), _helper(instance[PASS_TO_PASS])
 
     def build_image(self):
         BASE_IMAGE_KEY = "jyangballin/swesmith.x86_64"
@@ -544,15 +553,16 @@ class MidoA0158ff9(PythonProfile):
         "pytest --disable-warnings --color=no --tb=no --verbose -rs -c /dev/null"
     )
 
-    def get_f2p_test_files(self, instance: dict) -> list[str]:
-        test_files = super().get_f2p_test_files(instance)
+    def get_test_files(self, instance: dict) -> list[str]:
+        f2p_files, p2p_files = super().get_test_files(instance)
         prefix = "../dev/"
-        remove_prefix = (
+        _helper = (
             lambda test_file: test_file[len(prefix) :]
             if test_file.startswith(prefix)
             else test_file
         )
-        return sorted(list(set(map(remove_prefix, test_files))))
+        remove_prefix = lambda test_files: sorted(list(set(map(_helper, test_files))))
+        return remove_prefix(f2p_files), remove_prefix(p2p_files)
 
 
 @dataclass
@@ -795,8 +805,8 @@ class PythonSlugify872b3750(PythonProfile):
         "python test.py --verbose"
     )
 
-    def get_f2p_test_files(self, instance: dict) -> list[str]:
-        return ["test.py"]
+    def get_test_files(self, instance: dict) -> list[str]:
+        return ["test.py"], ["test.py"]
 
     def log_parser(self, log: str) -> dict[str, str]:
         test_status_map = {}
@@ -1031,14 +1041,19 @@ class TornadoD5ac65c1(PythonProfile):
         "python -m tornado.test --verbose"
     )
 
-    def get_f2p_test_files(self, instance: dict) -> list[str]:
-        test_files = set()
-        for f2p_test in instance[FAIL_TO_PASS]:
-            is_match = re.search(r"\s\((.*)\)", f2p_test)
-            if is_match:
-                test_path = is_match.group(1)
-                test_files.add("/".join(test_path.split(".")[:-1]) + ".py")
-        return list(test_files)
+    def get_test_files(self, instance: dict) -> list[str]:
+        f2p_files = set()
+        p2p_files = set()
+        for i, j in (
+            (PASS_TO_PASS, p2p_files),
+            (FAIL_TO_PASS, f2p_files),
+        ):
+            for test_name in instance[i]:
+                is_match = re.search(r"\s\((.*)\)", test_name)
+                if is_match:
+                    test_path = is_match.group(1)
+                    j.add("/".join(test_path.split(".")[:-1]) + ".py")
+        return list(f2p_files), list(p2p_files)
 
     def log_parser(self, log: str) -> dict[str, str]:
         test_status_map = {}
