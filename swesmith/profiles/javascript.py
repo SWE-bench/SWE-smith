@@ -40,6 +40,20 @@ def parse_log_jest(log: str) -> dict[str, str]:
                 test_status_map[test_name] = TestStatus.SKIPPED.value
     return test_status_map
 
+def parse_log_mocha(log: str) -> dict[str, str]:
+    test_status_map = {}
+    pattern = r"^\s*(✔|✖|-)\s(.+?)(?:\s\((\d+\s*m?s)\))?$"
+    for line in log.split("\n"):
+        match = re.match(pattern, line.strip())
+        if match:
+            status_symbol, test_name, _duration = match.groups()
+            if status_symbol == "✔":
+                test_status_map[test_name] = TestStatus.PASSED.value
+            elif status_symbol == "✖":
+                test_status_map[test_name] = TestStatus.FAILED.value
+            elif status_symbol == "-":
+                test_status_map[test_name] = TestStatus.SKIPPED.value
+    return test_status_map
 
 @dataclass
 class ReactPDFee5c96b8(JavaScriptProfile):
@@ -136,7 +150,47 @@ RUN make build
         return f"{self.test_cmd} {' '.join(test_folders)}", test_folders
 
 
-# Register all Java profiles with the global registry
+@dataclass
+class GithubReadmeStats3e974011(JavaScriptProfile):
+    owner: str = "anuraghazra"
+    repo: str = "github-readme-stats"
+    commit: str = "3e97401177143bb35abb42279a13991cbd584ca3"  # Using master branch, can be updated to specific commit hash
+    test_cmd: str = "npm test -- --verbose"
+
+    @property
+    def dockerfile(self):
+        return f"""FROM node:18-bullseye
+RUN apt update && apt install -y git
+RUN git clone https://github.com/{self.mirror_name} /testbed
+WORKDIR /testbed
+RUN npm install
+"""
+
+    def log_parser(self, log: str) -> dict[str, str]:
+        return parse_log_jest(log)
+
+@dataclass
+class Mongoose5f57a5bb(JavaScriptProfile):
+    owner: str = "Automattic"
+    repo: str = "mongoose"
+    commit: str = "5f57a5bbb2e8dfed8d04be47cdd17728633c44c1"  # Replace with a specific commit hash
+    test_cmd: str = "npm test -- --verbose"
+
+    @property
+    def dockerfile(self):
+        return f"""FROM node:18-bullseye
+RUN apt update && apt install -y git
+RUN git clone https://github.com/{self.mirror_name} /testbed
+WORKDIR /testbed
+RUN npm install
+"""
+
+    def log_parser(self, log: str) -> dict[str, str]:
+        return parse_log_mocha(log)
+
+
+
+# Register all JavaScript profiles with the global registry
 for name, obj in list(globals().items()):
     if (
         isinstance(obj, type)
