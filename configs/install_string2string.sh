@@ -13,5 +13,11 @@ else
 fi
 conda create -n testbed python=3.10 -yq
 conda activate testbed
+pip install -r docs/requirements.txt
 pip install -e .
 pip install pytest
+pip uninstall fasttext -y
+conda install -c conda-forge fasttext -y
+pip uninstall numpy -y
+conda install 'numpy>=1.22.4' -y
+            
