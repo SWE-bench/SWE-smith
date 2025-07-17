@@ -14,7 +14,7 @@ from tqdm import tqdm
 from swesmith.profiles import global_registry
 
 
-def build_profile_image(profile):
+def build_profile_image(profile, push=False):
     """
     Build a Docker image for a specific profile.
 
@@ -27,13 +27,15 @@ def build_profile_image(profile):
     try:
         profile.create_mirror()
         profile.build_image()
+        if push:
+            profile.push_image()
         return (profile.image_name, True, None)
     except Exception as e:
         error_msg = f"Error building {profile.image_name}: {str(e)}"
         return (profile.image_name, False, error_msg)
 
 
-def build_all_images(workers=4, profile_filter=None, proceed=False):
+def build_all_images(workers=4, profile_filter=None, proceed=False, push=False):
     """
     Build Docker images for all registered profiles in parallel.
 
@@ -97,7 +99,7 @@ def build_all_images(workers=4, profile_filter=None, proceed=False):
         with ThreadPoolExecutor(max_workers=workers) as executor:
             # Submit all build tasks
             future_to_profile = {
-                executor.submit(build_profile_image, profile): profile
+                executor.submit(build_profile_image, profile, push): profile
                 for profile in profiles_to_build
             }
 
@@ -128,12 +130,14 @@ def main():
         description="Build Docker images for all registered repository profiles"
     )
     parser.add_argument(
+        "-w",
         "--workers",
         type=int,
         default=4,
         help="Maximum number of parallel workers (default: 4)",
     )
     parser.add_argument(
+        "-p",
         "--profiles",
         type=str,
         nargs="+",
@@ -141,6 +145,12 @@ def main():
     )
     parser.add_argument(
         "-y", "--proceed", action="store_true", help="Proceed without confirmation"
+    )
+    parser.add_argument(
+        "--push",
+        type=bool,
+        action="store_true",
+        help="Push built images to Docker Hub after building (default: False)",
     )
     parser.add_argument(
         "--list-envs", action="store_true", help="List all available profiles and exit"
@@ -155,7 +165,10 @@ def main():
         return
 
     successful, failed = build_all_images(
-        workers=args.workers, profile_filter=args.profiles, proceed=args.proceed
+        workers=args.workers,
+        profile_filter=args.profiles,
+        proceed=args.proceed,
+        push=args.push,
     )
 
     if failed:
