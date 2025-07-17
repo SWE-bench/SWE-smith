@@ -9,6 +9,7 @@ Usage: python -m swesmith.harness.eval \
 """
 
 import argparse
+import fnmatch
 import json
 import os
 
@@ -27,6 +28,32 @@ from swesmith.constants import HF_DATASET, KEY_PATCH, KEY_TIMED_OUT
 from swesmith.harness.grading import get_eval_report
 from swesmith.harness.utils import run_patch_in_container
 from swesmith.profiles import global_registry
+
+
+def matches_instance_filter(instance_id: str, instance_ids: list[str] | None) -> bool:
+    """
+    Check if an instance_id matches the filtering criteria.
+
+    Args:
+        instance_id: The instance ID to check
+        instance_ids: List of instance IDs or patterns to match against
+
+    Returns:
+        True if the instance should be included, False otherwise
+    """
+    if instance_ids is None:
+        return True
+
+    for filter_item in instance_ids:
+        # Check for exact match first
+        if instance_id == filter_item:
+            return True
+
+        # Check for pattern match (supports * and ? wildcards)
+        if fnmatch.fnmatch(instance_id, filter_item):
+            return True
+
+    return False
 
 
 def run_evaluation(
@@ -92,6 +119,17 @@ def main(
 ):
     """
     Run evaluation of predictions on SWE-smith style dataset.
+
+    Args:
+        run_id: Unique identifier for this run
+        workers: Number of workers to use for parallel processing
+        predictions_path: Path to predictions file or "gold" for gold predictions
+        dataset_path: Path to dataset or HF_DATASET for default
+        f2p_only: Run evaluation using only files with f2p tests
+        instance_ids: List of instance IDs or patterns to evaluate.
+                     Supports exact matches and glob patterns (e.g., "repo__name.*")
+        report_only: Regenerate reports only, skip evaluation
+        redo_existing: Redo completed evaluation instances
     """
     assert len(run_id) > 0, "Run ID must be provided"
 
@@ -133,9 +171,7 @@ def main(
         else:
             raise ValueError("Predictions must be in .json or .jsonl format")
     predictions = {
-        k: v
-        for k, v in predictions.items()
-        if instance_ids is None or k in instance_ids
+        k: v for k, v in predictions.items() if matches_instance_filter(k, instance_ids)
     }
 
     # Early terminate if no predictions
@@ -232,7 +268,11 @@ if __name__ == "__main__":
         help="Redo completed evaluation instances",
     )
     parser.add_argument(
-        "-i", "--instance_ids", type=str, help="Instance IDs to evaluate", nargs="+"
+        "-i",
+        "--instance_ids",
+        type=str,
+        help="Instance IDs to evaluate (supports exact matches and glob patterns like 'repo__name.*')",
+        nargs="+",
     )
     parser.add_argument(
         "-f",
