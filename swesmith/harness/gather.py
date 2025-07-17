@@ -45,6 +45,7 @@ from swesmith.constants import (
     KEY_PATCH,
     KEY_TIMED_OUT,
     LOG_DIR_TASKS,
+    LOG_DIR_RUN_VALIDATION,
     REF_SUFFIX,
 )
 from swesmith.profiles import global_registry
@@ -142,8 +143,8 @@ def _main(
 
     validation_logs_path = Path(validation_logs_path)
     assert validation_logs_path.resolve().is_relative_to(
-        Path("logs/run_validation").resolve()
-    ), "Validation logs should be in logs/run_validation"
+        LOG_DIR_RUN_VALIDATION.resolve()
+    ), f"Validation logs should be in {LOG_DIR_RUN_VALIDATION}"
     assert validation_logs_path.exists(), (
         f"Validation logs path {validation_logs_path} does not exist"
     )
@@ -223,7 +224,8 @@ def _main(
         task_instance["repo"] = rp.mirror_name
 
         # Clone repository
-        if rp.clone():
+        _, cloned = rp.clone()
+        if cloned:
             created_repos.add(rp.repo_name)
         main_branch = (
             subprocess.run(
@@ -288,7 +290,7 @@ def _main(
             subprocess.run(cmd, cwd=rp.repo_name, **SUBPROCESS_ARGS)
 
         # Create test patch by removing F2P test files
-        f2p_test_files = rp.get_f2p_test_files(task_instance)
+        f2p_test_files, _ = rp.get_test_files(task_instance)
         if f2p_test_files:
             # Remove the test files
             for test_file in f2p_test_files:

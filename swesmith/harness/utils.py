@@ -163,13 +163,18 @@ def run_patch_in_container(
             _apply_patch(instance_id, container, logger, is_gold)
 
             if is_eval:
-                # For evaluation, removes any changes to F2P test related files.
-                test_files = " ".join(rp.get_f2p_test_files(instance))
-                container.exec_run(
-                    f"git checkout -- {test_files}",
-                    workdir=DOCKER_WORKDIR,
-                    user=DOCKER_USER,
-                )
+                # For evaluation, removes any changes to test related files.
+                f2p_files, p2p_files = rp.get_test_files(instance)
+                test_files = " ".join(f2p_files + p2p_files)
+                if test_files:
+                    container.exec_run(
+                        f"git checkout -- {test_files}",
+                        workdir=DOCKER_WORKDIR,
+                        user=DOCKER_USER,
+                    )
+                    logger.info(
+                        f"Reverted changes to test files in container: {test_files}"
+                    )
 
         # Copy eval script to container
         eval_file = Path(log_dir / "eval.sh")

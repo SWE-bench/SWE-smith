@@ -3,7 +3,12 @@ import re
 import shutil
 
 from dataclasses import dataclass, field
-from swebench.harness.constants import FAIL_TO_PASS, TestStatus
+from swebench.harness.constants import (
+    FAIL_TO_PASS,
+    PASS_TO_PASS,
+    KEY_INSTANCE_ID,
+    TestStatus,
+)
 from swesmith.profiles.base import RepoProfile, global_registry
 
 
@@ -64,9 +69,10 @@ RUN go test -v -count=1 ./... || true
             shutil.rmtree(dest)
         return test_name_to_files
 
-    def get_f2p_test_files(self, instance: dict) -> list[str]:
-        test_names = instance[FAIL_TO_PASS]
-        test_files = set()
+    def get_test_files(self, instance: dict) -> tuple[list[str], list[str]]:
+        assert FAIL_TO_PASS in instance and PASS_TO_PASS in instance, (
+            f"Instance {instance[KEY_INSTANCE_ID]} missing required keys {FAIL_TO_PASS} or {PASS_TO_PASS}"
+        )
 
         # Lazy load the cache if needed
         if self._test_name_to_files_cache is None:
@@ -77,11 +83,17 @@ RUN go test -v -count=1 ./... || true
                     )
 
         # Look up each test name in the cache
-        for test_name in test_names:
+        f2p_files = set()
+        for test_name in instance[FAIL_TO_PASS]:
             if test_name in self._test_name_to_files_cache:
-                test_files.update(self._test_name_to_files_cache[test_name])
+                f2p_files.update(self._test_name_to_files_cache[test_name])
 
-        return list(test_files)
+        p2p_files = set()
+        for test_name in instance[PASS_TO_PASS]:
+            if test_name in self._test_name_to_files_cache:
+                p2p_files.update(self._test_name_to_files_cache[test_name])
+
+        return list(f2p_files), list(p2p_files)
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parser for test logs generated with 'go test'"""
