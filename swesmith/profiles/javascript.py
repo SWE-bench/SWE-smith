@@ -14,6 +14,13 @@ class JavaScriptProfile(RepoProfile):
     Profile for JavaScript repositories.
     """
 
+def default_npm_install_dockerfile(mirror_name: str, node_version: str = "18") -> str:
+    return f"""FROM node:{node_version}-bullseye
+RUN apt update && apt install -y git  
+RUN git clone https://github.com/{mirror_name} /testbed
+WORKDIR /testbed
+RUN npm install
+"""
 
 def parse_log_jest(log: str) -> dict[str, str]:
     """
@@ -55,6 +62,7 @@ def parse_log_mocha(log: str) -> dict[str, str]:
                 test_status_map[test_name] = TestStatus.SKIPPED.value
     return test_status_map
 
+<<<<<<< HEAD
 def parse_log_mocha(log: str) -> dict[str, str]:
     test_status_map = {}
     pattern = r"^\s*(✔|✖|-)\s(.+?)(?:\s\((\d+\s*m?s)\))?$"
@@ -71,6 +79,28 @@ def parse_log_mocha(log: str) -> dict[str, str]:
     return test_status_map
 
 
+=======
+def parse_log_vitest(log: str) -> dict[str, str]:
+    test_status_map = {}
+    patterns = [
+            (r"^✓\s+(.+?)(?:\s+\([\.\d]+ms\))?$", TestStatus.PASSED.value),
+            (r"^✗\s+(.+?)(?:\s+\([\.\d]+ms\))?$", TestStatus.FAILED.value),
+            (r"^○\s+(.+?)(?:\s+\([\.\d]+ms\))?$", TestStatus.SKIPPED.value),
+            (r"^✓\s+(.+?)$", TestStatus.PASSED.value),
+            (r"^✗\s+(.+?)$", TestStatus.FAILED.value),
+            (r"^○\s+(.+?)$", TestStatus.SKIPPED.value),
+        ]
+    for line in log.split("\n"):
+        for pattern, status in patterns:
+            match = re.match(pattern, line.strip())
+            if match:
+                test_name = match.group(1).strip()
+                test_status_map[test_name] = status
+                break
+    
+    return test_status_map
+
+>>>>>>> a25c302 (added a few JS repo)
 @dataclass
 class ReactPDFee5c96b8(JavaScriptProfile):
     owner: str = "diegomura"
@@ -126,12 +156,15 @@ RUN npm test
         fail_pattern = r"^\s*✖\s(.*?)\s\([\.\d]+ms\)"
         pass_pattern = r"^\s*✔\s(.*?)\s\([\.\d]+ms\)"
         for line in log.split("\n"):
-            if re.match(fail_pattern, line):
-                test = re.match(fail_pattern, line).group(1)
+            fail_match = re.match(fail_pattern, line)
+            if fail_match:
+                test = fail_match.group(1)
                 test_status_map[test.strip()] = TestStatus.FAILED.value
-            elif re.search(pass_pattern, line):
-                test = re.match(pass_pattern, line).group(1)
-                test_status_map[test.strip()] = TestStatus.PASSED.value
+            else:
+                pass_match = re.match(pass_pattern, line)
+                if pass_match:
+                    test = pass_match.group(1)
+                    test_status_map[test.strip()] = TestStatus.PASSED.value
         return test_status_map
 
 
@@ -175,12 +208,7 @@ class GithubReadmeStats3e974011(JavaScriptProfile):
 
     @property
     def dockerfile(self):
-        return f"""FROM node:18-bullseye
-RUN apt update && apt install -y git
-RUN git clone https://github.com/{self.mirror_name} /testbed
-WORKDIR /testbed
-RUN npm install
-"""
+        return default_npm_install_dockerfile(self.mirror_name)
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
@@ -194,15 +222,130 @@ class Mongoose5f57a5bb(JavaScriptProfile):
 
     @property
     def dockerfile(self):
-        return f"""FROM node:18-bullseye
-RUN apt update && apt install -y git
-RUN git clone https://github.com/{self.mirror_name} /testbed
-WORKDIR /testbed
-RUN npm install
-"""
+        return default_npm_install_dockerfile(self.mirror_name)
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_mocha(log)
+
+
+@dataclass
+class Axiosef36347f(JavaScriptProfile):
+    owner: str = "axios"
+    repo: str = "axios"
+    commit: str = "ef36347fb559383b04c755b07f1a8d11897fab7f"  # Replace with a specific commit hash
+    test_cmd: str = "npm run test:mocha -- --verbose"
+
+    @property
+    def dockerfile(self):
+        return default_npm_install_dockerfile(self.mirror_name)
+
+    def log_parser(self, log: str) -> dict[str, str]:
+        return parse_log_mocha(log)
+
+@dataclass
+class Async23dbf76a(JavaScriptProfile):
+    owner: str = "caolan"
+    repo: str = "async"
+    commit: str = "23dbf76aeb04c7c3dd56276115b277e3fa9dd5cc"  # Replace with a real commit hash
+    test_cmd: str = "npm run mocha-node-test -- --verbose"
+
+    @property
+    def dockerfile(self):
+        return default_npm_install_dockerfile(self.mirror_name)
+
+    def log_parser(self, log: str) -> dict[str, str]:
+        return parse_log_mocha(log)
+
+
+@dataclass
+class Expressef5f2e13(JavaScriptProfile):
+    owner: str = "expressjs"
+    repo: str = "express"
+    commit: str = "ef5f2e13ef64a1575ce8c2d77b180d593644ccfa"
+    test_cmd: str = "npm test -- --verbose"
+
+    @property
+    def dockerfile(self):
+        return default_npm_install_dockerfile(self.mirror_name)
+
+    def log_parser(self, log: str) -> dict[str, str]:
+        return parse_log_mocha(log)
+
+@dataclass
+class Dayjsc8a26460(JavaScriptProfile):
+    owner: str = "iamkun"
+    repo: str = "dayjs"
+    commit: str = "c8a26460d89a2ee9a7d3b9cafa124ea856ee883f"
+    test_cmd: str = "npm test -- --verbose"
+
+    @property
+    def dockerfile(self):
+        return default_npm_install_dockerfile(self.mirror_name)
+
+    def log_parser(self, log: str) -> dict[str, str]:
+        return parse_log_jest(log)
+
+
+@dataclass
+class Insomnia58a42fa8(JavaScriptProfile):
+    # NOTE: When creating image, this repo cannot be automatically pushed 
+    # due to potential secret exposure
+    owner: str = "Kong"
+    repo: str = "insomnia"
+    commit: str = "58a42fa8908d78a941d4e038b9e82fc1f7a5ae7f"
+    test_cmd: str = "npm test -- --verbose"
+
+    @property
+    def dockerfile(self):
+        return f"""FROM node:22-bullseye
+RUN apt update && apt install -y git  
+RUN apt-get update
+RUN apt-get install libfontconfig-dev
+RUN git clone https://github.com/{self.mirror_name} /testbed
+WORKDIR /testbed
+RUN npm i
+"""
+
+    def log_parser(self, log: str) -> dict[str, str]:
+        return parse_log_vitest(log)
+
+
+@dataclass
+class Svelte6c9717a9(JavaScriptProfile):
+    owner: str = "sveltejs"
+    repo: str = "svelte"
+    commit: str = "6c9717a91f2f6ae10641d1cf502ba13d227fbe45"
+    test_cmd: str = "pnpm test -- --verbose"
+
+    @property
+    def dockerfile(self):
+        return f"""FROM node:18-bullseye
+RUN apt update && apt install -y git
+RUN npm install -g pnpm@10.4.0
+RUN git clone https://github.com/{self.mirror_name} /testbed
+WORKDIR /testbed
+RUN pnpm install
+RUN pnpm playwright install chromium
+RUN pnpm exec playwright install-deps
+"""
+
+    def log_parser(self, log: str) -> dict[str, str]:
+        return parse_log_vitest(log)
+
+
+@dataclass
+class Commanderjs395cf714(JavaScriptProfile):
+    owner: str = "tj"
+    repo: str = "commander.js"
+    commit: str = "395cf7145fe28122f5a69026b310e02df114f907"
+    test_cmd: str = "npm test -- --verbose"
+
+    @property
+    def dockerfile(self):
+        return default_npm_install_dockerfile(self.mirror_name, node_version="20")
+
+    def log_parser(self, log: str) -> dict[str, str]:
+        return parse_log_jest(log)
 
 
 # Register all JavaScript profiles with the global registry
