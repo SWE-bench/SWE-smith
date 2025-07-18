@@ -1238,7 +1238,6 @@ class Hydra0f03eb60(PythonProfile):
             "pip install -e .",
         ]
     )
-    min_testing: bool = True
 
 
 @dataclass

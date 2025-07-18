@@ -33,6 +33,7 @@ import json
 import os
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from swebench.harness.constants import KEY_INSTANCE_ID, LOG_REPORT
 from swesmith.constants import generate_hash
 from swesmith.train.traj_mgr.utils import MAP_STYLE_TO_FUNC
 from tqdm.auto import tqdm
@@ -48,11 +49,11 @@ def process_single_trajectory(
     """Process a single trajectory folder and return the result."""
     if not (eval_dir / folder).exists():
         return None
-    if not (eval_dir / folder / "report.json").exists():
+    if not (eval_dir / folder / LOG_REPORT).exists():
         return None
 
     try:
-        report_path = eval_dir / folder / "report.json"
+        report_path = eval_dir / folder / LOG_REPORT
         report = json.loads(report_path.read_text())
         is_resolved = (
             report.get("resolved", False)
@@ -60,10 +61,11 @@ def process_single_trajectory(
             else report[folder].get("resolved", False)
         )
 
+        pred_path = traj_dir / folder / f"{folder}.pred"
         traj_path = traj_dir / folder / f"{folder}.traj"
         traj_orig = json.loads(traj_path.read_text())
         traj = transform_traj(traj_orig)
-        traj["instance_id"] = folder
+        traj[KEY_INSTANCE_ID] = folder
         traj["resolved"] = is_resolved
         if "replay_config" in traj_orig:
             traj["model"] = json.loads(traj_orig["replay_config"])["agent"]["model"][
@@ -71,6 +73,7 @@ def process_single_trajectory(
             ]
         hash_id = generate_hash("".join([x["content"] for x in traj["messages"][1:]]))
         traj["traj_id"] = f"{folder}.{hash_id}"
+        traj["patch"] = pred_path.read_text() if pred_path.exists() else ""
 
         return (folder, traj)
     except Exception as e:
