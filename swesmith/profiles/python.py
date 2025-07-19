@@ -1340,34 +1340,6 @@ class String2Stringc4a72f59(PythonProfile):
     )
 
 
-@dataclass
-class String2Stringc4a72f59(PythonProfile):
-    owner: str = "stanfordnlp"
-    repo: str = "string2string"
-    commit: str = "c4a72f59aafe8db42c4015709078064535dc4191"
-    install_cmds: list = field(
-        default_factory=lambda: [
-            "pip install -r docs/requirements.txt",
-            "pip install -e .",
-            "pip install pytest",
-        ]
-    )
-
-
-@dataclass
-class String2Stringc4a72f59(PythonProfile):
-    owner: str = "stanfordnlp"
-    repo: str = "string2string"
-    commit: str = "c4a72f59aafe8db42c4015709078064535dc4191"
-    install_cmds: list = field(
-        default_factory=lambda: [
-            "pip install -r docs/requirements.txt",
-            "pip install -e .",
-            "pip install pytest",
-        ]
-    )
-
-
 # Register all Python profiles with the global registry
 for name, obj in list(globals().items()):
     if (
