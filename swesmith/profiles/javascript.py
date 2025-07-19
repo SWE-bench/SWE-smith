@@ -278,30 +278,6 @@ class Dayjsc8a26460(JavaScriptProfile):
 
 
 @dataclass
-class Insomnia58a42fa8(JavaScriptProfile):
-    # NOTE: When creating image, this repo cannot be automatically pushed
-    # due to potential secret exposure
-    owner: str = "Kong"
-    repo: str = "insomnia"
-    commit: str = "58a42fa8908d78a941d4e038b9e82fc1f7a5ae7f"
-    test_cmd: str = "npm test -- --verbose"
-
-    @property
-    def dockerfile(self):
-        return f"""FROM node:22-bullseye
-RUN apt update && apt install -y git  
-RUN apt-get update
-RUN apt-get install libfontconfig-dev
-RUN git clone https://github.com/{self.mirror_name} /testbed
-WORKDIR /testbed
-RUN npm i
-"""
-
-    def log_parser(self, log: str) -> dict[str, str]:
-        return parse_log_vitest(log)
-
-
-@dataclass
 class Svelte6c9717a9(JavaScriptProfile):
     owner: str = "sveltejs"
     repo: str = "svelte"

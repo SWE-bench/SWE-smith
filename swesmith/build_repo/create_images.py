@@ -148,7 +148,6 @@ def main():
     )
     parser.add_argument(
         "--push",
-        type=bool,
         action="store_true",
         help="Push built images to Docker Hub after building (default: False)",
     )
