@@ -14,6 +14,7 @@ class JavaScriptProfile(RepoProfile):
     Profile for JavaScript repositories.
     """
 
+
 def default_npm_install_dockerfile(mirror_name: str, node_version: str = "18") -> str:
     return f"""FROM node:{node_version}-bullseye
 RUN apt update && apt install -y git  
@@ -21,6 +22,7 @@ RUN git clone https://github.com/{mirror_name} /testbed
 WORKDIR /testbed
 RUN npm install
 """
+
 
 def parse_log_jest(log: str) -> dict[str, str]:
     """
@@ -47,6 +49,7 @@ def parse_log_jest(log: str) -> dict[str, str]:
                 test_status_map[test_name] = TestStatus.SKIPPED.value
     return test_status_map
 
+
 def parse_log_mocha(log: str) -> dict[str, str]:
     test_status_map = {}
     pattern = r"^\s*(✔|✖|-)\s(.+?)(?:\s\((\d+\s*m?s)\))?$"
@@ -62,34 +65,17 @@ def parse_log_mocha(log: str) -> dict[str, str]:
                 test_status_map[test_name] = TestStatus.SKIPPED.value
     return test_status_map
 
-<<<<<<< HEAD
-def parse_log_mocha(log: str) -> dict[str, str]:
-    test_status_map = {}
-    pattern = r"^\s*(✔|✖|-)\s(.+?)(?:\s\((\d+\s*m?s)\))?$"
-    for line in log.split("\n"):
-        match = re.match(pattern, line.strip())
-        if match:
-            status_symbol, test_name, _duration = match.groups()
-            if status_symbol == "✔":
-                test_status_map[test_name] = TestStatus.PASSED.value
-            elif status_symbol == "✖":
-                test_status_map[test_name] = TestStatus.FAILED.value
-            elif status_symbol == "-":
-                test_status_map[test_name] = TestStatus.SKIPPED.value
-    return test_status_map
 
-
-=======
 def parse_log_vitest(log: str) -> dict[str, str]:
     test_status_map = {}
     patterns = [
-            (r"^✓\s+(.+?)(?:\s+\([\.\d]+ms\))?$", TestStatus.PASSED.value),
-            (r"^✗\s+(.+?)(?:\s+\([\.\d]+ms\))?$", TestStatus.FAILED.value),
-            (r"^○\s+(.+?)(?:\s+\([\.\d]+ms\))?$", TestStatus.SKIPPED.value),
-            (r"^✓\s+(.+?)$", TestStatus.PASSED.value),
-            (r"^✗\s+(.+?)$", TestStatus.FAILED.value),
-            (r"^○\s+(.+?)$", TestStatus.SKIPPED.value),
-        ]
+        (r"^✓\s+(.+?)(?:\s+\([\.\d]+ms\))?$", TestStatus.PASSED.value),
+        (r"^✗\s+(.+?)(?:\s+\([\.\d]+ms\))?$", TestStatus.FAILED.value),
+        (r"^○\s+(.+?)(?:\s+\([\.\d]+ms\))?$", TestStatus.SKIPPED.value),
+        (r"^✓\s+(.+?)$", TestStatus.PASSED.value),
+        (r"^✗\s+(.+?)$", TestStatus.FAILED.value),
+        (r"^○\s+(.+?)$", TestStatus.SKIPPED.value),
+    ]
     for line in log.split("\n"):
         for pattern, status in patterns:
             match = re.match(pattern, line.strip())
@@ -97,10 +83,10 @@ def parse_log_vitest(log: str) -> dict[str, str]:
                 test_name = match.group(1).strip()
                 test_status_map[test_name] = status
                 break
-    
+
     return test_status_map
 
->>>>>>> a25c302 (added a few JS repo)
+
 @dataclass
 class ReactPDFee5c96b8(JavaScriptProfile):
     owner: str = "diegomura"
@@ -213,6 +199,7 @@ class GithubReadmeStats3e974011(JavaScriptProfile):
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
 
+
 @dataclass
 class Mongoose5f57a5bb(JavaScriptProfile):
     owner: str = "Automattic"
@@ -242,11 +229,14 @@ class Axiosef36347f(JavaScriptProfile):
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_mocha(log)
 
+
 @dataclass
 class Async23dbf76a(JavaScriptProfile):
     owner: str = "caolan"
     repo: str = "async"
-    commit: str = "23dbf76aeb04c7c3dd56276115b277e3fa9dd5cc"  # Replace with a real commit hash
+    commit: str = (
+        "23dbf76aeb04c7c3dd56276115b277e3fa9dd5cc"  # Replace with a real commit hash
+    )
     test_cmd: str = "npm run mocha-node-test -- --verbose"
 
     @property
@@ -271,6 +261,7 @@ class Expressef5f2e13(JavaScriptProfile):
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_mocha(log)
 
+
 @dataclass
 class Dayjsc8a26460(JavaScriptProfile):
     owner: str = "iamkun"
@@ -288,7 +279,7 @@ class Dayjsc8a26460(JavaScriptProfile):
 
 @dataclass
 class Insomnia58a42fa8(JavaScriptProfile):
-    # NOTE: When creating image, this repo cannot be automatically pushed 
+    # NOTE: When creating image, this repo cannot be automatically pushed
     # due to potential secret exposure
     owner: str = "Kong"
     repo: str = "insomnia"

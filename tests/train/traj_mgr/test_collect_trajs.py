@@ -3,7 +3,6 @@ import os
 import tempfile
 
 from pathlib import Path
-from swesmith.constants import generate_hash
 from swesmith.train.traj_mgr.collect_trajs import main as collect_trajs
 from swesmith.train.traj_mgr.utils import transform_traj_xml
 
@@ -60,10 +59,8 @@ def test_transform_traj_xml_basic(
         transformed["model"] = json.loads(traj_data["replay_config"])["agent"]["model"][
             "name"
         ]
-        hash_id = generate_hash(
-            "".join([x["content"] for x in transformed["messages"][1:]])
-        )
-        transformed["traj_id"] = f"{inst_id}.{hash_id}"
+        del expected["traj_id"]
+        del expected["patch"]
         assert transformed == expected
 
 
@@ -83,10 +80,18 @@ def test_collect_trajs_basic(logs_trajectories, logs_run_evaluation, ft_xml_exam
         assert output_path.exists()
 
         # Compare contents
+        output_data = []
         with open(output_path, "r") as f:
-            output_data = [json.loads(x) for x in f]
+            for x in f:
+                traj = json.loads(x)
+                del traj["traj_id"]
+                output_data.append(traj)
+        expected_data = []
         with open(ft_xml_example, "r") as f:
-            expected_data = [json.loads(x) for x in f]
+            for x in f:
+                traj = json.loads(x)
+                del traj["traj_id"]
+                expected_data.append(traj)
 
         assert sorted(output_data, key=lambda x: x["instance_id"]) == sorted(
             expected_data, key=lambda x: x["instance_id"]

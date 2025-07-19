@@ -40,7 +40,9 @@ def cleanup(repo_name: str, env_name: str | None = None):
             else:
                 print(f"> Environment '{env_name}' not found, skipping removal")
         except subprocess.CalledProcessError as e:
-            print(f"> Warning: Failed to check/remove conda environment '{env_name}': {e}")
+            print(
+                f"> Warning: Failed to check/remove conda environment '{env_name}': {e}"
+            )
 
 
 def main(
@@ -120,8 +122,9 @@ def main(
         with open(p._env_yml, "w") as f:
             for line in lines:
                 # Exclude the package by both repository name and lowercase package name
-                if (line.strip().startswith(f"- {p.repo}==") or 
-                    line.strip().startswith(f"- {p.repo.lower()}==")):
+                if line.strip().startswith(f"- {p.repo}==") or line.strip().startswith(
+                    f"- {p.repo.lower()}=="
+                ):
                     continue
                 f.write(line)
 

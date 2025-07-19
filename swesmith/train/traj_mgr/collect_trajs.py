@@ -61,7 +61,7 @@ def process_single_trajectory(
             else report[folder].get("resolved", False)
         )
 
-        pred_path = traj_dir / folder / f"{folder}.pred"
+        pred_path = traj_dir / folder / f"{folder}.patch"
         traj_path = traj_dir / folder / f"{folder}.traj"
         traj_orig = json.loads(traj_path.read_text())
         traj = transform_traj(traj_orig)
@@ -71,8 +71,7 @@ def process_single_trajectory(
             traj["model"] = json.loads(traj_orig["replay_config"])["agent"]["model"][
                 "name"
             ]
-        hash_id = generate_hash("".join([x["content"] for x in traj["messages"][1:]]))
-        traj["traj_id"] = f"{folder}.{hash_id}"
+        traj["traj_id"] = f"{folder}.{generate_hash(str(traj_dir))}"
         traj["patch"] = pred_path.read_text() if pred_path.exists() else ""
 
         return (folder, traj)

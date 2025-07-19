@@ -111,4 +111,12 @@ def transform_traj_xml(traj: dict) -> dict:
     return {"messages": new_traj}
 
 
-MAP_STYLE_TO_FUNC = {"ticks": transform_traj_backticks, "xml": transform_traj_xml}
+def transform_traj_toolcalls(traj: dict) -> dict:
+    return {"messages": get_messages(traj)}
+
+
+MAP_STYLE_TO_FUNC = {
+    "ticks": transform_traj_backticks,
+    "tool": transform_traj_toolcalls,
+    "xml": transform_traj_xml,
+}
