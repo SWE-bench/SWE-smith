@@ -9,6 +9,7 @@ from .base import RepoProfile, global_registry
 
 # Auto-import all profile modules to populate the registry
 from . import c
+from . import csharp
 from . import java
 from . import javascript
 from . import php
