@@ -62,17 +62,20 @@ def _remove_task_instance(
         del task_insts_cache[repo][inst_id]
         removed_task = True
     # 3. Optionally, delete branch from remote if exists
-    rp = global_registry.get_from_repo(repo)
-    try:
-        subprocess.run(
-            f"git push --delete origin {inst_id}",
-            cwd=rp.repo_name,
-            shell=True,
-            check=True,
-        )
-        removed_branch = True
-    except subprocess.CalledProcessError as e:
-        print(f"⚠️ Warning: Failed to delete branch {inst_id} from remote: {e}")
+    rp = global_registry.get(repo)
+    if inst_id in rp.branches:
+        try:
+            subprocess.run(
+                f"git push --delete origin {inst_id}",
+                cwd=rp.repo_name,
+                shell=True,
+                check=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+            removed_branch = True
+        except subprocess.CalledProcessError as e:
+            print(f"⚠️ Warning: Failed to delete branch {inst_id} from remote: {e}")
     return removed_valid, removed_task, removed_branch
 
 
@@ -108,7 +111,7 @@ def main(
             repo = inst_id.rsplit(".", 1)[0]
             validation_path = logs_validation / repo / inst_id
             task_insts_file = logs_task_insts / f"{repo}.json"
-            rp = global_registry.get_from_repo(repo)
+            rp = global_registry.get(repo)
             _, cloned = rp.clone()
             if cloned:
                 cloned_repos.add(repo)

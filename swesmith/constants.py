@@ -170,8 +170,5 @@ class BugRewrite:
 
 
 def generate_hash(s):
-    return "".join(
-        random.Random(int(hashlib.sha256(s.encode()).hexdigest(), 16)).choices(
-            string.ascii_lowercase + string.digits, k=8
-        )
-    )
+    rng = random.Random(int(hashlib.sha256(s.encode()).hexdigest(), 16))
+    return "".join(rng.choice(string.ascii_lowercase + string.digits) for _ in range(8))

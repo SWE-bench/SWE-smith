@@ -1238,7 +1238,6 @@ class Hydra0f03eb60(PythonProfile):
             "pip install -e .",
         ]
     )
-    min_testing: bool = True
 
 
 @dataclass
@@ -1325,6 +1324,20 @@ class MonkeyType70c3acf6(PythonProfile):
     owner: str = "Instagram"
     repo: str = "MonkeyType"
     commit: str = "70c3acf62950be5dfb28743c7a719bfdecebcd84"
+
+
+@dataclass
+class String2Stringc4a72f59(PythonProfile):
+    owner: str = "stanfordnlp"
+    repo: str = "string2string"
+    commit: str = "c4a72f59aafe8db42c4015709078064535dc4191"
+    install_cmds: list = field(
+        default_factory=lambda: [
+            "pip install -r docs/requirements.txt",
+            "pip install -e .",
+            "pip install pytest",
+        ]
+    )
 
 
 # Register all Python profiles with the global registry
