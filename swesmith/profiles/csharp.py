@@ -6,7 +6,7 @@ from swesmith.profiles.base import RepoProfile, global_registry
 @dataclass
 class CSharpProfile(RepoProfile):
     """
-    Profile for JavaScript repositories.
+    Profile for CSharp repositories.
     """
 
 
