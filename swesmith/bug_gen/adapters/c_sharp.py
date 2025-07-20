@@ -65,7 +65,7 @@ def get_entities_from_file_c_sharp(
     entities: list[CSharpEntity],
     file_path: str,
     max_entities: int = -1,
-):
+) -> None:
     """
     Parse a .cs file and return up to max_entities methods.
     If max_entities < 0, collects them all.
@@ -76,13 +76,13 @@ def get_entities_from_file_c_sharp(
         file_content = open(file_path, "r", encoding="utf8").read()
     except UnicodeDecodeError:
         warnings.warn(f"Ignoring file {file_path} as it has an unsupported encoding")
-        return []
+        return
 
     tree = parser.parse(bytes(file_content, "utf8"))
     root = tree.root_node
     lines = file_content.splitlines()
 
-    def walk(node):
+    def walk(node) -> None:
         # stop if we've hit the limit
         if 0 <= max_entities == len(entities):
             return
@@ -119,9 +119,9 @@ def _has_body(node) -> bool:
     return False
 
 
-def _build_entity(node, lines, file_path: str) -> CodeEntity:
+def _build_entity(node, lines, file_path: str) -> CSharpEntity:
     """
-    Turn a Tree-sitter node into CodeEntity.
+    Turn a Tree-sitter node into CSharpEntity.
     """
     # start_point/end_point are (row, col) zero-based
     start_row, _ = node.start_point
