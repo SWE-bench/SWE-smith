@@ -25,7 +25,6 @@ and transforms them into a fine-tuning compatible jsonl format, namely...
 Usage: (from SWE-agent directory)
 python -m swesmith.train.traj_mgr.collect_trajs --traj_dir <path> \
     --eval_dir <path> \
-    --resolved_only
 """
 
 import argparse
