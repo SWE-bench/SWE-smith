@@ -22,7 +22,7 @@ Each of these is described in more detail below. The priority level is indicated
 To generate bugs, SWE-smith relies on language-specific tooling to parse a codebase into individual programmatic entities (e.g., functions, classes, methods).
 These tools are located under the `swesmith/bug_gen/adapters` folder.
 
-We warmly welcome contributions to support new languages! #111, #84, #66, #60, #34, and #28 are great references for PRs that added support for a new language.
+We warmly welcome contributions to support new languages! [#111](https://github.com/SWE-bench/SWE-smith/pull/111), [#84](https://github.com/SWE-bench/SWE-smith/pull/84), [#66](https://github.com/SWE-bench/SWE-smith/pull/66), [#60](https://github.com/SWE-bench/SWE-smith/pull/60), [#34](https://github.com/SWE-bench/SWE-smith/pull/34), and [#28](https://github.com/SWE-bench/SWE-smith/pull/28) are great references for PRs that added support for a new language.
 
 The best way to undestand this is by looking at the PRs and existing adapters, so we'll be brief here! Some languages we'd love to see:
 - [ ] C++
@@ -30,7 +30,7 @@ The best way to undestand this is by looking at the PRs and existing adapters, s
 - [ ] Scala
 - [ ] Swift
 
-If you need help, open an issue and ask @acrump, @john-b-yang, or @klieret for help! To contribute, make a new PR with the corresponding code.
+If you need help, open an issue and ask [@acrmp](https://github.com/acrmp), [@john-b-yang](https://github.com/john-b-yang), or [@klieret](https://github.com/klieret) for help! To contribute, make a new PR with the corresponding code.
 
 ### Support New Repositories
 
@@ -47,11 +47,11 @@ For each `RepoProfile`, you may have to fill out several fields, such as...
 * `log_parser` function: A function that parses the logs produced by the repository's test suite.
 We've annotated `RepoProfile` in `swesmith/profiles/base.py` with docstrings to (1) help you understand the purpose of each function/property, and (2) point out which fields are required, optional, or have reasonable defaults.
 
-Check out #116 and d8b20f3f2ee13e8c9b6ef9495c25e9704008d07a for examples of PRs / commits that added new repositories.
+Check out [#116](https://github.com/SWE-bench/SWE-smith/pull/116) and [d8b20f3f](https://github.com/SWE-bench/SWE-smith/commit/d8b20f3f2ee13e8c9b6ef9495c25e9704008d07a) for examples of PRs / commits that added new repositories.
 
 We're always looking to add more repositories, so if you have a favorite open-source project, please consider adding it! To contribute, make a new PR with the corresponding code.
 
-If you need help, open an issue and ask @richardzhuang0412, @john-b-yang, or @klieret for help!
+If you need help, open an issue and ask [@richardzhuang0412](https://github.com/richardzhuang0412), [@john-b-yang](https://github.com/john-b-yang), or [@klieret](https://github.com/klieret) for help!
 
 ### Create task instances
 
@@ -62,7 +62,7 @@ Generating task instances is very easy.
 * The [Youtube Playlist](https://youtube.com/playlist?list=PL1b-qYhmIXEhyaUafmTYmMI4l9dbCLNix&si=7xnYixLc7MJSy7UU) shows you what things should look like when you run the scripts.
 * `scripts/cheatsheet.sh` contains the CLI commands to run scripts. Re-adapt these commands to a new repository, and run.
 
-If you have any trouble running these scripts, please open an issue and ask @john-b-yang or @klieret for help!
+If you have any trouble running these scripts, please open an issue and ask [@john-b-yang](https://github.com/john-b-yang) or [@klieret](https://github.com/klieret) for help!
 For the LM Rewrite/Modify and PR mirror methods, you'll have to initialize a `.env` file with `ANTHROPIC_API_KEY` and/or `OPENAI_API_KEY` set, depending on which LM you want to use.
 
 To contribute task instances, run any of the `python -m swesmith.bug_gen.*` scripts. Every script will populate a `logs/bug_gen/<repo>/` folder, which will contain the generated bugs.
