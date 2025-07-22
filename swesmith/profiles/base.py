@@ -177,6 +177,7 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
         with open(env_dir / "build_image.log", "w") as log_file:
             subprocess.run(
                 f"docker build -f {dockerfile_path} --no-cache -t {self.image_name} .",
+                check=True,
                 shell=True,
                 stdout=log_file,
                 stderr=subprocess.STDOUT,

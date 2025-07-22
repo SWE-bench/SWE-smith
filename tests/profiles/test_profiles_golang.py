@@ -116,6 +116,19 @@ def test_go_profile_build_image_error_handling():
             profile.build_image()
 
 
+def test_go_profile_build_image_checks_exit_code():
+    profile = make_dummy_go_profile()
+    with (
+        patch("pathlib.Path.mkdir"),
+        patch("builtins.open", mock_open()),
+        patch(
+            "subprocess.run",
+        ) as mock_run,
+    ):
+        profile.build_image()
+        assert mock_run.call_args.kwargs["check"] is True
+
+
 def test_go_profile_build_image_file_operations():
     profile = make_dummy_go_profile()
     with (
