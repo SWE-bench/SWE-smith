@@ -103,6 +103,7 @@ class Tokioab3ff69c(RustProfile):
     repo: str = "tokio"
     commit: str = "ab3ff69cf2258a8c696b2dca89a2cef4ff114c1c"
     test_cmd: str = "cargo test --verbose --features full -- --skip try_exists"
+    timeout: int = 180
 
 
 @dataclass
