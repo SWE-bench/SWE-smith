@@ -14,7 +14,8 @@ class RustProfile(RepoProfile):
 
     def log_parser(self, log: str):
         test_status_map = {}
-        for line in log.split("\n"):
+        for line in log.splitlines():
+            line = line.removeprefix("test ")
             if "... ok" in line:
                 test_name = line.rsplit(" ... ", 1)[0].strip()
                 test_status_map[test_name] = TestStatus.PASSED.value
