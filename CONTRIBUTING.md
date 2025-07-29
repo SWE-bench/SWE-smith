@@ -24,8 +24,7 @@ These tools are located under the `swesmith/bug_gen/adapters` folder.
 
 We warmly welcome contributions to support new languages! [#111](https://github.com/SWE-bench/SWE-smith/pull/111), [#84](https://github.com/SWE-bench/SWE-smith/pull/84), [#66](https://github.com/SWE-bench/SWE-smith/pull/66), [#60](https://github.com/SWE-bench/SWE-smith/pull/60), [#34](https://github.com/SWE-bench/SWE-smith/pull/34), and [#28](https://github.com/SWE-bench/SWE-smith/pull/28) are great references for PRs that added support for a new language.
 
-The best way to undestand this is by looking at the PRs and existing adapters, so we'll be brief here! Some languages we'd love to see:
-- [ ] C++
+The best way to understand this is by looking at the PRs and existing adapters, so we'll be brief here! Some languages we'd love to see:
 - [ ] Kotlin
 - [ ] Scala
 - [ ] Swift
