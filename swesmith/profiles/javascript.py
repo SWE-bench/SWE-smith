@@ -312,6 +312,7 @@ class Commanderjs395cf714(JavaScriptProfile):
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
 
+
 @dataclass
 class Wretch661865a6(JavaScriptProfile):
     owner: str = "elbywan"
@@ -332,6 +333,7 @@ RUN npm run build
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
 
+
 @dataclass
 class Html5Boilerplateac08a17c(JavaScriptProfile):
     owner: str = "h5bp"
@@ -350,6 +352,7 @@ RUN npm ci
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_mocha(log)
+
 
 @dataclass
 class HighlightJS5697ae51(JavaScriptProfile):
@@ -371,6 +374,7 @@ RUN npm run build
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_mocha(log)
 
+
 @dataclass
 class Prism31b467fa(JavaScriptProfile):
     owner: str = "PrismJS"
@@ -390,6 +394,7 @@ RUN npm run build
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_mocha(log)
+
 
 @dataclass
 class ChromaJS498427ea(JavaScriptProfile):
@@ -411,6 +416,7 @@ RUN npm run build
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_vitest(log)
 
+
 @dataclass
 class Colorfef7b619(JavaScriptProfile):
     owner: str = "Qix-"
@@ -430,6 +436,7 @@ class Colorfef7b619(JavaScriptProfile):
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_mocha(log)
 
+
 @dataclass
 class Qd180f4a0(JavaScriptProfile):
     owner: str = "kriskowal"
@@ -444,6 +451,7 @@ class Qd180f4a0(JavaScriptProfile):
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_mocha(log)
 
+
 @dataclass
 class ImmutableJS879adab5(JavaScriptProfile):
     owner: str = "immutable-js"
@@ -457,6 +465,7 @@ class ImmutableJS879adab5(JavaScriptProfile):
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
+
 
 @dataclass
 class ThreeJS73b3f248(JavaScriptProfile):
@@ -473,6 +482,7 @@ class ThreeJS73b3f248(JavaScriptProfile):
         # NOTE: Require custom parser
         return parse_log_jest(log)
 
+
 @dataclass
 class Echarts6be0e145(JavaScriptProfile):
     owner: str = "apache"
@@ -487,7 +497,6 @@ class Echarts6be0e145(JavaScriptProfile):
     def log_parser(self, log: str) -> dict[str, str]:
         # NOTE: Require custom parser
         return parse_log_jest(log)
-
 
 
 # Register all JavaScript profiles with the global registry

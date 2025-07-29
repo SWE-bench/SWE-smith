@@ -121,11 +121,13 @@ class MdBook37273ba8(RustProfile):
     commit: str = "37273ba8e0f86771b02f3a8a4bd3b0b3d388c573"
     test_cmd: str = "cargo test --workspace --verbose"
 
+
 @dataclass
 class RustCSVda000888(RustProfile):
     owner: str = "BurntSushi"
     repo: str = "rust-csv"
     commit: str = "da0008884062cf222ceb9c05f006be4bb6ac38a7"
+
 
 @dataclass
 class Html5everb93afc94(RustProfile):
@@ -154,11 +156,13 @@ class Byteorder5a82625f(RustProfile):
     repo: str = "byteorder"
     commit: str = "5a82625fae462e8ba64cec8146b24a372b4d75c6"
 
+
 @dataclass
 class Chronod43108cb(RustProfile):
     owner: str = "chronotope"
     repo: str = "chrono"
     commit: str = "d43108cbfc884b0864d1cf2db7719aedf4adbf23"
+
 
 @dataclass
 class Rpds3e7c8ae6(RustProfile):
@@ -166,17 +170,20 @@ class Rpds3e7c8ae6(RustProfile):
     repo: str = "rpds"
     commit: str = "3e7c8ae693cdc6e1b255c87279b6ad8aded6401d"
 
+
 @dataclass
 class Itertools041c733c(RustProfile):
     owner: str = "rust-itertools"
     repo: str = "itertools"
     commit: str = "041c733cb6fbfe6aae5cce28766dc6020043a7f9"
 
+
 @dataclass
 class Rayon1fd20485(RustProfile):
     owner: str = "rayon-rs"
     repo: str = "rayon"
     commit: str = "1fd20485bd0bb55541d8080a31e104c7b758cb48"
+
 
 @dataclass
 class Ripgrep3b7fd442(RustProfile):
@@ -199,11 +206,13 @@ WORKDIR /testbed
 RUN cargo build --release
 """
 
+
 @dataclass
 class RustClippyf4f579f4(RustProfile):
     owner: str = "rust-lang"
     repo: str = "rust-clippy"
     commit: str = "f4f579f4ac455b76ddadc85553ba19b115dd144e"
+
 
 # Register all Rust profiles with the global registry
 for name, obj in list(globals().items()):
