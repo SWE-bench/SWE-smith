@@ -189,7 +189,7 @@ RUN make build
 class GithubReadmeStats3e974011(JavaScriptProfile):
     owner: str = "anuraghazra"
     repo: str = "github-readme-stats"
-    commit: str = "3e97401177143bb35abb42279a13991cbd584ca3"  # Using master branch, can be updated to specific commit hash
+    commit: str = "3e97401177143bb35abb42279a13991cbd584ca3"
     test_cmd: str = "npm test -- --verbose"
 
     @property
@@ -204,7 +204,7 @@ class GithubReadmeStats3e974011(JavaScriptProfile):
 class Mongoose5f57a5bb(JavaScriptProfile):
     owner: str = "Automattic"
     repo: str = "mongoose"
-    commit: str = "5f57a5bbb2e8dfed8d04be47cdd17728633c44c1"  # Replace with a specific commit hash
+    commit: str = "5f57a5bbb2e8dfed8d04be47cdd17728633c44c1"
     test_cmd: str = "npm test -- --verbose"
 
     @property
@@ -219,7 +219,7 @@ class Mongoose5f57a5bb(JavaScriptProfile):
 class Axiosef36347f(JavaScriptProfile):
     owner: str = "axios"
     repo: str = "axios"
-    commit: str = "ef36347fb559383b04c755b07f1a8d11897fab7f"  # Replace with a specific commit hash
+    commit: str = "ef36347fb559383b04c755b07f1a8d11897fab7f"
     test_cmd: str = "npm run test:mocha -- --verbose"
 
     @property
@@ -234,9 +234,7 @@ class Axiosef36347f(JavaScriptProfile):
 class Async23dbf76a(JavaScriptProfile):
     owner: str = "caolan"
     repo: str = "async"
-    commit: str = (
-        "23dbf76aeb04c7c3dd56276115b277e3fa9dd5cc"  # Replace with a real commit hash
-    )
+    commit: str = "23dbf76aeb04c7c3dd56276115b277e3fa9dd5cc"
     test_cmd: str = "npm run mocha-node-test -- --verbose"
 
     @property
@@ -313,6 +311,183 @@ class Commanderjs395cf714(JavaScriptProfile):
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
+
+@dataclass
+class Wretch661865a6(JavaScriptProfile):
+    owner: str = "elbywan"
+    repo: str = "wretch"
+    commit: str = "661865a6642f6be26e742a90a3e0a9b9bd5542ff"
+    test_cmd: str = "npm run test -- --verbose"
+
+    @property
+    def dockerfile(self):
+        return f"""FROM node:22-bullseye
+RUN apt update && apt install -y git
+RUN git clone https://github.com/{self.mirror_name} /testbed
+WORKDIR /testbed
+RUN npm install
+RUN npm run build
+"""
+
+    def log_parser(self, log: str) -> dict[str, str]:
+        return parse_log_jest(log)
+
+@dataclass
+class Html5Boilerplateac08a17c(JavaScriptProfile):
+    owner: str = "h5bp"
+    repo: str = "html5-boilerplate"
+    commit: str = "ac08a17cb60a975336664c0090657a3e593f686e"
+    test_cmd: str = "npm run test -- --verbose"
+
+    @property
+    def dockerfile(self):
+        return f"""FROM node:22-bullseye
+RUN apt update && apt install -y git
+RUN git clone https://github.com/{self.mirror_name} /testbed
+WORKDIR /testbed
+RUN npm ci
+"""
+
+    def log_parser(self, log: str) -> dict[str, str]:
+        return parse_log_mocha(log)
+
+@dataclass
+class HighlightJS5697ae51(JavaScriptProfile):
+    owner: str = "highlightjs"
+    repo: str = "highlight.js"
+    commit: str = "5697ae5187746c24732e62cd625f3f83004a44ce"
+    test_cmd: str = "npm run test -- --verbose"
+
+    @property
+    def dockerfile(self):
+        return f"""FROM node:22-bullseye
+RUN apt update && apt install -y git
+RUN git clone https://github.com/{self.mirror_name} /testbed
+WORKDIR /testbed
+RUN npm install
+RUN npm run build
+"""
+
+    def log_parser(self, log: str) -> dict[str, str]:
+        return parse_log_mocha(log)
+
+@dataclass
+class Prism31b467fa(JavaScriptProfile):
+    owner: str = "PrismJS"
+    repo: str = "prism"
+    commit: str = "31b467fa7c92c5ce90c3e7c6c8fe2b8a946d9484"
+    test_cmd: str = "npm run test"
+
+    @property
+    def dockerfile(self):
+        return f"""FROM node:22-bullseye
+RUN apt update && apt install -y git
+RUN git clone https://github.com/{self.mirror_name} /testbed
+WORKDIR /testbed
+RUN npm ci
+RUN npm run build
+"""
+
+    def log_parser(self, log: str) -> dict[str, str]:
+        return parse_log_mocha(log)
+
+@dataclass
+class ChromaJS498427ea(JavaScriptProfile):
+    owner: str = "gka"
+    repo: str = "chroma.js"
+    commit: str = "498427eafc2e987a3751f8d5fe0612fa7a4a76ec"
+    test_cmd: str = "npm run test -- --run"
+
+    @property
+    def dockerfile(self):
+        return f"""FROM node:22-bullseye
+RUN apt update && apt install -y git
+RUN git clone https://github.com/{self.mirror_name} /testbed
+WORKDIR /testbed
+RUN npm install
+RUN npm run build
+"""
+
+    def log_parser(self, log: str) -> dict[str, str]:
+        return parse_log_vitest(log)
+
+@dataclass
+class Colorfef7b619(JavaScriptProfile):
+    owner: str = "Qix-"
+    repo: str = "color"
+    commit: str = "fef7b619edd678455595b9b6a10780f13b58d285"
+    test_cmd: str = "npm run test -- --verbose"
+
+    @property
+    def image_name(self) -> str:
+        # Note: "-" followed by a "_" is not allowed in Docker image names
+        return f"{self.org_dh}/swesmith.{self.arch}.{self.owner.replace('-', '_')}_1776_{self.repo}.{self.commit[:8]}".lower()
+
+    @property
+    def dockerfile(self):
+        return default_npm_install_dockerfile(self.mirror_name, node_version="22")
+
+    def log_parser(self, log: str) -> dict[str, str]:
+        return parse_log_mocha(log)
+
+@dataclass
+class Qd180f4a0(JavaScriptProfile):
+    owner: str = "kriskowal"
+    repo: str = "q"
+    commit: str = "d180f4a0b22499607ac750b56766c8829d6bff43"
+    test_cmd: str = "npm run test -- --verbose"
+
+    @property
+    def dockerfile(self):
+        return default_npm_install_dockerfile(self.mirror_name, node_version="22")
+
+    def log_parser(self, log: str) -> dict[str, str]:
+        return parse_log_mocha(log)
+
+@dataclass
+class ImmutableJS879adab5(JavaScriptProfile):
+    owner: str = "immutable-js"
+    repo: str = "immutable-js"
+    commit: str = "879adab5ea333a5ca341635bcf799c3b8f9e7559"
+    test_cmd: str = "npm run test -- --verbose"
+
+    @property
+    def dockerfile(self):
+        return default_npm_install_dockerfile(self.mirror_name, node_version="22")
+
+    def log_parser(self, log: str) -> dict[str, str]:
+        return parse_log_jest(log)
+
+@dataclass
+class ThreeJS73b3f248(JavaScriptProfile):
+    owner: str = "mrdoob"
+    repo: str = "three.js"
+    commit: str = "73b3f248016fb73f2fe71da8616cdd7e20386f81"
+    test_cmd: str = "npm run test -- --verbose"
+
+    @property
+    def dockerfile(self):
+        return default_npm_install_dockerfile(self.mirror_name, node_version="22")
+
+    def log_parser(self, log: str) -> dict[str, str]:
+        # NOTE: Require custom parser
+        return parse_log_jest(log)
+
+@dataclass
+class Echarts6be0e145(JavaScriptProfile):
+    owner: str = "apache"
+    repo: str = "echarts"
+    commit: str = "6be0e145946db37824c8635067b8b7b23c547b74"
+    test_cmd: str = "npm run test -- --verbose"
+
+    @property
+    def dockerfile(self):
+        return default_npm_install_dockerfile(self.mirror_name, node_version="22")
+
+    def log_parser(self, log: str) -> dict[str, str]:
+        # NOTE: Require custom parser
+        return parse_log_jest(log)
+
 
 
 # Register all JavaScript profiles with the global registry
