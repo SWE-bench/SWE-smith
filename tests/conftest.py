@@ -21,6 +21,11 @@ def test_file_c():
 
 
 @pytest.fixture
+def test_file_cpp():
+    return Path(repo_root) / "tests/test_logs/files/cpp/util.cpp"
+
+
+@pytest.fixture
 def test_file_c_sharp():
     return Path(repo_root) / "tests/test_logs/files/c_sharp/ReadTraceNexusImporter.cs"
 
