@@ -117,24 +117,10 @@ RUN go test -v -count=1 ./... || true
 
 
 @dataclass
-class Gin3c12d2a8(GoProfile):
-    owner: str = "gin-gonic"
-    repo: str = "gin"
-    commit: str = "3c12d2a80e40930632fc4a4a4e1a45140f33fb12"
-
-
-@dataclass
 class Fzf976001e4(GoProfile):
     owner: str = "junegunn"
     repo: str = "fzf"
     commit: str = "976001e47459973b5e72565f3047cc9d9e20241d"
-
-
-@dataclass
-class Caddy77dd12cc(GoProfile):
-    owner: str = "caddyserver"
-    repo: str = "caddy"
-    commit: str = "77dd12cc785990c5c5da947b4e883029ab8bd552"
 
 
 @dataclass

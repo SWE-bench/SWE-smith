@@ -134,8 +134,8 @@ def test_python_log_parser():
 
 
 def test_golang_log_parser():
-    # Use Gin3c12d2a8 Go profile
-    key = "gin-gonic__gin.3c12d2a8"
+    # Use Natsserver2ee2e24c Go profile
+    key = "nats-io__nats-server.2ee2e24c"
     repo_profile = registry.get(key)
     log = """
 --- PASS: TestFoo (0.01s)

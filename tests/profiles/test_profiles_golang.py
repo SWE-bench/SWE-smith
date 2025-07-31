@@ -1,7 +1,7 @@
 import pytest
 import subprocess
 
-from swesmith.profiles.golang import GoProfile, Gin3c12d2a8
+from swesmith.profiles.golang import GoProfile
 from unittest.mock import patch, mock_open
 
 
@@ -165,13 +165,3 @@ def test_go_profile_go_test_command():
     assert "go test" in profile.test_cmd
     assert "-v" in profile.test_cmd
     assert "./..." in profile.test_cmd
-
-
-def test_gin_profile_dockerfile_content():
-    # This test is Gin-specific and checks the Gin profile's Dockerfile
-    profile = Gin3c12d2a8()
-    dockerfile = profile.dockerfile
-    assert "FROM golang:1.24" in dockerfile
-    assert f"git clone https://github.com/{profile.mirror_name}" in dockerfile
-    assert "WORKDIR /testbed" in dockerfile
-    assert "go mod tidy" in dockerfile

@@ -99,15 +99,6 @@ class Semver37bcbe69(RustProfile):
 
 
 @dataclass
-class Tokioab3ff69c(RustProfile):
-    owner: str = "tokio-rs"
-    repo: str = "tokio"
-    commit: str = "ab3ff69cf2258a8c696b2dca89a2cef4ff114c1c"
-    test_cmd: str = "cargo test --verbose --features full -- --skip try_exists"
-    timeout: int = 180
-
-
-@dataclass
 class Uuid2fd9b614(RustProfile):
     owner: str = "uuid-rs"
     repo: str = "uuid"

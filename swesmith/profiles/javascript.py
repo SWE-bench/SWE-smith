@@ -1,11 +1,9 @@
 import re
 
 from dataclasses import dataclass
-from swesmith.constants import KEY_PATCH
 from swebench.harness.constants import TestStatus
 from swesmith.profiles.base import RepoProfile, registry
 from swesmith.profiles.utils import X11_DEPS
-from unidiff import PatchSet
 
 
 @dataclass
@@ -155,37 +153,6 @@ RUN npm test
 
 
 @dataclass
-class Babel2ea3fc8f(JavaScriptProfile):
-    owner: str = "babel"
-    repo: str = "babel"
-    commit: str = "2ea3fc8f9b33a911840f17fbc407e7bfae2ed66f"
-    test_cmd: str = "yarn jest --verbose"
-
-    @property
-    def dockerfile(self):
-        return f"""FROM node:20-bullseye
-RUN apt update && apt install -y git
-RUN git clone https://github.com/{self.mirror_name} /testbed
-WORKDIR /testbed
-RUN make bootstrap
-RUN make build
-"""
-
-    def log_parser(self, log: str) -> dict[str, str]:
-        return parse_log_jest(log)
-
-    def get_test_cmd(self, instance: dict, f2p_only: bool = False):
-        if KEY_PATCH not in instance:
-            return self.test_cmd, []
-        test_folders = []
-        for f in PatchSet(instance[KEY_PATCH]):
-            parts = f.path.split("/")
-            if len(parts) >= 2 and parts[0] == "packages":
-                test_folders.append("/".join(parts[:2]))
-        return f"{self.test_cmd} {' '.join(test_folders)}", test_folders
-
-
-@dataclass
 class GithubReadmeStats3e974011(JavaScriptProfile):
     owner: str = "anuraghazra"
     repo: str = "github-readme-stats"
@@ -206,21 +173,6 @@ class Mongoose5f57a5bb(JavaScriptProfile):
     repo: str = "mongoose"
     commit: str = "5f57a5bbb2e8dfed8d04be47cdd17728633c44c1"  # Replace with a specific commit hash
     test_cmd: str = "npm test -- --verbose"
-
-    @property
-    def dockerfile(self):
-        return default_npm_install_dockerfile(self.mirror_name)
-
-    def log_parser(self, log: str) -> dict[str, str]:
-        return parse_log_mocha(log)
-
-
-@dataclass
-class Axiosef36347f(JavaScriptProfile):
-    owner: str = "axios"
-    repo: str = "axios"
-    commit: str = "ef36347fb559383b04c755b07f1a8d11897fab7f"  # Replace with a specific commit hash
-    test_cmd: str = "npm run test:mocha -- --verbose"
 
     @property
     def dockerfile(self):
