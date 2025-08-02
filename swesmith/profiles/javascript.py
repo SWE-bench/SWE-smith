@@ -1,6 +1,6 @@
 import re
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from swesmith.constants import KEY_PATCH
 from swebench.harness.constants import TestStatus
 from swesmith.profiles.base import RepoProfile, registry
@@ -160,6 +160,9 @@ class Babel2ea3fc8f(JavaScriptProfile):
     repo: str = "babel"
     commit: str = "2ea3fc8f9b33a911840f17fbc407e7bfae2ed66f"
     test_cmd: str = "yarn jest --verbose"
+    eval_sets: set[str] = field(
+        default_factory=lambda: {"SWE-bench/SWE-bench_Multilingual"}
+    )
 
     @property
     def dockerfile(self):
@@ -221,6 +224,9 @@ class Axiosef36347f(JavaScriptProfile):
     repo: str = "axios"
     commit: str = "ef36347fb559383b04c755b07f1a8d11897fab7f"  # Replace with a specific commit hash
     test_cmd: str = "npm run test:mocha -- --verbose"
+    eval_sets: set[str] = field(
+        default_factory=lambda: {"SWE-bench/SWE-bench_Multilingual"}
+    )
 
     @property
     def dockerfile(self):

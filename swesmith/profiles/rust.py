@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from swebench.harness.constants import TestStatus
 from swesmith.profiles.base import RepoProfile, registry
@@ -105,6 +105,9 @@ class Tokioab3ff69c(RustProfile):
     commit: str = "ab3ff69cf2258a8c696b2dca89a2cef4ff114c1c"
     test_cmd: str = "cargo test --verbose --features full -- --skip try_exists"
     timeout: int = 180
+    eval_sets: set[str] = field(
+        default_factory=lambda: {"SWE-bench/SWE-bench_Multilingual"}
+    )
 
 
 @dataclass

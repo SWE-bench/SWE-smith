@@ -352,6 +352,7 @@ class FlaskBc098406(PythonProfile):
     owner: str = "pallets"
     repo: str = "flask"
     commit: str = "bc098406af9537aacc436cb2ea777fbc9ff4c5aa"
+    eval_sets: set[str] = field(default_factory=lambda: {"SWE-bench/SWE-bench"})
 
 
 @dataclass
@@ -968,6 +969,7 @@ class Sympy2ab64612(PythonProfile):
     commit: str = "2ab64612efb287f09822419f4127878a4b664f71"
     min_testing: bool = True
     min_pregold: bool = True
+    eval_sets: set[str] = field(default_factory=lambda: {"SWE-bench/SWE-bench"})
 
 
 @dataclass
