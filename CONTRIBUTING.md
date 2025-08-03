@@ -2,7 +2,7 @@
 Updated 7/21/2025
 
 Thanks for your interest!
-First, make sure to [install](https://swesmith.com/getting_started/installation/) SWE-smith, which should be super easy!
+First, make sure to [install](https://swesmith.com/getting_started/installation.html) SWE-smith, which should be super easy!
 Then, there's several ways to contribute.
 
 * Add support for new languages
@@ -15,7 +15,9 @@ Each of these is described in more detail below. The priority level is indicated
 * 🟠 `p2` - Medium priority
 * 🟡 `p3` - Low priority
 
-### Support New Languages
+<hr />
+
+## Support New Languages
 
 🟡 `p3`
 
@@ -32,7 +34,9 @@ The best way to undestand this is by looking at the PRs and existing adapters, s
 
 If you need help, open an issue and ask [@acrmp](https://github.com/acrmp), [@john-b-yang](https://github.com/john-b-yang), or [@klieret](https://github.com/klieret) for help! To contribute, make a new PR with the corresponding code.
 
-### Support New Repositories
+<hr />
+
+## Support New Repositories
 
 🔴 `p1` (Especially non-Python repos)
 
@@ -49,16 +53,53 @@ We've annotated `RepoProfile` in `swesmith/profiles/base.py` with docstrings to 
 
 Check out [#116](https://github.com/SWE-bench/SWE-smith/pull/116) and [d8b20f3f](https://github.com/SWE-bench/SWE-smith/commit/d8b20f3f2ee13e8c9b6ef9495c25e9704008d07a) for examples of PRs / commits that added new repositories.
 
+> [!NOTE]
+> You may need to populate the `eval_sets` property. See [#136](https://github.com/SWE-bench/SWE-smith/pull/136) for an explanation.
+> 
+> tl;dr - There's several SWE-bench style benchmarks out there. If we add a repo that's also used in one of these benchmarks, we want to indicate this in the `eval_sets` property.
+> This way, if we want to train repos on a specific benchmark, we know which ones to exclude.
+>
+> <details>
+>      <summary>⚠️ Run this check after adding repos:</summary>
+>
+> ```python
+> from swesmith.profiles import registry
+> from datasets import load_dataset
+> 
+> sb = set(load_dataset("SWE-bench/SWE-bench_Verified", split="test")["repo"])
+> sbmm = set(load_dataset("SWE-bench/SWE-bench_Multimodal", split="test")["repo"])
+> sbml = set(load_dataset("SWE-bench/SWE-bench_Multilingual", split="test")["repo"])
+> 
+> profiles = {
+>     f"{rp.owner}/{rp.repo}": rp.eval_sets
+>     for rp in registry.values()
+> }
+> 
+> for test_repos, test_set in [
+>     (sb, "SWE-bench_Verified"),
+>     (sbmm, "SWE-bench_Multimodal"),
+>     (sbml, "SWE-bench_Multilingual"),
+> ]:
+>     for repo in test_repos:
+>         if repo not in profiles:
+>             continue
+>         if test_set not in profiles[repo]:
+>             print(f"Add {test_set} to {repo}'s `eval_sets` property")
+> ```
+> </details>
+
 We're always looking to add more repositories, so if you have a favorite open-source project, please consider adding it! To contribute, make a new PR with the corresponding code.
 
-If you need help, open an issue and ask [@richardzhuang0412](https://github.com/richardzhuang0412), [@john-b-yang](https://github.com/john-b-yang), or [@klieret](https://github.com/klieret) for help!
+If you need help, open an issue and ask [@richardzhuang0412](https://github.com/richardzhuang0412), [@acrmp](https://github.com/acrmp), [@john-b-yang](https://github.com/john-b-yang), or [@klieret](https://github.com/klieret) for help!
 
-### Create task instances
+<hr />
+
+## Create task instances
 
 🔴 `p1` (Especially non-Python repos)
 
 Generating task instances is very easy.
-* The ["Create Instances"](https://swesmith.com/guides/create_instances/) section of the SWE-smith docs describes this repository's bug generation strategies in detail.
+* The ["Create Instances"](https://swesmith.com/guides/create_instances.html) section of the SWE-smith docs describes this repository's bug generation strategies in detail.
 * The [Youtube Playlist](https://youtube.com/playlist?list=PL1b-qYhmIXEhyaUafmTYmMI4l9dbCLNix&si=7xnYixLc7MJSy7UU) shows you what things should look like when you run the scripts.
 * `scripts/cheatsheet.sh` contains the CLI commands to run scripts. Re-adapt these commands to a new repository, and run.
 
@@ -73,7 +114,9 @@ From there, we then perform the following additional steps:
 * `python swesmith/harness/gather.py logs/run_validation/<repo>`, to collect the bugs into a single `logs/task_insts/<repo>.json` file and push valid bugs as branches to the corresponding repository under the [SWE-smith](https://github.com/orgs/swesmith/repositories) organization.
 * Push the new bugs to the [SWE-bench/SWE-smith HF dataset](https://huggingface.co/datasets/SWE-bench/SWE-smith) for all of us to use!
 
-### Add problem statements
+<hr />
+
+## Add problem statements
 
 🔴 `p1`
 
@@ -89,12 +132,14 @@ This command will populate a `logs/issue_gen/` folder with problem statements fo
 Zip this folder, then upload the zipped file as a new PR.
 From there, we will attach the problem statements to the corresponding task instances in the [SWE-bench/SWE-smith HF dataset](https://huggingface.co/datasets/SWE-bench/SWE-smith), and push!
 
-### Miscellaneous
+<hr />
+
+## Miscellaneous
 
 Here are some ideas and contributions that we're not prioritizing at the moment, but if you're interested, we'd love to help you make it happen!
 Open an issue indicating you're interested, and we'll help you get started.
 
-* Make [Procedural Modification](https://swesmith.com/guides/create_instances/#procedural-modification) bug generation work for non-Python repos
+* Make [Procedural Modification](https://swesmith.com/guides/create_instances.html#procedural-modification) bug generation work for non-Python repos
 * Add bug generation strategies
     * Create instances corresponding to "subtasks" of SWE-bench. E.g. file localization, patch repair.
 * Add SWE-agent trajectories
