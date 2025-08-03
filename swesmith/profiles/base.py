@@ -64,6 +64,7 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
     arch: str = "x86_64" if platform.machine() not in {"aarch64", "arm64"} else "arm64"
     pltf: str = "linux/x86_64" if arch == "x86_64" else "linux/arm64/v8"
     exts: list[str] = field(default_factory=lambda: SUPPORTED_EXTS)
+    eval_sets: set[str] = field(default_factory=set)
 
     # Install + Test specifications
     timeout: int = 90  # timeout (sec) for running test suite for a single instance
@@ -219,6 +220,7 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
                 'git config user.name "swesmith"',
                 'git config user.email "swesmith@anon.com"',
                 "rm -rf .github/workflows",
+                "rm -rf .github/dependabot.y*",
                 "git add .",
                 "git commit --no-gpg-sign -m 'Initial commit'",
                 "git branch -M main",

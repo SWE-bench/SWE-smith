@@ -121,6 +121,9 @@ class Gin3c12d2a8(GoProfile):
     owner: str = "gin-gonic"
     repo: str = "gin"
     commit: str = "3c12d2a80e40930632fc4a4a4e1a45140f33fb12"
+    eval_sets: set[str] = field(
+        default_factory=lambda: {"SWE-bench/SWE-bench_Multilingual"}
+    )
 
 
 @dataclass
@@ -135,13 +138,9 @@ class Caddy77dd12cc(GoProfile):
     owner: str = "caddyserver"
     repo: str = "caddy"
     commit: str = "77dd12cc785990c5c5da947b4e883029ab8bd552"
-
-
-@dataclass
-class Cli4c47bad6(GoProfile):
-    owner: str = "cli"
-    repo: str = "cli"
-    commit: str = "4c47bad604d8b206a4bc686507b2e9a3bed2b317"
+    eval_sets: set[str] = field(
+        default_factory=lambda: {"SWE-bench/SWE-bench_Multilingual"}
+    )
 
 
 @dataclass
@@ -159,20 +158,6 @@ class Gorm1e8baf54(GoProfile):
 
 
 @dataclass
-class Hugocfc8d315(GoProfile):
-    owner: str = "gohugoio"
-    repo: str = "hugo"
-    commit: str = "cfc8d315b4f1a21c3daed0f9e78b7edb19f298d1"
-
-
-@dataclass
-class Lazygit91d8c251(GoProfile):
-    owner: str = "jesseduffield"
-    repo: str = "lazygit"
-    commit: str = "91d8c25183fde8e0d9ae51b8a24acb545b9cb278"
-
-
-@dataclass
 class Echo98ca08e7(GoProfile):
     owner: str = "labstack"
     repo: str = "echo"
@@ -184,6 +169,7 @@ class Natsserver2ee2e24c(GoProfile):
     owner: str = "nats-io"
     repo: str = "nats-server"
     commit: str = "2ee2e24cb10924adb699ecb68b89e8ce2523ea75"
+    timeout: int = 120
 
 
 @dataclass
@@ -191,20 +177,6 @@ class Addressec203a4f(GoProfile):
     owner: str = "bojanz"
     repo: str = "address"
     commit: str = "ec203a4f7f569c03a0f83e2e749b63947481fe4c"
-
-
-@dataclass
-class Syncthing06dd8ee(GoProfile):
-    owner: str = "syncthing"
-    repo: str = "syncthing"
-    commit: str = "06dd8ee6d75e14a62b7da28b2eec33f2f5695fc8"
-
-
-@dataclass
-class Gozero75cebb65(GoProfile):
-    owner: str = "zeromicro"
-    repo: str = "go-zero"
-    commit: str = "75cebb65f88cc6019d9e16e34c4a567e621f4dd5"
 
 
 @dataclass
@@ -268,13 +240,6 @@ class Fx(GoProfile):
     owner: str = "antonmedv"
     repo: str = "fx"
     commit: str = "1ab8a99b7cfd5bb4242677a5215e000c69b8b9e0"
-
-
-@dataclass
-class Spinner(GoProfile):
-    owner: str = "briandowns"
-    repo: str = "spinner"
-    commit: str = "55430861f77b20de3f456775b00c706519464f36"
 
 
 @dataclass
@@ -585,13 +550,6 @@ class Atlas(GoProfile):
 
 
 @dataclass
-class Dbmate(GoProfile):
-    owner: str = "amacneil"
-    repo: str = "dbmate"
-    commit: str = "241976bfba6de9008c65b4cf020a56d7372abfda"
-
-
-@dataclass
 class Avro(GoProfile):
     owner: str = "hamba"
     repo: str = "avro"
@@ -634,24 +592,10 @@ class Rdb(GoProfile):
 
 
 @dataclass
-class Dbq(GoProfile):
-    owner: str = "rocketlaunchr"
-    repo: str = "dbq"
-    commit: str = "edab5e1151162737bd48e6dd04eec376c44063a2"
-
-
-@dataclass
 class Goqu(GoProfile):
     owner: str = "doug-martin"
     repo: str = "goqu"
     commit: str = "21b6e6d1cb1befe839044764d8ad6b1c6f0b5ef4"
-
-
-@dataclass
-class Sqlc(GoProfile):
-    owner: str = "sqlc-dev"
-    repo: str = "sqlc"
-    commit: str = "b34aa37208de9158bc13581ce673389e32e86680"
 
 
 @dataclass
@@ -720,13 +664,6 @@ class Ksql(GoProfile):
 
 
 @dataclass
-class Sqlhooks(GoProfile):
-    owner: str = "qustavo"
-    repo: str = "sqlhooks"
-    commit: str = "7875602513fa745b19df8c03f4d31c00b61be6d4"
-
-
-@dataclass
 class Richgo(GoProfile):
     owner: str = "kyoh86"
     repo: str = "richgo"
@@ -787,13 +724,6 @@ class GoCritic(GoProfile):
     owner: str = "go-critic"
     repo: str = "go-critic"
     commit: str = "db2ec6f4d1f42bbe7fe2cd47f311243bbd1b3398"
-
-
-@dataclass
-class GoCleanarch(GoProfile):
-    owner: str = "roblaszczak"
-    repo: str = "go-cleanarch"
-    commit: str = "03b96056c4c9ff2a739629f1e39f32715d3f9e65"
 
 
 @dataclass
