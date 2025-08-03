@@ -1,6 +1,6 @@
 import re
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from swebench.harness.constants import TestStatus
 from swesmith.profiles.base import RepoProfile, registry
 
@@ -18,6 +18,9 @@ class Jqb9e19de76(CProfile):
     repo: str = "jq"
     commit: str = "b9e19de76e6e19d044007ead65d164710dc98877"
     test_cmd: str = "make check"
+    eval_sets: set[str] = field(
+        default_factory=lambda: {"SWE-bench/SWE-bench_Multilingual"}
+    )
 
     @property
     def dockerfile(self):
@@ -66,6 +69,9 @@ class Valkeyfc7c04e4(CProfile):
     repo: str = "valkey"
     commit: str = "fc7c04e4f8ba86dfbac1ec059db457fb44ed0a2d"
     test_cmd: str = "TERM=dumb ./runtest --durable"
+    eval_sets: set[str] = field(
+        default_factory=lambda: {"SWE-bench/SWE-bench_Multilingual"}
+    )
 
     @property
     def dockerfile(self):

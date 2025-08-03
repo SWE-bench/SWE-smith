@@ -1,6 +1,6 @@
 import re
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from swebench.harness.constants import TestStatus
 from swesmith.profiles.base import RepoProfile, registry
 
@@ -18,6 +18,9 @@ class Gsondd2fe59c(JavaProfile):
     repo: str = "gson"
     commit: str = "dd2fe59c0d3390b2ad3dd365ed6938a5c15844cb"
     test_cmd: str = "mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain"
+    eval_sets: set[str] = field(
+        default_factory=lambda: {"SWE-bench/SWE-bench_Multilingual"}
+    )
 
     @property
     def dockerfile(self):
