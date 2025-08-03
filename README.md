@@ -36,10 +36,10 @@ If you're interested in turning a GitHub repository into a SWE-gym, install the 
 > We do *not* plan on supporting Windows or MacOS.
 
 You can then build a dataset for the repository by...
-1. [Creating an environment](https://swesmith.com/guides/env_construction/#create-an-execution-environment)
+1. [Creating an environment](https://swesmith.com/guides/env_construction.html#create-an-execution-environment)
 2. [Synthesizing task instances](https://swesmith.com/guides/create_instances.html)
-3. [Keep tasks that break 1+ unit tests](https://swesmith.com/guides/harnesses/)
-4. [Generating issue text for your tasks](https://swesmith.com/guides/issue_gen/)
+3. [Keep tasks that break 1+ unit tests](https://swesmith.com/guides/harnesses.html)
+4. [Generating issue text for your tasks](https://swesmith.com/guides/issue_gen.html)
 
 ## 🏋️ Train SWE-agent's
 Training SWE-agent's using the [SWE-smith dataset](https://huggingface.co/datasets/SWE-bench/SWE-smith) is super simple.
@@ -55,7 +55,7 @@ for task in ds:
 ```
 
 SWE-smith has been used to
-* Fine-tune Qwen 2.5 Coder into SWE-agent-LM-32B (A +32% jump on SWE-bench Verified!) using [SWE-agent](https://github.com/SWE-agent/SWE-agent) [[Tutorial](https://swesmith.com/guides/train_swe_agent/)]
+* Fine-tune Qwen 2.5 Coder into SWE-agent-LM-32B (A +32% jump on SWE-bench Verified!) using [SWE-agent](https://github.com/SWE-agent/SWE-agent) [[Tutorial](https://swesmith.com/guides/train_swe_agent.html)]
 * Perform GRPO style reinforcement learning using [SkyRL](https://github.com/NovaSky-AI/SkyRL)
 
 ## 💿 Resources
