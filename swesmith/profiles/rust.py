@@ -35,6 +35,7 @@ RUN apt update && apt install -y wget git build-essential \
 
 RUN git clone https://github.com/{self.mirror_name} /testbed
 WORKDIR /testbed
+RUN {self.test_cmd} || true
 """
 
 
@@ -46,7 +47,7 @@ class Anyhow1d7ef1db(RustProfile):
 
 
 @dataclass
-class Base64cac5ff84c(RustProfile):
+class Base64cac5ff84(RustProfile):
     owner: str = "marshallpierce"
     repo: str = "rust-base64"
     commit: str = "cac5ff84cd771b1a9f52da020b053b35f0ff3ede"
@@ -175,13 +176,6 @@ class Rpds3e7c8ae6(RustProfile):
 
 
 @dataclass
-class Itertools041c733c(RustProfile):
-    owner: str = "rust-itertools"
-    repo: str = "itertools"
-    commit: str = "041c733cb6fbfe6aae5cce28766dc6020043a7f9"
-
-
-@dataclass
 class Rayon1fd20485(RustProfile):
     owner: str = "rayon-rs"
     repo: str = "rayon"
@@ -194,6 +188,9 @@ class Ripgrep3b7fd442(RustProfile):
     repo: str = "ripgrep"
     commit: str = "3b7fd442a6f3aa73f650e763d7cbb902c03d700e"
     test_cmd: str = "cargo test --all --verbose"
+    eval_sets: set[str] = field(
+        default_factory=lambda: {"SWE-bench/SWE-bench_Multilingual"}
+    )
 
     @property
     def dockerfile(self):

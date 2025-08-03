@@ -366,6 +366,9 @@ class HighlightJS5697ae51(JavaScriptProfile):
     repo: str = "highlight.js"
     commit: str = "5697ae5187746c24732e62cd625f3f83004a44ce"
     test_cmd: str = "npm run test -- --verbose"
+    eval_sets: set[str] = field(
+        default_factory=lambda: {"SWE-bench/SWE-bench_Multimodal"}
+    )
 
     @property
     def dockerfile(self):
@@ -387,6 +390,9 @@ class Prism31b467fa(JavaScriptProfile):
     repo: str = "prism"
     commit: str = "31b467fa7c92c5ce90c3e7c6c8fe2b8a946d9484"
     test_cmd: str = "npm run test"
+    eval_sets: set[str] = field(
+        default_factory=lambda: {"SWE-bench/SWE-bench_Multimodal"}
+    )
 
     @property
     def dockerfile(self):
@@ -464,6 +470,9 @@ class ImmutableJS879adab5(JavaScriptProfile):
     repo: str = "immutable-js"
     commit: str = "879adab5ea333a5ca341635bcf799c3b8f9e7559"
     test_cmd: str = "npm run test -- --verbose"
+    eval_sets: set[str] = field(
+        default_factory=lambda: {"SWE-bench/SWE-bench_Multilingual"}
+    )
 
     @property
     def dockerfile(self):
@@ -479,13 +488,15 @@ class ThreeJS73b3f248(JavaScriptProfile):
     repo: str = "three.js"
     commit: str = "73b3f248016fb73f2fe71da8616cdd7e20386f81"
     test_cmd: str = "npm run test -- --verbose"
+    eval_sets: set[str] = field(
+        default_factory=lambda: {"SWE-bench/SWE-bench_Multilingual"}
+    )
 
     @property
     def dockerfile(self):
         return default_npm_install_dockerfile(self.mirror_name, node_version="22")
 
     def log_parser(self, log: str) -> dict[str, str]:
-        # NOTE: Require custom parser
         return parse_log_jest(log)
 
 
@@ -501,7 +512,6 @@ class Echarts6be0e145(JavaScriptProfile):
         return default_npm_install_dockerfile(self.mirror_name, node_version="22")
 
     def log_parser(self, log: str) -> dict[str, str]:
-        # NOTE: Require custom parser
         return parse_log_jest(log)
 
 
