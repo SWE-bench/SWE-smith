@@ -29,7 +29,7 @@ SWE-smith is a toolkit for training [SWE-agents](https://github.com/SWE-agent/SW
 * Train an LM to become a better SWE ([SWE-agent-LM-32B](https://huggingface.co/SWE-bench/SWE-agent-LM-32B)).
 
 ## ⚒️ Build Environments
-If you're interested in turning a GitHub repository into a SWE-gym, install the package from [source](https://swesmith.com/getting_started/installation/).
+If you're interested in turning a GitHub repository into a SWE-gym, install the package from [source](https://swesmith.com/getting_started/installation.html).
 
 > [!TIP]
 > SWE-smith requires Docker to create execution environments. SWE-smith was developed and tested on Ubuntu 22.04.4 LTS.
@@ -37,7 +37,7 @@ If you're interested in turning a GitHub repository into a SWE-gym, install the 
 
 You can then build a dataset for the repository by...
 1. [Creating an environment](https://swesmith.com/guides/env_construction/#create-an-execution-environment)
-2. [Synthesizing task instances](https://swesmith.com/guides/create_instances/)
+2. [Synthesizing task instances](https://swesmith.com/guides/create_instances.html)
 3. [Keep tasks that break 1+ unit tests](https://swesmith.com/guides/harnesses/)
 4. [Generating issue text for your tasks](https://swesmith.com/guides/issue_gen/)
 
