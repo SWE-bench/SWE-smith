@@ -2,7 +2,7 @@
 Updated 7/21/2025
 
 Thanks for your interest!
-First, make sure to [install](https://swesmith.com/getting_started/installation.html) SWE-smith, which should be super easy!
+First, make sure to [install](https://swesmith.com/getting_started/installation/) SWE-smith, which should be super easy!
 Then, there's several ways to contribute.
 
 * Add support for new languages
@@ -99,7 +99,7 @@ If you need help, open an issue and ask [@richardzhuang0412](https://github.com/
 🔴 `p1` (Especially non-Python repos)
 
 Generating task instances is very easy.
-* The ["Create Instances"](https://swesmith.com/guides/create_instances.html) section of the SWE-smith docs describes this repository's bug generation strategies in detail.
+* The ["Create Instances"](https://swesmith.com/guides/create_instances/) section of the SWE-smith docs describes this repository's bug generation strategies in detail.
 * The [Youtube Playlist](https://youtube.com/playlist?list=PL1b-qYhmIXEhyaUafmTYmMI4l9dbCLNix&si=7xnYixLc7MJSy7UU) shows you what things should look like when you run the scripts.
 * `scripts/cheatsheet.sh` contains the CLI commands to run scripts. Re-adapt these commands to a new repository, and run.
 
@@ -139,7 +139,7 @@ From there, we will attach the problem statements to the corresponding task inst
 Here are some ideas and contributions that we're not prioritizing at the moment, but if you're interested, we'd love to help you make it happen!
 Open an issue indicating you're interested, and we'll help you get started.
 
-* Make [Procedural Modification](https://swesmith.com/guides/create_instances.html#procedural-modification) bug generation work for non-Python repos
+* Make [Procedural Modification](https://swesmith.com/guides/create_instances/#procedural-modification) bug generation work for non-Python repos
 * Add bug generation strategies
     * Create instances corresponding to "subtasks" of SWE-bench. E.g. file localization, patch repair.
 * Add SWE-agent trajectories
