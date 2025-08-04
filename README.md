@@ -81,7 +81,7 @@ CC-BY-4.0. Check `LICENSE` for more information.
 ```bibtex
 @misc{yang2025swesmith,
   title={SWE-smith: Scaling Data for Software Engineering Agents}, 
-  author={John Yang and Kilian Leret and Carlos E. Jimenez and Alexander Wettig and Kabir Khandpur and Yanzhe Zhang and Binyuan Hui and Ofir Press and Ludwig Schmidt and Diyi Yang},
+  author={John Yang and Kilian Lieret and Carlos E. Jimenez and Alexander Wettig and Kabir Khandpur and Yanzhe Zhang and Binyuan Hui and Ofir Press and Ludwig Schmidt and Diyi Yang},
   year={2025},
   eprint={2504.21798},
   archivePrefix={arXiv},
