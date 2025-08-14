@@ -55,7 +55,6 @@ To prompt an LM to rewrite a function from scratch:
 ```bash
 python -m swesmith.bug_gen.llm.rewrite $repo \
   --model anthropic/claude-3-7-sonnet-20250219 \
-  --type func \
   --config_file configs/bug_gen/lm_rewrite.yml \
   --n_workers 1
 ```
@@ -96,7 +95,6 @@ Because AST's give us a rigorous representation that allow modifications of spec
 **How do I run it?**
 ```bash
 python -m swesmith.bug_gen.procedural.generate $repo \
-  --type [func|class|object] \
   --max_bugs 10
 ```
 
