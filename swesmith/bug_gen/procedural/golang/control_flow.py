@@ -179,14 +179,13 @@ class ControlShuffleLinesModifier(GolangProceduralModifier):
                     # Get the statements inside the block (excluding braces)
                     statements = []
                     for child in body_block.children:
-                        # Skip opening and closing braces, collect actual statements
-                        if child.type not in ["{", "}"]:
-                            statements.append(child)
-
-                    # Debug: Print the number of statements found
-                    # print(f"DEBUG: Found {len(statements)} statements in function/method")
-                    # for i, stmt in enumerate(statements):
-                    #     print(f"  Statement {i}: {stmt.type}")
+                        candidate_stmts = [child]
+                        if child.type == "statement_list":
+                            candidate_stmts = child.children
+                        for stmt in candidate_stmts:
+                            # Skip opening and closing braces, collect actual statements
+                            if stmt.type not in ["{", "}"]:
+                                statements.append(stmt)
 
                     # Only shuffle if there are at least 2 statements
                     if len(statements) >= 2:
