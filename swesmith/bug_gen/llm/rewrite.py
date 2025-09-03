@@ -50,6 +50,7 @@ from typing import Any
 LM_REWRITE = "lm_rewrite"
 
 logging.getLogger("LiteLLM").setLevel(logging.WARNING)
+litellm.drop_params = True
 litellm.suppress_debug_info = True
 random.seed(24)
 

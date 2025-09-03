@@ -42,6 +42,7 @@ from swesmith.profiles.python import PythonProfile
 from tqdm.auto import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
 
+litellm.drop_params = True
 litellm.suppress_debug_info = True
 
 LOG_FILE_ISSUE = "issue_test.txt"
