@@ -173,7 +173,7 @@ def _process_instance(instance: dict, config_file: str | None, model: str | None
         test_idx = random.randint(0, len(instance[FAIL_TO_PASS]) - 1)
         rp = registry.get_from_inst(instance)
         cmd = get_verbose_test_cmd(instance, rp, test_idx)
-        test_output = run_command_in_container(instance, cmd)
+        test_output = run_command_in_container(instance, cmd, rp)
         test_func = get_test_function(instance, test_idx)
         test_src = test_func["test_src"]
         test_info = TEST_INFO.format(func=test_src, output=test_output)
