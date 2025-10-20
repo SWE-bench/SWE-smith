@@ -81,7 +81,7 @@ class ControlIfElseInvertModifier(JavaProceduralModifier):
             # Check if it has an else branch
             has_else = False
             has_else_if = False
-            
+
             for i, child in enumerate(node.children):
                 if child.type == "else":
                     has_else = True
@@ -91,11 +91,11 @@ class ControlIfElseInvertModifier(JavaProceduralModifier):
                         if next_node.type == "if_statement":
                             has_else_if = True
                     break
-            
+
             # Only accept simple if-else, not else-if chains
             if has_else and not has_else_if:
                 candidates.append(node)
-        
+
         for child in node.children:
             self._find_if_else_statements(child, candidates)
 
@@ -173,10 +173,9 @@ class ControlShuffleLinesModifier(JavaProceduralModifier):
         new_block = "\n".join(indent + stmt for stmt in stmt_texts)
 
         return (
-            code[:indent_start]
-            + new_block
-            + "\n"
-            + indent[:-4] if len(indent) >= 4 else indent
+            code[:indent_start] + new_block + "\n" + indent[:-4]
+            if len(indent) >= 4
+            else indent
         ) + code[last_stmt.end_byte :]
 
     def _find_blocks(self, node, candidates):
@@ -196,4 +195,3 @@ class ControlShuffleLinesModifier(JavaProceduralModifier):
                 candidates.append(node)
         for child in node.children:
             self._find_blocks(child, candidates)
-

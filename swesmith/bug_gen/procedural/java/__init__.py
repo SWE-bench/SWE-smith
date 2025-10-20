@@ -32,4 +32,3 @@ MODIFIERS_JAVA: list[ProceduralModifier] = [
     OperationFlipOperatorModifier(likelihood=0.4),
     OperationSwapOperandsModifier(likelihood=0.4),
 ]
-

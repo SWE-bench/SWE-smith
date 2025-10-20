@@ -188,4 +188,3 @@ class RemoveAssignModifier(JavaProceduralModifier):
             candidates.append(node)
         for child in node.children:
             self._find_assignments(child, candidates)
-

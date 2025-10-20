@@ -11,4 +11,3 @@ class JavaProceduralModifier(ProceduralModifier, ABC):
     """Base class for Java-specific procedural modifications."""
 
     pass
-

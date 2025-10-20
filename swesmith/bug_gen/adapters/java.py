@@ -26,7 +26,12 @@ class JavaEntity(CodeEntity):
 
     def _check_control_flow(self, n):
         """Check for control flow patterns."""
-        if n.type in ["for_statement", "enhanced_for_statement", "while_statement", "do_statement"]:
+        if n.type in [
+            "for_statement",
+            "enhanced_for_statement",
+            "while_statement",
+            "do_statement",
+        ]:
             self._tags.add(CodeProperty.HAS_LOOP)
         if n.type == "if_statement":
             self._tags.add(CodeProperty.HAS_IF)
@@ -72,17 +77,26 @@ class JavaEntity(CodeEntity):
     @property
     def complexity(self) -> int:
         """Calculate cyclomatic complexity for Java methods."""
+
         def walk(node):
             score = 0
             if node.type in [
-                "if_statement", "for_statement", "enhanced_for_statement",
-                "while_statement", "do_statement", "case", "catch_clause",
-                "&&", "||", "?",
+                "if_statement",
+                "for_statement",
+                "enhanced_for_statement",
+                "while_statement",
+                "do_statement",
+                "case",
+                "catch_clause",
+                "&&",
+                "||",
+                "?",
             ]:
                 score += 1
             for child in node.children:
                 score += walk(child)
             return score
+
         return 1 + walk(self.node)
 
     @property
