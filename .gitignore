@@ -6,8 +6,10 @@
 # Folders
 hidden/
 logs/
+logs*/
 notebooks/
 repos/
+/venv*
 
 # General python
 
