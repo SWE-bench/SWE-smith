@@ -91,7 +91,7 @@ def get_combos(items, r, max_combos) -> list[tuple]:
 
 def get_patch(repo: str, reset_changes: bool = False, file_path: str | None = None):
     """Get the patch for the current changes in a Git repository.
-    
+
     Args:
         repo: Path to the git repository
         reset_changes: Whether to reset changes after generating patch
@@ -108,7 +108,7 @@ def get_patch(repo: str, reset_changes: bool = False, file_path: str | None = No
         subprocess.run(["git", "-C", repo, "add", file_path], check=True, **DEVNULL)
     else:
         subprocess.run(["git", "-C", repo, "add", "-A"], check=True, **DEVNULL)
-    
+
     patch = subprocess.run(
         ["git", "-C", repo, "diff", "--staged", "--binary"],
         capture_output=True,
@@ -130,7 +130,9 @@ def get_patch(repo: str, reset_changes: bool = False, file_path: str | None = No
     if reset_changes:
         # Try to reset, if it fails, try to recover by rebuilding the index
         try:
-            subprocess.run(["git", "-C", repo, "reset", "--hard"], check=True, **DEVNULL)
+            subprocess.run(
+                ["git", "-C", repo, "reset", "--hard"], check=True, **DEVNULL
+            )
         except subprocess.CalledProcessError:
             # Git index might be corrupted, try to fix it
             subprocess.run(["git", "-C", repo, "read-tree", "HEAD"], **DEVNULL)

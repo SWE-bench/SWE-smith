@@ -27,7 +27,9 @@ class ReturnNullModifier(JavaProceduralModifier):
 
         parser = Parser(JAVA_LANGUAGE)
         tree = parser.parse(bytes(code_entity.src_code, "utf8"))
-        modified_code = self._change_return_to_null(code_entity.src_code, tree.root_node)
+        modified_code = self._change_return_to_null(
+            code_entity.src_code, tree.root_node
+        )
 
         # Validate syntax before returning
         if not self.validate_syntax(code_entity.src_code, modified_code):
@@ -48,7 +50,7 @@ class ReturnNullModifier(JavaProceduralModifier):
             return code
 
         target = random.choice(candidates)
-        
+
         # Check if this is already returning null
         for child in target.children:
             if child.type != "return":
@@ -87,7 +89,9 @@ class ReturnThisModifier(JavaProceduralModifier):
 
         parser = Parser(JAVA_LANGUAGE)
         tree = parser.parse(bytes(code_entity.src_code, "utf8"))
-        modified_code = self._change_return_to_this(code_entity.src_code, tree.root_node)
+        modified_code = self._change_return_to_this(
+            code_entity.src_code, tree.root_node
+        )
 
         # Validate syntax before returning
         if not self.validate_syntax(code_entity.src_code, modified_code):
@@ -108,7 +112,7 @@ class ReturnThisModifier(JavaProceduralModifier):
             return code
 
         target = random.choice(candidates)
-        
+
         # Check if this is already returning 'this'
         for child in target.children:
             if child.type not in ["return", ";"]:
@@ -134,7 +138,7 @@ class ReturnThisModifier(JavaProceduralModifier):
                 method_node = node.parent
                 while method_node and method_node.type != "method_declaration":
                     method_node = method_node.parent
-                
+
                 if method_node:
                     # Check if method has 'static' modifier
                     is_static = False
@@ -144,10 +148,9 @@ class ReturnThisModifier(JavaProceduralModifier):
                             if "static" in method_text:
                                 is_static = True
                                 break
-                    
+
                     if not is_static:
                         candidates.append(node)
-        
+
         for child in node.children:
             self._find_returns(code, child, candidates)
-
