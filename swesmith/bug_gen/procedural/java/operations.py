@@ -91,13 +91,27 @@ class OperationChangeModifier(JavaProceduralModifier):
             has_string_literal = any(
                 child.type == "string_literal" for child in node.children
             )
-            
+
             # Find the operator child
             for child in node.children:
                 # Skip + operator if it involves strings (string concatenation)
                 if child.type == "+" and has_string_literal:
                     continue
-                if child.type in ["+", "-", "*", "/", "%", "<", ">", "<=", ">=", "==", "!=", "&&", "||"]:
+                if child.type in [
+                    "+",
+                    "-",
+                    "*",
+                    "/",
+                    "%",
+                    "<",
+                    ">",
+                    "<=",
+                    ">=",
+                    "==",
+                    "!=",
+                    "&&",
+                    "||",
+                ]:
                     # Only add arithmetic ops if no string literals involved
                     if child.type in ["+", "-", "*", "/", "%"] and has_string_literal:
                         continue
@@ -274,8 +288,14 @@ class OperationChangeConstantsModifier(JavaProceduralModifier):
 
     def _find_numeric_literals(self, node, candidates):
         """Find numeric literal nodes."""
-        if node.type in ["decimal_integer_literal", "hex_integer_literal", "octal_integer_literal", 
-                         "binary_integer_literal", "decimal_floating_point_literal", "hex_floating_point_literal"]:
+        if node.type in [
+            "decimal_integer_literal",
+            "hex_integer_literal",
+            "octal_integer_literal",
+            "binary_integer_literal",
+            "decimal_floating_point_literal",
+            "hex_floating_point_literal",
+        ]:
             candidates.append(node)
         for child in node.children:
             self._find_numeric_literals(child, candidates)
@@ -335,4 +355,3 @@ class OperationBreakChainsModifier(JavaProceduralModifier):
                 candidates.append(node)
         for child in node.children:
             self._find_method_chains(child, candidates)
-

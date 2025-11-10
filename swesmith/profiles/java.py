@@ -10,13 +10,13 @@ from swesmith.profiles.base import RepoProfile, registry
 # Integration: Copy to swesmith/profiles/java.py
 
 
-
-
 @dataclass
 class JavaProfile(RepoProfile):
     """
     Profile for Java repositories.
     """
+
+
 @dataclass
 class JSqlParser01034cd0(JavaProfile):
     owner: str = "JSQLParser"
@@ -45,30 +45,34 @@ RUN ./gradlew build -x test --no-daemon || true
         test_status_map = {}
 
         # Extract XML content from the log
-        xml_matches = re.findall(r'<\?xml version.*?</testsuite>', log, re.DOTALL)  
+        xml_matches = re.findall(r"<\?xml version.*?</testsuite>", log, re.DOTALL)
 
         for xml_content in xml_matches:
             try:
                 root = ET.fromstring(xml_content)
-                suite_classname = root.get('name', '')
+                suite_classname = root.get("name", "")
 
                 # Parse each testcase
-                for testcase in root.findall('.//testcase'):
-                    classname = testcase.get('classname', suite_classname)
-                    methodname = testcase.get('name', '')
+                for testcase in root.findall(".//testcase"):
+                    classname = testcase.get("classname", suite_classname)
+                    methodname = testcase.get("name", "")
                     test_name = f"{classname}.{methodname}"
 
                     # Check for failure, error, or skipped
-                    if testcase.find('failure') is not None or testcase.find('error') is not None:
-                        test_status_map[test_name] = TestStatus.FAILED.value        
-                    elif testcase.find('skipped') is not None:
-                        test_status_map[test_name] = TestStatus.SKIPPED.value       
+                    if (
+                        testcase.find("failure") is not None
+                        or testcase.find("error") is not None
+                    ):
+                        test_status_map[test_name] = TestStatus.FAILED.value
+                    elif testcase.find("skipped") is not None:
+                        test_status_map[test_name] = TestStatus.SKIPPED.value
                     else:
-                        test_status_map[test_name] = TestStatus.PASSED.value        
+                        test_status_map[test_name] = TestStatus.PASSED.value
             except ET.ParseError:
                 continue
 
         return test_status_map
+
 
 @dataclass
 class Gsondd2fe59c(JavaProfile):
@@ -113,6 +117,7 @@ RUN mvn clean install -B -pl gson -DskipTests -am
                     continue
                 test_status_map[test_name.group(2)] = TestStatus.PASSED.value
         return test_status_map
+
 
 # Auto-generated profile for google/gson
 # Commit: 50a93686df9e49dd20fecff222bb9ca169a29754
@@ -165,6 +170,7 @@ RUN mvn clean install -B -pl gson -DskipTests -am
 # Generated: 2025-10-26T12:47:33.140210
 # Integration: Copy to swesmith/profiles/java.py
 
+
 @dataclass
 class Keystoreexplorera52ede42(JavaProfile):
     owner: str = "kaikramer"
@@ -189,34 +195,38 @@ RUN ./gradlew clean build -x test --no-daemon || true
         """Parse JUnit XML test results from Gradle output."""
         import re
         import xml.etree.ElementTree as ET
-        
+
         test_status_map = {}
-        
+
         # Extract XML content from the log
-        xml_matches = re.findall(r'<\?xml version.*?</testsuite>', log, re.DOTALL)
-        
+        xml_matches = re.findall(r"<\?xml version.*?</testsuite>", log, re.DOTALL)
+
         for xml_content in xml_matches:
             try:
                 root = ET.fromstring(xml_content)
-                suite_classname = root.get('name', '')
-                
+                suite_classname = root.get("name", "")
+
                 # Parse each testcase
-                for testcase in root.findall('.//testcase'):
-                    classname = testcase.get('classname', suite_classname)
-                    methodname = testcase.get('name', '')
+                for testcase in root.findall(".//testcase"):
+                    classname = testcase.get("classname", suite_classname)
+                    methodname = testcase.get("name", "")
                     test_name = f"{classname}.{methodname}"
-                    
+
                     # Check for failure, error, or skipped
-                    if testcase.find('failure') is not None or testcase.find('error') is not None:
+                    if (
+                        testcase.find("failure") is not None
+                        or testcase.find("error") is not None
+                    ):
                         test_status_map[test_name] = TestStatus.FAILED.value
-                    elif testcase.find('skipped') is not None:
+                    elif testcase.find("skipped") is not None:
                         test_status_map[test_name] = TestStatus.SKIPPED.value
                     else:
                         test_status_map[test_name] = TestStatus.PASSED.value
             except ET.ParseError:
                 continue
-        
+
         return test_status_map
+
 
 # Register all Java profiles with the global registry
 for name, obj in list(globals().items()):

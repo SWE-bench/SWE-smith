@@ -85,20 +85,30 @@ class BooleanNegateModifier(JavaProceduralModifier):
                     candidates.append(node)
                     break
         # Boolean variables/fields in conditions
-        elif node.type == "identifier" and node.parent and node.parent.type in [
-            "if_statement",
-            "while_statement",
-            "do_statement",
-            "parenthesized_expression",
-        ]:
+        elif (
+            node.type == "identifier"
+            and node.parent
+            and node.parent.type
+            in [
+                "if_statement",
+                "while_statement",
+                "do_statement",
+                "parenthesized_expression",
+            ]
+        ):
             candidates.append(node)
         # Boolean method calls
-        elif node.type == "method_invocation" and node.parent and node.parent.type in [
-            "if_statement",
-            "while_statement",
-            "do_statement",
-            "parenthesized_expression",
-        ]:
+        elif (
+            node.type == "method_invocation"
+            and node.parent
+            and node.parent.type
+            in [
+                "if_statement",
+                "while_statement",
+                "do_statement",
+                "parenthesized_expression",
+            ]
+        ):
             candidates.append(node)
 
         for child in node.children:
@@ -159,4 +169,3 @@ class BooleanShortCircuitModifier(JavaProceduralModifier):
                     candidates.append(child)
         for child in node.children:
             self._find_shortcircuit_ops(child, candidates)
-

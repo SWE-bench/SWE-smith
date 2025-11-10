@@ -53,12 +53,12 @@ def _process_candidate(
     with open(bug_dir / metadata_path, "w") as f:
         json.dump(bug.to_dict(), f, indent=2)
     apply_code_change(candidate, bug)
-    
+
     # Make file_path relative to repo root (strip repo prefix if present)
     relative_file_path = candidate.file_path
     if relative_file_path.startswith(repo + "/"):
-        relative_file_path = relative_file_path[len(repo) + 1:]
-    
+        relative_file_path = relative_file_path[len(repo) + 1 :]
+
     patch = get_patch(repo, reset_changes=True, file_path=relative_file_path)
     if patch:
         with open(bug_dir / bug_path, "w") as f:
@@ -80,7 +80,7 @@ def main(
     repo_path = rp.repo_name  # Use actual cloned directory name
     entities = rp.extract_entities()
     print(f"Found {len(entities)} entities in {repo}.")
-    
+
     # Select modifier map based on new_only flag
     if new_only:
         print("🆕 Running ONLY NEW modifiers...")
