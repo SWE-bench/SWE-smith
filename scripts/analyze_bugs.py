@@ -220,6 +220,9 @@ def print_statistics(analysis: Dict[str, Any]) -> None:
 
 def save_report(analysis: Dict[str, Any], output_file: str) -> None:
     """Save the analysis report to a JSON file."""
+    # Create parent directories if they don't exist
+    Path(output_file).parent.mkdir(parents=True, exist_ok=True)
+    
     with open(output_file, "w") as f:
         json.dump(analysis, f, indent=2)
     print(f"Detailed report saved to: {output_file}")

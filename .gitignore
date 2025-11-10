@@ -239,3 +239,6 @@ test_*.py
 *.class
 mini-swe-agent-automate-repo-installation/
 
+agent-result/
+arch/
+

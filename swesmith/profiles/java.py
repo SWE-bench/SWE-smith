@@ -1,8 +1,21 @@
 import re
+import sys
+from pathlib import Path
 
 from dataclasses import dataclass, field
 from swebench.harness.constants import TestStatus
 from swesmith.profiles.base import RepoProfile, registry
+
+# Import log parsers from mini-swe-agent-automate-repo-installation
+_log_parser_path = Path(__file__).parent.parent.parent / "mini-swe-agent-automate-repo-installation"
+if _log_parser_path.exists() and str(_log_parser_path) not in sys.path:
+    sys.path.insert(0, str(_log_parser_path))
+    
+try:
+    from log_parser.parsers.maven import parse_log_maven
+except ImportError:
+    # Fallback if log_parser is not available
+    parse_log_maven = None
 
 # Auto-generated profile for JSQLParser/JSqlParser
 # Commit: 01034cd08c3e9d75692abb5f8afc9cee97700dad
@@ -70,100 +83,6 @@ RUN ./gradlew build -x test --no-daemon || true
 
         return test_status_map
 
-@dataclass
-class Gsondd2fe59c(JavaProfile):
-    owner: str = "google"
-    repo: str = "gson"
-    commit: str = "dd2fe59c0d3390b2ad3dd365ed6938a5c15844cb"
-    test_cmd: str = "mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain"
-    timeout: int = 400  # Increased timeout - Maven multi-threaded build is very slow
-    timeout_ref: int = 900  # Timeout for full test suite reference run
-    eval_sets: set[str] = field(
-        default_factory=lambda: {"SWE-bench/SWE-bench_Multilingual"}
-    )
-
-    @property
-    def dockerfile(self):
-        return f"""FROM ubuntu:22.04
-ENV DEBIAN_FRONTEND=noninteractive
-ENV LANG=C.UTF-8
-ENV LC_ALL=C.UTF-8
-RUN apt-get update && apt-get install -y git openjdk-11-jdk
-RUN apt-get install -y maven
-RUN git clone https://github.com/{self.mirror_name} /testbed
-WORKDIR /testbed
-RUN mvn clean install -B -pl gson -DskipTests -am
-"""
-
-    def log_parser(self, log: str) -> dict[str, str]:
-        test_status_map = {}
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
-
-# Auto-generated profile for google/gson
-# Commit: 50a93686df9e49dd20fecff222bb9ca169a29754
-# Generated: 2025-11-10T00:01:55.284759
-# Integration: Copy to swesmith/profiles/java.py
-
-# @dataclass
-# class Gson50a93686(JavaProfile):
-#     owner: str = "google"
-#     repo: str = "gson"
-#     commit: str = "50a93686df9e49dd20fecff222bb9ca169a29754"
-#     test_cmd: str = "mvn test -B"
-#     timeout: int = 400  # Maven tests can be slow
-#     org_gh: str = "cs329a-swesmith-repos"  # Use custom GitHub org for mirror
-#     org_dh: str = "cs329a-swesmith"  # Custom Docker Hub org (local builds only)
-
-#     @property
-#     def dockerfile(self):
-#         return f"""FROM ubuntu:22.04
-# ENV DEBIAN_FRONTEND=noninteractive
-# ENV LANG=C.UTF-8
-# ENV LC_ALL=C.UTF-8
-# RUN apt-get update && apt-get install -y git openjdk-11-jdk maven
-# RUN git clone https://github.com/{{self.mirror_name}} /testbed
-# WORKDIR /testbed
-# RUN mvn clean install -B -q -DskipTests -am || true
-# """
-
-#     def log_parser(self, log: str) -> dict[str, str]:
-#         """Parse Maven Surefire test output."""
-#         import re
-
-#         test_status_map = {}
-#         pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-
-#         for line in log.split("\n"):
-#             if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-#                 test_name = re.match(pattern, line)
-#                 if test_name:
-#                     test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-#             elif any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]]) and "Time elapsed:" in line:
-#                 test_name = re.match(pattern, line)
-#                 if test_name:
-#                     test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-
-#         return test_status_map
-
-# Auto-generated profile for kaikramer/keystore-explorer
-# Commit: a52ede42c153928c9b594dc7291fcdc71ce02432
-# Generated: 2025-10-26T12:47:33.140210
-# Integration: Copy to swesmith/profiles/java.py
 
 @dataclass
 class Keystoreexplorera52ede42(JavaProfile):
@@ -217,6 +136,43 @@ RUN ./gradlew clean build -x test --no-daemon || true
                 continue
         
         return test_status_map
+
+# Auto-generated profile for google/gson (java)
+# Commit: 50a93686df9e49dd20fecff222bb9ca169a29754
+# Generated: 2025-11-10T13:41:37.567564
+# Integration: Copy to swesmith/profiles/java.py
+
+
+# Auto-generated profile for google/gson (java)
+# Commit: 50a93686df9e49dd20fecff222bb9ca169a29754
+# Generated: 2025-11-10T14:01:53.234192
+# Integration: Copy to swesmith/profiles/java.py
+
+@dataclass
+class Gson50a93686(JavaProfile):
+    owner: str = "google"
+    repo: str = "gson"
+    commit: str = "50a93686df9e49dd20fecff222bb9ca169a29754"
+    org_gh: str = "cs329a-swesmith-repos"  # Custom GitHub org for mirror
+    org_dh: str = "cs329a-swesmith"  # Custom Docker Hub org
+    test_cmd: str = "mvn test -B -pl gson,extras,metrics"
+
+    @property
+    def dockerfile(self):
+        return f"""FROM openjdk:17
+RUN apt-get update && apt-get install -y git
+RUN git clone https://github.com/{self.mirror_name} /testbed
+WORKDIR /testbed
+"""
+
+    def log_parser(self, log: str) -> dict[str, str]:
+        """Parse Maven Surefire test output."""
+        # Note: parse_log_maven should be imported at top of file
+        if parse_log_maven is not None:
+            return parse_log_maven(log)
+        return {}
+
+
 
 # Register all Java profiles with the global registry
 for name, obj in list(globals().items()):
