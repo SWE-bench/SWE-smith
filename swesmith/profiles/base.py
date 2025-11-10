@@ -314,7 +314,7 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
 
     def get_container(self, instance: dict) -> Container:
         """Return a docker container with the task instance initialized"""
-        client = docker.from_env()
+        client = docker.from_env(timeout=180)
         self.pull_image()
         container = client.containers.create(
             image=self.image_name,

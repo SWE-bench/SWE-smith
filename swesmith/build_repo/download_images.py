@@ -79,7 +79,7 @@ def get_docker_repositories(username, token):
 def main(repo: str, proceed: bool = True):
     username, password = get_docker_hub_login()
     token = get_dockerhub_token(username, password)
-    client = docker.from_env()
+    client = docker.from_env(timeout=180)
 
     # Get list of swesmith repositories
     repos = get_docker_repositories(DOCKER_ORG, token)

@@ -51,7 +51,7 @@ def build_all_images(workers=4, profile_filter=None, proceed=False, push=False):
     all_profiles = registry.values()
 
     # Remove environments that have already been built
-    client = docker.from_env()
+    client = docker.from_env(timeout=180)
 
     # Filter out profiles that already have images built
     profiles_to_build = []

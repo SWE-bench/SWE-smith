@@ -49,7 +49,7 @@ class PythonProfile(RepoProfile):
         HEREDOC_DELIMITER = "EOF_59812759871"
         PATH_TO_REQS = "swesmith_environment.yml"
 
-        client = docker.from_env()
+        client = docker.from_env(timeout=180)
         with open(self._env_yml) as f:
             reqs = f.read()
 

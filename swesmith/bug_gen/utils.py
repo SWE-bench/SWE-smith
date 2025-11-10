@@ -89,17 +89,28 @@ def get_combos(items, r, max_combos) -> list[tuple]:
     return sorted(all_combos, key=len)
 
 
-def get_patch(repo: str, reset_changes: bool = False):
-    """Get the patch for the current changes in a Git repository."""
+def get_patch(repo: str, reset_changes: bool = False, file_path: str | None = None):
+    """Get the patch for the current changes in a Git repository.
+    
+    Args:
+        repo: Path to the git repository
+        reset_changes: Whether to reset changes after generating patch
+        file_path: If provided, only add this specific file (prevents staging unrelated files)
+    """
     if (
         not os.path.isdir(repo)
         or subprocess.run(["git", "-C", repo, "status"], **DEVNULL).returncode != 0
     ):
         raise FileNotFoundError(f"'{repo}' is not a valid Git repository.")
 
-    subprocess.run(["git", "-C", repo, "add", "-A"], check=True, **DEVNULL)
+    # Only add the specific file if provided, otherwise add all changes
+    if file_path:
+        subprocess.run(["git", "-C", repo, "add", file_path], check=True, **DEVNULL)
+    else:
+        subprocess.run(["git", "-C", repo, "add", "-A"], check=True, **DEVNULL)
+    
     patch = subprocess.run(
-        ["git", "-C", repo, "diff", "--staged"],
+        ["git", "-C", repo, "diff", "--staged", "--binary"],
         capture_output=True,
         text=True,
         check=True,
@@ -117,6 +128,12 @@ def get_patch(repo: str, reset_changes: bool = False):
         f.write(patch)
     subprocess.run(["git", "-C", repo, "apply", TEMP_PATCH], check=True)
     if reset_changes:
-        subprocess.run(["git", "-C", repo, "reset", "--hard"], check=True, **DEVNULL)
+        # Try to reset, if it fails, try to recover by rebuilding the index
+        try:
+            subprocess.run(["git", "-C", repo, "reset", "--hard"], check=True, **DEVNULL)
+        except subprocess.CalledProcessError:
+            # Git index might be corrupted, try to fix it
+            subprocess.run(["git", "-C", repo, "read-tree", "HEAD"], **DEVNULL)
+            subprocess.run(["git", "-C", repo, "reset", "--hard"], **DEVNULL)
         subprocess.run(["git", "-C", repo, "clean", "-fdx"], check=True, **DEVNULL)
     return patch

@@ -28,7 +28,7 @@ from swesmith.constants import (
 from swesmith.profiles import registry
 from tqdm.auto import tqdm
 
-from swesmith.bug_gen.procedural import MAP_EXT_TO_MODIFIERS
+from swesmith.bug_gen.procedural import MAP_EXT_TO_MODIFIERS, MAP_EXT_TO_NEW_MODIFIERS
 from swesmith.bug_gen.procedural.base import ProceduralModifier
 
 
@@ -53,7 +53,13 @@ def _process_candidate(
     with open(bug_dir / metadata_path, "w") as f:
         json.dump(bug.to_dict(), f, indent=2)
     apply_code_change(candidate, bug)
-    patch = get_patch(repo, reset_changes=True)
+    
+    # Make file_path relative to repo root (strip repo prefix if present)
+    relative_file_path = candidate.file_path
+    if relative_file_path.startswith(repo + "/"):
+        relative_file_path = relative_file_path[len(repo) + 1:]
+    
+    patch = get_patch(repo, reset_changes=True, file_path=relative_file_path)
     if patch:
         with open(bug_dir / bug_path, "w") as f:
             f.write(patch)
@@ -65,15 +71,24 @@ def main(
     repo: str,
     max_bugs: int,
     seed: int,
+    new_only: bool = False,
 ):
     random.seed(seed)
     total = 0
     rp = registry.get(repo)
     rp.clone()
+    repo_path = rp.repo_name  # Use actual cloned directory name
     entities = rp.extract_entities()
     print(f"Found {len(entities)} entities in {repo}.")
+    
+    # Select modifier map based on new_only flag
+    if new_only:
+        print("🆕 Running ONLY NEW modifiers...")
+        modifier_map = MAP_EXT_TO_NEW_MODIFIERS
+    else:
+        modifier_map = MAP_EXT_TO_MODIFIERS
 
-    for ext, pm_list in MAP_EXT_TO_MODIFIERS.items():
+    for ext, pm_list in modifier_map.items():
         for pm in pm_list:
             candidates = [
                 x
@@ -92,9 +107,9 @@ def main(
                 candidates = random.sample(candidates, max_bugs)
 
             for candidate in tqdm(candidates):
-                total += _process_candidate(candidate, pm, log_dir, repo)
+                total += _process_candidate(candidate, pm, log_dir, repo_path)
 
-    shutil.rmtree(repo)
+    shutil.rmtree(repo_path)
     print(f"Generated {total} bugs for {repo}.")
 
 
@@ -118,6 +133,11 @@ if __name__ == "__main__":
         type=int,
         default=-1,
         help="Maximum number of bugs to generate.",
+    )
+    parser.add_argument(
+        "--new-only",
+        action="store_true",
+        help="Generate bugs using only NEW modifiers (for testing).",
     )
 
     args = parser.parse_args()

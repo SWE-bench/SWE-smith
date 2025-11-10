@@ -86,7 +86,7 @@ def run_command_in_container(instance: dict, command: str, rp: RepoProfile):
     Run a command in a docker container.
     """
     container = None
-    client = docker.from_env()
+    client = docker.from_env(timeout=180)
     instance_id = instance[KEY_INSTANCE_ID]
     image_name = instance[KEY_IMAGE_NAME]
 

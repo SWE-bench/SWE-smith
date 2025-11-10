@@ -29,7 +29,8 @@ class RemoveLoopModifier(JavaProceduralModifier):
         tree = parser.parse(bytes(code_entity.src_code, "utf8"))
         modified_code = self._remove_loops(code_entity.src_code, tree.root_node)
 
-        if modified_code == code_entity.src_code:
+        # Validate syntax before returning
+        if not self.validate_syntax(code_entity.src_code, modified_code):
             return None
 
         return BugRewrite(
@@ -91,7 +92,8 @@ class RemoveConditionalModifier(JavaProceduralModifier):
         tree = parser.parse(bytes(code_entity.src_code, "utf8"))
         modified_code = self._remove_conditionals(code_entity.src_code, tree.root_node)
 
-        if modified_code == code_entity.src_code:
+        # Validate syntax before returning
+        if not self.validate_syntax(code_entity.src_code, modified_code):
             return None
 
         return BugRewrite(
@@ -148,7 +150,8 @@ class RemoveAssignModifier(JavaProceduralModifier):
         tree = parser.parse(bytes(code_entity.src_code, "utf8"))
         modified_code = self._remove_assignments(code_entity.src_code, tree.root_node)
 
-        if modified_code == code_entity.src_code:
+        # Validate syntax before returning
+        if not self.validate_syntax(code_entity.src_code, modified_code):
             return None
 
         return BugRewrite(
@@ -183,8 +186,10 @@ class RemoveAssignModifier(JavaProceduralModifier):
         return code
 
     def _find_assignments(self, node, candidates):
-        """Find assignment expressions."""
-        if node.type in ["assignment_expression", "local_variable_declaration"]:
+        """Find assignment expressions (not declarations to avoid undefined variables)."""
+        # Only find reassignments (assignment_expression), not declarations (local_variable_declaration)
+        # This prevents creating undefined variable errors
+        if node.type == "assignment_expression":
             candidates.append(node)
         for child in node.children:
             self._find_assignments(child, candidates)

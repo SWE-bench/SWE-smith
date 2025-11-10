@@ -32,7 +32,8 @@ class ControlIfElseInvertModifier(JavaProceduralModifier):
             code_entity.src_code, tree.root_node
         )
 
-        if modified_code == code_entity.src_code:
+        # Validate syntax before returning
+        if not self.validate_syntax(code_entity.src_code, modified_code):
             return None
 
         return BugRewrite(
@@ -115,7 +116,8 @@ class ControlShuffleLinesModifier(JavaProceduralModifier):
         tree = parser.parse(bytes(code_entity.src_code, "utf8"))
         modified_code = self._shuffle_lines(code_entity.src_code, tree.root_node)
 
-        if modified_code == code_entity.src_code:
+        # Validate syntax before returning
+        if not self.validate_syntax(code_entity.src_code, modified_code):
             return None
 
         return BugRewrite(
@@ -172,12 +174,13 @@ class ControlShuffleLinesModifier(JavaProceduralModifier):
         # Build new block content
         new_block = "\n".join(indent + stmt for stmt in stmt_texts)
 
+        # Properly concatenate the result
         return (
             code[:indent_start]
             + new_block
             + "\n"
-            + indent[:-4] if len(indent) >= 4 else indent
-        ) + code[last_stmt.end_byte :]
+            + code[last_stmt.end_byte :]
+        )
 
     def _find_blocks(self, node, candidates):
         """Find blocks with multiple statements."""

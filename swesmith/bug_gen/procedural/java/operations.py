@@ -45,7 +45,8 @@ class OperationChangeModifier(JavaProceduralModifier):
         tree = parser.parse(bytes(code_entity.src_code, "utf8"))
         modified_code = self._change_operations(code_entity.src_code, tree.root_node)
 
-        if modified_code == code_entity.src_code:
+        # Validate syntax before returning
+        if not self.validate_syntax(code_entity.src_code, modified_code):
             return None
 
         return BugRewrite(
@@ -84,11 +85,22 @@ class OperationChangeModifier(JavaProceduralModifier):
         return code
 
     def _find_operations(self, node, candidates):
-        """Find all binary operators in the AST."""
+        """Find all binary operators in the AST (excluding string concatenations)."""
         if node.type == "binary_expression":
+            # Check if this is a string concatenation
+            has_string_literal = any(
+                child.type == "string_literal" for child in node.children
+            )
+            
             # Find the operator child
             for child in node.children:
+                # Skip + operator if it involves strings (string concatenation)
+                if child.type == "+" and has_string_literal:
+                    continue
                 if child.type in ["+", "-", "*", "/", "%", "<", ">", "<=", ">=", "==", "!=", "&&", "||"]:
+                    # Only add arithmetic ops if no string literals involved
+                    if child.type in ["+", "-", "*", "/", "%"] and has_string_literal:
+                        continue
                     candidates.append(child)
         for child in node.children:
             self._find_operations(child, candidates)
@@ -109,7 +121,8 @@ class OperationFlipOperatorModifier(JavaProceduralModifier):
         tree = parser.parse(bytes(code_entity.src_code, "utf8"))
         modified_code = self._flip_operators(code_entity.src_code, tree.root_node)
 
-        if modified_code == code_entity.src_code:
+        # Validate syntax before returning
+        if not self.validate_syntax(code_entity.src_code, modified_code):
             return None
 
         return BugRewrite(
@@ -161,7 +174,8 @@ class OperationSwapOperandsModifier(JavaProceduralModifier):
         tree = parser.parse(bytes(code_entity.src_code, "utf8"))
         modified_code = self._swap_operands(code_entity.src_code, tree.root_node)
 
-        if modified_code == code_entity.src_code:
+        # Validate syntax before returning
+        if not self.validate_syntax(code_entity.src_code, modified_code):
             return None
 
         return BugRewrite(
@@ -225,7 +239,8 @@ class OperationChangeConstantsModifier(JavaProceduralModifier):
         tree = parser.parse(bytes(code_entity.src_code, "utf8"))
         modified_code = self._change_constants(code_entity.src_code, tree.root_node)
 
-        if modified_code == code_entity.src_code:
+        # Validate syntax before returning
+        if not self.validate_syntax(code_entity.src_code, modified_code):
             return None
 
         return BugRewrite(
@@ -281,7 +296,8 @@ class OperationBreakChainsModifier(JavaProceduralModifier):
         tree = parser.parse(bytes(code_entity.src_code, "utf8"))
         modified_code = self._break_chains(code_entity.src_code, tree.root_node)
 
-        if modified_code == code_entity.src_code:
+        # Validate syntax before returning
+        if not self.validate_syntax(code_entity.src_code, modified_code):
             return None
 
         return BugRewrite(

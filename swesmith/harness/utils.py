@@ -116,7 +116,7 @@ def run_patch_in_container(
         tuple[Logger, bool]: logger and whether the container timed out or None if an error occurred
     """
     container = None
-    client = docker.from_env()
+    client = docker.from_env(timeout=180)
     instance_id = instance[KEY_INSTANCE_ID]
     rp = registry.get_from_inst(instance)
     is_eval = log_dir == RUN_EVALUATION_LOG_DIR
