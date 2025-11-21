@@ -6,13 +6,18 @@ This script orchestrates the complete workflow:
 1. Generate repository profile using mini-swe-agent
 2. Add profile to appropriate profiles file
 3. Generate procedural bugs
-4. Analyze generated bugs
+4. Run validation (local or Modal)
+5. Analyze generated bugs
 
 Usage:
     python scripts/end_to_end_bug_gen.py <repo_name> --language <lang> [options]
 
-Example:
+Examples:
+    # Local validation
     python scripts/end_to_end_bug_gen.py google/gson --language java --max-bugs 50 --livestream --verify
+    
+    # Modal validation (massively parallel)
+    python scripts/end_to_end_bug_gen.py google/gson --language java --max-bugs 100 --use-modal
 """
 
 import argparse
@@ -288,6 +293,9 @@ Examples:
   # Quick pipeline without verification
   python scripts/end_to_end_bug_gen.py fastapi/typer --language python --max-bugs 20
   
+  # Use Modal for massively parallel validation (requires Modal setup)
+  python scripts/end_to_end_bug_gen.py google/gson --language java --max-bugs 100 --use-modal
+  
   # Custom model and organizations
   python scripts/end_to_end_bug_gen.py rust-lang/cargo --language rust --model gpt-4o-mini --max-bugs 30 \
       --org-gh my-org --org-dh my-dockerhub
@@ -340,6 +348,17 @@ Examples:
         type=int,
         default=5,
         help='Maximum bugs per modifier (default: 5)'
+    )
+    parser.add_argument(
+        '--use-modal',
+        action='store_true',
+        help='Use Modal for massively parallel validation (requires Modal setup)'
+    )
+    parser.add_argument(
+        '--validation-timeout',
+        type=int,
+        default=600,
+        help='Timeout in seconds for validation step (default: 600)'
     )
     
     # Organization options (for profile generation)
@@ -475,10 +494,14 @@ Examples:
             print("STEP 2: PROCEDURAL BUG GENERATION")
             print("="*80)
             
+            # Step 2a: Generate bugs procedurally
+            print("\n[Step 2a/3] Generating bugs procedurally...")
             bug_gen_cmd = [
-                "bash",
-                "scripts/procedural_bug_gen.sh",
-                args.repo_name,
+                sys.executable,
+                "-m",
+                "swesmith.bug_gen.procedural.generate",
+                repo_id,
+                "--max_bugs",
                 str(args.max_bugs)
             ]
             
@@ -486,9 +509,74 @@ Examples:
             
             if exit_code != 0:
                 print(f"\n⚠️  Bug generation had errors, but may have partial results")
-                response = input("Continue to analysis? (y/n): ").strip().lower()
+                response = input("Continue to patch collection? (y/n): ").strip().lower()
                 if response != 'y':
                     sys.exit(1)
+            
+            # Step 2b: Collect all patches
+            print("\n[Step 2b/3] Collecting all patches...")
+            patches_file = f"logs/bug_gen/{repo_id}_all_patches.json"
+            
+            collect_cmd = [
+                sys.executable,
+                "-m",
+                "swesmith.bug_gen.collect_patches",
+                f"logs/bug_gen/{repo_id}"
+            ]
+            
+            exit_code, _ = run_command(collect_cmd, "Collecting patches")
+            
+            if exit_code != 0:
+                print(f"\n❌ Patch collection failed")
+                sys.exit(1)
+            
+            # Verify patches file was created
+            if Path(patches_file).exists():
+                with open(patches_file, 'r') as f:
+                    patches = json.load(f)
+                    num_patches = len(patches)
+                print(f"✅ Collected {num_patches} patches to {patches_file}")
+            else:
+                print(f"❌ Patches file not found: {patches_file}")
+                sys.exit(1)
+            
+            # Step 2c: Run validation
+            print("\n[Step 2c/3] Running validation...")
+            
+            if args.use_modal:
+                print(f"Using Modal for massively parallel validation...")
+                validate_cmd = [
+                    "modal",
+                    "run",
+                    "-m",
+                    "swesmith.harness.valid_modal",
+                    "--bug-patches",
+                    patches_file
+                ]
+            else:
+                # Determine number of workers
+                import multiprocessing
+                num_workers = multiprocessing.cpu_count()
+                print(f"Using local validation with {num_workers} workers...")
+                
+                validate_cmd = [
+                    sys.executable,
+                    "-m",
+                    "swesmith.harness.valid",
+                    patches_file,
+                    "-w",
+                    str(num_workers)
+                ]
+            
+            try:
+                exit_code, _ = run_command(validate_cmd, "Running validation")
+                
+                if exit_code != 0:
+                    print(f"\n⚠️  Validation had errors, but may have partial results")
+            except subprocess.TimeoutExpired:
+                print(f"\n⚠️  Validation timed out after {args.validation_timeout} seconds")
+                print("Partial results may be available")
+            
         else:
             print("\n⏭️  Skipping bug generation (--skip-bug-gen)")
         
@@ -526,6 +614,8 @@ Examples:
         if not args.skip_profile_gen:
             print(f"GitHub Org: {args.org_gh}")
             print(f"Docker Hub Org: {args.org_dh}")
+        if not args.skip_bug_gen:
+            print(f"Validation: {'Modal (parallel)' if args.use_modal else 'Local'}")
         
         # Construct paths with org_gh if available
         org_gh = get_org_gh_from_profile(repo_id)
