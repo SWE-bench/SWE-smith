@@ -1,4 +1,4 @@
-﻿"""
+"""
 Purpose: Transform bug patches into SWE-bench style dataset using Modal's Image.from_registry().
 
 This version uses Modal Sandboxes with repo-specific Docker images from Docker Hub,
