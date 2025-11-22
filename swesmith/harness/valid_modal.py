@@ -240,9 +240,10 @@ def run_validation_single(
                 rp = grading_registry.get_from_inst(instance)
                 
                 # Use get_valid_report to compare pre vs post
+                # NOTE: Counter-intuitive semantics - pregold=WITH patch, postgold=WITHOUT patch
                 report = grading_get_valid_report(
-                    val_pregold_path=pregold_path,   # WITHOUT patch (baseline - should pass)
-                    val_postgold_path=postgold_path,  # WITH patch (should show failures)
+                    val_pregold_path=postgold_path,  # WITH patch (buggy - should fail tests)
+                    val_postgold_path=pregold_path,   # WITHOUT patch (clean - should pass tests)
                     instance=instance,
                 )
                 
