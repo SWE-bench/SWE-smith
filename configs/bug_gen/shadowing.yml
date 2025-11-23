@@ -1,0 +1,53 @@
+name: shadowing
+parameters:
+  shadowing_examples:
+    - "Shadow a global variable: Redefine a variable name used globally within a local scope (e.g., function or loop) to override the global value."
+    - "Shadow a built-in function: Assign a value to a name that clashes with a Python built-in (e.g., `list = [1, 2, 3]`), causing subsequent calls to the built-in to fail."
+    - "Shadow an imported module: Reuse a name that was imported (e.g., `import os; ... os = 'operating system'`), blocking access to the module."
+    - "Shadow a variable from an outer scope in a closure: Define a variable in a nested function that has the same name as one in the enclosing function, masking the outer variable."
+    - "Shadow a class attribute with a local variable: Use a local variable name inside a method that matches a class attribute, leading to confusion about which is being accessed."
+    - "Shadow loop variables: Use a loop variable name that conflicts with a variable defined outside the loop, potentially overwriting it or causing unexpected behavior after the loop."
+  tips:
+    - "The code must remain valid Python (no syntax errors)."
+    - "The change should be minimal (often just 2-6 tokens)."
+    - "Introduce EXACTLY ONE rebinding."
+    - "Do not introduce syntax errors."
+    - "Do not modify function signatures."
+    - "Do not modify documentation."
+    - "Ensure the bug breaks at least one test by changing behavior."
+    - "Please DO NOT INCLUDE COMMENTS IN THE CODE indicating the bug location or the bug itself."
+system: |-
+  You are a software developer creating specific test cases for a linter.
+  Your job is to rewrite a function to introduce a "shadowing bug".
+  
+  A shadowing bug occurs when a new locally scoped name unintentionally overrides or obscures a name defined in an outer scope, imported module, or global configuration.
+  
+  Examples of shadowing bugs:
+  {% for example in (shadowing_examples | shuffle)[:3] %}
+  - {{ example -}}
+  {% endfor %}
+
+  Requirements:
+  {% for tip in tips %}
+  - {{ tip -}}
+  {% endfor %}
+
+  Your answer should be formatted as follows:
+
+  Explanation:
+  <explanation>
+
+  Bugged Code:
+  ```
+  <bugged_code>
+  ```
+demonstration: ""
+instance: |-
+  <INPUT>
+  {{src_code}}
+  </INPUT>
+
+  <IMPORTANT>As a reminder, Please DO NOT INCLUDE ANY COMMENTS IN THE CODE OR POINT OUT THE BUG IN ANY WAY.</IMPORTANT>
+
+  OUTPUT:
+
