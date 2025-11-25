@@ -329,22 +329,15 @@ def main(
     # Group by Docker image (each repo has its own image)
     image_to_instances = defaultdict(list)
     for patch in bug_patches_data:
-        # Extract Docker image name from repo field
-        # repo field format: "Owner__RepoName.commit" (e.g., "Instagram__MonkeyType.70c3acf6")
+        # Extract repo_id from repo field
+        # repo field format: "Owner__RepoName.commit" (e.g., "google__gson.2a213c5c")
         repo_str = patch["repo"]
         
-        # Split by '.' to separate repo from commit
-        if "." in repo_str:
-            repo_id, commit = repo_str.rsplit(".", 1)
-        else:
-            repo_id = repo_str
-            commit = "unknown"
+        # Get the actual image name from the profile registry
+        from swesmith.profiles import registry
+        profile = registry.get(repo_str)
+        docker_image = profile.image_name
         
-        # repo_id format: "Owner__RepoName"
-        # Convert to Docker image format: jyangballin/swesmith.x86_64.owner_1776_reponame.commit
-        owner, repo_name = repo_id.split("__")
-        
-        docker_image = f"jyangballin/swesmith.x86_64.{owner.lower()}_1776_{repo_name.lower()}.{commit}"
         image_to_instances[docker_image].append(patch)
     
     print(f"\nGrouped into {len(image_to_instances)} unique Docker images:")

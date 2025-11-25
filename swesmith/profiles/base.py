@@ -106,7 +106,10 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
 
     @property
     def image_name(self) -> str:
-        return f"{self.org_dh}/swesmith.{self.arch}.{self.owner}_1776_{self.repo}.{self.commit[:8]}".lower()
+        # Include dockerfile hash to bust Modal's cache when Dockerfile changes
+        import hashlib
+        dockerfile_hash = hashlib.md5(self.dockerfile.encode()).hexdigest()[:8]
+        return f"{self.org_dh}/swesmith.{self.arch}.{self.owner}_1776_{self.repo}.{self.commit[:8]}.{dockerfile_hash}".lower()
 
     @property
     def mirror_name(self):

@@ -281,6 +281,139 @@ sys.exit(1)
     return None
 
 
+def build_docker_image(repo_id: str) -> bool:
+    """Build Docker image for the repository.
+    
+    Note: generate_profile.py cleans up images after Stage 2, so we need to rebuild.
+    
+    Args:
+        repo_id: Repository ID (e.g., google__gson.dd2fe59c)
+    
+    Returns:
+        True if build successful, False if failed
+    """
+    try:
+        from swesmith.profiles import registry
+        profile = registry.get(repo_id)
+        image_name = profile.image_name
+        
+        print(f"\n🏗️  Building Docker image for Modal...")
+        print(f"   Image: {image_name}")
+        print(f"   (Note: generate_profile.py cleans up after Stage 2, so we rebuild for Modal)")
+        
+        # Check if image already exists
+        check_result = subprocess.run(
+            ["docker", "image", "inspect", image_name],
+            capture_output=True,
+            check=False
+        )
+        
+        if check_result.returncode == 0:
+            print(f"✅ Docker image already exists locally")
+            return True
+        
+        # Build from the profile's Dockerfile property
+        from swesmith.profiles import registry
+        profile = registry.get(repo_id)
+        
+        # Create temporary build directory
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmpdir:
+            dockerfile_path = Path(tmpdir) / "Dockerfile"
+            
+            # Write the profile's Dockerfile
+            print(f"   Using Dockerfile from profile registry")
+            with open(dockerfile_path, 'w') as f:
+                f.write(profile.dockerfile)
+            
+            # Build the image
+            build_cmd = [
+                "docker",
+                "build",
+                "--no-cache",  # Force rebuild to avoid stale cached layers
+                "-f", str(dockerfile_path),
+                "-t", image_name,
+                tmpdir  # Build context
+            ]
+            
+            print(f"   Building: {' '.join(build_cmd)}")
+            build_result = subprocess.run(
+                build_cmd,
+                capture_output=False,  # Show build progress
+                check=False
+            )
+        
+        # Check if build was successful by verifying the image exists
+        verify_result = subprocess.run(
+            ["docker", "image", "inspect", image_name],
+            capture_output=True,
+            check=False
+        )
+        
+        if verify_result.returncode == 0:
+            print(f"✅ Successfully built Docker image")
+            return True
+        else:
+            print(f"❌ Failed to build Docker image")
+            print(f"   The build command may have failed internally")
+            print(f"   Check the output above for errors (e.g., missing GITHUB_TOKEN)")
+            return False
+            
+    except Exception as e:
+        print(f"❌ Error building Docker image: {e}")
+        return False
+
+
+def push_docker_image(repo_id: str) -> bool:
+    """Push Docker image to Docker Hub after building.
+    
+    Args:
+        repo_id: Repository ID (e.g., google__gson.dd2fe59c)
+    
+    Returns:
+        True if push successful or not needed, False if failed
+    """
+    try:
+        from swesmith.profiles import registry
+        profile = registry.get(repo_id)
+        image_name = profile.image_name
+        
+        print(f"\n🐳 Pushing Docker image to Docker Hub...")
+        print(f"   Image: {image_name}")
+        
+        # Check if image exists locally first
+        check_result = subprocess.run(
+            ["docker", "image", "inspect", image_name],
+            capture_output=True,
+            check=False
+        )
+        
+        if check_result.returncode != 0:
+            print(f"⚠️  Warning: Docker image {image_name} not found locally")
+            print("   Skipping push - image will need to be built first")
+            return False
+        
+        # Push the image
+        push_result = subprocess.run(
+            ["docker", "push", image_name],
+            capture_output=False,  # Show progress
+            check=False
+        )
+        
+        if push_result.returncode == 0:
+            print(f"✅ Successfully pushed Docker image to Docker Hub")
+            return True
+        else:
+            print(f"❌ Failed to push Docker image (exit code: {push_result.returncode})")
+            print("   Make sure you're logged in to Docker Hub: docker login")
+            print("   Make sure you have permission to push to this repository")
+            return False
+            
+    except Exception as e:
+        print(f"❌ Error pushing Docker image: {e}")
+        return False
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="End-to-end bug generation pipeline: profile → bugs → analysis",
@@ -369,8 +502,8 @@ Examples:
     )
     parser.add_argument(
         '--org-dh',
-        default='cs329a-swesmith',
-        help='Docker Hub organization for images (default: cs329a-swesmith)'
+        default='priyank0003',
+        help='Docker Hub organization for images (default: priyank0003)'
     )
     
     # Pipeline control
@@ -378,6 +511,11 @@ Examples:
         '--skip-profile-gen',
         action='store_true',
         help='Skip profile generation (profile already exists in registry)'
+    )
+    parser.add_argument(
+        '--skip-agent',
+        action='store_true',
+        help='Skip agent run but regenerate profile from existing agent-result directory'
     )
     parser.add_argument(
         '--skip-bug-gen',
@@ -388,6 +526,11 @@ Examples:
         '--skip-analysis',
         action='store_true',
         help='Skip bug analysis'
+    )
+    parser.add_argument(
+        '--force-docker-push',
+        action='store_true',
+        help='Force Docker image build and push (useful for testing Docker workflow without re-running profile gen)'
     )
     
     args = parser.parse_args()
@@ -408,30 +551,44 @@ Examples:
             
             output_log = Path(f"{owner}-{repo}-gen.out")
             
-            # Build command for generate_profile.py
-            gen_cmd = [
-                sys.executable,
-                "mini-swe-agent-automate-repo-installation/generate_profile.py",
-                args.repo_name,
-                "--model", args.model,
-                "--max-cost", str(args.max_cost),
-                "--max-time", str(args.max_time),
-            ]
-            
-            if args.language.lower() == 'python':
-                gen_cmd.append('--python-repo')
-            
-            if args.livestream:
-                gen_cmd.append('--livestream')
-            
-            if args.verify:
-                gen_cmd.append('--verify')
-            
-            exit_code, _ = run_command(gen_cmd, "Generating profile", tee_output=output_log)
-            
-            if exit_code != 0:
-                print(f"\n❌ Profile generation failed. Check {output_log} for details.")
-                sys.exit(1)
+            # Check if we should skip agent run but regenerate profile
+            if args.skip_agent:
+                print("\n⏭️  Skipping agent run (--skip-agent)")
+                print("   Reusing existing agent-result directory")
+                
+                # Check if agent-result directory exists
+                agent_result_dir = Path(f"agent-result/{owner}-{repo}")
+                if not agent_result_dir.exists():
+                    print(f"\n❌ Agent result directory not found: {agent_result_dir}")
+                    print("   Cannot skip agent run without existing agent results")
+                    sys.exit(1)
+                
+                print(f"✅ Found existing agent-result directory: {agent_result_dir}")
+            else:
+                # Build command for generate_profile.py
+                gen_cmd = [
+                    sys.executable,
+                    "mini-swe-agent-automate-repo-installation/generate_profile.py",
+                    args.repo_name,
+                    "--model", args.model,
+                    "--max-cost", str(args.max_cost),
+                    "--max-time", str(args.max_time),
+                ]
+                
+                if args.language.lower() == 'python':
+                    gen_cmd.append('--python-repo')
+                
+                if args.livestream:
+                    gen_cmd.append('--livestream')
+                
+                if args.verify:
+                    gen_cmd.append('--verify')
+                
+                exit_code, _ = run_command(gen_cmd, "Generating profile", tee_output=output_log)
+                
+                if exit_code != 0:
+                    print(f"\n❌ Profile generation failed. Check {output_log} for details.")
+                    sys.exit(1)
             
             # Load and insert the generated profile
             result = load_generated_profile(args.repo_name)
@@ -487,6 +644,38 @@ Examples:
             sys.exit(1)
         
         print(f"\n✅ Found repo_id in registry: {repo_id}")
+        
+        # Build and push Docker image to Docker Hub if using Modal validation
+        # (Modal needs to pull the image from a registry)
+        # Note: generate_profile.py cleans up the image after Stage 2, so we rebuild
+        if (args.use_modal and not args.skip_profile_gen) or args.force_docker_push:
+            if args.force_docker_push and args.skip_profile_gen:
+                print("\n" + "="*80)
+                print("DOCKER BUILD & PUSH (--force-docker-push)")
+                print("="*80)
+            
+            # First, rebuild the image (it was cleaned up by generate_profile.py)
+            build_success = build_docker_image(repo_id)
+            if not build_success:
+                print("\n❌ Failed to build Docker image")
+                print("   Modal validation requires a Docker image")
+                sys.exit(1)
+            
+            # Then, push it to Docker Hub
+            push_success = push_docker_image(repo_id)
+            if not push_success:
+                print("\n⚠️  Warning: Failed to push Docker image to Docker Hub")
+                print("   Modal validation requires the image to be available on Docker Hub")
+                print("   You can:")
+                print("   1. Login to Docker Hub: docker login")
+                print("   2. Manually push the image later")
+                print("   3. Continue with local validation (remove --use-modal flag)")
+                
+                # Ask user if they want to continue
+                response = input("\n❓ Continue anyway? (y/N): ").strip().lower()
+                if response not in ['y', 'yes']:
+                    print("Exiting...")
+                    sys.exit(1)
         
         # Step 2: Generate bugs (unless skipped)
         if not args.skip_bug_gen:
@@ -586,16 +775,12 @@ Examples:
             print("STEP 3: BUG ANALYSIS")
             print("="*80)
             
-            # Get org_gh to construct the correct path
-            org_gh = get_org_gh_from_profile(repo_id)
-            analysis_repo_id = f"{org_gh}/{repo_id}" if org_gh else repo_id
-            
-            print(f"📂 Analysis path: logs/bug_gen/{analysis_repo_id}")
+            print(f"📂 Analysis path: logs/bug_gen/{repo_id}")
             
             analysis_cmd = [
                 sys.executable,
                 "scripts/analyze_bugs.py",
-                analysis_repo_id
+                repo_id
             ]
             
             exit_code, _ = run_command(analysis_cmd, "Analyzing generated bugs", capture_output=True)
@@ -617,16 +802,12 @@ Examples:
         if not args.skip_bug_gen:
             print(f"Validation: {'Modal (parallel)' if args.use_modal else 'Local'}")
         
-        # Construct paths with org_gh if available
-        org_gh = get_org_gh_from_profile(repo_id)
-        path_prefix = f"{org_gh}/{repo_id}" if org_gh else repo_id
-        
         print(f"\nGenerated artifacts:")
         print(f"  - Profile: {get_profile_file_for_language(args.language)}")
-        print(f"  - Bugs: logs/bug_gen/{path_prefix}/")
-        print(f"  - Patches: logs/bug_gen/{path_prefix}_all_patches.json")
-        print(f"  - Validation: logs/run_validation/{path_prefix}/")
-        print(f"  - Analysis: logs/analysis/{path_prefix}_analysis.json")
+        print(f"  - Bugs: logs/bug_gen/{repo_id}/")
+        print(f"  - Patches: logs/bug_gen/{repo_id}_all_patches.json")
+        print(f"  - Validation: logs/run_validation/{repo_id}/")
+        print(f"  - Analysis: logs/analysis/{repo_id}_analysis.json")
         print("\n" + "="*80)
         
     except KeyboardInterrupt:
