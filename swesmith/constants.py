@@ -27,7 +27,8 @@ LOG_DIR_TASKS = Path("logs/task_insts")
 LOG_TEST_OUTPUT_PRE_GOLD = "test_output_pre_gold.txt"
 MAX_INPUT_TOKENS = 128000
 ORG_NAME_DH = "jyangballin"
-ORG_NAME_GH = "swesmith"
+# Changed ORG_NAME_GH to danielzayas because I don't have write access to the SWE-smith org
+ORG_NAME_GH = "danielzayas"
 PREFIX_BUG = "bug"
 PREFIX_METADATA = "metadata"
 REF_SUFFIX = ".ref"
