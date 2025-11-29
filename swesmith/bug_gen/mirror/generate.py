@@ -89,8 +89,8 @@ def should_attempt_recovery(inst, repo):
             # Skip over edits to files that don't exist
             continue
         file_content = open(file_path).read()
-        if len(file_content.splitlines()) > 1000:
-            return False, "Changed file is too long (>1000 lines)"
+        if len(file_content.splitlines()) > 10000:
+            return False, "Changed file is too long (>10000 lines)"
         lines_changed += file_diff.added + file_diff.removed
     if lines_changed == 0:
         return False, "No lines changed (no changed file exists)"

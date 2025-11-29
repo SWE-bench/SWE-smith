@@ -61,8 +61,8 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
 
     org_dh: str = ORG_NAME_DH
     org_gh: str = ORG_NAME_GH
-    arch: str = "x86_64" if platform.machine() not in {"aarch64", "arm64"} else "arm64"
-    pltf: str = "linux/x86_64" if arch == "x86_64" else "linux/arm64/v8"
+    arch: str = "x86_64"
+    pltf: str = "linux/x86_64"
     exts: list[str] = field(default_factory=lambda: SUPPORTED_EXTS)
     eval_sets: set[str] = field(default_factory=set)
 
@@ -162,9 +162,10 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
         """Check if mirror repository exists under organization"""
         if self._cache_mirror_exists is not True:
             try:
-                self.api.repos.get(owner=self.org_gh, repo=self.repo_name)
+                owner, repo = self.mirror_name.split("/")
+                self.api.repos.get(owner=owner, repo=repo)
                 self._cache_mirror_exists = True
-            except:
+            except Exception:
                 self._cache_mirror_exists = False
         return self._cache_mirror_exists
 
@@ -185,17 +186,33 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
             )
         self._cache_image_exists = True
 
+    def _get_mirror_https_url(self) -> str:
+        token = os.getenv("GITHUB_TOKEN")
+        if not token:
+            raise RuntimeError("GITHUB_TOKEN is required for GitHub operations.")
+        return f"https://{token}@github.com/{self.mirror_name}.git"
+
     def create_mirror(self):
-        """Create a mirror of this repository at the specified commit."""
-        if self._mirror_exists():
-            return
+        """
+        Create a mirror of this repository at the specified commit.
+        
+        TODO @danielzayas: Change logic to get_or_create_mirror. I.e. if the mirror already exists, use it, otherwise create it.
+        """
         if self.repo_name in os.listdir():
             shutil.rmtree(self.repo_name)
-        self.api.repos.create_in_org(self.org_gh, self.repo_name)
+        try:
+            self.api.repos.create_in_org(self.org_gh, self.repo_name)
+        except Exception:
+            try:
+                self.api.repos.create_for_authenticated_user(
+                    name=self.repo_name, private=False
+                )
+            except Exception:
+                pass
 
         # Clone the repository
         subprocess.run(
-            f"git clone git@github.com:{self.owner}/{self.repo}.git {self.repo_name}",
+            f"git clone https://github.com/{self.owner}/{self.repo}.git {self.repo_name}",
             shell=True,
             check=True,
             stdout=subprocess.DEVNULL,
@@ -224,8 +241,8 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
                 "git add .",
                 "git commit --no-gpg-sign -m 'Initial commit'",
                 "git branch -M main",
-                f"git remote add origin git@github.com:{self.mirror_name}.git",
-                "git push -u origin main",
+                f"git remote add origin {self._get_mirror_https_url()}",
+                "git push -u origin main --force",
             ]
         )
 
@@ -255,10 +272,11 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
             )
         dest = self.repo_name if not dest else dest
         if not os.path.exists(dest):
+            mirror_url = self._get_mirror_https_url()
             clone_cmd = (
-                f"git clone git@github.com:{self.mirror_name}.git"
+                f"git clone {mirror_url}"
                 if dest is None
-                else f"git clone git@github.com:{self.mirror_name}.git {dest}"
+                else f"git clone {mirror_url} {dest}"
             )
             subprocess.run(
                 clone_cmd,

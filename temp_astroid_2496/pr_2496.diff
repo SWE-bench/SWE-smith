@@ -1,0 +1,134 @@
+diff --git a/ChangeLog b/ChangeLog
+index 4560e5d2b7..c08b1cbf2c 100644
+--- a/ChangeLog
++++ b/ChangeLog
+@@ -13,6 +13,9 @@ What's New in astroid 3.3.1?
+ ============================
+ Release date: TBA
+ 
++* Fix a crash introduced in 3.3.0 involving invalid format strings.
++
++  Closes #2492
+ 
+ 
+ What's New in astroid 3.3.0?
+diff --git a/astroid/nodes/node_classes.py b/astroid/nodes/node_classes.py
+index c1c7af36da..1924c78eba 100644
+--- a/astroid/nodes/node_classes.py
++++ b/astroid/nodes/node_classes.py
+@@ -4687,19 +4687,24 @@ def _infer(
+                     uninferable_already_generated = True
+                 continue
+             for value in self.value.infer(context, **kwargs):
+-                if not isinstance(value, Const):
+-                    if not uninferable_already_generated:
+-                        yield util.Uninferable
+-                        uninferable_already_generated = True
+-                    continue
+-                formatted = format(value.value, format_spec.value)
+-                yield Const(
+-                    formatted,
+-                    lineno=self.lineno,
+-                    col_offset=self.col_offset,
+-                    end_lineno=self.end_lineno,
+-                    end_col_offset=self.end_col_offset,
+-                )
++                if isinstance(value, Const):
++                    try:
++                        formatted = format(value.value, format_spec.value)
++                        yield Const(
++                            formatted,
++                            lineno=self.lineno,
++                            col_offset=self.col_offset,
++                            end_lineno=self.end_lineno,
++                            end_col_offset=self.end_col_offset,
++                        )
++                        continue
++                    except (ValueError, TypeError):
++                        # happens when format_spec.value is invalid
++                        pass  # fall through
++                if not uninferable_already_generated:
++                    yield util.Uninferable
++                    uninferable_already_generated = True
++                continue
+ 
+ 
+ MISSING_VALUE = "{MISSING_VALUE}"
+diff --git a/tests/test_inference.py b/tests/test_inference.py
+index 61378043c3..a8b11b1614 100644
+--- a/tests/test_inference.py
++++ b/tests/test_inference.py
+@@ -666,21 +666,6 @@ def test_fstring_inference(self) -> None:
+         self.assertIsInstance(value_node, Const)
+         self.assertEqual(value_node.value, "Hello John!")
+ 
+-    def test_formatted_fstring_inference(self) -> None:
+-        code = """
+-            width = 10
+-            precision = 4
+-            value = 12.34567
+-            result = f"result: {value:{width}.{precision}}!"
+-            """
+-        ast = parse(code, __name__)
+-        node = ast["result"]
+-        inferred = node.inferred()
+-        self.assertEqual(len(inferred), 1)
+-        value_node = inferred[0]
+-        self.assertIsInstance(value_node, Const)
+-        self.assertEqual(value_node.value, "result:      12.35!")
+-
+     def test_float_complex_ambiguity(self) -> None:
+         code = '''
+             def no_conjugate_member(magic_flag):  #@
+@@ -5517,6 +5502,51 @@ class instance(object):
+         self.assertIsInstance(inferred, Instance)
+ 
+ 
++@pytest.mark.parametrize(
++    "code, result",
++    [
++        # regular f-string
++        (
++            """width = 10
++precision = 4
++value = 12.34567
++result = f"result: {value:{width}.{precision}}!"
++""",
++            "result:      12.35!",
++        ),
++        # unsupported format
++        (
++            """width = None
++precision = 4
++value = 12.34567
++result = f"result: {value:{width}.{precision}}!"
++""",
++            None,
++        ),
++        # unsupported value
++        (
++            """width = 10
++precision = 4
++value = None
++result = f"result: {value:{width}.{precision}}!"
++""",
++            None,
++        ),
++    ],
++)
++def test_formatted_fstring_inference(code, result) -> None:
++    ast = parse(code, __name__)
++    node = ast["result"]
++    inferred = node.inferred()
++    assert len(inferred) == 1
++    value_node = inferred[0]
++    if result is None:
++        assert value_node is util.Uninferable
++    else:
++        assert isinstance(value_node, Const)
++        assert value_node.value == result
++
++
+ def test_augassign_recursion() -> None:
+     """Make sure inference doesn't throw a RecursionError.
+ 

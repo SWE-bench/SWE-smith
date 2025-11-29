@@ -84,7 +84,8 @@ class PythonProfile(RepoProfile):
         test_status_map = {}
         for line in log.split("\n"):
             for status in TestStatus:
-                is_match = re.match(rf"^(\S+)(\s+){status.value}", line)
+                # Match test name followed by status, allowing spaces in test name
+                is_match = re.match(rf"^(.*?)\s+{status.value}", line)
                 if is_match:
                     test_status_map[is_match.group(1)] = status.value
                     continue
@@ -132,6 +133,10 @@ class AstroidB114f6b5(PythonProfile):
     owner: str = "pylint-dev"
     repo: str = "astroid"
     commit: str = "b114f6b58e749b8ab47f80490dce73ea80d8015f"
+
+    @property
+    def mirror_name(self) -> str:
+        return "danielzayas/astroid"
 
 
 @dataclass

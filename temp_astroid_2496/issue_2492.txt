@@ -1,0 +1,25 @@
+Regression in #2459
+
+### Steps to reproduce
+a.py:
+```py
+class A:
+    def __init__(self):
+        self._magnitude = None
+
+    def name(self) -> str | None:
+        if self._magnitude:
+            return f"M {self._magnitude:.1f}"
+```
+```
+pylint a.py
+```
+### Current behavior
+```
+  File "/Users/jwalls/release/lib/python3.12/site-packages/astroid/nodes/node_classes.py", line 4778, in _infer_from_values
+    yield from nodes[0]._infer(context, **kwargs)
+  File "/Users/jwalls/release/lib/python3.12/site-packages/astroid/nodes/node_classes.py", line 4695, in _infer
+    formatted = format(value.value, format_spec.value)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: unsupported format string passed to NoneType.__format__
+```

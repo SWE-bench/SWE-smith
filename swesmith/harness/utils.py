@@ -1,5 +1,6 @@
 import docker
 import fnmatch
+import os
 import traceback
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -146,6 +147,16 @@ def run_patch_in_container(
             mem_limit="10g",
         )
         container.start()
+
+        token = os.getenv("GITHUB_TOKEN")
+        if not token:
+            raise RuntimeError("GITHUB_TOKEN is required for git remote updates.")
+        mirror_url = f"https://{token}@github.com/{rp.mirror_name}.git"
+        container.exec_run(
+            f"git remote set-url origin {mirror_url}",
+            workdir=DOCKER_WORKDIR,
+            user=DOCKER_USER,
+        )
 
         # If provided, checkout commit in container
         if commit is not None:
