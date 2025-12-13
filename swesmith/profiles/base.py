@@ -314,11 +314,15 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
 
     def get_container(self, instance: dict) -> Container:
         """Return a docker container with the task instance initialized"""
+        import uuid
         client = docker.from_env()
         self.pull_image()
+        instance_id = instance[KEY_INSTANCE_ID]
+        # Use unique suffix to avoid container name conflicts in parallel execution
+        container_name = f"{instance_id}.{uuid.uuid4().hex[:8]}"
         container = client.containers.create(
             image=self.image_name,
-            name=instance[KEY_INSTANCE_ID],
+            name=container_name,
             user=DOCKER_USER,
             detach=True,
             command="tail -f /dev/null",
@@ -327,13 +331,13 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
         )
         container.start()
         val = container.exec_run(
-            f"git checkout {instance[KEY_INSTANCE_ID]}",
+            f"git checkout {instance_id}",
             workdir=DOCKER_WORKDIR,
             user=DOCKER_USER,
         )
         if val.exit_code != 0:
             raise RuntimeError(
-                f"Failed to checkout instance {instance[KEY_INSTANCE_ID]} in container: {val.output.decode()}"
+                f"Failed to checkout instance {instance_id} in container: {val.output.decode()}"
             )
         return container
 
