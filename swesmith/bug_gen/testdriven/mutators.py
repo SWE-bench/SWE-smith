@@ -9,7 +9,6 @@ This module provides mutation operators that modify test code to:
 - Generalize type constraints
 """
 
-import ast
 import logging
 import random
 import re

@@ -8,7 +8,6 @@ from pathlib import Path
 from typing import Optional
 
 from swesmith.bug_gen.testdriven.discover import TestCandidate
-from swesmith.bug_gen.utils import get_bug_directory
 from swesmith.constants import (
     BugRewrite,
     PREFIX_BUG,
@@ -270,7 +269,7 @@ def validate_test_candidate(test: TestCandidate) -> bool:
         True if valid, False otherwise
     """
     if not test.file_path or not test.test_name:
-        logger.warning(f"Invalid test candidate: missing file_path or test_name")
+        logger.warning("Invalid test candidate: missing file_path or test_name")
         return False
 
     if not test.test_function:

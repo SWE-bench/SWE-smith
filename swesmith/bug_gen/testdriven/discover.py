@@ -8,11 +8,9 @@ This module identifies tests suitable for mutation by analyzing:
 - Test dependencies
 """
 
-import ast
 import logging
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
 
 from swesmith.bug_gen.adapters import get_entities_from_file
 from swesmith.constants import CodeEntity

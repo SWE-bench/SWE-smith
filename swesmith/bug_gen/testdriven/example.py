@@ -11,7 +11,7 @@ from swesmith.bug_gen.testdriven.mutators import (
     ModifyEdgeCase,
     get_applicable_mutations,
 )
-from swesmith.constants import CodeEntity, BugRewrite
+from swesmith.constants import CodeEntity
 
 
 # Example test function as a mock CodeEntity
