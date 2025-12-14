@@ -1,0 +1,42 @@
+# Configuration for test-driven bug generation
+# This method generates bugs by mutating tests and using LLMs to reconcile code
+
+name: testdriven
+description: "Test-driven bug injection via test mutation and code reconciliation"
+
+# Mutation settings
+parameters:
+  # List of mutation types to apply
+  # Available: broaden_input, relax_assertion, add_parameter, modify_edge_case, generalize_type, expand_scope
+  mutation_types:
+    - broaden_input
+    - relax_assertion
+    - modify_edge_case
+    - generalize_type
+
+  # Test selection criteria
+  coverage_threshold: 0.3  # Minimum heuristic coverage score (0-1)
+  max_tests_per_file: 5    # Limit tests per file (-1 for unlimited)
+
+  # Code reconciliation settings
+  include_related_tests: true  # Provide related tests for context
+  max_context_tests: 3         # Maximum number of related tests to include
+
+  # Generation limits
+  n_bugs_per_test: 2     # Number of bug variants per test
+  max_total_bugs: 100    # Maximum total bugs to generate
+
+# Model configuration
+model:
+  default: "openai/gpt-4o"
+  alternatives:
+    - "anthropic/claude-3-7-sonnet-20250219"
+    - "openai/gpt-4o-mini"  # Cheaper alternative
+  temperature: 0  # Deterministic for reproducibility
+
+# Parallelization
+workers: 1  # Number of parallel workers (increase for speed)
+
+# Logging
+verbose: true
+save_mutated_tests: true
