@@ -53,9 +53,7 @@ def save_bug_artifacts(
     """
     # Create directory structure similar to procedural/llm
     bug_dir = (
-        log_dir
-        / test.file_path.replace("/", "__").replace("\\", "__")
-        / test.test_name
+        log_dir / test.file_path.replace("/", "__").replace("\\", "__") / test.test_name
     )
     bug_dir.mkdir(parents=True, exist_ok=True)
 
@@ -198,14 +196,14 @@ def format_statistics_report(stats: dict) -> str:
         Formatted string
     """
     return f"""Test Discovery Statistics:
-  Total tests found: {stats['total']}
+  Total tests found: {stats["total"]}
   Coverage scores:
-    - Average: {stats['avg_coverage']:.2f}
-    - Min: {stats.get('min_coverage', 0):.2f}
-    - Max: {stats.get('max_coverage', 0):.2f}
+    - Average: {stats["avg_coverage"]:.2f}
+    - Min: {stats.get("min_coverage", 0):.2f}
+    - Max: {stats.get("max_coverage", 0):.2f}
   Assertions:
-    - Average per test: {stats['avg_assertions']:.1f}
-  Parametrized tests: {stats['parametrized_count']}"""
+    - Average per test: {stats["avg_assertions"]:.1f}
+  Parametrized tests: {stats["parametrized_count"]}"""
 
 
 def create_bug_summary(
@@ -252,13 +250,13 @@ def format_bug_summary(summary: dict) -> str:
         Formatted string
     """
     return f"""Bug Generation Summary:
-  Tests Processed: {summary['total_tests_processed']}
-  Mutations Attempted: {summary['total_mutations_attempted']}
-  Successful Bugs: {summary['successful_bugs']}
-  Failed Mutations: {summary['failed_mutations']}
-  Success Rate: {summary['success_rate_pct']:.1f}%
-  Total Cost: ${summary['total_cost_usd']:.2f}
-  Avg Cost per Bug: ${summary['avg_cost_per_bug']:.3f}"""
+  Tests Processed: {summary["total_tests_processed"]}
+  Mutations Attempted: {summary["total_mutations_attempted"]}
+  Successful Bugs: {summary["successful_bugs"]}
+  Failed Mutations: {summary["failed_mutations"]}
+  Success Rate: {summary["success_rate_pct"]:.1f}%
+  Total Cost: ${summary["total_cost_usd"]:.2f}
+  Avg Cost per Bug: ${summary["avg_cost_per_bug"]:.3f}"""
 
 
 def validate_test_candidate(test: TestCandidate) -> bool:
@@ -310,8 +308,6 @@ def deduplicate_tests(tests: list[TestCandidate]) -> list[TestCandidate]:
             unique_tests.append(test)
 
     if len(unique_tests) < len(tests):
-        logger.info(
-            f"Removed {len(tests) - len(unique_tests)} duplicate tests"
-        )
+        logger.info(f"Removed {len(tests) - len(unique_tests)} duplicate tests")
 
     return unique_tests

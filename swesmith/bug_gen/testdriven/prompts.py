@@ -112,9 +112,7 @@ def format_reconciliation_prompt(
     # Add related tests section if available
     related_section = ""
     if related_tests and related_tests.strip():
-        related_section = RELATED_TESTS_SECTION.format(
-            related_tests=related_tests
-        )
+        related_section = RELATED_TESTS_SECTION.format(related_tests=related_tests)
 
     return RECONCILIATION_TASK_PROMPT.format(
         original_test=original_test,

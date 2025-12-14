@@ -47,9 +47,7 @@ class TestMutation(ABC):
         """Name of mutation type."""
         pass
 
-    def _create_rewrite(
-        self, mutated_code: str, explanation: str
-    ) -> BugRewrite:
+    def _create_rewrite(self, mutated_code: str, explanation: str) -> BugRewrite:
         """Create BugRewrite object for mutated test."""
         return BugRewrite(
             rewrite=mutated_code,
@@ -79,7 +77,7 @@ class BroadenInputRange(TestMutation):
         """Check for numeric literals in test."""
         src = test.test_function.src_code
         # Check for numeric literals
-        return bool(re.search(r'\d+', src) and '(' in src)
+        return bool(re.search(r"\d+", src) and "(" in src)
 
     def mutate(self, test: TestCandidate) -> Optional[BugRewrite]:
         """Broaden numeric input values."""
@@ -96,7 +94,7 @@ class BroadenInputRange(TestMutation):
             else:
                 return str(num * 2)
 
-        mutated = re.sub(r'\b(\d+)\b', replace_number, src, count=3)
+        mutated = re.sub(r"\b(\d+)\b", replace_number, src, count=3)
 
         if mutated == src:
             return None
@@ -141,7 +139,7 @@ class RelaxAssertion(TestMutation):
             explanation = f"Relaxed == to {replacement.strip()}"
 
         # Replace 'is' with 'isinstance'
-        elif re.search(r'assert\s+\w+\s+is\s+', mutated):
+        elif re.search(r"assert\s+\w+\s+is\s+", mutated):
             # This is more complex, for now skip
             return None
 
@@ -173,7 +171,7 @@ class AddParameterCombination(TestMutation):
         """Check for function calls with keyword arguments."""
         src = test.test_function.src_code
         # Look for keyword arguments pattern
-        return bool(re.search(r'\w+\s*=\s*\w+', src))
+        return bool(re.search(r"\w+\s*=\s*\w+", src))
 
     def mutate(self, test: TestCandidate) -> Optional[BugRewrite]:
         """Add a new parameter to function call."""
@@ -181,11 +179,11 @@ class AddParameterCombination(TestMutation):
 
         # Find function calls with keyword args
         # Pattern: function_name(arg1=val1, arg2=val2)
-        pattern = r'(\w+)\(((?:\w+\s*=\s*[^,)]+,?\s*)+)\)'
+        pattern = r"(\w+)\(((?:\w+\s*=\s*[^,)]+,?\s*)+)\)"
 
         def add_param(match):
             func_name = match.group(1)
-            args = match.group(2).rstrip(', ')
+            args = match.group(2).rstrip(", ")
             # Add a new parameter
             new_param = "extra_param=None"
             return f"{func_name}({args}, {new_param})"
@@ -220,8 +218,7 @@ class ModifyEdgeCase(TestMutation):
         """Check for edge case values."""
         src = test.test_function.src_code
         return any(
-            edge in src
-            for edge in ["[]", "{}", '""', "''", "None", " 0,", " 0)", "=0"]
+            edge in src for edge in ["[]", "{}", '""', "''", "None", " 0,", " 0)", "=0"]
         )
 
     def mutate(self, test: TestCandidate) -> Optional[BugRewrite]:
@@ -240,8 +237,8 @@ class ModifyEdgeCase(TestMutation):
             explanation = "Changed empty string to single space"
 
         # Replace 0 with 1
-        elif re.search(r'[=,\(]\s*0\s*[,\)]', mutated):
-            mutated = re.sub(r'([=,\(]\s*)0(\s*[,\)])', r'\g<1>1\2', mutated, 1)
+        elif re.search(r"[=,\(]\s*0\s*[,\)]", mutated):
+            mutated = re.sub(r"([=,\(]\s*)0(\s*[,\)])", r"\g<1>1\2", mutated, 1)
             explanation = "Changed 0 to 1"
 
         # Replace None with 0 or empty value
@@ -298,11 +295,11 @@ class GeneralizeType(TestMutation):
         explanation = None
 
         for original, generalized in generalizations.items():
-            pattern = rf'isinstance\s*\([^,]+,\s*{original}\s*\)'
+            pattern = rf"isinstance\s*\([^,]+,\s*{original}\s*\)"
             if re.search(pattern, mutated):
                 mutated = re.sub(
-                    rf'({original})(\s*\))',
-                    rf'{generalized}\2',
+                    rf"({original})(\s*\))",
+                    rf"{generalized}\2",
                     mutated,
                     count=1,
                 )
@@ -333,18 +330,14 @@ class ExpandAssertionScope(TestMutation):
     def can_apply(self, test: TestCandidate) -> bool:
         """Check for simple assertions."""
         src = test.test_function.src_code
-        return (
-            "assert" in src
-            and " and " not in src
-            and " or " not in src
-        )
+        return "assert" in src and " and " not in src and " or " not in src
 
     def mutate(self, test: TestCandidate) -> Optional[BugRewrite]:
         """Add additional conditions to assertions."""
         src = test.test_function.src_code
 
         # Find simple assert statements
-        pattern = r'(assert\s+[^#\n]+)(\n|$)'
+        pattern = r"(assert\s+[^#\n]+)(\n|$)"
 
         def expand_assertion(match):
             original = match.group(1).rstrip()

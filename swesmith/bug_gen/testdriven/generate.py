@@ -101,9 +101,7 @@ def process_test(
 
             # 4. Apply code change
             if not test.covered_entities:
-                logger.warning(
-                    f"No covered entities for {test.test_name}, skipping"
-                )
+                logger.warning(f"No covered entities for {test.test_name}, skipping")
                 stats["failed"] += 1
                 continue
 
@@ -206,7 +204,9 @@ def main(
 
     if n_workers > 1:
         # Parallel processing
-        logger.info(f"Processing {len(test_candidates)} tests with {n_workers} workers...")
+        logger.info(
+            f"Processing {len(test_candidates)} tests with {n_workers} workers..."
+        )
 
         with ThreadPoolExecutor(max_workers=n_workers) as executor:
             futures = []
@@ -231,11 +231,13 @@ def main(
                     total_stats["failed"] += result["failed"]
                     total_stats["cost"] += result["cost"]
                     pbar.update(1)
-                    pbar.set_postfix({
-                        "success": total_stats["success"],
-                        "failed": total_stats["failed"],
-                        "cost": f"${total_stats['cost']:.2f}",
-                    })
+                    pbar.set_postfix(
+                        {
+                            "success": total_stats["success"],
+                            "failed": total_stats["failed"],
+                            "cost": f"${total_stats['cost']:.2f}",
+                        }
+                    )
     else:
         # Sequential processing
         logger.info(f"Processing {len(test_candidates)} tests sequentially...")

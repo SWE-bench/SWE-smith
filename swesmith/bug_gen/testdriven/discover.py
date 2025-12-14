@@ -113,8 +113,7 @@ def discover_tests(
     )
 
     logger.info(
-        f"Discovered {len(candidates)} test candidates "
-        f"(threshold={coverage_threshold})"
+        f"Discovered {len(candidates)} test candidates (threshold={coverage_threshold})"
     )
 
     return candidates
@@ -141,9 +140,7 @@ def _discover_tests_in_file(
         return []
 
     # Get all test names in this file for dependency tracking
-    all_test_names = [
-        e.name for e in entities if _is_test_function(e.name, ext)
-    ]
+    all_test_names = [e.name for e in entities if _is_test_function(e.name, ext)]
 
     for entity in entities:
         if not _is_test_function(entity.name, ext):
@@ -197,9 +194,7 @@ def _is_test_function(name: str, ext: str) -> bool:
     return False
 
 
-def _analyze_test_coverage(
-    entity: CodeEntity, repo: str, rp: RepoProfile
-) -> dict:
+def _analyze_test_coverage(entity: CodeEntity, repo: str, rp: RepoProfile) -> dict:
     """
     Heuristically estimate what code a test covers.
 
@@ -226,7 +221,9 @@ def _analyze_test_coverage(
     function_call_count = src_code.count("(") - src_code.count("def ")
 
     # Check for parametrize decorators
-    has_parametrize = "@pytest.mark.parametrize" in src_code or "@parametrize" in src_code
+    has_parametrize = (
+        "@pytest.mark.parametrize" in src_code or "@parametrize" in src_code
+    )
 
     # Heuristic scoring
     score = 0.0
