@@ -12,6 +12,38 @@ from swesmith.constants import ENV_NAME
 from swesmith.profiles.python import PythonProfile
 
 
+DEFAULT_PROFILE_INSTALL_CMDS = ["python -m pip install -e ."]
+
+
+def _profile_install_cmds(profile: PythonProfile) -> str | None:
+    """
+    Convert profile install_cmds to a single shell string for the install script.
+    Skip if the profile uses the default editable install to avoid duplication.
+    """
+    if profile.install_cmds == DEFAULT_PROFILE_INSTALL_CMDS:
+        return None
+    return " && ".join(profile.install_cmds)
+
+
+def _pytest_available(env: dict) -> bool:
+    """Check if pytest is importable inside the target conda env."""
+    check_cmd = (
+        f"conda run -n {ENV_NAME} python - <<'PY'\n"
+        "import importlib.util, sys\n"
+        "sys.exit(0 if importlib.util.find_spec('pytest') else 1)\n"
+        "PY"
+    )
+    result = subprocess.run(
+        check_cmd,
+        check=False,
+        shell=True,
+        env=env,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    return result.returncode == 0
+
+
 def cleanup(repo_name: str, env_name: str | None = None):
     if os.path.exists(repo_name):
         subprocess.run(
@@ -51,12 +83,18 @@ def main(
     commit: str,
     no_cleanup: bool,
     force: bool,
+    python_version: str | None = None,
+    smoke_cmd: str | None = None,
+    skip_smoke: bool = False,
+    extra_test_deps: str | None = None,
 ):
     print(f"> Building image for {repo} at commit {commit or 'latest'}")
     owner, repo = repo.split("/")
     p = PythonProfile()
     p.owner = owner
     p.repo = repo
+    if python_version:
+        p.python_version = python_version
 
     assert os.path.exists(install_script), (
         f"Installation script {install_script} does not exist"
@@ -64,11 +102,19 @@ def main(
     assert install_script.endswith(".sh"), "Installation script must be a bash script"
     install_script = os.path.abspath(install_script)
 
+    env = os.environ.copy()
+    env["SWESMITH_PYTHON_VERSION"] = p.python_version
+    profile_install_cmds = _profile_install_cmds(p)
+    if profile_install_cmds:
+        env["SWESMITH_PROFILE_INSTALL_CMDS"] = profile_install_cmds
+    if extra_test_deps:
+        env["SWESMITH_EXTRA_TEST_DEPS"] = extra_test_deps
+
     try:
         # Shallow clone repository at the specified commit
         if not os.path.exists(p.repo):
             subprocess.run(
-                f"git clone git@github.com:{p.owner}/{p.repo}.git",
+                f"git clone https://github.com/{p.owner}/{p.repo}.git",
                 check=True,
                 shell=True,
                 stdout=subprocess.DEVNULL,
@@ -91,7 +137,7 @@ def main(
         p.commit = commit
 
         if (
-            os.path.exists(os.path.join("..", p._env_yml))
+            os.path.exists(os.path.join("..", str(p._env_yml)))
             and not force
             and input(
                 f"> Environment file {p._env_yml} already exists. Do you want to overwrite it? (y/n) "
@@ -102,8 +148,28 @@ def main(
 
         # Run installation
         print("> Installing repo...")
-        subprocess.run(f". {install_script}", check=True, shell=True)
+        subprocess.run(
+            ["bash", "-lc", f". {install_script}"],
+            check=True,
+            env=env,
+        )
         print("> Successfully installed repo")
+
+        if not skip_smoke:
+            resolved_smoke_cmd = smoke_cmd
+            if resolved_smoke_cmd is None and _pytest_available(env):
+                resolved_smoke_cmd = "pytest -q --maxfail=1"
+            if resolved_smoke_cmd:
+                print(f"> Running smoke test: {resolved_smoke_cmd}")
+                subprocess.run(
+                    f"conda run -n {ENV_NAME} {resolved_smoke_cmd}",
+                    check=True,
+                    shell=True,
+                    env=env,
+                )
+                print("> Smoke test passed")
+            else:
+                print("> Skipping smoke test (pytest not available)")
 
         # If installation succeeded, export the conda environment + record install script
         os.chdir("..")
@@ -179,6 +245,29 @@ if __name__ == "__main__":
         "--force",
         action="store_true",
         help="Force overwrite of existing conda environment file (if it exists)",
+    )
+    parser.add_argument(
+        "--python-version",
+        type=str,
+        help="Python version to use when creating the conda environment",
+        default=None,
+    )
+    parser.add_argument(
+        "--smoke-cmd",
+        type=str,
+        help="Optional smoke test command to run inside the conda env (default: pytest -q --maxfail=1 if pytest is installed)",
+        default=None,
+    )
+    parser.add_argument(
+        "--skip-smoke",
+        action="store_true",
+        help="Skip running a smoke test after installation",
+    )
+    parser.add_argument(
+        "--extra-test-deps",
+        type=str,
+        help="Additional space-separated pip packages to install as test deps (passed to install script)",
+        default=None,
     )
 
     args = parser.parse_args()
