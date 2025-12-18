@@ -92,7 +92,6 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
     _cache_test_paths = None
     _cache_branches = None
     _cache_mirror_exists = None
-    _cache_image_exists = None
 
     ### START: Properties, Methods that *do not* require (re-)implementation ###
 
@@ -107,6 +106,21 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
     @property
     def image_name(self) -> str:
         return f"{self.org_dh}/swesmith.{self.arch}.{self.owner}_1776_{self.repo}.{self.commit[:8]}".lower()
+
+    @property
+    def _cache_image_exists(self) -> bool:
+        """Check if Docker image exists locally."""
+        try:
+            subprocess.run(
+                f"docker image inspect {self.image_name}",
+                shell=True,
+                check=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+            return True
+        except subprocess.CalledProcessError:
+            return False
 
     @property
     def mirror_name(self):
@@ -180,10 +194,9 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
                 f"docker build -f {dockerfile_path} --no-cache -t {self.image_name} .",
                 check=True,
                 shell=True,
-                stdout=log_file,
-                stderr=subprocess.STDOUT,
-            )
-        self._cache_image_exists = True
+            stdout=log_file,
+            stderr=subprocess.STDOUT,
+        )
 
     def create_mirror(self):
         """Create a mirror of this repository at the specified commit."""
@@ -339,33 +352,22 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
 
     def pull_image(self):
         """Pull the Docker image for this repository profile."""
-        if self._cache_image_exists is True:
+        if self._cache_image_exists:
             return
-        try:
-            subprocess.run(
-                f"docker image inspect {self.image_name}",
-                shell=True,
-                check=True,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
-            # Image exists locally, no need to pull
-        except subprocess.CalledProcessError:
-            # Image doesn't exist locally, try to pull it
-            try:
-                subprocess.run(f"docker pull {self.image_name}", shell=True, check=True)
-            except subprocess.CalledProcessError as e:
-                raise RuntimeError(
-                    f"Failed to pull Docker image {self.image_name}: {e}"
-                )
 
-        self._cache_image_exists = True
+        # Image doesn't exist locally, try to pull it
+        try:
+            subprocess.run(f"docker pull {self.image_name}", shell=True, check=True)
+        except subprocess.CalledProcessError as e:
+            raise RuntimeError(
+                f"Failed to pull Docker image {self.image_name}: {e}"
+            )
 
     def push_image(self, rebuild_image: bool = False):
         if rebuild_image:
             subprocess.run(f"docker rmi {self.image_name}", shell=True)
             self.build_image()
-        assert self._cache_image_exists is True, (
+        assert self._cache_image_exists, (
             "Image must be built or pulled before pushing"
         )
         subprocess.run(f"docker push {self.image_name}", shell=True)

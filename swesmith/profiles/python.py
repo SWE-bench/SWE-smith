@@ -78,8 +78,6 @@ class PythonProfile(RepoProfile):
             client=client,
             build_dir=LOG_DIR_ENV / self.repo_name,
         )
-        # Mirror base behavior: mark image as built so downstream push works.
-        self._cache_image_exists = True
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parser for test logs generated with PyTest framework"""
