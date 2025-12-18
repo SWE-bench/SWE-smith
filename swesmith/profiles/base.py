@@ -194,9 +194,9 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
                 f"docker build -f {dockerfile_path} --no-cache -t {self.image_name} .",
                 check=True,
                 shell=True,
-            stdout=log_file,
-            stderr=subprocess.STDOUT,
-        )
+                stdout=log_file,
+                stderr=subprocess.STDOUT,
+            )
 
     def create_mirror(self):
         """Create a mirror of this repository at the specified commit."""
@@ -359,17 +359,13 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
         try:
             subprocess.run(f"docker pull {self.image_name}", shell=True, check=True)
         except subprocess.CalledProcessError as e:
-            raise RuntimeError(
-                f"Failed to pull Docker image {self.image_name}: {e}"
-            )
+            raise RuntimeError(f"Failed to pull Docker image {self.image_name}: {e}")
 
     def push_image(self, rebuild_image: bool = False):
         if rebuild_image:
             subprocess.run(f"docker rmi {self.image_name}", shell=True)
             self.build_image()
-        assert self._cache_image_exists, (
-            "Image must be built or pulled before pushing"
-        )
+        assert self._cache_image_exists, "Image must be built or pulled before pushing"
         subprocess.run(f"docker push {self.image_name}", shell=True)
 
     def set_github_token(self, token: str):
