@@ -16,6 +16,7 @@ from collections import UserDict
 from dataclasses import dataclass, field
 from docker.models.containers import Container
 from dotenv import load_dotenv
+from functools import cached_property
 from ghapi.all import GhApi
 from multiprocessing import Lock
 from pathlib import Path
@@ -107,7 +108,7 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
     def image_name(self) -> str:
         return f"{self.org_dh}/swesmith.{self.arch}.{self.owner}_1776_{self.repo}.{self.commit[:8]}".lower()
 
-    @property
+    @cached_property
     def _cache_image_exists(self) -> bool:
         """Check if Docker image exists locally."""
         try:
