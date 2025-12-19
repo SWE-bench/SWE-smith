@@ -96,39 +96,39 @@ def parse_log_karma(log: str) -> dict[str, str]:
     we generate generic test entries based on the summary counts.
     """
     test_status_map = {}
-    
+
     # Pattern for Karma final summary
     success_pattern = r"Executed\s+(\d+)\s+of\s+\d+\s+SUCCESS"
     failed_pattern = r"Executed\s+\d+\s+of\s+\d+\s+\((\d+)\s+FAILED\)"
     skipped_pattern = r"Executed\s+\d+\s+of\s+(\d+)\s+\((\d+)\s+skipped\)"
-    
+
     passed_count = 0
     failed_count = 0
     skipped_count = 0
-    
+
     for line in log.split("\n"):
         success_match = re.search(success_pattern, line)
         if success_match:
             passed_count = max(passed_count, int(success_match.group(1)))
-        
+
         failed_match = re.search(failed_pattern, line)
         if failed_match:
             failed_count = max(failed_count, int(failed_match.group(1)))
-        
+
         skipped_match = re.search(skipped_pattern, line)
         if skipped_match:
             skipped_count = max(skipped_count, int(skipped_match.group(2)))
-    
+
     # Generate test entries
     for i in range(passed_count):
-        test_status_map[f"karma_unit_test_{i+1}"] = TestStatus.PASSED.value
-    
+        test_status_map[f"karma_unit_test_{i + 1}"] = TestStatus.PASSED.value
+
     for i in range(failed_count):
-        test_status_map[f"karma_unit_test_failed_{i+1}"] = TestStatus.FAILED.value
-    
+        test_status_map[f"karma_unit_test_failed_{i + 1}"] = TestStatus.FAILED.value
+
     for i in range(skipped_count):
-        test_status_map[f"karma_unit_test_skipped_{i+1}"] = TestStatus.SKIPPED.value
-    
+        test_status_map[f"karma_unit_test_skipped_{i + 1}"] = TestStatus.SKIPPED.value
+
     return test_status_map
 
 
@@ -138,31 +138,35 @@ def parse_log_jasmine(log: str) -> dict[str, str]:
     Format: "426 specs, 0 failures, 3 pending specs"
     """
     test_status_map = {}
-    
+
     # Pattern for Jasmine summary: "X specs, Y failures, Z pending specs"
     pattern = r"(\d+)\s+specs?,\s+(\d+)\s+failures?,(?:\s+(\d+)\s+pending\s+specs?)?"
-    
+
     for line in log.split("\n"):
         match = re.search(pattern, line)
         if match:
             total_specs = int(match.group(1))
             failures = int(match.group(2))
             pending = int(match.group(3)) if match.group(3) else 0
-            
+
             passed = total_specs - failures - pending
-            
+
             # Generate test entries
             for i in range(passed):
-                test_status_map[f"jasmine_spec_{i+1}"] = TestStatus.PASSED.value
-            
+                test_status_map[f"jasmine_spec_{i + 1}"] = TestStatus.PASSED.value
+
             for i in range(failures):
-                test_status_map[f"jasmine_spec_failed_{i+1}"] = TestStatus.FAILED.value
-            
+                test_status_map[f"jasmine_spec_failed_{i + 1}"] = (
+                    TestStatus.FAILED.value
+                )
+
             for i in range(pending):
-                test_status_map[f"jasmine_spec_pending_{i+1}"] = TestStatus.SKIPPED.value
-            
+                test_status_map[f"jasmine_spec_pending_{i + 1}"] = (
+                    TestStatus.SKIPPED.value
+                )
+
             break  # Only process the first summary line
-    
+
     return test_status_map
 
 
@@ -867,7 +871,7 @@ class Nodepostgresecff60dc(JavaScriptProfile):
     owner: str = "brianc"
     repo: str = "node-postgres"
     commit: str = "ecff60dc8aa0bd1ad5ea8f4623af0756a86dc110"
-    test_cmd: str = "service postgresql start && sleep 5 && sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'postgres';" && export PGPASSWORD=postgres && export PGUSER=postgres && export PGHOST=localhost && yarn test"
+    test_cmd: str = "service postgresql start && sleep 5 && sudo -u postgres psql -c \"ALTER USER postgres WITH PASSWORD 'postgres';\" && export PGPASSWORD=postgres && export PGUSER=postgres && export PGHOST=localhost && yarn test"
 
     @property
     def dockerfile(self):
@@ -1855,7 +1859,9 @@ class Webpack24e3c2d2(JavaScriptProfile):
     owner: str = "webpack"
     repo: str = "webpack"
     commit: str = "24e3c2d2c9f8c6d60810302b2ea70ed86e2863dc"
-    test_cmd: str = "yarn test:base --verbose --testMatch '<rootDir>/test/*.basictest.js'"
+    test_cmd: str = (
+        "yarn test:base --verbose --testMatch '<rootDir>/test/*.basictest.js'"
+    )
 
     @property
     def dockerfile(self):
