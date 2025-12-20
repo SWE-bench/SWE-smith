@@ -598,6 +598,556 @@ class Echarts6be0e145(JavaScriptProfile):
         return parse_log_jest(log)
 
 
+@dataclass
+class Draggable8a1eed57(JavaScriptProfile):
+    owner: str = "Shopify"
+    repo: str = "draggable"
+    commit: str = "8a1eed57f3ab2dff9371e8ce60fb39ac85871e8d"
+    test_cmd: str = "yarn test --verbose"
+
+    @property
+    def dockerfile(self):
+        return f"""FROM node:20
+
+
+RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+WORKDIR /testbed
+
+RUN yarn install
+
+CMD ["/bin/bash"]"""
+
+    def log_parser(self, log: str) -> dict[str, str]:
+        return parse_log_jest(log)
+
+
+@dataclass
+class Reactslick97442318(JavaScriptProfile):
+    owner: str = "akiran"
+    repo: str = "react-slick"
+    commit: str = "97442318e9a442bd4a84eb25133ef62087f98232"
+    test_cmd: str = "npm test -- --verbose"
+
+    @property
+    def dockerfile(self):
+        return f"""FROM node:18-slim
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+
+
+# Clone the repository
+RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+WORKDIR /testbed
+
+# Install dependencies
+RUN npm install
+
+# Set the default command
+CMD ["/bin/bash"]"""
+
+    def log_parser(self, log: str) -> dict[str, str]:
+        return parse_log_jest(log)
+
+
+@dataclass
+class Pdfmake719e7314(JavaScriptProfile):
+    owner: str = "bpampuch"
+    repo: str = "pdfmake"
+    commit: str = "719e73140cce75a792f7f419c27fc33a230e73d2"
+    test_cmd: str = "npm run test"
+
+    @property
+    def dockerfile(self):
+        return f"""FROM node:18-slim
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+
+# Clone the repository
+RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+WORKDIR /testbed
+
+# Install dependencies
+RUN npm install
+
+CMD ["/bin/bash"]"""
+
+    def log_parser(self, log: str) -> dict[str, str]:
+        return parse_log_mocha(log)
+
+
+@dataclass
+class Multerb6e4b1f6(JavaScriptProfile):
+    owner: str = "expressjs"
+    repo: str = "multer"
+    commit: str = "b6e4b1f6abb85673e9307b42368b3e7bfb1fc63b"
+    test_cmd: str = "npm test -- --reporter spec"
+
+    @property
+    def dockerfile(self):
+        return f"""FROM node:18-slim
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+WORKDIR /testbed
+RUN npm install
+CMD ["/bin/bash"]"""
+
+    def log_parser(self, log: str) -> dict[str, str]:
+        return parse_log_mocha(log)
+
+
+@dataclass
+class Pdfkitd0108157(JavaScriptProfile):
+    owner: str = "foliojs"
+    repo: str = "pdfkit"
+    commit: str = "d0108157f13d763ad5287a2293436b5a1aecf055"
+    test_cmd: str = "yarn test --verbose"
+
+    @property
+    def dockerfile(self):
+        return f"""FROM node:18-slim
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    build-essential \
+    libcairo2-dev \
+    libpango1.0-dev \
+    libjpeg-dev \
+    libgif-dev \
+    librsvg2-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /testbed
+
+# Enable corepack to use the yarn version specified in package.json
+RUN corepack enable
+
+# Clone the repository
+RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+WORKDIR /testbed
+
+# Install dependencies
+RUN yarn install
+
+CMD ["/bin/bash"]"""
+
+    def log_parser(self, log: str) -> dict[str, str]:
+        return parse_log_jest(log)
+
+
+@dataclass
+class Mathjs04e6e2d7(JavaScriptProfile):
+    owner: str = "josdejong"
+    repo: str = "mathjs"
+    commit: str = "04e6e2d7a949d6ddc7d7139bf1e3a88e6fe5365b"
+    test_cmd: str = "npm run test:src -- --verbose"
+
+    @property
+    def dockerfile(self):
+        return f"""FROM node:18-slim
+
+# Install git and other system dependencies if needed
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+
+
+# Clone the repository
+RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+WORKDIR /testbed
+
+# Install dependencies
+RUN npm install
+
+# Build the project (as it seems to have a build step that generates lib/ which might be needed for tests)
+RUN npm run build
+
+CMD ["/bin/bash"]"""
+
+    def log_parser(self, log: str) -> dict[str, str]:
+        return parse_log_mocha(log)  # Default fallback
+
+
+@dataclass
+class Jqueryc28c26ae(JavaScriptProfile):
+    owner: str = "jquery"
+    repo: str = "jquery"
+    commit: str = "c28c26aef0b3238f578690d73703382951cb355d"
+    test_cmd: str = "npm run test:browserless -- --verbose"
+
+    @property
+    def dockerfile(self):
+        return f"""FROM node:20-slim
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    python3 \
+    make \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+
+# Clone the repository
+RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+WORKDIR /testbed
+
+# Install dependencies
+RUN npm install
+
+# Default command
+CMD ["/bin/bash"]"""
+
+    def log_parser(self, log: str) -> dict[str, str]:
+        return parse_log_mocha(log)  # Default fallback
+
+
+@dataclass
+class Koa0a6afa5a(JavaScriptProfile):
+    owner: str = "koajs"
+    repo: str = "koa"
+    commit: str = "0a6afa5a6107c0c8baf4722e29de7566f33d1651"
+    test_cmd: str = "node --test"
+
+    @property
+    def dockerfile(self):
+        return f"""FROM node:18-slim
+
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+
+
+RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+WORKDIR /testbed
+RUN git checkout {self.commit}
+
+RUN npm install
+
+CMD ["/bin/bash"]"""
+
+    def log_parser(self, log: str) -> dict[str, str]:
+        return parse_log_mocha(log)
+
+
+@dataclass
+class Layuiabdb748b(JavaScriptProfile):
+    owner: str = "layui"
+    repo: str = "layui"
+    commit: str = "abdb748b5cc792c394fbdf56daa2727af1846488"
+    test_cmd: str = "npm test -- --verbose"
+
+    @property
+    def dockerfile(self):
+        return f"""FROM node:20-slim
+
+# Install git
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+
+
+# Clone the repository
+RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+WORKDIR /testbed
+
+# Install dependencies
+RUN npm install
+
+CMD ["/bin/bash"]"""
+
+    def log_parser(self, log: str) -> dict[str, str]:
+        return parse_log_jest(log)
+
+
+@dataclass
+class Mocha410ce0d2(JavaScriptProfile):
+    owner: str = "mochajs"
+    repo: str = "mocha"
+    commit: str = "410ce0d2a0f799aaca2c0bc627294d70c62dd3f4"
+    test_cmd: str = "npm run test-node:unit"
+
+    @property
+    def dockerfile(self):
+        return f"""FROM node:22-slim
+
+# Install git
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+
+
+# Clone the repository
+RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+WORKDIR /testbed
+
+# Install dependencies
+RUN npm install
+
+# Set the default command
+CMD ["/bin/bash"]"""
+
+    def log_parser(self, log: str) -> dict[str, str]:
+        return parse_log_mocha(log)
+
+
+@dataclass
+class Reactnativeweba9de220b(JavaScriptProfile):
+    owner: str = "necolas"
+    repo: str = "react-native-web"
+    commit: str = "a9de220ba9e65bdea540fb5322ffb1da2b0bf442"
+    test_cmd: str = "npm run unit:dom -- --verbose"
+
+    @property
+    def dockerfile(self):
+        return f"""FROM node:18
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+
+# Clone the repository
+RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+WORKDIR /testbed
+RUN git checkout {self.commit}
+
+# Install dependencies
+RUN npm install
+
+# Set default command
+CMD ["/bin/bash"]"""
+
+    def log_parser(self, log: str) -> dict[str, str]:
+        return parse_log_jest(log)
+
+
+@dataclass
+class Piskel51373322(JavaScriptProfile):
+    owner: str = "piskelapp"
+    repo: str = "piskel"
+    commit: str = "513733227695da58780a4df30f44e4af9f85b1a6"
+    test_cmd: str = "npm run unit-tests"
+
+    @property
+    def dockerfile(self):
+        return f"""FROM node:18-bullseye-slim
+
+# Install system dependencies for Playwright and Puppeteer
+RUN apt-get update && apt-get install -y \
+    git \
+    libnss3 \
+    libdbus-1-3 \
+    libatk1.0-0 \
+    libatk-bridge2.0-0 \
+    libcups2 \
+    libdrm2 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxext6 \
+    libxfixes3 \
+    libxrandr2 \
+    libgbm1 \
+    libasound2 \
+    libpangocairo-1.0-0 \
+    libx11-6 \
+    libxkbcommon0 \
+    libpango-1.0-0 \
+    libcairo2 \
+    && rm -rf /var/lib/apt/lists/*
+
+
+# Clone the repository
+RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+WORKDIR /testbed
+
+# Install dependencies
+RUN npm install
+
+# Install Playwright browsers and their dependencies
+RUN npx playwright install --with-deps chromium
+
+CMD ["/bin/bash"]"""
+
+    def log_parser(self, log: str) -> dict[str, str]:
+        return parse_log_jest(log)
+
+
+@dataclass
+class Reduxsagaa4ace10d(JavaScriptProfile):
+    owner: str = "redux-saga"
+    repo: str = "redux-saga"
+    commit: str = "a4ace10dc3ff182828cd3ee7469f6667e08ceb62"
+    test_cmd: str = "yarn test --verbose"
+
+    @property
+    def dockerfile(self):
+        return f"""FROM node:18-slim
+
+# Install git for cloning and patching
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+
+
+# Clone the repository
+RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+WORKDIR /testbed
+RUN git checkout {self.commit}
+
+# Install dependencies using yarn (yarn.lock is present)
+RUN yarn install --frozen-lockfile
+
+CMD ["/bin/bash"]"""
+
+    def log_parser(self, log: str) -> dict[str, str]:
+        return parse_log_jest(log)
+
+
+@dataclass
+class Riot32aecfaa(JavaScriptProfile):
+    owner: str = "riot"
+    repo: str = "riot"
+    commit: str = "32aecfaa424609ba35829f645138f182f3273dce"
+    test_cmd: str = "npm test"
+
+    @property
+    def dockerfile(self):
+        return f"""FROM node:20-slim
+
+RUN apt-get update && apt-get install -y \
+    git \
+    make \
+    procps \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+WORKDIR /testbed
+RUN git checkout {self.commit}
+
+RUN npm install
+
+CMD ["/bin/bash"]"""
+
+    def log_parser(self, log: str) -> dict[str, str]:
+        return parse_log_mocha(log)
+
+
+@dataclass
+class Svgoc06d8f68(JavaScriptProfile):
+    owner: str = "svg"
+    repo: str = "svgo"
+    commit: str = "c06d8f6899788defae9594537063c2f4307803e4"
+    test_cmd: str = "yarn cross-env NODE_OPTIONS=--experimental-vm-modules jest --maxWorkers=4 --verbose"
+
+    @property
+    def dockerfile(self):
+        return f"""FROM node:20-slim
+
+# Install git for cloning the repository
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+
+
+# Clone the repository
+RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+WORKDIR /testbed
+
+# Enable corepack to use the yarn version specified in package.json and install dependencies
+RUN corepack enable && yarn install
+
+CMD ["/bin/bash"]"""
+
+    def log_parser(self, log: str) -> dict[str, str]:
+        return parse_log_jest(log)
+
+
+@dataclass
+class Bruno80e09d1a(JavaScriptProfile):
+    owner: str = "usebruno"
+    repo: str = "bruno"
+    commit: str = "80e09d1a267ed2283e6d58a643800d3d632372a7"
+    test_cmd: str = "npm test --workspaces --if-present -- --verbose"
+
+    @property
+    def dockerfile(self):
+        return f"""FROM node:22-slim
+
+RUN apt-get update && apt-get install -y git python3 make g++ && rm -rf /var/lib/apt/lists/*
+
+
+RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+WORKDIR /testbed
+RUN git checkout {self.commit}
+
+RUN npm run setup
+
+CMD ["/bin/bash"]"""
+
+    def log_parser(self, log: str) -> dict[str, str]:
+        return parse_log_jest(log)
+
+
+@dataclass
+class Webtorrentfd8f39e1(JavaScriptProfile):
+    owner: str = "webtorrent"
+    repo: str = "webtorrent"
+    commit: str = "fd8f39e1560c5ae5db6b12153077877f0f33b076"
+    test_cmd: str = "npx tape test/*.js test/node/*.js"
+
+    @property
+    def dockerfile(self):
+        return f"""FROM node:20-slim
+
+# Install system dependencies for native modules
+RUN apt-get update && apt-get install -y \
+    python3 \
+    make \
+    g++ \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+
+# Clone the repository
+RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+WORKDIR /testbed
+
+# Install dependencies
+RUN npm install
+
+CMD ["/bin/bash"]"""
+
+    def log_parser(self, log: str) -> dict[str, str]:
+        return parse_log_mocha(log)
+
+
+@dataclass
+class Whydidyourender3ec3512d(JavaScriptProfile):
+    owner: str = "welldone-software"
+    repo: str = "why-did-you-render"
+    commit: str = "3ec3512d750c49448fe2241e26d05db9e42f0c21"
+    test_cmd: str = "yarn test --verbose"
+
+    @property
+    def dockerfile(self):
+        return f"""FROM node:20-slim
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+
+# Clone the repository
+RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+WORKDIR /testbed
+
+# Install dependencies
+RUN yarn install
+
+# Keep the container running
+CMD ["/bin/bash"]"""
+
+    def log_parser(self, log: str) -> dict[str, str]:
+        return parse_log_jest(log)
+
+
 # Register all JavaScript profiles with the global registry
 for name, obj in list(globals().items()):
     if (

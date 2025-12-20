@@ -1,7 +1,7 @@
 """
 Purpose: Automated construction of Docker images for repositories using profile registry.
 
-Usage: python -m swesmith.build_repo.create_images --max-workers 4
+Usage: python -m swesmith.build_repo.create_images --max-workers 4 -p django
 """
 
 import argparse
@@ -35,14 +35,17 @@ def build_profile_image(profile, push=False):
         return (profile.image_name, False, error_msg)
 
 
-def build_all_images(workers=4, profile_filter=None, proceed=False, push=False):
+def build_all_images(
+    workers=4, repo_filter=None, proceed=False, push=False, force=False
+):
     """
     Build Docker images for all registered profiles in parallel.
 
     Args:
         workers: Maximum number of parallel workers
-        profile_filter: Optional list of profile mirror names to filter by
+        repo_filter: Optional list of repository name patterns to filter by (fuzzy matching)
         proceed: Whether to proceed without confirmation
+        force: Force rebuild even if image already exists
 
     Returns:
         tuple: (successful_builds, failed_builds)
@@ -53,20 +56,26 @@ def build_all_images(workers=4, profile_filter=None, proceed=False, push=False):
     # Remove environments that have already been built
     client = docker.from_env()
 
-    # Filter out profiles that already have images built
+    # Filter out profiles that already have images built (unless force is enabled)
     profiles_to_build = []
-    for profile in all_profiles:
-        try:
-            # Check if image already exists
-            client.images.get(profile.image_name)
-        except docker.errors.ImageNotFound:
-            profiles_to_build.append(profile)
+    if not force:
+        for profile in all_profiles:
+            try:
+                # Check if image already exists
+                client.images.get(profile.image_name)
+            except docker.errors.ImageNotFound:
+                profiles_to_build.append(profile)
+    else:
+        profiles_to_build = list(all_profiles)
 
-    # Filter profiles if specified
-    if profile_filter:
+    # Filter profiles if specified (fuzzy matching)
+    if repo_filter:
         filtered_profiles = []
         for profile in profiles_to_build:
-            if profile.image_name in profile_filter:
+            # Check if any of the filter patterns appear in the image name
+            if any(
+                pattern.lower() in profile.image_name.lower() for pattern in repo_filter
+            ):
                 filtered_profiles.append(profile)
         profiles_to_build = filtered_profiles
 
@@ -137,14 +146,20 @@ def main():
         help="Maximum number of parallel workers (default: 4)",
     )
     parser.add_argument(
-        "-p",
-        "--profiles",
+        "-r",
+        "--repos",
         type=str,
         nargs="+",
-        help="Specific profile mirror names to build (space-separated)",
+        help="Repository name patterns to build (fuzzy match, space-separated)",
     )
     parser.add_argument(
         "-y", "--proceed", action="store_true", help="Proceed without confirmation"
+    )
+    parser.add_argument(
+        "-f",
+        "--force",
+        action="store_true",
+        help="Force rebuild even if image already exists",
     )
     parser.add_argument(
         "--push",
@@ -165,9 +180,10 @@ def main():
 
     successful, failed = build_all_images(
         workers=args.workers,
-        profile_filter=args.profiles,
+        repo_filter=args.repos,
         proceed=args.proceed,
         push=args.push,
+        force=args.force,
     )
 
     if failed:
