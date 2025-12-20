@@ -28,7 +28,7 @@ If successful, two artifacts will be produced under `logs/build_repo/env/<org>__
 Next, run the following command to create a Docker image for the repository.
 
 ```bash
-python -m swesmith.build_repo.create_images
+python -m swesmith.build_repo.create_images -r MonkeyType
 ```
 
 This command will create two artifacts:
@@ -36,6 +36,14 @@ This command will create two artifacts:
     * Pass in an `--org` argument, or
     * (If built from source) Change `ORG_NAME_GH` in `swesmith/constants.py`
 2. A Docker image (`swesmith.x86_64.<repo>.<commit>`) which contains the installed codebase.
+
+!!! note "`create_images` arguments
+
+    By default, without `-r`, the command will build images for *all* SWE-smith repositories (300+ as of 12/2025).
+    
+    `-r`: Select specific repositories to build using fuzzy matching (e.g., `-r django` matches any repo containing "django").
+    
+    `-f`: Force rebuild images even if they already exist locally.
 
 It's good practice to check that your Docker image works as expected.
 ```bash
