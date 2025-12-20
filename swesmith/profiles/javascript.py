@@ -1148,16 +1148,6 @@ CMD ["/bin/bash"]"""
         return parse_log_jest(log)
 
 
-# Register all JavaScript profiles with the global registry
-for name, obj in list(globals().items()):
-    if (
-        isinstance(obj, type)
-        and issubclass(obj, JavaScriptProfile)
-        and obj.__name__ != "JavaScriptProfile"
-    ):
-        registry.register_profile(obj)
-
-
 @dataclass
 class Eleventye9a16667(JavaScriptProfile):
     owner: str = "11ty"
@@ -2454,3 +2444,13 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
+
+
+# Register all JavaScript profiles with the global registry
+for name, obj in list(globals().items()):
+    if (
+        isinstance(obj, type)
+        and issubclass(obj, JavaScriptProfile)
+        and obj.__name__ != "JavaScriptProfile"
+    ):
+        registry.register_profile(obj)
