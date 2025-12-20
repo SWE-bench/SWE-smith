@@ -710,7 +710,7 @@ RUN apt-get update && apt-get install -y \
     gnupg \
     ca-certificates \
     chromium \
-    --no-install-recommends && \
+    --no-install-recommends &&
     rm -rf /var/lib/apt/lists/*
 
 
@@ -770,7 +770,7 @@ class Pm2ff1ca974(JavaScriptProfile):
 RUN apt-get update && apt-get install -y git procps bc python3 && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed && \
+RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed &&
 WORKDIR /testbed
     npm install
 
@@ -800,9 +800,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed && \
+RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed &&
 WORKDIR /testbed
-    git checkout 626596b192013ba9f5a011dd110e288124c95ebe
+    git checkout {self.commit}
 
 # Install root dependencies
 RUN npm ci
@@ -917,8 +917,8 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 RUN git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 
-RUN npm install && \
-    cd cli-tool && npm install && \
+RUN npm install &&
+    cd cli-tool && npm install &&
     cd ../api && npm install
 
 CMD ["/bin/bash"]"""
@@ -1273,9 +1273,9 @@ class Htmlwebpackplugin9a39db80(JavaScriptProfile):
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed && \
+RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed &&
 WORKDIR /testbed
-    git checkout 9a39db807c09d8e6145e5047cfe2ec5e928e1dee
+    git checkout {self.commit}
 
 RUN npm install --legacy-peer-deps
 
@@ -1572,12 +1572,12 @@ RUN apt-get update && apt-get install -y \
     git \
     chromium \
     ca-certificates \
-    --no-install-recommends && \
+    --no-install-recommends &&
     rm -rf /var/lib/apt/lists/*
 
 # Create a wrapper for chromium to always include --no-sandbox
-RUN mv /usr/bin/chromium /usr/bin/chromium-orig && \
-    echo '#!/bin/bash\n/usr/bin/chromium-orig --no-sandbox "$@"' > /usr/bin/chromium && \
+RUN mv /usr/bin/chromium /usr/bin/chromium-orig &&
+    echo '#!/bin/bash\n/usr/bin/chromium-orig --no-sandbox "$@"' > /usr/bin/chromium &&
     chmod +x /usr/bin/chromium
 
 # Set environment variables
@@ -1657,7 +1657,7 @@ WORKDIR /testbed
 RUN npm install
 
 # Inject custom launcher into karma.conf.js
-RUN sed -i "s/browsers: \['Chrome'\]/browsers: ['ChromeHeadlessNoSandbox']/" test/unit/karma.conf.js && \
+RUN sed -i "s/browsers: \['Chrome'\]/browsers: ['ChromeHeadlessNoSandbox']/" test/unit/karma.conf.js &&
     sed -i "/reporters: \[/i \ \ \ \ customLaunchers: {{\\n      ChromeHeadlessNoSandbox: {{\\n        base: 'ChromeHeadless',\\n        flags: ['--no-sandbox', '--disable-setuid-sandbox']\\n      }}\\n    }}," test/unit/karma.conf.js
 
 CMD ["/bin/bash"]"""
@@ -1797,7 +1797,7 @@ class Serverlessde62c71e(JavaScriptProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed && git checkout de62c71e30855eff688f032ff10b9ad22de13afc
+RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed && git checkout {self.commit}
 WORKDIR /testbed
 RUN npm install
 CMD ["/bin/bash"]"""
