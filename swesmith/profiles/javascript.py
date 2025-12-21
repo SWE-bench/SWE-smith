@@ -140,7 +140,7 @@ def parse_log_jasmine(log: str) -> dict[str, str]:
     test_status_map = {}
 
     # Pattern for Jasmine summary: "X specs, Y failures, Z pending specs"
-    pattern = r"(\d+)\s+specs?,\s+(\d+)\s+failures?,(?:\s+(\d+)\s+pending\s+specs?)?"
+    pattern = r"(\d+)\s+specs?,\s+(\d+)\s+failures?(?:,\s+(\d+)\s+pending\s+specs?)?"
 
     for line in log.split("\n"):
         match = re.search(pattern, line)
@@ -1551,31 +1551,6 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Fastify970c5758(JavaScriptProfile):
-    owner: str = "fastify"
-    repo: str = "fastify"
-    commit: str = "970c575832521fff01cc018d928d84454811173b"
-    test_cmd: str = "npm run unit"
-
-    @property
-    def dockerfile(self):
-        return f"""FROM node:20-slim
-
-RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
-
-
-RUN git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-
-RUN npm install
-
-CMD ["/bin/bash"]"""
-
-    def log_parser(self, log: str) -> dict[str, str]:
-        return parse_log_mocha(log)
-
-
-@dataclass
 class Superagentcec26064(JavaScriptProfile):
     owner: str = "forwardemail"
     repo: str = "superagent"
@@ -2146,7 +2121,7 @@ class JsPDFe6cf03db(JavaScriptProfile):
 
     @property
     def dockerfile(self):
-        return f"""FROM node:18
+        return rf"""FROM node:18
 
 RUN apt-get update && apt-get install -y \
     git \
@@ -2195,8 +2170,8 @@ WORKDIR /testbed
 RUN npm install
 
 # Inject custom launcher into karma.conf.js
-RUN sed -i "s/browsers: \['Chrome'\]/browsers: ['ChromeHeadlessNoSandbox']/" test/unit/karma.conf.js && \
-    sed -i "/reporters: \[/i \ \ \ \ customLaunchers: {{\\n      ChromeHeadlessNoSandbox: {{\\n        base: 'ChromeHeadless',\\n        flags: ['--no-sandbox', '--disable-setuid-sandbox']\\n      }}\\n    }}," test/unit/karma.conf.js
+RUN sed -i "s/browsers: \\['Chrome'\\]/browsers: ['ChromeHeadlessNoSandbox']/" test/unit/karma.conf.js && \
+    sed -i "/reporters: \\[/i     customLaunchers: {{\\n      ChromeHeadlessNoSandbox: {{\\n        base: 'ChromeHeadless',\\n        flags: ['--no-sandbox', '--disable-setuid-sandbox']\\n      }}\\n    }}," test/unit/karma.conf.js
 
 CMD ["/bin/bash"]"""
 
