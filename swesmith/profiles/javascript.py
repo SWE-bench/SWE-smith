@@ -1250,7 +1250,7 @@ RUN apt-get update && apt-get install -y \
     gnupg \
     ca-certificates \
     chromium \
-    --no-install-recommends &&
+    --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
 
 
@@ -1310,9 +1310,9 @@ class Pm2ff1ca974(JavaScriptProfile):
 RUN apt-get update && apt-get install -y git procps bc python3 && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed &&
+RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
-    npm install
+RUN npm install
 
 CMD ["/bin/bash"]"""
 
@@ -1340,9 +1340,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed &&
+RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
-    git checkout {self.commit}
+RUN git checkout {self.commit}
 
 # Install root dependencies
 RUN npm ci
@@ -1383,8 +1383,8 @@ CMD ["/bin/bash"]"""
 
 @dataclass
 class Vuebootstrapvue9a246f45(JavaScriptProfile):
-    owner: str = "bootstrap"
-    repo: str = "vue-bootstrap-vue"
+    owner: str = "bootstrap-vue"
+    repo: str = "bootstrap-vue"
     commit: str = "9a246f45fc813f161df291fc7d6197febf8afaf4"
     test_cmd: str = "yarn jest --verbose"
 
@@ -1457,8 +1457,8 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 RUN git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 
-RUN npm install &&
-    cd cli-tool && npm install &&
+RUN npm install && \
+    cd cli-tool && npm install && \
     cd ../api && npm install
 
 CMD ["/bin/bash"]"""
@@ -1469,8 +1469,8 @@ CMD ["/bin/bash"]"""
 
 @dataclass
 class Jsemotionb882bcba(JavaScriptProfile):
-    owner: str = "emotion"
-    repo: str = "js-emotion"
+    owner: str = "emotion-js"
+    repo: str = "emotion"
     commit: str = "b882bcba85132554992e4bd49e94c95939bbf810"
     test_cmd: str = "yarn jest --verbose"
 
@@ -1791,8 +1791,6 @@ RUN npm install
 
 RUN npm run build
 
-COPY karma.conf.js /testbed/karma.conf.js
-
 CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
@@ -1813,9 +1811,9 @@ class Htmlwebpackplugin9a39db80(JavaScriptProfile):
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed &&
+RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
-    git checkout {self.commit}
+RUN git checkout {self.commit}
 
 RUN npm install --legacy-peer-deps
 
@@ -1944,8 +1942,8 @@ CMD ["npm", "start"]"""
 
 @dataclass
 class Jsmarko24b9402c(JavaScriptProfile):
-    owner: str = "marko"
-    repo: str = "js-marko"
+    owner: str = "marko-js"
+    repo: str = "marko"
     commit: str = "24b9402cd54c3a74f200da0f79dd19350995a9ba"
     test_cmd: str = "env MARKO_DEBUG=1 ./node_modules/.bin/mocha --reporter spec"
 
@@ -1969,8 +1967,8 @@ CMD ["/bin/bash"]"""
 
 @dataclass
 class Jsmdx00046053(JavaScriptProfile):
-    owner: str = "mdx"
-    repo: str = "js-mdx"
+    owner: str = "mdx-js"
+    repo: str = "mdx"
     commit: str = "000460532e6a558693cbe73c2ffdb8d6c098a07b"
     test_cmd: str = "npm run test-api --workspaces --if-present"
 
@@ -2112,12 +2110,12 @@ RUN apt-get update && apt-get install -y \
     git \
     chromium \
     ca-certificates \
-    --no-install-recommends &&
+    --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
 
 # Create a wrapper for chromium to always include --no-sandbox
-RUN mv /usr/bin/chromium /usr/bin/chromium-orig &&
-    echo '#!/bin/bash\n/usr/bin/chromium-orig --no-sandbox "$@"' > /usr/bin/chromium &&
+RUN mv /usr/bin/chromium /usr/bin/chromium-orig && \
+    echo -e '#!/bin/bash\\n/usr/bin/chromium-orig --no-sandbox "$@"' > /usr/bin/chromium && \
     chmod +x /usr/bin/chromium
 
 # Set environment variables
@@ -2197,7 +2195,7 @@ WORKDIR /testbed
 RUN npm install
 
 # Inject custom launcher into karma.conf.js
-RUN sed -i "s/browsers: \['Chrome'\]/browsers: ['ChromeHeadlessNoSandbox']/" test/unit/karma.conf.js &&
+RUN sed -i "s/browsers: \['Chrome'\]/browsers: ['ChromeHeadlessNoSandbox']/" test/unit/karma.conf.js && \
     sed -i "/reporters: \[/i \ \ \ \ customLaunchers: {{\\n      ChromeHeadlessNoSandbox: {{\\n        base: 'ChromeHeadless',\\n        flags: ['--no-sandbox', '--disable-setuid-sandbox']\\n      }}\\n    }}," test/unit/karma.conf.js
 
 CMD ["/bin/bash"]"""
@@ -2337,8 +2335,9 @@ class Serverlessde62c71e(JavaScriptProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed && git checkout {self.commit}
+RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
+RUN git checkout {self.commit}
 RUN npm install
 CMD ["/bin/bash"]"""
 
@@ -2348,8 +2347,8 @@ CMD ["/bin/bash"]"""
 
 @dataclass
 class Jssqljs52e5649f(JavaScriptProfile):
-    owner: str = "sql"
-    repo: str = "js-sql.js"
+    owner: str = "sql-js"
+    repo: str = "sql.js"
     commit: str = "52e5649f3a3a2a46aa4ad58a79d118c22f56cf30"
     test_cmd: str = "npm test"
 
