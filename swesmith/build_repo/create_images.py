@@ -162,6 +162,7 @@ def main():
         help="Force rebuild even if image already exists",
     )
     parser.add_argument(
+        "-p",
         "--push",
         action="store_true",
         help="Push built images to Docker Hub after building (default: False)",

@@ -610,8 +610,8 @@ class Draggable8a1eed57(JavaScriptProfile):
         return f"""FROM node:20
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 
 RUN yarn install
 
@@ -637,8 +637,8 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 
 # Clone the repository
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 
 # Install dependencies
 RUN npm install
@@ -668,8 +668,8 @@ RUN apt-get update && apt-get install -y \
 
 
 # Clone the repository
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 
 # Install dependencies
 RUN npm install
@@ -691,8 +691,8 @@ class Multerb6e4b1f6(JavaScriptProfile):
     def dockerfile(self):
         return f"""FROM node:18-slim
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN npm install
 CMD ["/bin/bash"]"""
 
@@ -722,14 +722,14 @@ RUN apt-get update && apt-get install -y \
     librsvg2-dev \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /testbed
+WORKDIR /{ENV_NAME}
 
 # Enable corepack to use the yarn version specified in package.json
 RUN corepack enable
 
 # Clone the repository
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 
 # Install dependencies
 RUN yarn install
@@ -756,8 +756,8 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 
 # Clone the repository
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 
 # Install dependencies
 RUN npm install
@@ -792,8 +792,8 @@ RUN apt-get update && apt-get install -y \
 
 
 # Clone the repository
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 
 # Install dependencies
 RUN npm install
@@ -819,8 +819,8 @@ class Koa0a6afa5a(JavaScriptProfile):
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 RUN npm install
@@ -847,8 +847,8 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 
 # Clone the repository
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 
 # Install dependencies
 RUN npm install
@@ -875,8 +875,8 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 
 # Clone the repository
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 
 # Install dependencies
 RUN npm install
@@ -907,8 +907,8 @@ RUN apt-get update && apt-get install -y \
 # Set working directory
 
 # Clone the repository
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 # Install dependencies
@@ -957,8 +957,8 @@ RUN apt-get update && apt-get install -y \
 
 
 # Clone the repository
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 
 # Install dependencies
 RUN npm install
@@ -988,8 +988,8 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 
 # Clone the repository
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 # Install dependencies using yarn (yarn.lock is present)
@@ -1018,8 +1018,8 @@ RUN apt-get update && apt-get install -y \
     procps \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 RUN npm install
@@ -1046,8 +1046,8 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 
 # Clone the repository
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 
 # Enable corepack to use the yarn version specified in package.json and install dependencies
 RUN corepack enable && yarn install
@@ -1072,8 +1072,8 @@ class Bruno80e09d1a(JavaScriptProfile):
 RUN apt-get update && apt-get install -y git python3 make g++ && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 RUN npm run setup
@@ -1105,8 +1105,8 @@ RUN apt-get update && apt-get install -y \
 
 
 # Clone the repository
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 
 # Install dependencies
 RUN npm install
@@ -1135,8 +1135,8 @@ RUN apt-get update && apt-get install -y \
 
 
 # Clone the repository
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 
 # Install dependencies
 RUN yarn install
@@ -1146,16 +1146,6 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
-
-
-# Register all JavaScript profiles with the global registry
-for name, obj in list(globals().items()):
-    if (
-        isinstance(obj, type)
-        and issubclass(obj, JavaScriptProfile)
-        and obj.__name__ != "JavaScriptProfile"
-    ):
-        registry.register_profile(obj)
 
 
 @dataclass
@@ -1172,8 +1162,8 @@ class Eleventye9a16667(JavaScriptProfile):
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 
 RUN npm install
 
@@ -1197,10 +1187,8 @@ class Workbox1893b3f6(JavaScriptProfile):
 # Install system dependencies required for building some native modules and git for cloning
 RUN apt-get update && apt-get install -y git python3 make g++ && rm -rf /var/lib/apt/lists/*
 
-
-# Shallow clone the repository
-RUN git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 
 # Install dependencies and build the project (required for tests to find built modules)
 RUN npm ci && npm run build
@@ -1225,8 +1213,8 @@ class Habiticae0af620b(JavaScriptProfile):
 RUN apt-get update && apt-get install -y git python3 build-essential && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 
 # The postinstall script in package.json handles:
 # 1. gulp build
@@ -1265,8 +1253,8 @@ RUN apt-get update && apt-get install -y \
 
 
 # Clone the repository
-RUN git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 
 # Install dependencies, skipping puppeteer browser download since we use system chromium
 ENV PUPPETEER_SKIP_DOWNLOAD=true
@@ -1295,8 +1283,8 @@ class Falcor39d64776(JavaScriptProfile):
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 
 RUN npm install --legacy-peer-deps
 
@@ -1320,9 +1308,9 @@ class Pm2ff1ca974(JavaScriptProfile):
 RUN apt-get update && apt-get install -y git procps bc python3 && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed && \
-WORKDIR /testbed
-    npm install
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN npm install
 
 CMD ["/bin/bash"]"""
 
@@ -1350,9 +1338,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed && \
-WORKDIR /testbed
-    git checkout 626596b192013ba9f5a011dd110e288124c95ebe
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git checkout {self.commit}
 
 # Install root dependencies
 RUN npm ci
@@ -1361,7 +1349,7 @@ RUN npm ci
 RUN cd client && npm ci && npm run generate
 
 # Ensure we are back in root
-WORKDIR /testbed
+WORKDIR /{ENV_NAME}
 
 CMD ["npm", "start"]"""
 
@@ -1382,8 +1370,8 @@ class Sailsffebacc5(JavaScriptProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN npm install
 CMD ["/bin/bash"]"""
 
@@ -1405,8 +1393,8 @@ class Vuebootstrapvue9a246f45(JavaScriptProfile):
 RUN apt-get update && apt-get install -y git python3 make g++ && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 
 RUN yarn install --frozen-lockfile
 
@@ -1439,8 +1427,8 @@ RUN apt-get update && apt-get install -y \
     sudo \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN yarn install
 RUN yarn build
 
@@ -1464,8 +1452,8 @@ class Claudecodetemplates734b8a50(JavaScriptProfile):
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 
 RUN npm install && \
     cd cli-tool && npm install && \
@@ -1493,8 +1481,8 @@ RUN apt-get update && apt-get install -y git python3 build-essential && rm -rf /
 RUN corepack enable
 
 
-RUN git clone --depth 1 https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone --depth 1 https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 
 RUN yarn install
 
@@ -1523,8 +1511,8 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 RUN npm install
@@ -1549,8 +1537,8 @@ class Recoilc1b97f3a(JavaScriptProfile):
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 
 RUN yarn install
 
@@ -1574,8 +1562,8 @@ class Fastify970c5758(JavaScriptProfile):
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 
 RUN npm install
 
@@ -1599,8 +1587,8 @@ class Superagentcec26064(JavaScriptProfile):
 RUN apt-get update && apt-get install -y git build-essential python3 && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 
 RUN npm install
 
@@ -1625,8 +1613,8 @@ class Supertest14d905dc(JavaScriptProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN npm install
 CMD ["npm", "test"]"""
 
@@ -1689,8 +1677,8 @@ RUN apt-get update && apt-get install -y \
 
 
 # Clone the repository
-RUN git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 
 # Install dependencies
 RUN npm install
@@ -1720,8 +1708,8 @@ RUN apt-get update && apt-get install -y git python3 make g++ && rm -rf /var/lib
 RUN npm install -g pnpm@10.12.2
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 
 RUN pnpm install && pnpm run build
 
@@ -1745,8 +1733,8 @@ class Joi481e270e(JavaScriptProfile):
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 
 RUN npm install
 
@@ -1794,14 +1782,14 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 
 RUN npm install
 
 RUN npm run build
 
-COPY karma.conf.js /testbed/karma.conf.js
+COPY karma.conf.js /{ENV_NAME}/karma.conf.js
 
 CMD ["/bin/bash"]"""
 
@@ -1823,9 +1811,9 @@ class Htmlwebpackplugin9a39db80(JavaScriptProfile):
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed && \
-WORKDIR /testbed
-    git checkout 9a39db807c09d8e6145e5047cfe2ec5e928e1dee
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git checkout {self.commit}
 
 RUN npm install --legacy-peer-deps
 
@@ -1851,8 +1839,8 @@ RUN apt-get update && apt-get install -y git chromium && rm -rf /var/lib/apt/lis
 ENV CHROME_BIN=/usr/bin/chromium
 
 
-RUN git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 
 RUN npm install && npm install karma-chrome-launcher --save-dev
 
@@ -1881,8 +1869,8 @@ class Hyperapp5a113fa0(JavaScriptProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN npm install
 CMD ["/bin/bash"]"""
 
@@ -1904,8 +1892,8 @@ class Jsoneditor0319b213(JavaScriptProfile):
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 
 RUN npm install
 
@@ -1936,8 +1924,8 @@ RUN apt-get update && apt-get install -y \
 
 
 # Clone the repository
-RUN git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 
 # Install dependencies
 RUN npm install
@@ -1966,8 +1954,8 @@ class Jsmarko24b9402c(JavaScriptProfile):
 RUN apt-get update && apt-get install -y git python3 build-essential && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 
 RUN npm install && npm run build
 
@@ -1991,8 +1979,8 @@ class Jsmdx00046053(JavaScriptProfile):
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 
 RUN npm install
 
@@ -2020,8 +2008,8 @@ RUN apt-get update && apt-get install -y \
     chromium \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN npm install
 RUN sed -i "s/'-f'/'-a', '[\"--no-sandbox\"]', '-f'/" tests/test.js
 
@@ -2047,8 +2035,8 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 RUN npm install -g pnpm@10.25.0
 
 
-RUN git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 
 RUN pnpm install
 
@@ -2072,8 +2060,8 @@ class Nightwatch54c8550c(JavaScriptProfile):
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 
 RUN npm install --ignore-scripts
 
@@ -2096,8 +2084,8 @@ class Nocke7418da2(JavaScriptProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN npm install
 
 CMD ["/bin/bash"]"""
@@ -2136,8 +2124,8 @@ ENV TEST_BROWSER_NAME=ChromeHeadless
 
 
 # Clone the repository
-RUN git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 
 # Install dependencies
 RUN npm install
@@ -2201,8 +2189,8 @@ RUN apt-get update && apt-get install -y \
 ENV CHROME_BIN=/usr/bin/google-chrome-stable
 
 
-RUN git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 
 RUN npm install
 
@@ -2229,8 +2217,8 @@ class Filepond38294959(JavaScriptProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN npm install
 
 CMD ["/bin/bash"]"""
@@ -2252,8 +2240,8 @@ class Reacttransitiongroup2989b5b8(JavaScriptProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN npm install --legacy-peer-deps
 
 CMD ["/bin/bash"]"""
@@ -2276,8 +2264,8 @@ class Reactmarkdownfda7fa56(JavaScriptProfile):
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 
 RUN npm install
 
@@ -2300,8 +2288,8 @@ class Nodemondaad5c16(JavaScriptProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN npm install
 CMD ["/bin/bash"]"""
 
@@ -2322,9 +2310,8 @@ class Evergreen9b774aee(JavaScriptProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-
-RUN git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 
 RUN yarn install --frozen-lockfile
 
@@ -2347,8 +2334,9 @@ class Serverlessde62c71e(JavaScriptProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed && git checkout de62c71e30855eff688f032ff10b9ad22de13afc
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git checkout {self.commit}
 RUN npm install
 CMD ["/bin/bash"]"""
 
@@ -2358,8 +2346,8 @@ CMD ["/bin/bash"]"""
 
 @dataclass
 class Jssqljs52e5649f(JavaScriptProfile):
-    owner: str = "sql"
-    repo: str = "js-sql.js"
+    owner: str = "sql-js"
+    repo: str = "sql.js"
     commit: str = "52e5649f3a3a2a46aa4ad58a79d118c22f56cf30"
     test_cmd: str = "npm test"
 
@@ -2370,8 +2358,8 @@ class Jssqljs52e5649f(JavaScriptProfile):
 RUN apt-get update && apt-get install -y git make python3 unzip curl libdigest-sha3-perl && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 
 RUN npm install
 RUN npm run build
@@ -2395,8 +2383,8 @@ class Jsonserverf5dfdaff(JavaScriptProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN npm install
 CMD ["npm", "start"]"""
 
@@ -2420,8 +2408,8 @@ class Webpack24e3c2d2(JavaScriptProfile):
 RUN apt-get update && apt-get install -y git python3 build-essential && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 
 RUN yarn install && yarn setup
 
@@ -2445,12 +2433,22 @@ class Ws726c3732(JavaScriptProfile):
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone --depth 1 --recurse-submodules --shallow-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git checkout {self.commit}
 RUN npm install
 
 CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
+
+
+# Register all JavaScript profiles with the global registry
+for name, obj in list(globals().items()):
+    if (
+        isinstance(obj, type)
+        and issubclass(obj, JavaScriptProfile)
+        and obj.__name__ != "JavaScriptProfile"
+    ):
+        registry.register_profile(obj)
