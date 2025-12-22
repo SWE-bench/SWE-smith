@@ -91,7 +91,7 @@ def build_all_images(
     )
 
     print("Profiles to build:")
-    for profile in profiles_to_build:
+    for profile in sorted(profiles_to_build, key=lambda p: p.image_name):
         print(f"- {profile.image_name}")
 
     if not proceed:

@@ -821,7 +821,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 
 RUN npm install
 
@@ -909,7 +908,6 @@ RUN apt-get update && apt-get install -y \
 # Clone the repository
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 
 # Install dependencies
 RUN npm install
@@ -990,7 +988,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 # Clone the repository
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 
 # Install dependencies using yarn (yarn.lock is present)
 RUN yarn install --frozen-lockfile
@@ -1020,7 +1017,6 @@ RUN apt-get update && apt-get install -y \
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 
 RUN npm install
 
@@ -1074,7 +1070,6 @@ RUN apt-get update && apt-get install -y git python3 make g++ && rm -rf /var/lib
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 
 RUN npm run setup
 
@@ -1340,7 +1335,6 @@ RUN apt-get update && apt-get install -y \
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 
 # Install root dependencies
 RUN npm ci
@@ -1786,7 +1780,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 
 RUN npm install --legacy-peer-deps
 
@@ -2309,7 +2302,7 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
+
 RUN npm install
 CMD ["/bin/bash"]"""
 
@@ -2410,7 +2403,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN npm install
 
 CMD ["/bin/bash"]"""
