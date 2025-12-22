@@ -140,7 +140,7 @@ def parse_log_jasmine(log: str) -> dict[str, str]:
     test_status_map = {}
 
     # Pattern for Jasmine summary: "X specs, Y failures, Z pending specs"
-    pattern = r"(\d+)\s+specs?,\s+(\d+)\s+failures?,(?:\s+(\d+)\s+pending\s+specs?)?"
+    pattern = r"(\d+)\s+specs?,\s+(\d+)\s+failures?(?:,\s+(\d+)\s+pending\s+specs?)?"
 
     for line in log.split("\n"):
         match = re.search(pattern, line)
@@ -1381,8 +1381,8 @@ CMD ["/bin/bash"]"""
 
 @dataclass
 class Vuebootstrapvue9a246f45(JavaScriptProfile):
-    owner: str = "bootstrap"
-    repo: str = "vue-bootstrap-vue"
+    owner: str = "bootstrap-vue"
+    repo: str = "bootstrap-vue"
     commit: str = "9a246f45fc813f161df291fc7d6197febf8afaf4"
     test_cmd: str = "yarn jest --verbose"
 
@@ -1467,8 +1467,8 @@ CMD ["/bin/bash"]"""
 
 @dataclass
 class Jsemotionb882bcba(JavaScriptProfile):
-    owner: str = "emotion"
-    repo: str = "js-emotion"
+    owner: str = "emotion-js"
+    repo: str = "emotion"
     commit: str = "b882bcba85132554992e4bd49e94c95939bbf810"
     test_cmd: str = "yarn jest --verbose"
 
@@ -1546,31 +1546,6 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
-
-
-@dataclass
-class Fastify970c5758(JavaScriptProfile):
-    owner: str = "fastify"
-    repo: str = "fastify"
-    commit: str = "970c575832521fff01cc018d928d84454811173b"
-    test_cmd: str = "npm run unit"
-
-    @property
-    def dockerfile(self):
-        return f"""FROM node:20-slim
-
-RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
-
-
-RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
-WORKDIR /{ENV_NAME}
-
-RUN npm install
-
-CMD ["/bin/bash"]"""
-
-    def log_parser(self, log: str) -> dict[str, str]:
-        return parse_log_mocha(log)
 
 
 @dataclass
@@ -1789,8 +1764,6 @@ RUN npm install
 
 RUN npm run build
 
-COPY karma.conf.js /{ENV_NAME}/karma.conf.js
-
 CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
@@ -1942,8 +1915,8 @@ CMD ["npm", "start"]"""
 
 @dataclass
 class Jsmarko24b9402c(JavaScriptProfile):
-    owner: str = "marko"
-    repo: str = "js-marko"
+    owner: str = "marko-js"
+    repo: str = "marko"
     commit: str = "24b9402cd54c3a74f200da0f79dd19350995a9ba"
     test_cmd: str = "env MARKO_DEBUG=1 ./node_modules/.bin/mocha --reporter spec"
 
@@ -1967,8 +1940,8 @@ CMD ["/bin/bash"]"""
 
 @dataclass
 class Jsmdx00046053(JavaScriptProfile):
-    owner: str = "mdx"
-    repo: str = "js-mdx"
+    owner: str = "mdx-js"
+    repo: str = "mdx"
     commit: str = "000460532e6a558693cbe73c2ffdb8d6c098a07b"
     test_cmd: str = "npm run test-api --workspaces --if-present"
 
@@ -2115,7 +2088,7 @@ RUN apt-get update && apt-get install -y \
 
 # Create a wrapper for chromium to always include --no-sandbox
 RUN mv /usr/bin/chromium /usr/bin/chromium-orig && \
-    echo '#!/bin/bash\n/usr/bin/chromium-orig --no-sandbox "$@"' > /usr/bin/chromium && \
+    echo -e '#!/bin/bash\\n/usr/bin/chromium-orig --no-sandbox "$@"' > /usr/bin/chromium && \
     chmod +x /usr/bin/chromium
 
 # Set environment variables
@@ -2146,7 +2119,7 @@ class JsPDFe6cf03db(JavaScriptProfile):
 
     @property
     def dockerfile(self):
-        return f"""FROM node:18
+        return rf"""FROM node:18
 
 RUN apt-get update && apt-get install -y \
     git \
@@ -2195,8 +2168,8 @@ WORKDIR /{ENV_NAME}
 RUN npm install
 
 # Inject custom launcher into karma.conf.js
-RUN sed -i "s/browsers: \['Chrome'\]/browsers: ['ChromeHeadlessNoSandbox']/" test/unit/karma.conf.js && \
-    sed -i "/reporters: \[/i \ \ \ \ customLaunchers: {{\\n      ChromeHeadlessNoSandbox: {{\\n        base: 'ChromeHeadless',\\n        flags: ['--no-sandbox', '--disable-setuid-sandbox']\\n      }}\\n    }}," test/unit/karma.conf.js
+RUN sed -i "s/browsers: \\['Chrome'\\]/browsers: ['ChromeHeadlessNoSandbox']/" test/unit/karma.conf.js && \
+    sed -i "/reporters: \\[/i     customLaunchers: {{\\n      ChromeHeadlessNoSandbox: {{\\n        base: 'ChromeHeadless',\\n        flags: ['--no-sandbox', '--disable-setuid-sandbox']\\n      }}\\n    }}," test/unit/karma.conf.js
 
 CMD ["/bin/bash"]"""
 
@@ -2348,6 +2321,8 @@ CMD ["/bin/bash"]"""
 class Jssqljs52e5649f(JavaScriptProfile):
     owner: str = "sql-js"
     repo: str = "sql.js"
+    owner: str = "sql-js"
+    repo: str = "sql.js"
     commit: str = "52e5649f3a3a2a46aa4ad58a79d118c22f56cf30"
     test_cmd: str = "npm test"
 
@@ -2442,6 +2417,16 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
+
+
+# Register all JavaScript profiles with the global registry
+for name, obj in list(globals().items()):
+    if (
+        isinstance(obj, type)
+        and issubclass(obj, JavaScriptProfile)
+        and obj.__name__ != "JavaScriptProfile"
+    ):
+        registry.register_profile(obj)
 
 
 # Register all JavaScript profiles with the global registry
