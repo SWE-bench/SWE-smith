@@ -90,12 +90,17 @@ def build_all_images(
         ).values()
     )
 
-    print(f"Total profiles to build: {len(profiles_to_build)}")
+    print("Profiles to build:")
     for profile in profiles_to_build:
         print(f"- {profile.image_name}")
 
     if not proceed:
-        proceed = input("Proceed with building images? (y/n): ").lower() == "y"
+        proceed = (
+            input(
+                f"Proceed with building {len(profiles_to_build)} images? (y/n): "
+            ).lower()
+            == "y"
+        )
     if not proceed:
         return [], []
 
