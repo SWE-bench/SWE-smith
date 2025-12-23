@@ -1,6 +1,6 @@
 from pathlib import Path
 
-__version__ = "0.0.6"
+__version__ = "0.0.7"
 PACKAGE_BASE_DIR = Path(__file__).resolve().parent
 REPO_DIR = PACKAGE_BASE_DIR.parent
 

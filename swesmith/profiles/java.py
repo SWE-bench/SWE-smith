@@ -2,6 +2,7 @@ import re
 
 from dataclasses import dataclass, field
 from swebench.harness.constants import TestStatus
+from swesmith.constants import ENV_NAME
 from swesmith.profiles.base import RepoProfile, registry
 
 
@@ -10,6 +11,8 @@ class JavaProfile(RepoProfile):
     """
     Profile for Java repositories.
     """
+
+    exts: list[str] = field(default_factory=lambda: [".java"])
 
 
 @dataclass
@@ -30,8 +33,8 @@ ENV LANG=C.UTF-8
 ENV LC_ALL=C.UTF-8
 RUN apt-get update && apt-get install -y git openjdk-11-jdk
 RUN apt-get install -y maven
-RUN git clone https://github.com/{self.mirror_name} /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN mvn clean install -B -pl gson -DskipTests -am
 """
 

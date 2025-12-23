@@ -1,32 +1,30 @@
-import tree_sitter_go as tsgo
+import tree_sitter_rust as tsrs
 
 from swesmith.bug_gen.procedural.base import CommonPMs
-from swesmith.bug_gen.procedural.golang.base import GolangProceduralModifier
+from swesmith.bug_gen.procedural.rust.base import RustProceduralModifier
 from swesmith.constants import BugRewrite, CodeEntity
 from tree_sitter import Language, Parser
 
-GO_LANGUAGE = Language(tsgo.language())
+RUST_LANGUAGE = Language(tsrs.language())
 
 
-class ControlIfElseInvertModifier(GolangProceduralModifier):
+class ControlIfElseInvertModifier(RustProceduralModifier):
     explanation: str = CommonPMs.CONTROL_IF_ELSE_INVERT.explanation
     name: str = CommonPMs.CONTROL_IF_ELSE_INVERT.name
     conditions: list = CommonPMs.CONTROL_IF_ELSE_INVERT.conditions
     min_complexity: int = 5
 
     def modify(self, code_entity: CodeEntity) -> BugRewrite:
-        """Apply if-else inversion to the Go code."""
+        """Apply if-else inversion to the Rust code."""
         if not self.flip():
             return None
 
-        # Parse the code
-        parser = Parser(GO_LANGUAGE)
+        parser = Parser(RUST_LANGUAGE)
         tree = parser.parse(bytes(code_entity.src_code, "utf8"))
 
         changed = False
 
         for _ in range(self.max_attempts):
-            # Find if-else statements to modify
             modified_code = self._invert_if_else_statements(
                 code_entity.src_code, tree.root_node
             )
@@ -39,9 +37,9 @@ class ControlIfElseInvertModifier(GolangProceduralModifier):
             return None
 
         return BugRewrite(
-            rewrite=modified_code,  # Fixed: was "rewritten" but should be "rewrite"
+            rewrite=modified_code,
             explanation=self.explanation,
-            strategy=self.name,  # Added: required parameter
+            strategy=self.name,
         )
 
     def _invert_if_else_statements(self, source_code: str, node) -> str:
@@ -49,9 +47,7 @@ class ControlIfElseInvertModifier(GolangProceduralModifier):
         modifications = []
 
         def collect_if_statements(n):
-            if n.type == "if_statement":
-                # Parse the if statement structure
-                # Go if statement structure: if [condition] block [else block]
+            if n.type == "if_expression":
                 if_condition = None
                 if_body = None
                 else_clause = None
@@ -59,38 +55,25 @@ class ControlIfElseInvertModifier(GolangProceduralModifier):
 
                 for i, child in enumerate(n.children):
                     if child.type == "if":
-                        continue  # Skip the "if" keyword
+                        continue
                     elif if_condition is None and child.type in [
-                        "parenthesized_expression",
                         "binary_expression",
                         "identifier",
-                        "short_var_declaration",
+                        "call_expression",
+                        "field_expression",
+                        "unary_expression",
                     ]:
-                        # This is the condition (could be complex with short var declaration)
-                        # For short var declarations like "userDefault, ok := logging.Logs[DefaultLoggerName]; ok"
-                        # we need to find the actual condition part
-                        if child.type == "short_var_declaration":
-                            # Look for the next non-semicolon child as the condition
-                            for j in range(i + 1, len(n.children)):
-                                next_child = n.children[j]
-                                if next_child.type not in [";", "else", "block"]:
-                                    if_condition = next_child
-                                    break
-                        else:
-                            if_condition = child
+                        if_condition = child
                     elif child.type == "block" and if_body is None:
-                        if_body = child  # First block is the if body
-                    elif child.type == "else":
+                        if_body = child
+                    elif child.type == "else_clause":
                         else_clause = child
-                        # Find the else body (next block after else)
-                        if (
-                            i + 1 < len(n.children)
-                            and n.children[i + 1].type == "block"
-                        ):
-                            else_body = n.children[i + 1]
+                        for else_child in child.children:
+                            if else_child.type == "block":
+                                else_body = else_child
+                                break
                         break
 
-                # Only modify if we have a complete if-else structure
                 if (
                     if_condition
                     and if_body
@@ -108,25 +91,18 @@ class ControlIfElseInvertModifier(GolangProceduralModifier):
         if not modifications:
             return source_code
 
-        # Apply modifications from end to start to preserve byte offsets
         modified_source = source_code
         for if_node, condition, if_body, else_body in reversed(modifications):
-            # For complex if statements with short var declarations, we need to preserve the entire prefix
-            # Extract the complete if statement prefix (everything before the first block)
             if_start = if_node.start_byte
             if_body_start = if_body.start_byte
 
-            # Extract the prefix (if + condition)
             prefix = source_code[if_start:if_body_start].strip()
 
-            # Extract the body texts
             if_body_text = source_code[if_body.start_byte : if_body.end_byte]
             else_body_text = source_code[else_body.start_byte : else_body.end_byte]
 
-            # Create the new if-else statement with swapped bodies
             new_if_else = f"{prefix} {else_body_text} else {if_body_text}"
 
-            # Replace the original if-else statement
             start_byte = if_node.start_byte
             end_byte = if_node.end_byte
 
@@ -137,18 +113,17 @@ class ControlIfElseInvertModifier(GolangProceduralModifier):
         return modified_source
 
 
-class ControlShuffleLinesModifier(GolangProceduralModifier):
+class ControlShuffleLinesModifier(RustProceduralModifier):
     explanation: str = CommonPMs.CONTROL_SHUFFLE_LINES.explanation
     name: str = CommonPMs.CONTROL_SHUFFLE_LINES.name
     conditions: list = CommonPMs.CONTROL_SHUFFLE_LINES.conditions
     max_complexity: int = 10
 
     def modify(self, code_entity: CodeEntity) -> BugRewrite:
-        """Apply line shuffling to the Go function body."""
-        parser = Parser(GO_LANGUAGE)
+        """Apply line shuffling to the Rust function body."""
+        parser = Parser(RUST_LANGUAGE)
         tree = parser.parse(bytes(code_entity.src_code, "utf8"))
 
-        # Shuffle lines in function bodies
         modified_code = self._shuffle_function_statements(
             code_entity.src_code, tree.root_node
         )
@@ -167,8 +142,7 @@ class ControlShuffleLinesModifier(GolangProceduralModifier):
         modifications = []
 
         def collect_function_declarations(n):
-            if n.type in ["function_declaration", "method_declaration"]:
-                # Find the function body (block statement)
+            if n.type == "function_item":
                 body_block = None
                 for child in n.children:
                     if child.type == "block":
@@ -176,18 +150,11 @@ class ControlShuffleLinesModifier(GolangProceduralModifier):
                         break
 
                 if body_block:
-                    # Get the statements inside the block (excluding braces)
                     statements = []
                     for child in body_block.children:
-                        candidate_stmts = [child]
-                        if child.type == "statement_list":
-                            candidate_stmts = child.children
-                        for stmt in candidate_stmts:
-                            # Skip opening and closing braces, collect actual statements
-                            if stmt.type not in ["{", "}"]:
-                                statements.append(stmt)
+                        if child.type not in ["{", "}"]:
+                            statements.append(child)
 
-                    # Only shuffle if there are at least 2 statements
                     if len(statements) >= 2:
                         modifications.append((body_block, statements))
 
@@ -199,24 +166,18 @@ class ControlShuffleLinesModifier(GolangProceduralModifier):
         if not modifications:
             return source_code
 
-        # Apply modifications from end to start to preserve byte offsets
         modified_source = source_code
         for body_block, statements in reversed(modifications):
-            # Create shuffled indices
             shuffled_indices = list(range(len(statements)))
             self.rand.shuffle(shuffled_indices)
 
-            # Check if shuffling actually changed the order
             if shuffled_indices == list(range(len(statements))):
-                # If by chance we got the same order, force a different shuffle
                 if len(statements) >= 2:
-                    # Simple swap of first two elements to guarantee change
                     shuffled_indices[0], shuffled_indices[1] = (
                         shuffled_indices[1],
                         shuffled_indices[0],
                     )
 
-            # Extract statement texts and shuffle them
             statement_texts = []
             for stmt in statements:
                 stmt_text = source_code[stmt.start_byte : stmt.end_byte]
@@ -224,18 +185,14 @@ class ControlShuffleLinesModifier(GolangProceduralModifier):
 
             shuffled_texts = [statement_texts[i] for i in shuffled_indices]
 
-            # Find the range to replace (from first statement to last statement)
             first_stmt_start = statements[0].start_byte
             last_stmt_end = statements[-1].end_byte
 
-            # Get indentation from the first statement
             line_start = source_code.rfind("\n", 0, first_stmt_start) + 1
             indent = source_code[line_start:first_stmt_start]
 
-            # Join shuffled statements with proper newlines and indentation
             new_content = ("\n" + indent).join(shuffled_texts)
 
-            # Replace the original statements with shuffled ones
             modified_source = (
                 modified_source[:first_stmt_start]
                 + new_content

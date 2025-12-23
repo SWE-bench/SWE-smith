@@ -1,7 +1,8 @@
 import re
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from swebench.harness.constants import TestStatus
+from swesmith.constants import ENV_NAME
 from swesmith.profiles.base import RepoProfile, registry
 
 
@@ -12,6 +13,7 @@ class PhpProfile(RepoProfile):
     """
 
     test_cmd: str = "vendor/bin/phpunit --testdox --colors=never"
+    exts: list[str] = field(default_factory=lambda: [".php"])
 
 
 @dataclass
@@ -31,8 +33,8 @@ RUN apt-get update && \
 
 RUN curl -sS https://getcomposer.org/installer | php -- --2.2 --install-dir=/usr/local/bin --filename=composer
 
-RUN git clone https://github.com/{self.mirror_name} /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN composer update
 RUN composer install
 """

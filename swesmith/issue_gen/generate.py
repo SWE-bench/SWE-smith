@@ -48,6 +48,7 @@ from swesmith.issue_gen.utils import get_test_function
 from swesmith.profiles import registry
 
 logging.getLogger("LiteLLM").setLevel(logging.WARNING)
+litellm.drop_params = True
 litellm.suppress_debug_info = True
 
 

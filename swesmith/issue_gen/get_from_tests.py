@@ -42,6 +42,7 @@ from swesmith.profiles.python import PythonProfile
 from tqdm.auto import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
 
+litellm.drop_params = True
 litellm.suppress_debug_info = True
 
 LOG_FILE_ISSUE = "issue_test.txt"
@@ -173,7 +174,7 @@ def _process_instance(instance: dict, config_file: str | None, model: str | None
         test_idx = random.randint(0, len(instance[FAIL_TO_PASS]) - 1)
         rp = registry.get_from_inst(instance)
         cmd = get_verbose_test_cmd(instance, rp, test_idx)
-        test_output = run_command_in_container(instance, cmd)
+        test_output = run_command_in_container(instance, cmd, rp)
         test_func = get_test_function(instance, test_idx)
         test_src = test_func["test_src"]
         test_info = TEST_INFO.format(func=test_src, output=test_output)

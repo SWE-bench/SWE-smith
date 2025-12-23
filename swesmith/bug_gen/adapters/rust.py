@@ -2,7 +2,7 @@ import re
 import tree_sitter_rust as tsrs
 import warnings
 
-from swesmith.constants import TODO_REWRITE, CodeEntity
+from swesmith.constants import TODO_REWRITE, CodeEntity, CodeProperty
 from tree_sitter import Language, Parser, Query, QueryCursor
 from .utils import build_entity
 
@@ -10,6 +10,88 @@ RUST_LANGUAGE = Language(tsrs.language())
 
 
 class RustEntity(CodeEntity):
+    def _analyze_properties(self):
+        """Analyze Rust code properties."""
+        node = self.node
+
+        if node.type == "function_item":
+            self._tags.add(CodeProperty.IS_FUNCTION)
+
+        self._walk_for_properties(node)
+
+    def _walk_for_properties(self, n):
+        """Walk the AST and analyze properties."""
+        self._check_control_flow(n)
+        self._check_operations(n)
+        self._check_expressions(n)
+
+        for child in n.children:
+            self._walk_for_properties(child)
+
+    def _check_control_flow(self, n):
+        """Check for control flow patterns."""
+        if n.type in ["for_expression", "while_expression", "loop_expression"]:
+            self._tags.add(CodeProperty.HAS_LOOP)
+        if n.type == "if_expression":
+            self._tags.add(CodeProperty.HAS_IF)
+            for child in n.children:
+                if child.type == "else_clause":
+                    self._tags.add(CodeProperty.HAS_IF_ELSE)
+                    break
+        if n.type == "match_expression":
+            self._tags.add(CodeProperty.HAS_SWITCH)
+
+    def _check_operations(self, n):
+        """Check for various operations."""
+        if n.type == "index_expression":
+            self._tags.add(CodeProperty.HAS_LIST_INDEXING)
+        if n.type == "call_expression":
+            self._tags.add(CodeProperty.HAS_FUNCTION_CALL)
+        if n.type == "return_expression":
+            self._tags.add(CodeProperty.HAS_RETURN)
+        if n.type in ["let_declaration", "const_item", "static_item"]:
+            self._tags.add(CodeProperty.HAS_ASSIGNMENT)
+
+    def _check_expressions(self, n):
+        """Check for expression patterns."""
+        if n.type == "binary_expression":
+            self._tags.add(CodeProperty.HAS_BINARY_OP)
+        if n.type == "unary_expression":
+            self._tags.add(CodeProperty.HAS_UNARY_OP)
+        if n.type == "closure_expression":
+            self._tags.add(CodeProperty.HAS_LAMBDA)
+
+    @property
+    def complexity(self) -> int:
+        """Calculate cyclomatic complexity for Rust code."""
+
+        def walk(node):
+            score = 0
+            if node.type in [
+                "!=",
+                "&&",
+                "<",
+                "<=",
+                "==",
+                ">",
+                ">=",
+                "||",
+                "match_arm",
+                "else_clause",
+                "for_expression",
+                "while_expression",
+                "loop_expression",
+                "if_expression",
+            ]:
+                score += 1
+
+            for child in node.children:
+                score += walk(child)
+
+            return score
+
+        return 1 + walk(self.node)
+
     @property
     def name(self) -> str:
         func_query = Query(RUST_LANGUAGE, "(function_item name: (identifier) @name)")

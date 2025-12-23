@@ -163,10 +163,10 @@ def test_python_profile_custom_python_version():
 
 def test_python_profile_min_testing_flag():
     """Test Python profiles with min_testing flag"""
-    # Test JaxEbd90e06f which has min_testing=True
-    from swesmith.profiles.python import JaxEbd90e06f
+    # Test Modin8c7799fd which has min_testing=True
+    from swesmith.profiles.python import Modin8c7799fd
 
-    profile = JaxEbd90e06f()
+    profile = Modin8c7799fd()
     assert profile.min_testing is True
     assert profile.min_pregold is True
 

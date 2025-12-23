@@ -2,6 +2,7 @@ import re
 
 from dataclasses import dataclass
 from swebench.harness.constants import TestStatus
+from swesmith.constants import ENV_NAME
 from swesmith.profiles.base import RepoProfile, registry
 
 
@@ -27,8 +28,8 @@ RUN apt-get update && apt-get install -y \
     clang build-essential cmake \
     python3 python3-dev python3-pip
 
-RUN git clone https://github.com/{self.mirror_name} /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN mkdir build && cd build \
     && cmake .. -DCATCH_DEVELOPMENT_BUILD=ON \
     && make all \

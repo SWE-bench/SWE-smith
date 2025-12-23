@@ -65,6 +65,7 @@ def main(
     repo: str,
     max_bugs: int,
     seed: int,
+    interleave: bool = False,
 ):
     random.seed(seed)
     total = 0
@@ -73,26 +74,58 @@ def main(
     entities = rp.extract_entities()
     print(f"Found {len(entities)} entities in {repo}.")
 
-    for ext, pm_list in MAP_EXT_TO_MODIFIERS.items():
-        for pm in pm_list:
-            candidates = [
-                x
-                for x in entities
-                if Path(x.file_path).suffix == ext and pm.can_change(x)
-            ]
-            if not candidates:
-                continue
-            print(f"[{repo}] Found {len(candidates)} candidates for {pm.name}.")
+    log_dir = LOG_DIR_BUG_GEN / repo
+    log_dir.mkdir(parents=True, exist_ok=True)
+    print(f"Logging bugs to {log_dir}")
 
-            log_dir = LOG_DIR_BUG_GEN / repo
-            log_dir.mkdir(parents=True, exist_ok=True)
-            print(f"Logging bugs to {log_dir}")
+    if interleave:
+        # Build all (candidate, modifier) pairs upfront
+        pairs = []
+        for ext, pm_list in MAP_EXT_TO_MODIFIERS.items():
+            for pm in pm_list:
+                candidates = [
+                    x
+                    for x in entities
+                    if Path(x.file_path).suffix == ext and pm.can_change(x)
+                ]
+                if not candidates:
+                    continue
+                print(f"[{repo}] Found {len(candidates)} candidates for {pm.name}.")
 
-            if max_bugs > 0 and len(candidates) > max_bugs:
-                candidates = random.sample(candidates, max_bugs)
+                if max_bugs > 0 and len(candidates) > max_bugs:
+                    candidates = random.sample(candidates, max_bugs)
 
-            for candidate in tqdm(candidates):
-                total += _process_candidate(candidate, pm, log_dir, repo)
+                # Add all pairs for this modifier
+                for candidate in candidates:
+                    pairs.append((candidate, pm))
+
+        # Shuffle all pairs to interleave modifiers
+        random.shuffle(pairs)
+        print(
+            f"[{repo}] Processing {len(pairs)} (candidate, modifier) pairs in randomized order."
+        )
+
+        # Process in randomized order
+        for candidate, pm in tqdm(pairs):
+            total += _process_candidate(candidate, pm, log_dir, repo)
+    else:
+        # Sequential processing (original behavior)
+        for ext, pm_list in MAP_EXT_TO_MODIFIERS.items():
+            for pm in pm_list:
+                candidates = [
+                    x
+                    for x in entities
+                    if Path(x.file_path).suffix == ext and pm.can_change(x)
+                ]
+                if not candidates:
+                    continue
+                print(f"[{repo}] Found {len(candidates)} candidates for {pm.name}.")
+
+                if max_bugs > 0 and len(candidates) > max_bugs:
+                    candidates = random.sample(candidates, max_bugs)
+
+                for candidate in tqdm(candidates):
+                    total += _process_candidate(candidate, pm, log_dir, repo)
 
     shutil.rmtree(repo)
     print(f"Generated {total} bugs for {repo}.")
@@ -118,6 +151,11 @@ if __name__ == "__main__":
         type=int,
         default=-1,
         help="Maximum number of bugs to generate.",
+    )
+    parser.add_argument(
+        "--interleave",
+        action="store_true",
+        help="Randomize and interleave modifiers instead of processing sequentially.",
     )
 
     args = parser.parse_args()

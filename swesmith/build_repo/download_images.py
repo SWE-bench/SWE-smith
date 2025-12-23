@@ -10,7 +10,8 @@ import os
 import json
 import requests
 
-DOCKER_ORG = "jyangballin"
+from swesmith.constants import ORG_NAME_DH
+
 TAG = "latest"
 
 
@@ -82,7 +83,7 @@ def main(repo: str, proceed: bool = True):
     client = docker.from_env()
 
     # Get list of swesmith repositories
-    repos = get_docker_repositories(DOCKER_ORG, token)
+    repos = get_docker_repositories(ORG_NAME_DH, token)
     repos = [r for r in repos if r["name"].startswith("swesmith")]
     if repo:
         repos = [
@@ -108,7 +109,7 @@ def main(repo: str, proceed: bool = True):
     # Download images
     for r in repos:
         print(f"Downloading {r['name']}...")
-        client.images.pull(f"{DOCKER_ORG}/{r['name']}:{TAG}")
+        client.images.pull(f"{ORG_NAME_DH}/{r['name']}:{TAG}")
 
 
 if __name__ == "__main__":

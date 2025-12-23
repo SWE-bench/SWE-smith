@@ -9,6 +9,7 @@ from swebench.harness.constants import (
     KEY_INSTANCE_ID,
     TestStatus,
 )
+from swesmith.constants import ENV_NAME
 from swesmith.profiles.base import RepoProfile, registry
 
 
@@ -30,8 +31,8 @@ class GoProfile(RepoProfile):
     @property
     def dockerfile(self):
         return f"""FROM golang:1.24
-RUN git clone https://github.com/{self.mirror_name} /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN go mod tidy
 RUN go test -v -count=1 ./... || true
 """
@@ -342,8 +343,8 @@ class BoomFilters(GoProfile):
     @property
     def dockerfile(self):
         return f"""FROM golang:1.24
-RUN git clone https://github.com/{self.mirror_name} /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN go mod init github.com/tylertreat/BoomFilters
 RUN go mod tidy
 """
@@ -358,8 +359,8 @@ class Ini(GoProfile):
     @property
     def dockerfile(self):
         return f"""FROM golang:1.24
-RUN git clone https://github.com/{self.mirror_name} /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN go mod init github.com/go-ini/ini
 RUN go mod tidy
 """
@@ -614,8 +615,8 @@ class Sqlingo(GoProfile):
     @property
     def dockerfile(self):
         return f"""FROM golang:1.24
-RUN git clone https://github.com/{self.mirror_name} /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN go mod init github.com/lqs/sqlingo
 RUN go mod tidy
 """
