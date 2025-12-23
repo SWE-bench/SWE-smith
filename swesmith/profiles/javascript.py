@@ -1389,7 +1389,7 @@ RUN apt-get update && apt-get install -y git python3 make g++ && rm -rf /var/lib
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-
+RUN chmod u+x scripts/build.sh
 RUN yarn install --frozen-lockfile
 
 CMD ["/bin/bash"]"""
@@ -1670,7 +1670,7 @@ class Handsontablee71f0f42(JavaScriptProfile):
 
     @property
     def dockerfile(self):
-        return f"""FROM node:22-slim
+        return f"""FROM node:20-slim
 
 RUN apt-get update && apt-get install -y git python3 make g++ && rm -rf /var/lib/apt/lists/*
 
