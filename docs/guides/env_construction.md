@@ -37,7 +37,7 @@ This command will create two artifacts:
     * (If built from source) Change `ORG_NAME_GH` in `swesmith/constants.py`
 2. A Docker image (`swesmith.x86_64.<repo>.<commit>`) which contains the installed codebase.
 
-!!! note "`create_images` arguments
+!!! note "`create_images` arguments"
 
     By default, without `-r`, the command will build images for *all* SWE-smith repositories (300+ as of 12/2025).
     
@@ -47,7 +47,7 @@ This command will create two artifacts:
 
 It's good practice to check that your Docker image works as expected.
 ```bash
-docker run -it --rm swesmith.x86_64.instagram__monkeytype.70c3acf6
+docker run -it --rm swebench/swesmith.x86_64.instagram__monkeytype.70c3acf6
 ```
 Within the container, run the testing suite (e.g. `pytest`) to ensure that the codebase is functioning as expected.
 

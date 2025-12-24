@@ -230,6 +230,7 @@ if __name__ == "__main__":
         help="Bash script with installation commands (e.g. install.sh)",
     )
     parser.add_argument(
+        "-c",
         "--commit",
         type=str,
         help="Commit hash to build the image at (default: latest)",
@@ -247,6 +248,7 @@ if __name__ == "__main__":
         help="Force overwrite of existing conda environment file (if it exists)",
     )
     parser.add_argument(
+        "-p",
         "--python-version",
         type=str,
         help="Python version to use when creating the conda environment",
