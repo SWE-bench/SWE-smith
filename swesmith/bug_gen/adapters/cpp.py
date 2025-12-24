@@ -3,6 +3,7 @@ import tree_sitter_cpp as tscpp
 
 from swesmith.constants import TODO_REWRITE, CodeEntity
 from tree_sitter import Language, Parser, Query, QueryCursor
+from swesmith.bug_gen.adapters.utils import build_entity
 
 CPP_LANGUAGE = Language(tscpp.language())
 
@@ -74,7 +75,7 @@ def get_entities_from_file_cpp(
         # generates them parsing valid pre-processor directives
 
         if node.type == "function_definition":
-            entities.append(_build_entity(node, lines, file_path))
+            entities.append(build_entity(node, lines, file_path, CPlusPlusEntity))
             if 0 <= max_entities == len(entities):
                 return
 
@@ -82,41 +83,3 @@ def get_entities_from_file_cpp(
             walk(child)
 
     walk(root)
-
-
-def _build_entity(node, lines, file_path: str) -> CPlusPlusEntity:
-    """
-    Turns a Tree-sitter node into a CPlusPlusEntity object.
-    """
-    # start_point/end_point are (row, col) zero-based
-    start_row, _ = node.start_point
-    end_row, _ = node.end_point
-
-    # slice out the raw lines
-    snippet = lines[start_row : end_row + 1]
-
-    # detect indent on first line
-    first = snippet[0]
-    m = re.match(r"^(?P<indent>[\t ]*)", first)
-    indent_str = m.group("indent")
-    # tabs count as size=1, else use count of spaces, fallback to 4
-    indent_size = 1 if "\t" in indent_str else (len(indent_str) or 4)
-    indent_level = len(indent_str) // indent_size
-
-    # dedent each line
-    dedented = []
-    for line in snippet:
-        if len(line) >= indent_level * indent_size:
-            dedented.append(line[indent_level * indent_size :])
-        else:
-            dedented.append(line.lstrip("\t "))
-
-    return CPlusPlusEntity(
-        file_path=file_path,
-        indent_level=indent_level,
-        indent_size=indent_size,
-        line_start=start_row + 1,
-        line_end=end_row + 1,
-        node=node,
-        src_code="\n".join(dedented),
-    )

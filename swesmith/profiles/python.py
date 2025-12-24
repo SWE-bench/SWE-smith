@@ -11,7 +11,7 @@ from swebench.harness.constants import (
 )
 from swebench.harness.docker_build import build_image as build_image_sweb
 from swebench.harness.dockerfiles import get_dockerfile_env
-from swesmith.constants import LOG_DIR_ENV, ENV_NAME, INSTANCE_REF
+from swesmith.constants import LOG_DIR_ENV, ENV_NAME, INSTANCE_REF, ORG_NAME_DH
 from swesmith.profiles.base import RepoProfile, registry
 from swesmith.profiles.utils import INSTALL_BAZEL, INSTALL_CMAKE
 
@@ -45,7 +45,7 @@ class PythonProfile(RepoProfile):
         return _helper(instance[FAIL_TO_PASS]), _helper(instance[PASS_TO_PASS])
 
     def build_image(self):
-        BASE_IMAGE_KEY = "jyangballin/swesmith.x86_64"
+        BASE_IMAGE_KEY = f"{ORG_NAME_DH}/swesmith.x86_64"
         HEREDOC_DELIMITER = "EOF_59812759871"
         PATH_TO_REQS = "swesmith_environment.yml"
 
@@ -483,21 +483,6 @@ class Isodate17cb25eb(PythonProfile):
     owner: str = "gweis"
     repo: str = "isodate"
     commit: str = "17cb25eb7bc3556a68f3f7b241313e9bb8b23760"
-
-
-@dataclass
-class JaxEbd90e06f(PythonProfile):
-    owner: str = "jax-ml"
-    repo: str = "jax"
-    commit: str = "ebd90e06fa7caad087e2342431e3899cfd2fdf98"
-    install_cmds: list = field(default_factory=lambda: ['pip install -e ".[cpu]"'])
-    test_cmd: str = (
-        "source /opt/miniconda3/bin/activate; "
-        f"conda activate {ENV_NAME}; "
-        "pytest --disable-warnings --color=no --tb=no --verbose -n auto"
-    )
-    min_testing: bool = True
-    min_pregold: bool = True
 
 
 @dataclass

@@ -14,20 +14,21 @@ Coming soon!
 ## Create an Execution Environment
 First, create the conda environment for the target repository.
 ```bash
-python -m swesmith.build_repo.try_install_py Instagram/MonkeyType install_repo.sh \
+python -m swesmith.build_repo.try_install_py Instagram/MonkeyType configs/install_repo.sh \
     --commit 70c3acf62950be5dfb28743c7a719bfdecebcd84
 ```
 where `install_repo.sh` is the script that installs the repository.
 ([Example](https://github.com/SWE-bench/SWE-smith/blob/main/configs/install_repo.sh))
 
-If successful, two artifacts will be produced under `logs/build_repo/records/`:
+If successful, two artifacts will be produced under `logs/build_repo/env/<org>__<repo>.<hash>`:
+
 * `sweenv_[repo + commit].yml`: A dump of the conda environment that was created.
 * `sweenv_[repo + commit].sh`: A log of the installation process.
 
 Next, run the following command to create a Docker image for the repository.
 
 ```bash
-python -m swesmith.build_repo.create_images --repos Instagram/MonkeyType
+python -m swesmith.build_repo.create_images -r MonkeyType
 ```
 
 This command will create two artifacts:
@@ -35,6 +36,14 @@ This command will create two artifacts:
     * Pass in an `--org` argument, or
     * (If built from source) Change `ORG_NAME_GH` in `swesmith/constants.py`
 2. A Docker image (`swesmith.x86_64.<repo>.<commit>`) which contains the installed codebase.
+
+!!! note "`create_images` arguments
+
+    By default, without `-r`, the command will build images for *all* SWE-smith repositories (300+ as of 12/2025).
+    
+    `-r`: Select specific repositories to build using fuzzy matching (e.g., `-r django` matches any repo containing "django").
+    
+    `-f`: Force rebuild images even if they already exist locally.
 
 It's good practice to check that your Docker image works as expected.
 ```bash
