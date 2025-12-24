@@ -67,19 +67,21 @@ def get_metadata_file_name(pr_num):
 worker_tempdirs = {}
 
 
-def should_attempt_recovery(inst, repo):
+def should_attempt_recovery(
+    inst, repo, max_files=8, max_lines=500, max_file_lines=10000
+):
     """
     Attempt if the following criteria are met:
-    * Fewer than 8 files are changed
-    * Fewer than 500 lines are changed
-    * No changed file is >10000 lines
+    * Fewer than max_files files are changed
+    * Fewer than max_lines lines are changed
+    * No changed file is >max_file_lines lines
     """
     patch = PatchSet(inst[KEY_PATCH])
     num_py_edited = len([x for x in patch if x.path.endswith(".py")])
     if num_py_edited == 0:
         return False, "No Python files changed"
-    if num_py_edited > 8:
-        return False, "Too many files changed (>8 files)"
+    if num_py_edited > max_files:
+        return False, f"Too many files changed (>{max_files} files)"
     lines_changed = 0
     for file_diff in patch:
         if file_diff.is_binary_file:
@@ -89,13 +91,13 @@ def should_attempt_recovery(inst, repo):
             # Skip over edits to files that don't exist
             continue
         file_content = open(file_path).read()
-        if len(file_content.splitlines()) > 10000:
-            return False, "Changed file is too long (>10000 lines)"
+        if len(file_content.splitlines()) > max_file_lines:
+            return False, f"Changed file is too long (>{max_file_lines} lines)"
         lines_changed += file_diff.added + file_diff.removed
     if lines_changed == 0:
         return False, "No lines changed (no changed file exists)"
-    if lines_changed > 500:
-        return False, "Too many lines changed"
+    if lines_changed > max_lines:
+        return False, f"Too many lines changed (>{max_lines})"
     return True, None
 
 
@@ -243,7 +245,9 @@ def should_process_instance(inst, repo, redo_existing, redo_skipped):
     return False, recover_status
 
 
-def process_single_instance(inst, repo, model, api_key=None):
+def process_single_instance(
+    inst, repo, model, api_key=None, max_files=8, max_lines=500, max_file_lines=10000
+):
     """Process a single instance with its own working directory."""
     global this_worker_id
     temp_dir = worker_tempdirs[this_worker_id]
@@ -261,7 +265,9 @@ def process_single_instance(inst, repo, model, api_key=None):
         registry.get(repo).clone()
 
         # Check if we should attempt recovery
-        attempt_recovery, reason = should_attempt_recovery(inst, repo)
+        attempt_recovery, reason = should_attempt_recovery(
+            inst, repo, max_files, max_lines, max_file_lines
+        )
         if not attempt_recovery:
             with open(metadata_file, "w") as f:
                 json.dump(
@@ -360,6 +366,9 @@ def main(
     redo_skipped: bool,
     api_key: str | None = None,
     num_processes: int = 1,
+    max_files: int = 8,
+    max_lines: int = 500,
+    max_file_lines: int = 10000,
 ):
     global worker_tempdirs, this_worker_id
 
@@ -422,7 +431,17 @@ def main(
 
     task_args = []
     for inst in to_process:
-        task_args.append((inst, inst[MIRROR_PR], model, api_key))
+        task_args.append(
+            (
+                inst,
+                inst[MIRROR_PR],
+                model,
+                api_key,
+                max_files,
+                max_lines,
+                max_file_lines,
+            )
+        )
 
     pbar = tqdm(total=len(task_args))
 
@@ -526,9 +545,31 @@ if __name__ == "__main__":
         default=False,
     )
     parser.add_argument(
+        "-n",
         "--num_processes",
         type=int,
         default=1,
+    )
+    parser.add_argument(
+        "-f",
+        "--max_files",
+        type=int,
+        default=8,
+        help="Maximum number of files that can be changed for recovery attempt (default: 8)",
+    )
+    parser.add_argument(
+        "-l",
+        "--max_lines",
+        type=int,
+        default=500,
+        help="Maximum total lines that can be changed for recovery attempt (default: 500)",
+    )
+    parser.add_argument(
+        "-m",
+        "--max_file_lines",
+        type=int,
+        default=10000,
+        help="Maximum lines in a single changed file for recovery attempt (default: 10000)",
     )
     args = parser.parse_args()
     main(**vars(args))
