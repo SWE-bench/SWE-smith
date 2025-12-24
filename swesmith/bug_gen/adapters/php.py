@@ -3,7 +3,7 @@ import re
 from swesmith.constants import TODO_REWRITE, CodeEntity
 from tree_sitter import Language, Parser
 import tree_sitter_php as tsphp
-from .utils import build_entity
+from swesmith.bug_gen.adapters.utils import build_entity
 
 PHP_LANGUAGE = Language(tsphp.language_php())
 

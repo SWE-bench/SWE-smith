@@ -4,7 +4,7 @@ import tree_sitter_javascript as tsjs
 
 from swesmith.constants import CodeEntity, CodeProperty, TODO_REWRITE
 from tree_sitter import Language, Parser
-from .utils import build_entity
+from swesmith.bug_gen.adapters.utils import build_entity
 
 JS_LANGUAGE = Language(tsjs.language())
 

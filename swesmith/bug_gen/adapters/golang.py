@@ -2,7 +2,7 @@ from swesmith.constants import TODO_REWRITE, CodeEntity, CodeProperty
 from tree_sitter import Language, Parser, Query, QueryCursor
 import tree_sitter_go as tsgo
 import warnings
-from .utils import build_entity
+from swesmith.bug_gen.adapters.utils import build_entity
 
 GO_LANGUAGE = Language(tsgo.language())
 

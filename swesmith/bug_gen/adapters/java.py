@@ -4,7 +4,7 @@ import warnings
 from swesmith.constants import CodeEntity, TODO_REWRITE
 from tree_sitter import Language, Parser, Query, QueryCursor
 import tree_sitter_java as tsjava
-from .utils import build_entity
+from swesmith.bug_gen.adapters.utils import build_entity
 
 JAVA_LANGUAGE = Language(tsjava.language())
 

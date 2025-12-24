@@ -4,7 +4,7 @@ import warnings
 from swesmith.constants import CodeEntity, TODO_REWRITE
 from tree_sitter import Language, Parser, Query, QueryCursor
 import tree_sitter_c_sharp as tscs
-from .utils import build_entity
+from swesmith.bug_gen.adapters.utils import build_entity
 
 C_SHARP_LANGUAGE = Language(tscs.language())
 

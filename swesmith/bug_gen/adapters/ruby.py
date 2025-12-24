@@ -2,7 +2,7 @@ from swesmith.constants import TODO_REWRITE, CodeEntity
 from tree_sitter import Language, Parser, Query, QueryCursor
 import tree_sitter_ruby as tsr
 import warnings
-from .utils import build_entity
+from swesmith.bug_gen.adapters.utils import build_entity
 
 RUBY_LANGUAGE = Language(tsr.language())
 
