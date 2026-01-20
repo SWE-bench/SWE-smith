@@ -76,6 +76,11 @@ class CodeProperty(Enum):
     HAS_TERNARY = "has_ternary"
     HAS_UNARY_OP = "has_unary_op"
 
+    # Error handling
+    HAS_TRY_EXCEPT = "has_try_except"
+    HAS_ASSERT = "has_assert"
+    HAS_RAISE = "has_raise"
+
 
 class CodeEntityMeta(type):
     def __new__(mcs, name, bases, namespace):
