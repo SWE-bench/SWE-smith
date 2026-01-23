@@ -48,7 +48,7 @@ class TryExceptRemover(ErrorHandlingModifier):
                 if not try_body:
                     return updated_node
 
-                # Return the statements directly (unwraps the try/except)
-                return try_body
+                # Use FlattenSentinel to replace single Try node with multiple statements
+                return libcst.FlattenSentinel(try_body)
 
             return updated_node
