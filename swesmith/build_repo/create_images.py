@@ -11,7 +11,6 @@ from collections import OrderedDict
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from tqdm import tqdm
 
-from swesmith.constants import Architecture
 from swesmith.profiles import registry
 
 
@@ -52,7 +51,7 @@ def build_all_images(
         repo_filter: Optional list of repository name patterns to filter by (fuzzy matching)
         proceed: Whether to proceed without confirmation
         force: Force rebuild even if image already exists
-        arch: Architecture to build for (e.g. "x86_64", "arm64")
+        arch: Architecture string to build for (e.g. "x86_64", "arm64")
 
     Returns:
         tuple: (successful_builds, failed_builds)
@@ -191,7 +190,7 @@ def main():
     )
     parser.add_argument(
         "--arch",
-        choices=[a.value for a in Architecture],
+        choices=["x86_64", "arm64"],
         help="Force build for specific architecture",
     )
 

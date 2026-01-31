@@ -36,7 +36,6 @@ from swesmith.constants import (
     ORG_NAME_GH,
     INSTANCE_REF,
     CodeEntity,
-    Architecture,
 )
 from unidiff import PatchSet
 
@@ -65,21 +64,17 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
 
     org_dh: str = ORG_NAME_DH
     org_gh: str = ORG_NAME_GH
-    arch: Architecture = (
-        Architecture.X86_64
-        if platform.machine() not in {"aarch64", "arm64"}
-        else Architecture.ARM64
-    )
+    arch: str = "x86_64" if platform.machine() not in {"aarch64", "arm64"} else "arm64"
 
     @property
     def pltf(self) -> str:
-        if self.arch == Architecture.X86_64:
+        if self.arch == "x86_64":
             return "linux/x86_64"
-        elif self.arch == Architecture.ARM64:
+        elif self.arch == "arm64":
             return "linux/arm64/v8"
         else:
             raise ValueError(
-                f"Architecture {self.arch} not supported. Must be one of {[a.value for a in Architecture]}"
+                f"Architecture {self.arch} not supported. Must be one of ['x86_64', 'arm64']"
             )
 
     exts: list[str] = field(default_factory=list)  # Must be set by subclass
