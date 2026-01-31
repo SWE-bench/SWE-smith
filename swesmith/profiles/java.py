@@ -18,31 +18,33 @@ class JavaProfile(RepoProfile):
 def parse_log_maven_surefire(log: str) -> dict[str, str]:
     """
     Parse Maven Surefire text output with per-method granularity.
-    
+
     Handles two formats:
     1. With [INFO]/[ERROR] prefix: [INFO] testMethodName -- Time elapsed: 0.001 s
     2. Without prefix: testMethodName(className)  Time elapsed: 0.001 sec
-    
+
     Used with: mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
-    
+
     Args:
         log (str): log content from Maven Surefire
     Returns:
         dict: test case to test status mapping
     """
     test_status_map = {}
-    
+
     # Pattern 1: [INFO] testMethodName -- Time elapsed: 0.001 s
     # Pattern 2: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
     pattern_with_prefix = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-    
+
     # Pattern 3: testMethodName(className)  Time elapsed: 0.001 sec
     # Pattern 4: testMethodName(className)  Time elapsed: 0 sec
-    pattern_no_prefix = r"^([a-zA-Z0-9_]+)\(([a-zA-Z0-9_.]+)\)\s+Time elapsed:\s+([\d.]+)\s+sec"
-    
+    pattern_no_prefix = (
+        r"^([a-zA-Z0-9_]+)\(([a-zA-Z0-9_.]+)\)\s+Time elapsed:\s+([\d.]+)\s+sec"
+    )
+
     for line in log.split("\n"):
         line = line.strip()
-        
+
         # Try pattern with [INFO]/[ERROR] prefix first
         if line.startswith("["):
             if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
@@ -53,7 +55,7 @@ def parse_log_maven_surefire(log: str) -> dict[str, str]:
                 test_name = re.match(pattern_with_prefix, line)
                 if test_name:
                     test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        
+
         # Try pattern without prefix
         elif "Time elapsed:" in line and "(" in line:
             match = re.match(pattern_no_prefix, line)
@@ -62,46 +64,49 @@ def parse_log_maven_surefire(log: str) -> dict[str, str]:
                 test_class = match.group(2)
                 test_name = f"{test_class}.{test_method}"
                 test_status_map[test_name] = TestStatus.PASSED.value
-    
+
     return test_status_map
 
 
 def parse_log_gradle_junit_xml(log: str) -> dict[str, str]:
     """
     Parse JUnit XML test results from Gradle output.
-    
+
     Parses XML testsuite elements from Gradle test output when using:
     ./gradlew test ... || true; find . -type f -name 'TEST-*.xml' -exec cat {} \\;
-    
+
     Args:
         log (str): log content containing JUnit XML test results
     Returns:
         dict: test case to test status mapping
     """
     import xml.etree.ElementTree as ET
-    
+
     test_status_map = {}
-    xml_matches = re.findall(r'<\?xml version.*?</testsuite>', log, re.DOTALL)
-    
+    xml_matches = re.findall(r"<\?xml version.*?</testsuite>", log, re.DOTALL)
+
     for xml_content in xml_matches:
         try:
             root = ET.fromstring(xml_content)
-            suite_classname = root.get('name', '')
-            
-            for testcase in root.findall('.//testcase'):
-                classname = testcase.get('classname', suite_classname)
-                methodname = testcase.get('name', '')
+            suite_classname = root.get("name", "")
+
+            for testcase in root.findall(".//testcase"):
+                classname = testcase.get("classname", suite_classname)
+                methodname = testcase.get("name", "")
                 test_name = f"{classname}.{methodname}"
-                
-                if testcase.find('failure') is not None or testcase.find('error') is not None:
+
+                if (
+                    testcase.find("failure") is not None
+                    or testcase.find("error") is not None
+                ):
                     test_status_map[test_name] = TestStatus.FAILED.value
-                elif testcase.find('skipped') is not None:
+                elif testcase.find("skipped") is not None:
                     test_status_map[test_name] = TestStatus.SKIPPED.value
                 else:
                     test_status_map[test_name] = TestStatus.PASSED.value
         except ET.ParseError:
             continue
-    
+
     return test_status_map
 
 
@@ -159,8 +164,6 @@ CMD ["/bin/bash"]"""
         return parse_log_gradle_junit_xml(log)
 
 
-
-
 @dataclass
 class Asynchttpclientae59f51f(JavaProfile):
     owner: str = "AsyncHttpClient"
@@ -182,13 +185,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -214,8 +215,6 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
         return parse_log_gradle_junit_xml(log)
-
-
 
 
 @dataclass
@@ -244,8 +243,6 @@ CMD ["/bin/bash"]"""
         return parse_log_gradle_junit_xml(log)
 
 
-
-
 @dataclass
 class Web3j37d9bc9b(JavaProfile):
     owner: str = "LFDT-web3j"
@@ -269,8 +266,6 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
         return parse_log_gradle_junit_xml(log)
-
-
 
 
 @dataclass
@@ -298,8 +293,6 @@ CMD ["/bin/bash"]"""
         return parse_log_gradle_junit_xml(log)
 
 
-
-
 @dataclass
 class MycatServer243539fb(JavaProfile):
     owner: str = "MyCATApache"
@@ -323,13 +316,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -355,8 +346,6 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
         return parse_log_gradle_junit_xml(log)
-
-
 
 
 @dataclass
@@ -386,8 +375,6 @@ CMD ["/bin/bash"]"""
         return parse_log_gradle_junit_xml(log)
 
 
-
-
 @dataclass
 class MPAndroidChart9c7275a0(JavaProfile):
     owner: str = "PhilJay"
@@ -410,8 +397,6 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
         return parse_log_gradle_junit_xml(log)
-
-
 
 
 @dataclass
@@ -458,8 +443,6 @@ CMD ["/bin/bash"]"""
         return parse_log_gradle_junit_xml(log)
 
 
-
-
 @dataclass
 class GoGoGode0d5961(JavaProfile):
     owner: str = "ZCShou"
@@ -502,8 +485,6 @@ CMD ["/bin/bash"]"""
         return parse_log_gradle_junit_xml(log)
 
 
-
-
 @dataclass
 class Austin4c921ea0(JavaProfile):
     owner: str = "ZhongFuCheng3y"
@@ -526,13 +507,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -556,13 +535,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -587,13 +564,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -617,13 +592,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -648,13 +621,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -682,13 +653,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -719,8 +688,6 @@ CMD ["/bin/bash"]"""
         return parse_log_gradle_junit_xml(log)
 
 
-
-
 @dataclass
 class Pulsarc51346fa(JavaProfile):
     owner: str = "apache"
@@ -744,13 +711,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -777,13 +742,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -807,13 +770,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -839,13 +800,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -869,13 +828,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -902,14 +859,12 @@ CMD ["/bin/bash"]"""
         return parse_log_gradle_junit_xml(log)
 
 
-
-
 @dataclass
 class Bazel08e077e7(JavaProfile):
     owner: str = "bazelbuild"
     repo: str = "bazel"
     commit: str = "08e077e7a46b5f2137cf3335104219133f8d997f"
-    test_cmd: str = "bazel test //src/test/java/com/google/devtools/build/lib/util:UtilTests --test_output=all --noshow_progress --show_result=10 --test_summary=detailed || true; find bazel-testlogs -name \"test.xml\" -exec cat {} +"
+    test_cmd: str = 'bazel test //src/test/java/com/google/devtools/build/lib/util:UtilTests --test_output=all --noshow_progress --show_result=10 --test_summary=detailed || true; find bazel-testlogs -name "test.xml" -exec cat {} +'
     timeout: int = 300  # Gradle tests can be slow
 
     @property
@@ -941,13 +896,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -971,13 +924,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -1003,13 +954,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -1036,8 +985,6 @@ CMD ["/bin/bash"]"""
         return parse_log_gradle_junit_xml(log)
 
 
-
-
 @dataclass
 class Hutool44836454(JavaProfile):
     owner: str = "chinabugotech"
@@ -1058,13 +1005,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -1088,13 +1033,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -1121,8 +1064,6 @@ CMD ["/bin/bash"]"""
         return parse_log_gradle_junit_xml(log)
 
 
-
-
 @dataclass
 class Dropwizarde01f4694(JavaProfile):
     owner: str = "dropwizard"
@@ -1146,13 +1087,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -1176,13 +1115,11 @@ RUN ./mvnw clean install -B -q -DskipTests"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -1206,13 +1143,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -1236,13 +1171,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -1267,13 +1200,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -1297,13 +1228,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -1332,14 +1261,12 @@ CMD ["/bin/bash"]"""
         return parse_log_gradle_junit_xml(log)
 
 
-
-
 @dataclass
 class Apktool1981d35b(JavaProfile):
     owner: str = "iBotPeaches"
     repo: str = "Apktool"
     commit: str = "1981d35b832f7e5c94947af6d1f99de336ca8be9"
-    test_cmd: str = "./gradlew test --rerun-tasks --continue --no-daemon --console=plain || true; find . -type f -name \"TEST-*.xml\" -exec cat {} +"
+    test_cmd: str = './gradlew test --rerun-tasks --continue --no-daemon --console=plain || true; find . -type f -name "TEST-*.xml" -exec cat {} +'
     timeout: int = 300  # Gradle tests can be slow
 
     @property
@@ -1357,8 +1284,6 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
         return parse_log_gradle_junit_xml(log)
-
-
 
 
 @dataclass
@@ -1383,13 +1308,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -1413,13 +1336,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -1459,8 +1380,6 @@ CMD ["/bin/bash"]"""
         return parse_log_gradle_junit_xml(log)
 
 
-
-
 @dataclass
 class JsonPathb6c60b3d(JavaProfile):
     owner: str = "json-path"
@@ -1486,8 +1405,6 @@ CMD ["/bin/bash"]"""
         return parse_log_gradle_junit_xml(log)
 
 
-
-
 @dataclass
 class JustAuth694bbf1b(JavaProfile):
     owner: str = "justauth"
@@ -1510,13 +1427,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -1540,13 +1455,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -1573,13 +1486,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -1605,8 +1516,6 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
         return parse_log_gradle_junit_xml(log)
-
-
 
 
 @dataclass
@@ -1637,8 +1546,6 @@ CMD ["/bin/bash"]"""
         return parse_log_gradle_junit_xml(log)
 
 
-
-
 @dataclass
 class Miaoshae5801765(JavaProfile):
     owner: str = "qiurunze123"
@@ -1662,13 +1569,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -1696,13 +1601,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -1742,13 +1645,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -1772,13 +1673,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -1806,8 +1705,6 @@ CMD ["/bin/bash"]"""
         return parse_log_gradle_junit_xml(log)
 
 
-
-
 @dataclass
 class Jedis52483b82(JavaProfile):
     owner: str = "redis"
@@ -1830,13 +1727,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -1860,13 +1755,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -1890,13 +1783,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -1940,8 +1831,6 @@ CMD ["/bin/bash"]"""
         return parse_log_gradle_junit_xml(log)
 
 
-
-
 @dataclass
 class SignalServer065e7302(JavaProfile):
     owner: str = "signalapp"
@@ -1963,13 +1852,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -1998,8 +1885,6 @@ CMD ["/bin/bash"]"""
         return parse_log_gradle_junit_xml(log)
 
 
-
-
 @dataclass
 class Socketioclientjavaeb438de0(JavaProfile):
     owner: str = "socketio"
@@ -2025,13 +1910,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -2059,13 +1942,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -2093,8 +1974,6 @@ CMD ["/bin/bash"]"""
         return parse_log_gradle_junit_xml(log)
 
 
-
-
 @dataclass
 class Motan4c18b71e(JavaProfile):
     owner: str = "weibocom"
@@ -2117,13 +1996,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -2147,15 +2024,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
-
-
 
 
 @dataclass
@@ -2200,8 +2073,6 @@ CMD ["/bin/bash"]"""
         return parse_log_gradle_junit_xml(log)
 
 
-
-
 @dataclass
 class Sentinel222670e6(JavaProfile):
     owner: str = "alibaba"
@@ -2224,13 +2095,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -2254,13 +2123,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -2285,13 +2152,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -2315,13 +2180,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -2345,13 +2208,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -2382,8 +2243,6 @@ CMD ["/bin/bash"]"""
         return parse_log_gradle_junit_xml(log)
 
 
-
-
 @dataclass
 class Cassandra7fe688b0(JavaProfile):
     owner: str = "apache"
@@ -2410,8 +2269,6 @@ CMD ["/bin/bash"]"""
         return parse_log_gradle_junit_xml(log)
 
 
-
-
 @dataclass
 class Dubboa92d5d08(JavaProfile):
     owner: str = "apache"
@@ -2435,13 +2292,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -2468,13 +2323,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -2515,13 +2368,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -2548,8 +2399,6 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
         return parse_log_gradle_junit_xml(log)
-
-
 
 
 @dataclass
@@ -2579,13 +2428,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -2610,13 +2457,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -2641,13 +2486,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -2677,13 +2520,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -2709,8 +2550,6 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
         return parse_log_gradle_junit_xml(log)
-
-
 
 
 @dataclass
@@ -2739,8 +2578,6 @@ CMD ["/bin/bash"]"""
         return parse_log_gradle_junit_xml(log)
 
 
-
-
 @dataclass
 class Tcctransaction874cb910(JavaProfile):
     owner: str = "changmingxie"
@@ -2762,13 +2599,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -2793,13 +2628,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -2823,13 +2656,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -2858,8 +2689,6 @@ CMD ["/bin/bash"]"""
         return parse_log_gradle_junit_xml(log)
 
 
-
-
 @dataclass
 class Hswebframework8c23cc95(JavaProfile):
     owner: str = "hs-web"
@@ -2882,13 +2711,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -2956,8 +2783,6 @@ CMD ["/bin/bash"]"""
         return parse_log_gradle_junit_xml(log)
 
 
-
-
 @dataclass
 class Analysisik9b820257(JavaProfile):
     owner: str = "infinilabs"
@@ -2980,13 +2805,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -3014,8 +2837,6 @@ CMD ["/bin/bash"]"""
         return parse_log_gradle_junit_xml(log)
 
 
-
-
 @dataclass
 class Keycloak051fcab5(JavaProfile):
     owner: str = "keycloak"
@@ -3039,13 +2860,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -3071,13 +2890,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -3101,13 +2918,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -3131,13 +2946,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -3161,13 +2974,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -3194,8 +3005,6 @@ CMD ["/bin/bash"]"""
         return parse_log_gradle_junit_xml(log)
 
 
-
-
 @dataclass
 class Lettucefa5433c2(JavaProfile):
     owner: str = "redis"
@@ -3218,13 +3027,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -3249,8 +3056,6 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
         return parse_log_gradle_junit_xml(log)
-
-
 
 
 @dataclass
@@ -3280,8 +3085,6 @@ CMD ["/bin/bash"]"""
         return parse_log_gradle_junit_xml(log)
 
 
-
-
 @dataclass
 class Springauthorizationserver7d72f556(JavaProfile):
     owner: str = "spring-projects"
@@ -3305,8 +3108,6 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
         return parse_log_gradle_junit_xml(log)
-
-
 
 
 @dataclass
@@ -3335,8 +3136,6 @@ CMD ["/bin/bash"]"""
         return parse_log_gradle_junit_xml(log)
 
 
-
-
 @dataclass
 class Javapoetb9017a95(JavaProfile):
     owner: str = "square"
@@ -3358,13 +3157,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -3391,13 +3188,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Maven Surefire text output with per-method granularity.
-        
+
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
         return parse_log_maven_surefire(log)
-
-
 
 
 @dataclass
@@ -3442,8 +3237,6 @@ CMD ["/bin/bash"]"""
         return parse_log_gradle_junit_xml(log)
 
 
-
-        
 for name, obj in list(globals().items()):
     if (
         isinstance(obj, type)
