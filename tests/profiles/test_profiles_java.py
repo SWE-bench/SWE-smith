@@ -25,18 +25,19 @@ from swebench.harness.constants import TestStatus as Status
 
 def make_dummy_java_profile():
     """Create a minimal concrete JavaProfile for testing"""
+
     class DummyJavaProfile(JavaProfile):
         owner = "dummy"
         repo = "dummyrepo"
         commit = "deadbeefcafebabe"
-        
+
         @property
         def dockerfile(self):
             return "FROM ubuntu:22.04\nRUN echo hello"
-        
+
         def log_parser(self, log: str) -> dict[str, str]:
             return {}
-    
+
     return DummyJavaProfile()
 
 
@@ -134,7 +135,7 @@ def test_maven_parser_edge_cases():
     """Test Maven parser with edge cases"""
     # Whitespace only
     assert parse_log_maven_surefire("   \n  \t  \n") == {}
-    
+
     # Malformed lines (missing parts)
     log = """
 [INFO] testIncomplete -- Time elapsed:
@@ -336,7 +337,7 @@ def test_eureka_profile_log_parser():
 def test_java_profile_inheritance_in_concrete_profiles():
     """Test that concrete Java profiles properly inherit from JavaProfile"""
     profiles_to_test = [Gsondd2fe59c, Eureka459fcf59]
-    
+
     for profile_class in profiles_to_test:
         profile = profile_class()
         assert isinstance(profile, JavaProfile)
@@ -358,20 +359,20 @@ def test_java_profile_inheritance_in_concrete_profiles():
 def test_java_profile_build_image():
     """Test JavaProfile.build_image writes Dockerfile and runs docker"""
     profile = Gsondd2fe59c()
-    
+
     with (
         patch("pathlib.Path.mkdir") as mock_mkdir,
         patch("builtins.open", mock_open()) as mock_file,
         patch("subprocess.run") as mock_run,
     ):
         profile.build_image()
-        
+
         # Verify directory creation
         mock_mkdir.assert_called_once_with(parents=True, exist_ok=True)
-        
+
         # Verify file operations
         mock_file.assert_called()
-        
+
         # Verify docker build was called
         mock_run.assert_called_once()
         call_args = mock_run.call_args
@@ -382,7 +383,7 @@ def test_java_profile_build_image():
 def test_java_profile_build_image_error_handling():
     """Test build_image error handling"""
     profile = Gsondd2fe59c()
-    
+
     with (
         patch("pathlib.Path.mkdir"),
         patch("builtins.open", mock_open()),
@@ -398,7 +399,7 @@ def test_java_profile_build_image_error_handling():
 def test_java_profile_build_image_checks_exit_code():
     """Test build_image checks subprocess exit code"""
     profile = Gsondd2fe59c()
-    
+
     with (
         patch("pathlib.Path.mkdir"),
         patch("builtins.open", mock_open()),
@@ -411,21 +412,21 @@ def test_java_profile_build_image_checks_exit_code():
 def test_java_profile_build_image_file_operations():
     """Test build_image creates Dockerfile and build log"""
     profile = Gsondd2fe59c()
-    
+
     with (
         patch("pathlib.Path.mkdir"),
         patch("builtins.open", mock_open()) as mock_file,
         patch("subprocess.run"),
     ):
         profile.build_image()
-        
+
         file_calls = mock_file.call_args_list
         assert len(file_calls) >= 2  # Dockerfile and build log
-        
+
         # Check for Dockerfile creation
         dockerfile_calls = [call for call in file_calls if "Dockerfile" in str(call)]
         assert len(dockerfile_calls) > 0
-        
+
         # Check for build log creation
         log_calls = [call for call in file_calls if "build_image.log" in str(call)]
         assert len(log_calls) > 0
@@ -434,7 +435,7 @@ def test_java_profile_build_image_file_operations():
 def test_java_profile_build_image_subprocess_parameters():
     """Test build_image subprocess parameters"""
     profile = Gsondd2fe59c()
-    
+
     with (
         patch("pathlib.Path.mkdir"),
         patch("builtins.open", mock_open()),
