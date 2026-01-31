@@ -15,6 +15,96 @@ class JavaProfile(RepoProfile):
     exts: list[str] = field(default_factory=lambda: [".java"])
 
 
+def parse_log_maven_surefire(log: str) -> dict[str, str]:
+    """
+    Parse Maven Surefire text output with per-method granularity.
+    
+    Handles two formats:
+    1. With [INFO]/[ERROR] prefix: [INFO] testMethodName -- Time elapsed: 0.001 s
+    2. Without prefix: testMethodName(className)  Time elapsed: 0.001 sec
+    
+    Used with: mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
+    
+    Args:
+        log (str): log content from Maven Surefire
+    Returns:
+        dict: test case to test status mapping
+    """
+    test_status_map = {}
+    
+    # Pattern 1: [INFO] testMethodName -- Time elapsed: 0.001 s
+    # Pattern 2: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
+    pattern_with_prefix = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
+    
+    # Pattern 3: testMethodName(className)  Time elapsed: 0.001 sec
+    # Pattern 4: testMethodName(className)  Time elapsed: 0 sec
+    pattern_no_prefix = r"^([a-zA-Z0-9_]+)\(([a-zA-Z0-9_.]+)\)\s+Time elapsed:\s+([\d.]+)\s+sec"
+    
+    for line in log.split("\n"):
+        line = line.strip()
+        
+        # Try pattern with [INFO]/[ERROR] prefix first
+        if line.startswith("["):
+            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
+                test_name = re.match(pattern_with_prefix, line)
+                if test_name:
+                    test_status_map[test_name.group(2)] = TestStatus.FAILED.value
+            elif "Time elapsed:" in line:
+                test_name = re.match(pattern_with_prefix, line)
+                if test_name:
+                    test_status_map[test_name.group(2)] = TestStatus.PASSED.value
+        
+        # Try pattern without prefix
+        elif "Time elapsed:" in line and "(" in line:
+            match = re.match(pattern_no_prefix, line)
+            if match:
+                test_method = match.group(1)
+                test_class = match.group(2)
+                test_name = f"{test_class}.{test_method}"
+                test_status_map[test_name] = TestStatus.PASSED.value
+    
+    return test_status_map
+
+
+def parse_log_gradle_junit_xml(log: str) -> dict[str, str]:
+    """
+    Parse JUnit XML test results from Gradle output.
+    
+    Parses XML testsuite elements from Gradle test output when using:
+    ./gradlew test ... || true; find . -type f -name 'TEST-*.xml' -exec cat {} \\;
+    
+    Args:
+        log (str): log content containing JUnit XML test results
+    Returns:
+        dict: test case to test status mapping
+    """
+    import xml.etree.ElementTree as ET
+    
+    test_status_map = {}
+    xml_matches = re.findall(r'<\?xml version.*?</testsuite>', log, re.DOTALL)
+    
+    for xml_content in xml_matches:
+        try:
+            root = ET.fromstring(xml_content)
+            suite_classname = root.get('name', '')
+            
+            for testcase in root.findall('.//testcase'):
+                classname = testcase.get('classname', suite_classname)
+                methodname = testcase.get('name', '')
+                test_name = f"{classname}.{methodname}"
+                
+                if testcase.find('failure') is not None or testcase.find('error') is not None:
+                    test_status_map[test_name] = TestStatus.FAILED.value
+                elif testcase.find('skipped') is not None:
+                    test_status_map[test_name] = TestStatus.SKIPPED.value
+                else:
+                    test_status_map[test_name] = TestStatus.PASSED.value
+        except ET.ParseError:
+            continue
+    
+    return test_status_map
+
+
 @dataclass
 class Gsondd2fe59c(JavaProfile):
     owner: str = "google"
@@ -39,23 +129,7 @@ RUN mvn clean install -B -pl gson -DskipTests -am
 """
 
     def log_parser(self, log: str) -> dict[str, str]:
-        test_status_map = {}
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 # Auto-generated profiles from mini-swe-agent (73 profiles)
@@ -83,32 +157,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
-        import re
-        import xml.etree.ElementTree as ET
-        
-        test_status_map = {}
-        xml_matches = re.findall(r'<\?xml version.*?</testsuite>', log, re.DOTALL)
-        
-        for xml_content in xml_matches:
-            try:
-                root = ET.fromstring(xml_content)
-                suite_classname = root.get('name', '')
-                
-                for testcase in root.findall('.//testcase'):
-                    classname = testcase.get('classname', suite_classname)
-                    methodname = testcase.get('name', '')
-                    test_name = f"{classname}.{methodname}"
-                    
-                    if testcase.find('failure') is not None or testcase.find('error') is not None:
-                        test_status_map[test_name] = TestStatus.FAILED.value
-                    elif testcase.find('skipped') is not None:
-                        test_status_map[test_name] = TestStatus.SKIPPED.value
-                    else:
-                        test_status_map[test_name] = TestStatus.PASSED.value
-            except ET.ParseError:
-                continue
-        
-        return test_status_map
+        return parse_log_gradle_junit_xml(log)
 
 
 
@@ -139,29 +188,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -189,32 +216,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
-        import re
-        import xml.etree.ElementTree as ET
-        
-        test_status_map = {}
-        xml_matches = re.findall(r'<\?xml version.*?</testsuite>', log, re.DOTALL)
-        
-        for xml_content in xml_matches:
-            try:
-                root = ET.fromstring(xml_content)
-                suite_classname = root.get('name', '')
-                
-                for testcase in root.findall('.//testcase'):
-                    classname = testcase.get('classname', suite_classname)
-                    methodname = testcase.get('name', '')
-                    test_name = f"{classname}.{methodname}"
-                    
-                    if testcase.find('failure') is not None or testcase.find('error') is not None:
-                        test_status_map[test_name] = TestStatus.FAILED.value
-                    elif testcase.find('skipped') is not None:
-                        test_status_map[test_name] = TestStatus.SKIPPED.value
-                    else:
-                        test_status_map[test_name] = TestStatus.PASSED.value
-            except ET.ParseError:
-                continue
-        
-        return test_status_map
+        return parse_log_gradle_junit_xml(log)
 
 
 
@@ -244,32 +246,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
-        import re
-        import xml.etree.ElementTree as ET
-        
-        test_status_map = {}
-        xml_matches = re.findall(r'<\?xml version.*?</testsuite>', log, re.DOTALL)
-        
-        for xml_content in xml_matches:
-            try:
-                root = ET.fromstring(xml_content)
-                suite_classname = root.get('name', '')
-                
-                for testcase in root.findall('.//testcase'):
-                    classname = testcase.get('classname', suite_classname)
-                    methodname = testcase.get('name', '')
-                    test_name = f"{classname}.{methodname}"
-                    
-                    if testcase.find('failure') is not None or testcase.find('error') is not None:
-                        test_status_map[test_name] = TestStatus.FAILED.value
-                    elif testcase.find('skipped') is not None:
-                        test_status_map[test_name] = TestStatus.SKIPPED.value
-                    else:
-                        test_status_map[test_name] = TestStatus.PASSED.value
-            except ET.ParseError:
-                continue
-        
-        return test_status_map
+        return parse_log_gradle_junit_xml(log)
 
 
 
@@ -298,32 +275,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
-        import re
-        import xml.etree.ElementTree as ET
-        
-        test_status_map = {}
-        xml_matches = re.findall(r'<\?xml version.*?</testsuite>', log, re.DOTALL)
-        
-        for xml_content in xml_matches:
-            try:
-                root = ET.fromstring(xml_content)
-                suite_classname = root.get('name', '')
-                
-                for testcase in root.findall('.//testcase'):
-                    classname = testcase.get('classname', suite_classname)
-                    methodname = testcase.get('name', '')
-                    test_name = f"{classname}.{methodname}"
-                    
-                    if testcase.find('failure') is not None or testcase.find('error') is not None:
-                        test_status_map[test_name] = TestStatus.FAILED.value
-                    elif testcase.find('skipped') is not None:
-                        test_status_map[test_name] = TestStatus.SKIPPED.value
-                    else:
-                        test_status_map[test_name] = TestStatus.PASSED.value
-            except ET.ParseError:
-                continue
-        
-        return test_status_map
+        return parse_log_gradle_junit_xml(log)
 
 
 
@@ -351,32 +303,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
-        import re
-        import xml.etree.ElementTree as ET
-        
-        test_status_map = {}
-        xml_matches = re.findall(r'<\?xml version.*?</testsuite>', log, re.DOTALL)
-        
-        for xml_content in xml_matches:
-            try:
-                root = ET.fromstring(xml_content)
-                suite_classname = root.get('name', '')
-                
-                for testcase in root.findall('.//testcase'):
-                    classname = testcase.get('classname', suite_classname)
-                    methodname = testcase.get('name', '')
-                    test_name = f"{classname}.{methodname}"
-                    
-                    if testcase.find('failure') is not None or testcase.find('error') is not None:
-                        test_status_map[test_name] = TestStatus.FAILED.value
-                    elif testcase.find('skipped') is not None:
-                        test_status_map[test_name] = TestStatus.SKIPPED.value
-                    else:
-                        test_status_map[test_name] = TestStatus.PASSED.value
-            except ET.ParseError:
-                continue
-        
-        return test_status_map
+        return parse_log_gradle_junit_xml(log)
 
 
 
@@ -410,56 +337,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
-
-
-
-
-@dataclass
-class Hystrix5ce3bc58(JavaProfile):
-    owner: str = "Netflix"
-    repo: str = "Hystrix"
-    commit: str = "5ce3bc58c38e7ca60ef2fe0e516e390e294ad941"
-    test_cmd: str = "./gradlew test --rerun-tasks --continue --no-daemon --console=plain || true; find . -type f -name 'TEST-*.xml' -exec cat {} \\;"
-    timeout: int = 300  # Gradle tests can be slow
-
-    @property
-    def dockerfile(self):
-        return f"""FROM eclipse-temurin:8-jdk
-
-RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
-
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit}
-RUN ./gradlew assemble --no-daemon --console=plain
-CMD ["/bin/bash"]"""
-
-    def log_parser(self, log: str) -> dict[str, str]:
-        """Parse test output - customize for your framework."""
-        return {}  # TODO: Implement parser
+        return parse_log_maven_surefire(log)
 
 
 
@@ -488,32 +366,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
-        import re
-        import xml.etree.ElementTree as ET
-        
-        test_status_map = {}
-        xml_matches = re.findall(r'<\?xml version.*?</testsuite>', log, re.DOTALL)
-        
-        for xml_content in xml_matches:
-            try:
-                root = ET.fromstring(xml_content)
-                suite_classname = root.get('name', '')
-                
-                for testcase in root.findall('.//testcase'):
-                    classname = testcase.get('classname', suite_classname)
-                    methodname = testcase.get('name', '')
-                    test_name = f"{classname}.{methodname}"
-                    
-                    if testcase.find('failure') is not None or testcase.find('error') is not None:
-                        test_status_map[test_name] = TestStatus.FAILED.value
-                    elif testcase.find('skipped') is not None:
-                        test_status_map[test_name] = TestStatus.SKIPPED.value
-                    else:
-                        test_status_map[test_name] = TestStatus.PASSED.value
-            except ET.ParseError:
-                continue
-        
-        return test_status_map
+        return parse_log_gradle_junit_xml(log)
 
 
 
@@ -544,32 +397,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
-        import re
-        import xml.etree.ElementTree as ET
-        
-        test_status_map = {}
-        xml_matches = re.findall(r'<\?xml version.*?</testsuite>', log, re.DOTALL)
-        
-        for xml_content in xml_matches:
-            try:
-                root = ET.fromstring(xml_content)
-                suite_classname = root.get('name', '')
-                
-                for testcase in root.findall('.//testcase'):
-                    classname = testcase.get('classname', suite_classname)
-                    methodname = testcase.get('name', '')
-                    test_name = f"{classname}.{methodname}"
-                    
-                    if testcase.find('failure') is not None or testcase.find('error') is not None:
-                        test_status_map[test_name] = TestStatus.FAILED.value
-                    elif testcase.find('skipped') is not None:
-                        test_status_map[test_name] = TestStatus.SKIPPED.value
-                    else:
-                        test_status_map[test_name] = TestStatus.PASSED.value
-            except ET.ParseError:
-                continue
-        
-        return test_status_map
+        return parse_log_gradle_junit_xml(log)
 
 
 
@@ -596,32 +424,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
-        import re
-        import xml.etree.ElementTree as ET
-        
-        test_status_map = {}
-        xml_matches = re.findall(r'<\?xml version.*?</testsuite>', log, re.DOTALL)
-        
-        for xml_content in xml_matches:
-            try:
-                root = ET.fromstring(xml_content)
-                suite_classname = root.get('name', '')
-                
-                for testcase in root.findall('.//testcase'):
-                    classname = testcase.get('classname', suite_classname)
-                    methodname = testcase.get('name', '')
-                    test_name = f"{classname}.{methodname}"
-                    
-                    if testcase.find('failure') is not None or testcase.find('error') is not None:
-                        test_status_map[test_name] = TestStatus.FAILED.value
-                    elif testcase.find('skipped') is not None:
-                        test_status_map[test_name] = TestStatus.SKIPPED.value
-                    else:
-                        test_status_map[test_name] = TestStatus.PASSED.value
-            except ET.ParseError:
-                continue
-        
-        return test_status_map
+        return parse_log_gradle_junit_xml(log)
 
 
 
@@ -669,32 +472,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
-        import re
-        import xml.etree.ElementTree as ET
-        
-        test_status_map = {}
-        xml_matches = re.findall(r'<\?xml version.*?</testsuite>', log, re.DOTALL)
-        
-        for xml_content in xml_matches:
-            try:
-                root = ET.fromstring(xml_content)
-                suite_classname = root.get('name', '')
-                
-                for testcase in root.findall('.//testcase'):
-                    classname = testcase.get('classname', suite_classname)
-                    methodname = testcase.get('name', '')
-                    test_name = f"{classname}.{methodname}"
-                    
-                    if testcase.find('failure') is not None or testcase.find('error') is not None:
-                        test_status_map[test_name] = TestStatus.FAILED.value
-                    elif testcase.find('skipped') is not None:
-                        test_status_map[test_name] = TestStatus.SKIPPED.value
-                    else:
-                        test_status_map[test_name] = TestStatus.PASSED.value
-            except ET.ParseError:
-                continue
-        
-        return test_status_map
+        return parse_log_gradle_junit_xml(log)
 
 
 
@@ -740,32 +518,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
-        import re
-        import xml.etree.ElementTree as ET
-        
-        test_status_map = {}
-        xml_matches = re.findall(r'<\?xml version.*?</testsuite>', log, re.DOTALL)
-        
-        for xml_content in xml_matches:
-            try:
-                root = ET.fromstring(xml_content)
-                suite_classname = root.get('name', '')
-                
-                for testcase in root.findall('.//testcase'):
-                    classname = testcase.get('classname', suite_classname)
-                    methodname = testcase.get('name', '')
-                    test_name = f"{classname}.{methodname}"
-                    
-                    if testcase.find('failure') is not None or testcase.find('error') is not None:
-                        test_status_map[test_name] = TestStatus.FAILED.value
-                    elif testcase.find('skipped') is not None:
-                        test_status_map[test_name] = TestStatus.SKIPPED.value
-                    else:
-                        test_status_map[test_name] = TestStatus.PASSED.value
-            except ET.ParseError:
-                continue
-        
-        return test_status_map
+        return parse_log_gradle_junit_xml(log)
 
 
 
@@ -797,29 +550,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -850,29 +581,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -904,29 +613,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -957,29 +644,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -1012,29 +677,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -1067,29 +710,7 @@ RUN ./mvnw clean install -B -q -DskipTests -Dmaven.javadoc.skip=true -Dskip.ui.b
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -1125,29 +746,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -1179,32 +778,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
-        import re
-        import xml.etree.ElementTree as ET
-        
-        test_status_map = {}
-        xml_matches = re.findall(r'<\?xml version.*?</testsuite>', log, re.DOTALL)
-        
-        for xml_content in xml_matches:
-            try:
-                root = ET.fromstring(xml_content)
-                suite_classname = root.get('name', '')
-                
-                for testcase in root.findall('.//testcase'):
-                    classname = testcase.get('classname', suite_classname)
-                    methodname = testcase.get('name', '')
-                    test_name = f"{classname}.{methodname}"
-                    
-                    if testcase.find('failure') is not None or testcase.find('error') is not None:
-                        test_status_map[test_name] = TestStatus.FAILED.value
-                    elif testcase.find('skipped') is not None:
-                        test_status_map[test_name] = TestStatus.SKIPPED.value
-                    else:
-                        test_status_map[test_name] = TestStatus.PASSED.value
-            except ET.ParseError:
-                continue
-        
-        return test_status_map
+        return parse_log_gradle_junit_xml(log)
 
 
 
@@ -1238,29 +812,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -1295,29 +847,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -1348,29 +878,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -1404,29 +912,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -1458,29 +944,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -1507,32 +971,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
-        import re
-        import xml.etree.ElementTree as ET
-        
-        test_status_map = {}
-        xml_matches = re.findall(r'<\?xml version.*?</testsuite>', log, re.DOTALL)
-        
-        for xml_content in xml_matches:
-            try:
-                root = ET.fromstring(xml_content)
-                suite_classname = root.get('name', '')
-                
-                for testcase in root.findall('.//testcase'):
-                    classname = testcase.get('classname', suite_classname)
-                    methodname = testcase.get('name', '')
-                    test_name = f"{classname}.{methodname}"
-                    
-                    if testcase.find('failure') is not None or testcase.find('error') is not None:
-                        test_status_map[test_name] = TestStatus.FAILED.value
-                    elif testcase.find('skipped') is not None:
-                        test_status_map[test_name] = TestStatus.SKIPPED.value
-                    else:
-                        test_status_map[test_name] = TestStatus.PASSED.value
-            except ET.ParseError:
-                continue
-        
-        return test_status_map
+        return parse_log_gradle_junit_xml(log)
 
 
 
@@ -1580,29 +1019,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -1633,29 +1050,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -1689,29 +1084,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -1738,32 +1111,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
-        import re
-        import xml.etree.ElementTree as ET
-        
-        test_status_map = {}
-        xml_matches = re.findall(r'<\?xml version.*?</testsuite>', log, re.DOTALL)
-        
-        for xml_content in xml_matches:
-            try:
-                root = ET.fromstring(xml_content)
-                suite_classname = root.get('name', '')
-                
-                for testcase in root.findall('.//testcase'):
-                    classname = testcase.get('classname', suite_classname)
-                    methodname = testcase.get('name', '')
-                    test_name = f"{classname}.{methodname}"
-                    
-                    if testcase.find('failure') is not None or testcase.find('error') is not None:
-                        test_status_map[test_name] = TestStatus.FAILED.value
-                    elif testcase.find('skipped') is not None:
-                        test_status_map[test_name] = TestStatus.SKIPPED.value
-                    else:
-                        test_status_map[test_name] = TestStatus.PASSED.value
-            except ET.ParseError:
-                continue
-        
-        return test_status_map
+        return parse_log_gradle_junit_xml(log)
 
 
 
@@ -1794,29 +1142,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -1847,29 +1173,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -1896,32 +1200,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
-        import re
-        import xml.etree.ElementTree as ET
-        
-        test_status_map = {}
-        xml_matches = re.findall(r'<\?xml version.*?</testsuite>', log, re.DOTALL)
-        
-        for xml_content in xml_matches:
-            try:
-                root = ET.fromstring(xml_content)
-                suite_classname = root.get('name', '')
-                
-                for testcase in root.findall('.//testcase'):
-                    classname = testcase.get('classname', suite_classname)
-                    methodname = testcase.get('name', '')
-                    test_name = f"{classname}.{methodname}"
-                    
-                    if testcase.find('failure') is not None or testcase.find('error') is not None:
-                        test_status_map[test_name] = TestStatus.FAILED.value
-                    elif testcase.find('skipped') is not None:
-                        test_status_map[test_name] = TestStatus.SKIPPED.value
-                    else:
-                        test_status_map[test_name] = TestStatus.PASSED.value
-            except ET.ParseError:
-                continue
-        
-        return test_status_map
+        return parse_log_gradle_junit_xml(log)
 
 
 
@@ -1955,29 +1234,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -2009,29 +1266,7 @@ RUN ./mvnw clean install -B -q -DskipTests"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -2063,29 +1298,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -2116,29 +1329,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -2170,29 +1361,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -2223,29 +1392,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -2275,32 +1422,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
-        import re
-        import xml.etree.ElementTree as ET
-        
-        test_status_map = {}
-        xml_matches = re.findall(r'<\?xml version.*?</testsuite>', log, re.DOTALL)
-        
-        for xml_content in xml_matches:
-            try:
-                root = ET.fromstring(xml_content)
-                suite_classname = root.get('name', '')
-                
-                for testcase in root.findall('.//testcase'):
-                    classname = testcase.get('classname', suite_classname)
-                    methodname = testcase.get('name', '')
-                    test_name = f"{classname}.{methodname}"
-                    
-                    if testcase.find('failure') is not None or testcase.find('error') is not None:
-                        test_status_map[test_name] = TestStatus.FAILED.value
-                    elif testcase.find('skipped') is not None:
-                        test_status_map[test_name] = TestStatus.SKIPPED.value
-                    else:
-                        test_status_map[test_name] = TestStatus.PASSED.value
-            except ET.ParseError:
-                continue
-        
-        return test_status_map
+        return parse_log_gradle_junit_xml(log)
 
 
 
@@ -2328,32 +1450,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
-        import re
-        import xml.etree.ElementTree as ET
-        
-        test_status_map = {}
-        xml_matches = re.findall(r'<\?xml version.*?</testsuite>', log, re.DOTALL)
-        
-        for xml_content in xml_matches:
-            try:
-                root = ET.fromstring(xml_content)
-                suite_classname = root.get('name', '')
-                
-                for testcase in root.findall('.//testcase'):
-                    classname = testcase.get('classname', suite_classname)
-                    methodname = testcase.get('name', '')
-                    test_name = f"{classname}.{methodname}"
-                    
-                    if testcase.find('failure') is not None or testcase.find('error') is not None:
-                        test_status_map[test_name] = TestStatus.FAILED.value
-                    elif testcase.find('skipped') is not None:
-                        test_status_map[test_name] = TestStatus.SKIPPED.value
-                    else:
-                        test_status_map[test_name] = TestStatus.PASSED.value
-            except ET.ParseError:
-                continue
-        
-        return test_status_map
+        return parse_log_gradle_junit_xml(log)
 
 
 
@@ -2385,29 +1482,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -2438,29 +1513,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -2501,32 +1554,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
-        import re
-        import xml.etree.ElementTree as ET
-        
-        test_status_map = {}
-        xml_matches = re.findall(r'<\?xml version.*?</testsuite>', log, re.DOTALL)
-        
-        for xml_content in xml_matches:
-            try:
-                root = ET.fromstring(xml_content)
-                suite_classname = root.get('name', '')
-                
-                for testcase in root.findall('.//testcase'):
-                    classname = testcase.get('classname', suite_classname)
-                    methodname = testcase.get('name', '')
-                    test_name = f"{classname}.{methodname}"
-                    
-                    if testcase.find('failure') is not None or testcase.find('error') is not None:
-                        test_status_map[test_name] = TestStatus.FAILED.value
-                    elif testcase.find('skipped') is not None:
-                        test_status_map[test_name] = TestStatus.SKIPPED.value
-                    else:
-                        test_status_map[test_name] = TestStatus.PASSED.value
-            except ET.ParseError:
-                continue
-        
-        return test_status_map
+        return parse_log_gradle_junit_xml(log)
 
 
 
@@ -2554,32 +1582,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
-        import re
-        import xml.etree.ElementTree as ET
-        
-        test_status_map = {}
-        xml_matches = re.findall(r'<\?xml version.*?</testsuite>', log, re.DOTALL)
-        
-        for xml_content in xml_matches:
-            try:
-                root = ET.fromstring(xml_content)
-                suite_classname = root.get('name', '')
-                
-                for testcase in root.findall('.//testcase'):
-                    classname = testcase.get('classname', suite_classname)
-                    methodname = testcase.get('name', '')
-                    test_name = f"{classname}.{methodname}"
-                    
-                    if testcase.find('failure') is not None or testcase.find('error') is not None:
-                        test_status_map[test_name] = TestStatus.FAILED.value
-                    elif testcase.find('skipped') is not None:
-                        test_status_map[test_name] = TestStatus.SKIPPED.value
-                    else:
-                        test_status_map[test_name] = TestStatus.PASSED.value
-            except ET.ParseError:
-                continue
-        
-        return test_status_map
+        return parse_log_gradle_junit_xml(log)
 
 
 
@@ -2611,29 +1614,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -2664,29 +1645,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -2721,29 +1680,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -2772,74 +1709,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
-        import re
-        import xml.etree.ElementTree as ET
-        
-        test_status_map = {}
-        xml_matches = re.findall(r'<\?xml version.*?</testsuite>', log, re.DOTALL)
-        
-        for xml_content in xml_matches:
-            try:
-                root = ET.fromstring(xml_content)
-                suite_classname = root.get('name', '')
-                
-                for testcase in root.findall('.//testcase'):
-                    classname = testcase.get('classname', suite_classname)
-                    methodname = testcase.get('name', '')
-                    test_name = f"{classname}.{methodname}"
-                    
-                    if testcase.find('failure') is not None or testcase.find('error') is not None:
-                        test_status_map[test_name] = TestStatus.FAILED.value
-                    elif testcase.find('skipped') is not None:
-                        test_status_map[test_name] = TestStatus.SKIPPED.value
-                    else:
-                        test_status_map[test_name] = TestStatus.PASSED.value
-            except ET.ParseError:
-                continue
-        
-        return test_status_map
-
-
-
-
-@dataclass
-class CameraViewb279ffaf(JavaProfile):
-    owner: str = "natario1"
-    repo: str = "CameraView"
-    commit: str = "b279ffaf57919b7dffccc8879a0cb1eeb542c1ca"
-    test_cmd: str = "./gradlew :cameraview:testDebugUnitTest --rerun-tasks --continue --no-daemon --console=plain || true; find . -type f -name 'TEST-*.xml' -exec cat {} +"
-    timeout: int = 300  # Gradle tests can be slow
-
-    @property
-    def dockerfile(self):
-        return f"""FROM eclipse-temurin:17-jdk
-
-RUN apt-get update && apt-get install -y git wget unzip && rm -rf /var/lib/apt/lists/*
-
-# Install Android SDK
-ENV ANDROID_SDK_ROOT=/opt/android-sdk
-RUN mkdir -p $ANDROID_SDK_ROOT/cmdline-tools && \
-    wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O /tmp/tools.zip && \
-    unzip -q /tmp/tools.zip -d $ANDROID_SDK_ROOT/cmdline-tools && \
-    mv $ANDROID_SDK_ROOT/cmdline-tools/cmdline-tools $ANDROID_SDK_ROOT/cmdline-tools/latest && \
-    rm /tmp/tools.zip
-
-ENV PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools
-
-RUN yes | sdkmanager --licenses && \
-    sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2"
-
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit}
-# Use assembleDebug for the cameraview module as an installation/dependency check
-RUN ./gradlew :cameraview:assembleDebug --no-daemon --console=plain
-
-CMD ["/bin/bash"]"""
-
-    def log_parser(self, log: str) -> dict[str, str]:
-        """Parse test output - customize for your framework."""
-        return {}  # TODO: Implement parser
+        return parse_log_gradle_junit_xml(log)
 
 
 
@@ -2871,32 +1741,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
-        import re
-        import xml.etree.ElementTree as ET
-        
-        test_status_map = {}
-        xml_matches = re.findall(r'<\?xml version.*?</testsuite>', log, re.DOTALL)
-        
-        for xml_content in xml_matches:
-            try:
-                root = ET.fromstring(xml_content)
-                suite_classname = root.get('name', '')
-                
-                for testcase in root.findall('.//testcase'):
-                    classname = testcase.get('classname', suite_classname)
-                    methodname = testcase.get('name', '')
-                    test_name = f"{classname}.{methodname}"
-                    
-                    if testcase.find('failure') is not None or testcase.find('error') is not None:
-                        test_status_map[test_name] = TestStatus.FAILED.value
-                    elif testcase.find('skipped') is not None:
-                        test_status_map[test_name] = TestStatus.SKIPPED.value
-                    else:
-                        test_status_map[test_name] = TestStatus.PASSED.value
-            except ET.ParseError:
-                continue
-        
-        return test_status_map
+        return parse_log_gradle_junit_xml(log)
 
 
 
@@ -2930,29 +1775,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -2988,58 +1811,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
-
-
-
-
-@dataclass
-class Quartz4406ab0f(JavaProfile):
-    owner: str = "quartz-scheduler"
-    repo: str = "quartz"
-    commit: str = "4406ab0f1bf57f2fb5e736f2e8ed3d68c4549861"
-    test_cmd: str = "./gradlew test --rerun-tasks --continue --no-daemon --console=plain || true; find . -type f -name 'TEST-*.xml' -exec cat {} +"
-    timeout: int = 300  # Gradle tests can be slow
-
-    @property
-    def dockerfile(self):
-        return f"""FROM eclipse-temurin:11-jdk
-
-RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
-
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit}
-
-RUN ./gradlew build -x test --no-daemon --console=plain
-
-CMD ["/bin/bash"]"""
-
-    def log_parser(self, log: str) -> dict[str, str]:
-        """Parse test output - customize for your framework."""
-        return {}  # TODO: Implement parser
+        return parse_log_maven_surefire(log)
 
 
 
@@ -3087,29 +1859,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -3141,29 +1891,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -3192,32 +1920,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
-        import re
-        import xml.etree.ElementTree as ET
-        
-        test_status_map = {}
-        xml_matches = re.findall(r'<\?xml version.*?</testsuite>', log, re.DOTALL)
-        
-        for xml_content in xml_matches:
-            try:
-                root = ET.fromstring(xml_content)
-                suite_classname = root.get('name', '')
-                
-                for testcase in root.findall('.//testcase'):
-                    classname = testcase.get('classname', suite_classname)
-                    methodname = testcase.get('name', '')
-                    test_name = f"{classname}.{methodname}"
-                    
-                    if testcase.find('failure') is not None or testcase.find('error') is not None:
-                        test_status_map[test_name] = TestStatus.FAILED.value
-                    elif testcase.find('skipped') is not None:
-                        test_status_map[test_name] = TestStatus.SKIPPED.value
-                    else:
-                        test_status_map[test_name] = TestStatus.PASSED.value
-            except ET.ParseError:
-                continue
-        
-        return test_status_map
+        return parse_log_gradle_junit_xml(log)
 
 
 
@@ -3249,29 +1952,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -3302,29 +1983,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -3355,29 +2014,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -3422,32 +2059,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
-        import re
-        import xml.etree.ElementTree as ET
-        
-        test_status_map = {}
-        xml_matches = re.findall(r'<\?xml version.*?</testsuite>', log, re.DOTALL)
-        
-        for xml_content in xml_matches:
-            try:
-                root = ET.fromstring(xml_content)
-                suite_classname = root.get('name', '')
-                
-                for testcase in root.findall('.//testcase'):
-                    classname = testcase.get('classname', suite_classname)
-                    methodname = testcase.get('name', '')
-                    test_name = f"{classname}.{methodname}"
-                    
-                    if testcase.find('failure') is not None or testcase.find('error') is not None:
-                        test_status_map[test_name] = TestStatus.FAILED.value
-                    elif testcase.find('skipped') is not None:
-                        test_status_map[test_name] = TestStatus.SKIPPED.value
-                    else:
-                        test_status_map[test_name] = TestStatus.PASSED.value
-            except ET.ParseError:
-                continue
-        
-        return test_status_map
+        return parse_log_gradle_junit_xml(log)
 
 
 
@@ -3478,29 +2090,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -3530,32 +2120,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
-        import re
-        import xml.etree.ElementTree as ET
-        
-        test_status_map = {}
-        xml_matches = re.findall(r'<\?xml version.*?</testsuite>', log, re.DOTALL)
-        
-        for xml_content in xml_matches:
-            try:
-                root = ET.fromstring(xml_content)
-                suite_classname = root.get('name', '')
-                
-                for testcase in root.findall('.//testcase'):
-                    classname = testcase.get('classname', suite_classname)
-                    methodname = testcase.get('name', '')
-                    test_name = f"{classname}.{methodname}"
-                    
-                    if testcase.find('failure') is not None or testcase.find('error') is not None:
-                        test_status_map[test_name] = TestStatus.FAILED.value
-                    elif testcase.find('skipped') is not None:
-                        test_status_map[test_name] = TestStatus.SKIPPED.value
-                    else:
-                        test_status_map[test_name] = TestStatus.PASSED.value
-            except ET.ParseError:
-                continue
-        
-        return test_status_map
+        return parse_log_gradle_junit_xml(log)
 
 
 
@@ -3590,29 +2155,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -3647,77 +2190,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
-
-
-
-
-@dataclass
-class Termuxapp1937595c(JavaProfile):
-    owner: str = "termux"
-    repo: str = "termux-app"
-    commit: str = "1937595c5733a0a82b5dbc88670d71294ec79397"
-    test_cmd: str = "./gradlew test --rerun-tasks --continue --no-daemon --console=plain || true; find . -type f -name 'TEST-*.xml' -exec cat {} +"
-    timeout: int = 300  # Gradle tests can be slow
-
-    @property
-    def dockerfile(self):
-        return f"""FROM eclipse-temurin:17-jdk-focal
-
-RUN apt-get update && apt-get install -y git wget unzip && rm -rf /var/lib/apt/lists/*
-
-# Install Android SDK
-ENV ANDROID_HOME=/opt/android-sdk
-RUN mkdir -p ${{ANDROID_HOME}}/cmdline-tools && \
-    wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O /tmp/tools.zip && \
-    unzip /tmp/tools.zip -d ${{ANDROID_HOME}}/cmdline-tools && \
-    mv ${{ANDROID_HOME}}/cmdline-tools/cmdline-tools ${{ANDROID_HOME}}/cmdline-tools/latest && \
-    rm /tmp/tools.zip
-
-ENV PATH=${{PATH}}:${{ANDROID_HOME}}/cmdline-tools/latest/bin:${{ANDROID_HOME}}/platform-tools
-
-RUN yes | sdkmanager --licenses && \
-    sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.1"
-
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit}
-
-# Install NDK 26.1.10909125 which has better ARM support if running on ARM host
-RUN sdkmanager "ndk;26.1.10909125"
-
-# The app:assembleDebug fails due to NDK host architecture detection on some environments
-# We run test preparation tasks instead to verify the environment and download dependencies
-RUN ./gradlew help --no-daemon --console=plain && \
-    ./gradlew :app:processDebugResources --no-daemon --console=plain || true
-
-CMD ["/bin/bash"]"""
-
-    def log_parser(self, log: str) -> dict[str, str]:
-        """Parse test output - customize for your framework."""
-        return {}  # TODO: Implement parser
+        return parse_log_maven_surefire(log)
 
 
 
@@ -3746,32 +2219,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
-        import re
-        import xml.etree.ElementTree as ET
-        
-        test_status_map = {}
-        xml_matches = re.findall(r'<\?xml version.*?</testsuite>', log, re.DOTALL)
-        
-        for xml_content in xml_matches:
-            try:
-                root = ET.fromstring(xml_content)
-                suite_classname = root.get('name', '')
-                
-                for testcase in root.findall('.//testcase'):
-                    classname = testcase.get('classname', suite_classname)
-                    methodname = testcase.get('name', '')
-                    test_name = f"{classname}.{methodname}"
-                    
-                    if testcase.find('failure') is not None or testcase.find('error') is not None:
-                        test_status_map[test_name] = TestStatus.FAILED.value
-                    elif testcase.find('skipped') is not None:
-                        test_status_map[test_name] = TestStatus.SKIPPED.value
-                    else:
-                        test_status_map[test_name] = TestStatus.PASSED.value
-            except ET.ParseError:
-                continue
-        
-        return test_status_map
+        return parse_log_gradle_junit_xml(log)
 
 
 
@@ -3803,59 +2251,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
-
-
-
-
-@dataclass
-class Wiremock3b04b880(JavaProfile):
-    owner: str = "wiremock"
-    repo: str = "wiremock"
-    commit: str = "3b04b8801c238d3c1e941c71998b4f5bd80d620d"
-    test_cmd: str = "./gradlew test --rerun-tasks --continue --no-daemon --console=plain || true; find . -type f -name 'TEST-*.xml' -exec cat {} \\;"
-    timeout: int = 300  # Gradle tests can be slow
-
-    @property
-    def dockerfile(self):
-        return f"""FROM eclipse-temurin:17-jdk-focal
-
-RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
-
-
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit}
-
-RUN ./gradlew classes --no-daemon --console=plain
-
-CMD ["/bin/bash"]"""
-
-    def log_parser(self, log: str) -> dict[str, str]:
-        """Parse test output - customize for your framework."""
-        return {}  # TODO: Implement parser
+        return parse_log_maven_surefire(log)
 
 
 
@@ -3886,64 +2282,13 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
 
 
 
-@dataclass
-class Jib349c809e(JavaProfile):
-    owner: str = "GoogleContainerTools"
-    repo: str = "jib"
-    commit: str = "349c809e958ec31e969be76fd66843104ac1fd30"
-    test_cmd: str = "./gradlew test --rerun-tasks --continue --no-daemon --console=plain || true; find . -type f -name 'TEST-*.xml' -exec cat {} +"
-    timeout: int = 300  # Gradle tests can be slow
-
-    @property
-    def dockerfile(self):
-        return f"""FROM eclipse-temurin:11-jdk
-
-RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
-
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit}
-
-RUN ./gradlew classes --no-daemon --console=plain
-CMD ["/bin/bash"]"""
-
-    def log_parser(self, log: str) -> dict[str, str]:
-        """Parse test output - customize for your framework."""
-        return {}  # TODO: Implement parser
-
-
-
-
-@dataclass
 @dataclass
 class Fragmentation0394930a(JavaProfile):
     owner: str = "YoKeyword"
@@ -3985,38 +2330,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
-        import re
-        import xml.etree.ElementTree as ET
-        
-        test_status_map = {}
-        xml_matches = re.findall(r'<\?xml version.*?</testsuite>', log, re.DOTALL)
-        
-        for xml_content in xml_matches:
-            try:
-                root = ET.fromstring(xml_content)
-                suite_classname = root.get('name', '')
-                
-                for testcase in root.findall('.//testcase'):
-                    classname = testcase.get('classname', suite_classname)
-                    methodname = testcase.get('name', '')
-                    test_name = f"{classname}.{methodname}"
-                    
-                    if testcase.find('failure') is not None or testcase.find('error') is not None:
-                        test_status_map[test_name] = TestStatus.FAILED.value
-                    elif testcase.find('skipped') is not None:
-                        test_status_map[test_name] = TestStatus.SKIPPED.value
-                    else:
-                        test_status_map[test_name] = TestStatus.PASSED.value
-            except ET.ParseError:
-                continue
-        
-        return test_status_map
+        return parse_log_gradle_junit_xml(log)
 
 
 
 
-@dataclass
-@dataclass
 @dataclass
 class Sentinel222670e6(JavaProfile):
     owner: str = "alibaba"
@@ -4044,29 +2362,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -4098,29 +2394,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -4152,29 +2426,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -4205,29 +2457,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -4258,29 +2488,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -4312,32 +2520,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
-        import re
-        import xml.etree.ElementTree as ET
-        
-        test_status_map = {}
-        xml_matches = re.findall(r'<\?xml version.*?</testsuite>', log, re.DOTALL)
-        
-        for xml_content in xml_matches:
-            try:
-                root = ET.fromstring(xml_content)
-                suite_classname = root.get('name', '')
-                
-                for testcase in root.findall('.//testcase'):
-                    classname = testcase.get('classname', suite_classname)
-                    methodname = testcase.get('name', '')
-                    test_name = f"{classname}.{methodname}"
-                    
-                    if testcase.find('failure') is not None or testcase.find('error') is not None:
-                        test_status_map[test_name] = TestStatus.FAILED.value
-                    elif testcase.find('skipped') is not None:
-                        test_status_map[test_name] = TestStatus.SKIPPED.value
-                    else:
-                        test_status_map[test_name] = TestStatus.PASSED.value
-            except ET.ParseError:
-                continue
-        
-        return test_status_map
+        return parse_log_gradle_junit_xml(log)
 
 
 
@@ -4367,32 +2550,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
-        import re
-        import xml.etree.ElementTree as ET
-        
-        test_status_map = {}
-        xml_matches = re.findall(r'<\?xml version.*?</testsuite>', log, re.DOTALL)
-        
-        for xml_content in xml_matches:
-            try:
-                root = ET.fromstring(xml_content)
-                suite_classname = root.get('name', '')
-                
-                for testcase in root.findall('.//testcase'):
-                    classname = testcase.get('classname', suite_classname)
-                    methodname = testcase.get('name', '')
-                    test_name = f"{classname}.{methodname}"
-                    
-                    if testcase.find('failure') is not None or testcase.find('error') is not None:
-                        test_status_map[test_name] = TestStatus.FAILED.value
-                    elif testcase.find('skipped') is not None:
-                        test_status_map[test_name] = TestStatus.SKIPPED.value
-                    else:
-                        test_status_map[test_name] = TestStatus.PASSED.value
-            except ET.ParseError:
-                continue
-        
-        return test_status_map
+        return parse_log_gradle_junit_xml(log)
 
 
 
@@ -4426,29 +2584,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -4483,29 +2619,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -4554,34 +2668,11 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
 
-@dataclass
 @dataclass
 class Iceberg15485f55(JavaProfile):
     owner: str = "apache"
@@ -4607,32 +2698,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
-        import re
-        import xml.etree.ElementTree as ET
-        
-        test_status_map = {}
-        xml_matches = re.findall(r'<\?xml version.*?</testsuite>', log, re.DOTALL)
-        
-        for xml_content in xml_matches:
-            try:
-                root = ET.fromstring(xml_content)
-                suite_classname = root.get('name', '')
-                
-                for testcase in root.findall('.//testcase'):
-                    classname = testcase.get('classname', suite_classname)
-                    methodname = testcase.get('name', '')
-                    test_name = f"{classname}.{methodname}"
-                    
-                    if testcase.find('failure') is not None or testcase.find('error') is not None:
-                        test_status_map[test_name] = TestStatus.FAILED.value
-                    elif testcase.find('skipped') is not None:
-                        test_status_map[test_name] = TestStatus.SKIPPED.value
-                    else:
-                        test_status_map[test_name] = TestStatus.PASSED.value
-            except ET.ParseError:
-                continue
-        
-        return test_status_map
+        return parse_log_gradle_junit_xml(log)
 
 
 
@@ -4669,29 +2735,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -4724,29 +2768,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -4779,29 +2801,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -4839,29 +2839,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -4890,32 +2868,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
-        import re
-        import xml.etree.ElementTree as ET
-        
-        test_status_map = {}
-        xml_matches = re.findall(r'<\?xml version.*?</testsuite>', log, re.DOTALL)
-        
-        for xml_content in xml_matches:
-            try:
-                root = ET.fromstring(xml_content)
-                suite_classname = root.get('name', '')
-                
-                for testcase in root.findall('.//testcase'):
-                    classname = testcase.get('classname', suite_classname)
-                    methodname = testcase.get('name', '')
-                    test_name = f"{classname}.{methodname}"
-                    
-                    if testcase.find('failure') is not None or testcase.find('error') is not None:
-                        test_status_map[test_name] = TestStatus.FAILED.value
-                    elif testcase.find('skipped') is not None:
-                        test_status_map[test_name] = TestStatus.SKIPPED.value
-                    else:
-                        test_status_map[test_name] = TestStatus.PASSED.value
-            except ET.ParseError:
-                continue
-        
-        return test_status_map
+        return parse_log_gradle_junit_xml(log)
 
 
 
@@ -4945,38 +2898,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
-        import re
-        import xml.etree.ElementTree as ET
-        
-        test_status_map = {}
-        xml_matches = re.findall(r'<\?xml version.*?</testsuite>', log, re.DOTALL)
-        
-        for xml_content in xml_matches:
-            try:
-                root = ET.fromstring(xml_content)
-                suite_classname = root.get('name', '')
-                
-                for testcase in root.findall('.//testcase'):
-                    classname = testcase.get('classname', suite_classname)
-                    methodname = testcase.get('name', '')
-                    test_name = f"{classname}.{methodname}"
-                    
-                    if testcase.find('failure') is not None or testcase.find('error') is not None:
-                        test_status_map[test_name] = TestStatus.FAILED.value
-                    elif testcase.find('skipped') is not None:
-                        test_status_map[test_name] = TestStatus.SKIPPED.value
-                    else:
-                        test_status_map[test_name] = TestStatus.PASSED.value
-            except ET.ParseError:
-                continue
-        
-        return test_status_map
+        return parse_log_gradle_junit_xml(log)
 
 
 
 
-@dataclass
-@dataclass
 @dataclass
 class Tcctransaction874cb910(JavaProfile):
     owner: str = "changmingxie"
@@ -5004,29 +2930,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -5059,35 +2963,11 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
 
-@dataclass
-@dataclass
 @dataclass
 class Guava0bf87046(JavaProfile):
     owner: str = "google"
@@ -5114,29 +2994,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -5166,32 +3024,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
-        import re
-        import xml.etree.ElementTree as ET
-        
-        test_status_map = {}
-        xml_matches = re.findall(r'<\?xml version.*?</testsuite>', log, re.DOTALL)
-        
-        for xml_content in xml_matches:
-            try:
-                root = ET.fromstring(xml_content)
-                suite_classname = root.get('name', '')
-                
-                for testcase in root.findall('.//testcase'):
-                    classname = testcase.get('classname', suite_classname)
-                    methodname = testcase.get('name', '')
-                    test_name = f"{classname}.{methodname}"
-                    
-                    if testcase.find('failure') is not None or testcase.find('error') is not None:
-                        test_status_map[test_name] = TestStatus.FAILED.value
-                    elif testcase.find('skipped') is not None:
-                        test_status_map[test_name] = TestStatus.SKIPPED.value
-                    else:
-                        test_status_map[test_name] = TestStatus.PASSED.value
-            except ET.ParseError:
-                continue
-        
-        return test_status_map
+        return parse_log_gradle_junit_xml(log)
 
 
 
@@ -5223,29 +3056,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -5314,32 +3125,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
-        import re
-        import xml.etree.ElementTree as ET
-        
-        test_status_map = {}
-        xml_matches = re.findall(r'<\?xml version.*?</testsuite>', log, re.DOTALL)
-        
-        for xml_content in xml_matches:
-            try:
-                root = ET.fromstring(xml_content)
-                suite_classname = root.get('name', '')
-                
-                for testcase in root.findall('.//testcase'):
-                    classname = testcase.get('classname', suite_classname)
-                    methodname = testcase.get('name', '')
-                    test_name = f"{classname}.{methodname}"
-                    
-                    if testcase.find('failure') is not None or testcase.find('error') is not None:
-                        test_status_map[test_name] = TestStatus.FAILED.value
-                    elif testcase.find('skipped') is not None:
-                        test_status_map[test_name] = TestStatus.SKIPPED.value
-                    else:
-                        test_status_map[test_name] = TestStatus.PASSED.value
-            except ET.ParseError:
-                continue
-        
-        return test_status_map
+        return parse_log_gradle_junit_xml(log)
 
 
 
@@ -5372,29 +3158,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -5422,37 +3186,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
-        import re
-        import xml.etree.ElementTree as ET
-        
-        test_status_map = {}
-        xml_matches = re.findall(r'<\?xml version.*?</testsuite>', log, re.DOTALL)
-        
-        for xml_content in xml_matches:
-            try:
-                root = ET.fromstring(xml_content)
-                suite_classname = root.get('name', '')
-                
-                for testcase in root.findall('.//testcase'):
-                    classname = testcase.get('classname', suite_classname)
-                    methodname = testcase.get('name', '')
-                    test_name = f"{classname}.{methodname}"
-                    
-                    if testcase.find('failure') is not None or testcase.find('error') is not None:
-                        test_status_map[test_name] = TestStatus.FAILED.value
-                    elif testcase.find('skipped') is not None:
-                        test_status_map[test_name] = TestStatus.SKIPPED.value
-                    else:
-                        test_status_map[test_name] = TestStatus.PASSED.value
-            except ET.ParseError:
-                continue
-        
-        return test_status_map
+        return parse_log_gradle_junit_xml(log)
 
 
 
 
-@dataclass
 @dataclass
 class Junit471c33ce5(JavaProfile):
     owner: str = "junit-team"
@@ -5479,29 +3217,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -5535,29 +3251,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -5591,29 +3285,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -5644,29 +3316,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -5697,29 +3347,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -5750,29 +3378,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -5799,37 +3405,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
-        import re
-        import xml.etree.ElementTree as ET
-        
-        test_status_map = {}
-        xml_matches = re.findall(r'<\?xml version.*?</testsuite>', log, re.DOTALL)
-        
-        for xml_content in xml_matches:
-            try:
-                root = ET.fromstring(xml_content)
-                suite_classname = root.get('name', '')
-                
-                for testcase in root.findall('.//testcase'):
-                    classname = testcase.get('classname', suite_classname)
-                    methodname = testcase.get('name', '')
-                    test_name = f"{classname}.{methodname}"
-                    
-                    if testcase.find('failure') is not None or testcase.find('error') is not None:
-                        test_status_map[test_name] = TestStatus.FAILED.value
-                    elif testcase.find('skipped') is not None:
-                        test_status_map[test_name] = TestStatus.SKIPPED.value
-                    else:
-                        test_status_map[test_name] = TestStatus.PASSED.value
-            except ET.ParseError:
-                continue
-        
-        return test_status_map
+        return parse_log_gradle_junit_xml(log)
 
 
 
 
-@dataclass
 @dataclass
 class Lettucefa5433c2(JavaProfile):
     owner: str = "redis"
@@ -5857,29 +3437,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -5906,32 +3464,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
-        import re
-        import xml.etree.ElementTree as ET
-        
-        test_status_map = {}
-        xml_matches = re.findall(r'<\?xml version.*?</testsuite>', log, re.DOTALL)
-        
-        for xml_content in xml_matches:
-            try:
-                root = ET.fromstring(xml_content)
-                suite_classname = root.get('name', '')
-                
-                for testcase in root.findall('.//testcase'):
-                    classname = testcase.get('classname', suite_classname)
-                    methodname = testcase.get('name', '')
-                    test_name = f"{classname}.{methodname}"
-                    
-                    if testcase.find('failure') is not None or testcase.find('error') is not None:
-                        test_status_map[test_name] = TestStatus.FAILED.value
-                    elif testcase.find('skipped') is not None:
-                        test_status_map[test_name] = TestStatus.SKIPPED.value
-                    else:
-                        test_status_map[test_name] = TestStatus.PASSED.value
-            except ET.ParseError:
-                continue
-        
-        return test_status_map
+        return parse_log_gradle_junit_xml(log)
 
 
 
@@ -5961,38 +3494,11 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
-        import re
-        import xml.etree.ElementTree as ET
-        
-        test_status_map = {}
-        xml_matches = re.findall(r'<\?xml version.*?</testsuite>', log, re.DOTALL)
-        
-        for xml_content in xml_matches:
-            try:
-                root = ET.fromstring(xml_content)
-                suite_classname = root.get('name', '')
-                
-                for testcase in root.findall('.//testcase'):
-                    classname = testcase.get('classname', suite_classname)
-                    methodname = testcase.get('name', '')
-                    test_name = f"{classname}.{methodname}"
-                    
-                    if testcase.find('failure') is not None or testcase.find('error') is not None:
-                        test_status_map[test_name] = TestStatus.FAILED.value
-                    elif testcase.find('skipped') is not None:
-                        test_status_map[test_name] = TestStatus.SKIPPED.value
-                    else:
-                        test_status_map[test_name] = TestStatus.PASSED.value
-            except ET.ParseError:
-                continue
-        
-        return test_status_map
+        return parse_log_gradle_junit_xml(log)
 
 
 
 
-@dataclass
-@dataclass
 @dataclass
 class Springauthorizationserver7d72f556(JavaProfile):
     owner: str = "spring-projects"
@@ -6016,32 +3522,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
-        import re
-        import xml.etree.ElementTree as ET
-        
-        test_status_map = {}
-        xml_matches = re.findall(r'<\?xml version.*?</testsuite>', log, re.DOTALL)
-        
-        for xml_content in xml_matches:
-            try:
-                root = ET.fromstring(xml_content)
-                suite_classname = root.get('name', '')
-                
-                for testcase in root.findall('.//testcase'):
-                    classname = testcase.get('classname', suite_classname)
-                    methodname = testcase.get('name', '')
-                    test_name = f"{classname}.{methodname}"
-                    
-                    if testcase.find('failure') is not None or testcase.find('error') is not None:
-                        test_status_map[test_name] = TestStatus.FAILED.value
-                    elif testcase.find('skipped') is not None:
-                        test_status_map[test_name] = TestStatus.SKIPPED.value
-                    else:
-                        test_status_map[test_name] = TestStatus.PASSED.value
-            except ET.ParseError:
-                continue
-        
-        return test_status_map
+        return parse_log_gradle_junit_xml(log)
 
 
 
@@ -6070,32 +3551,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
-        import re
-        import xml.etree.ElementTree as ET
-        
-        test_status_map = {}
-        xml_matches = re.findall(r'<\?xml version.*?</testsuite>', log, re.DOTALL)
-        
-        for xml_content in xml_matches:
-            try:
-                root = ET.fromstring(xml_content)
-                suite_classname = root.get('name', '')
-                
-                for testcase in root.findall('.//testcase'):
-                    classname = testcase.get('classname', suite_classname)
-                    methodname = testcase.get('name', '')
-                    test_name = f"{classname}.{methodname}"
-                    
-                    if testcase.find('failure') is not None or testcase.find('error') is not None:
-                        test_status_map[test_name] = TestStatus.FAILED.value
-                    elif testcase.find('skipped') is not None:
-                        test_status_map[test_name] = TestStatus.SKIPPED.value
-                    else:
-                        test_status_map[test_name] = TestStatus.PASSED.value
-            except ET.ParseError:
-                continue
-        
-        return test_status_map
+        return parse_log_gradle_junit_xml(log)
 
 
 
@@ -6126,29 +3582,7 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
@@ -6183,35 +3617,11 @@ CMD ["/bin/bash"]"""
         Parses individual test methods from Maven Surefire output when using:
         mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
         """
-        import re
-        from swebench.harness.constants import TestStatus
-        
-        test_status_map = {}
-        # Pattern matches: [INFO] testMethodName -- Time elapsed: 0.001 s
-        # or: [ERROR] testMethodName -- Time elapsed: 0.001 s <<< FAILURE!
-        pattern = r"^\[(INFO|ERROR)\]\s+(.*?)\s+--\s+Time elapsed:\s+([\d.]+)\s"
-        
-        for line in log.split("\n"):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.FAILED.value
-            elif (
-                any([line.startswith(s) for s in ["[INFO]", "[ERROR]"]])
-                and "Time elapsed:" in line
-            ):
-                test_name = re.match(pattern, line)
-                if test_name is None:
-                    continue
-                test_status_map[test_name.group(2)] = TestStatus.PASSED.value
-        return test_status_map
+        return parse_log_maven_surefire(log)
 
 
 
 
-@dataclass
-@dataclass
 @dataclass
 class CloudReaderf5b9e67e(JavaProfile):
     owner: str = "youlookwhat"
@@ -6253,32 +3663,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
-        import re
-        import xml.etree.ElementTree as ET
-        
-        test_status_map = {}
-        xml_matches = re.findall(r'<\?xml version.*?</testsuite>', log, re.DOTALL)
-        
-        for xml_content in xml_matches:
-            try:
-                root = ET.fromstring(xml_content)
-                suite_classname = root.get('name', '')
-                
-                for testcase in root.findall('.//testcase'):
-                    classname = testcase.get('classname', suite_classname)
-                    methodname = testcase.get('name', '')
-                    test_name = f"{classname}.{methodname}"
-                    
-                    if testcase.find('failure') is not None or testcase.find('error') is not None:
-                        test_status_map[test_name] = TestStatus.FAILED.value
-                    elif testcase.find('skipped') is not None:
-                        test_status_map[test_name] = TestStatus.SKIPPED.value
-                    else:
-                        test_status_map[test_name] = TestStatus.PASSED.value
-            except ET.ParseError:
-                continue
-        
-        return test_status_map
+        return parse_log_gradle_junit_xml(log)
 
 
 
