@@ -150,7 +150,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN ./gradlew --no-daemon --console=plain assemble -x test
 
 CMD ["/bin/bash"]"""
@@ -178,7 +177,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN mvn clean install -B -DskipTests -Dgpg.skip
 CMD ["/bin/bash"]"""
 
@@ -209,7 +207,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN ./gradlew :recaf-core:build -x test --no-daemon --console=plain
 
 CMD ["/bin/bash"]"""
@@ -238,8 +235,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 RUN ./gradlew --no-daemon --console=plain assemble -x test
 
 CMD ["/bin/bash"]"""
@@ -267,8 +262,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 RUN ./gradlew assemble --no-daemon --console=plain
 
 CMD ["/bin/bash"]"""
@@ -296,7 +289,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN ./gradlew assemble --no-daemon --console=plain
 
 CMD ["/bin/bash"]"""
@@ -325,8 +317,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 RUN mvn clean install -B -q -DskipTests
 
 CMD ["/bin/bash"]"""
@@ -358,8 +348,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 RUN ./gradlew build -x test --no-daemon --console=plain
 
 CMD ["/bin/bash"]"""
@@ -387,8 +375,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 # Paper uses a complex build system that often requires initializing submodules or running setup scripts.
 # We run gradlew help to trigger wrapper download and basic initialization.
 RUN ./gradlew --no-daemon --console=plain help
@@ -418,7 +404,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN ./gradlew assembleDebug --no-daemon --console=plain
 CMD ["/bin/bash"]"""
 
@@ -460,8 +445,6 @@ ENV PATH=${{PATH}}:${{ANDROID_SDK_ROOT}}/cmdline-tools/latest/bin:${{ANDROID_SDK
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 RUN yes | sdkmanager --licenses && \
     sdkmanager "platforms;android-31" "build-tools;31.0.0"
 
@@ -505,8 +488,6 @@ RUN sdkmanager "platforms;android-32" "platform-tools"
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 RUN sed -i 's/..\\\\keystore\\\\GoGoGo.jks/..\/keystore\/GoGoGo.jks/g' app/build.gradle
 RUN echo "MAPS_API_KEY=unused" > local.properties && echo "MAPS_SAFE_CODE=unused" >> local.properties
 
@@ -539,7 +520,6 @@ RUN apt-get update && apt-get install -y git maven && rm -rf /var/lib/apt/lists/
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests -pl '!austin-data-house'
 
 CMD ["/bin/bash"]"""
@@ -571,7 +551,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests
 CMD ["/bin/bash"]"""
 
@@ -602,7 +581,6 @@ RUN apt-get update && apt-get install -y git maven && rm -rf /var/lib/apt/lists/
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests
 
 CMD ["/bin/bash"]"""
@@ -634,7 +612,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests
 CMD ["/bin/bash"]"""
 
@@ -665,8 +642,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 RUN cd lib && bash install.sh
 RUN mvn clean install -B -q -DskipTests -Denv=release
 CMD ["/bin/bash"]"""
@@ -699,8 +674,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 # Use -T 1C for install as well to speed up, and skip UI build to avoid nodejs dependency if not needed for backend tests
 RUN ./mvnw clean install -B -q -DskipTests -Dmaven.javadoc.skip=true -Dskip.ui.build=true -T 1C"""
 
@@ -732,8 +705,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 # Use -pl hbase-common to limit the scope because HBase is massive and might timeout/fail on a full build in some environments
 # We will install hbase-common and its dependencies
 RUN mvn clean install -B -q -DskipTests -pl hbase-common -am
@@ -767,8 +738,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 RUN ./gradlew help --no-daemon --console=plain
 # Note: Full build/install of JMeter can be very heavy. 
 # We'll use classes to ensure dependencies are downloaded.
@@ -799,8 +768,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 # Pulsar is a massive project. We install a subset (pulsar-common) to ensure the Dockerfile is manageable and builds reliably.
 RUN mvn clean install -B -q -DskipTests -pl pulsar-common -am
 
@@ -834,8 +801,6 @@ RUN apt-get update && apt-get install -y git maven && rm -rf /var/lib/apt/lists/
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 # Build only a subset of core modules to stay within time limits
 RUN mvn clean install -B -q -DskipTests -pl common,namesrv,srvutil -am
 
@@ -868,7 +833,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests -pl seatunnel-common,seatunnel-api -am
 CMD ["/bin/bash"]"""
 
@@ -899,8 +863,6 @@ RUN apt-get update && apt-get install -y git maven && rm -rf /var/lib/apt/lists/
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 # Build required modules for infra-common
 RUN mvn clean install -B -q -DskipTests -pl infra/common -am
 
@@ -933,8 +895,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 RUN mvn clean install -B -q -DskipTests
 CMD ["/bin/bash"]"""
 
@@ -965,7 +925,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN ./gradlew build -x test --no-daemon --console=plain
 CMD ["/bin/bash"]"""
 
@@ -1006,8 +965,6 @@ RUN curl -L https://github.com/bazelbuild/bazelisk/releases/download/v1.19.0/baz
 # Shallow clone the repository
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 # Pre-fetch dependencies
 RUN bazel fetch //src:bazel
 
@@ -1040,7 +997,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests -Ddocker.skip=true
 CMD ["/bin/bash"]"""
 
@@ -1072,8 +1028,6 @@ RUN apt-get update && apt-get install -y git maven && rm -rf /var/lib/apt/lists/
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 RUN mvn clean install -B -q -DskipTests -pl core -am
 
 CMD ["/bin/bash"]"""
@@ -1105,7 +1059,6 @@ RUN apt-get update && apt-get install -y git openjdk-8-jdk openjdk-11-jdk && rm 
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN ./gradlew assemble --no-daemon --console=plain
 CMD ["/bin/bash"]"""
 
@@ -1130,8 +1083,6 @@ class Hutool44836454(JavaProfile):
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 RUN mvn clean install -B -q -DskipTests
 
 CMD ["/bin/bash"]"""
@@ -1163,7 +1114,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests
 CMD ["/bin/bash"]"""
 
@@ -1194,7 +1144,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN ./gradlew :lib:build :testlib:build -x test --no-daemon --console=plain
 CMD ["/bin/bash"]"""
 
@@ -1222,8 +1171,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 RUN ./mvnw clean install -B -q -DskipTests
 
 CMD ["/bin/bash"]"""
@@ -1256,8 +1203,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 RUN ./mvnw clean install -B -q -DskipTests"""
 
     def log_parser(self, log: str) -> dict[str, str]:
@@ -1286,8 +1231,6 @@ class Flowableengine1d9f04bc(JavaProfile):
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 RUN mvn clean install -B -q -DskipTests -pl modules/flowable-bpmn-model -am
 
 CMD ["/bin/bash"]"""
@@ -1319,7 +1262,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests
 CMD ["/bin/bash"]"""
 
@@ -1350,7 +1292,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests
 
 CMD ["/bin/bash"]"""
@@ -1382,7 +1323,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests
 CMD ["/bin/bash"]"""
 
@@ -1413,8 +1353,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 # Use -x test to skip tests during installation phase
 RUN ./gradlew help --no-daemon --console=plain
 
@@ -1443,7 +1381,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN ./gradlew assemble --no-daemon --console=plain
 
 CMD ["/bin/bash"]"""
@@ -1471,7 +1408,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN ./mvnw clean install -B -q -DskipTests
 
 CMD ["/bin/bash"]"""
@@ -1503,7 +1439,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests
 CMD ["/bin/bash"]"""
 
@@ -1546,8 +1481,6 @@ RUN yes | sdkmanager --licenses && \
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 RUN ./gradlew :zxing-android-embedded:assembleDebug --no-daemon --console=plain
 
 CMD ["/bin/bash"]"""
@@ -1575,7 +1508,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN ./gradlew assemble --no-daemon --console=plain
 
 CMD ["/bin/bash"]"""
@@ -1603,7 +1535,6 @@ RUN apt-get update && apt-get install -y git maven && rm -rf /var/lib/apt/lists/
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests
 
 CMD ["/bin/bash"]"""
@@ -1635,7 +1566,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests
 CMD ["/bin/bash"]"""
 
@@ -1667,8 +1597,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 # Build only core and open-ai modules to keep it manageable and stable
 RUN ./mvnw clean install -B -q -DskipTests -pl langchain4j-core,langchain4j-open-ai,langchain4j -am
 
@@ -1701,8 +1629,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 RUN ./gradlew assembleDebug --no-daemon --console=plain
 
 CMD ["/bin/bash"]"""
@@ -1730,8 +1656,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 # Increase memory for Gradle and Java compiler
 ENV GRADLE_OPTS="-Xmx2048m -Dorg.gradle.jvmargs='-Xmx2048m -XX:MaxMetaspaceSize=512m'"
 
@@ -1762,8 +1686,6 @@ RUN apt-get update && apt-get install -y git maven && rm -rf /var/lib/apt/lists/
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 RUN sed -i 's/<packaging>war<\/packaging>/<packaging>jar<\/packaging>/g' miaosha-admin/miaosha-admin-service/pom.xml
 RUN mvn clean install -B -q -Dmaven.test.skip=true -Dspring-boot.repackage.skip=true
 
@@ -1796,8 +1718,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 # Remove Maven 4/Extension configs
 RUN rm -f .mvn/extensions.xml .mvn/maven.config
 
@@ -1845,8 +1765,6 @@ ENV PATH="/root/.cargo/bin:${{PATH}}"
 # Clone the repository
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 # Install dependencies and build native components
 # We use the recommended build profile and skip tests during installation
 RUN mvn clean install -B -q -DskipTests -P build-web-console
@@ -1880,8 +1798,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 RUN ./mvnw clean install -B -q -DskipTests
 CMD ["/bin/bash"]"""
 
@@ -1912,8 +1828,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 RUN ./gradlew classes --no-daemon --console=plain
 
 CMD ["/bin/bash"]"""
@@ -1941,7 +1855,6 @@ RUN apt-get update && apt-get install -y git maven && rm -rf /var/lib/apt/lists/
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests
 
 CMD ["/bin/bash"]"""
@@ -1973,7 +1886,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests
 CMD ["/bin/bash"]"""
 
@@ -2004,7 +1916,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN ./mvnw clean install -B -q -DskipTests -Dgpg.skip
 CMD ["/bin/bash"]"""
 
@@ -2048,8 +1959,6 @@ RUN yes | sdkmanager --licenses
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 RUN chmod +x gradlew
 
 # Download dependencies using help task to avoid architecture-specific build failures (AAPT2) during build time
@@ -2080,7 +1989,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN ./mvnw clean install -B -q -DskipTests
 CMD ["/bin/bash"]"""
 
@@ -2111,8 +2019,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 # Build specific modules using full task paths to avoid memory issues
 RUN ./gradlew :jadx-core:jar :jadx-cli:jar -Dorg.gradle.jvmargs="-Xmx1536m" --no-daemon --console=plain
 
@@ -2145,7 +2051,6 @@ RUN apt-get update && \
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN mvn install -B -q -DskipTests -Dgpg.skip
 CMD ["/bin/bash"]"""
 
@@ -2179,7 +2084,6 @@ RUN apt-get update && apt-get install -y git maven wget && \
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN mvn clean install -B -DskipTests -q
 
 CMD ["/bin/bash"]"""
@@ -2211,8 +2115,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 RUN ./gradlew assemble --no-daemon --console=plain
 
 CMD ["/bin/bash"]"""
@@ -2240,7 +2142,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests
 
 CMD ["/bin/bash"]"""
@@ -2272,7 +2173,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests
 CMD ["/bin/bash"]"""
 
@@ -2319,8 +2219,6 @@ RUN yes | sdkmanager --licenses && \\
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 RUN echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
 
 # Android Gradle Plugin 3.2.1/Gradle 4.6 might need this for modern environments
@@ -2351,7 +2249,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests
 
 CMD ["/bin/bash"]"""
@@ -2383,8 +2280,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 RUN mvn clean install -B -q -DskipTests -Dgpg.skip
 CMD ["/bin/bash"]"""
 
@@ -2415,7 +2310,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests
 
 CMD ["/bin/bash"]"""
@@ -2447,7 +2341,6 @@ RUN apt-get update && apt-get install -y git maven && rm -rf /var/lib/apt/lists/
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests
 CMD ["/bin/bash"]"""
 
@@ -2478,7 +2371,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests
 CMD ["/bin/bash"]"""
 
@@ -2509,8 +2401,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 # Use gradle wrapper to install dependencies. 
 # We run help to trigger wrapper download and then build -x test to install deps.
 RUN ./gradlew --no-daemon --console=plain help
@@ -2541,8 +2431,6 @@ RUN apt-get update && apt-get install -y git ant ant-optional python3 python3-pi
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 # Cassandra build can be heavy, we'll run 'ant jar' to download dependencies and build the core
 RUN ant jar
 
@@ -2572,8 +2460,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 RUN ./mvnw clean install -B -q -DskipTests -pl dubbo-common,dubbo-remoting,dubbo-rpc,dubbo-cluster,dubbo-registry,dubbo-config -am
 
 CMD ["/bin/bash"]"""
@@ -2605,8 +2491,6 @@ RUN apt-get update && apt-get install -y git maven && rm -rf /var/lib/apt/lists/
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 # Use -pl flink-cdc-common -am to keep the build manageable if needed, 
 # but let's try building the core modules.
 RUN mvn clean install -B -q -DskipTests -pl flink-cdc-common,flink-cdc-pipeline-model,flink-cdc-runtime -am
@@ -2654,8 +2538,6 @@ RUN apt-get update && apt-get install -y \\
 # Clone the repository
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 # Build specific modules to save time and ensure stability in a container environment
 # We focus on hadoop-common as it's the core.
 RUN mvn clean install -B -q -DskipTests -pl hadoop-common-project/hadoop-common -am
@@ -2689,8 +2571,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 # Use assemble to avoid running integration tests during build
 RUN ./gradlew assemble --no-daemon --console=plain
 
@@ -2725,7 +2605,6 @@ RUN wget https://archive.apache.org/dist/maven/maven-3/${{MAVEN_VERSION}}/binari
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests -Denforcer.skip=true -pl drools-core,drools-compiler -am
 CMD ["/bin/bash"]"""
 
@@ -2756,8 +2635,6 @@ RUN apt-get update && apt-get install -y git maven thrift-compiler && rm -rf /va
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 RUN mvn clean install -B -q -DskipTests -am -pl iotdb-api/udf-api,iotdb-api/trigger-api,iotdb-core/node-commons
 
 CMD ["/bin/bash"]"""
@@ -2789,8 +2666,6 @@ RUN apt-get update && apt-get install -y git maven && rm -rf /var/lib/apt/lists/
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 RUN ./mvnw clean install -B -q -DskipTests -pl nifi-commons/nifi-utils -am
 
 CMD ["/bin/bash"]"""
@@ -2825,8 +2700,6 @@ RUN ln -sf /usr/bin/python3 /usr/bin/python
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 # Use -DskipTests to only install dependencies.
 # The multilang modules are needed as dependencies for storm-client
 RUN mvn clean install -B -q -DskipTests -Dlicense.skip=true -Dcheckstyle.skip -Drat.skip=true -Denforcer.skip=true
@@ -2860,8 +2733,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 RUN ./gradlew build -x test --no-daemon --console=plain
 
 CMD ["/bin/bash"]"""
@@ -2890,8 +2761,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 RUN ./gradlew build -x test --no-daemon --console=plain -Dorg.gradle.dependency.verification=off
 
 CMD ["/bin/bash"]"""
@@ -2919,8 +2788,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 RUN mvn clean install -B -q -DskipTests
 CMD ["/bin/bash"]"""
 
@@ -2951,8 +2818,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 RUN mvn clean install -B -q -DskipTests
 
 CMD ["/bin/bash"]"""
@@ -2984,7 +2849,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN ./mvnw clean install -B -q -DskipTests -pl guava,guava-tests -am
 CMD ["/bin/bash"]"""
 
@@ -3016,8 +2880,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 RUN gradle classes --no-daemon --console=plain
 
 CMD ["/bin/bash"]"""
@@ -3045,7 +2907,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN ./mvnw clean install -B -q -DskipTests
 
 CMD ["/bin/bash"]"""
@@ -3109,8 +2970,6 @@ RUN find $ANDROID_SDK_ROOT -name "package.xml" -exec sed -i '/<base-extension/,/
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 # Fix build scripts and JCenter issues
 RUN find . -name "*.gradle" -exec sed -i 's/jcenter()/mavenCentral()/g' {{}} + && \\
     find . -name "*.gradle" -exec sed -i '/com.jfrog.bintray.gradle/d' {{}} + && \\
@@ -3146,8 +3005,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 RUN mvn clean install -B -q -DskipTests
 
 CMD ["/bin/bash"]"""
@@ -3179,7 +3036,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN ./gradlew assemble --no-daemon --console=plain
 
 CMD ["/bin/bash"]"""
@@ -3207,7 +3063,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN ./mvnw clean install -B -q -DskipTests
 CMD ["/bin/bash"]"""
 
@@ -3238,8 +3093,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 # Build only the 'core' module and its dependencies to keep the build manageable
 RUN ./mvnw clean install -B -q -DskipTests -pl core -am
 
@@ -3273,8 +3126,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 RUN mvn clean install -B -q -DskipTests
 
 CMD ["/bin/bash"]"""
@@ -3306,7 +3157,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}/core
-RUN git checkout {self.commit}
 RUN ./mvnw clean install -B -q -DskipTests
 CMD ["/bin/bash"]"""
 
@@ -3337,7 +3187,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN ./mvnw clean install -B -q -DskipTests
 CMD ["/bin/bash"]"""
 
@@ -3368,7 +3217,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests
 CMD ["/bin/bash"]"""
 
@@ -3399,7 +3247,6 @@ RUN apt-get update && apt-get install -y git graphviz && rm -rf /var/lib/apt/lis
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN ./gradlew --no-daemon --console=plain classes
 CMD ["/bin/bash"]"""
 
@@ -3426,7 +3273,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN mvn clean install -B -DskipTests
 
 CMD ["/bin/bash"]"""
@@ -3458,7 +3304,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN ./gradlew assemble --no-daemon --console=plain
 CMD ["/bin/bash"]"""
 
@@ -3485,7 +3330,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 # Use multiple retries for the initial gradle run to ensure the wrapper and dependencies are downloaded
 RUN (./gradlew assemble -x test -x javadoc -x checkstyleMain -x checkstyleTest --no-daemon --console=plain || \\
      ./gradlew assemble -x test -x javadoc -x checkstyleMain -x checkstyleTest --no-daemon --console=plain || \\
@@ -3515,7 +3359,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN ./gradlew classes --no-daemon --console=plain
 
 CMD ["/bin/bash"]"""
@@ -3543,7 +3386,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 # Use -x javadoc to skip the failing javadoc task
 RUN ./gradlew :core:spring-boot:assemble -x javadoc --no-daemon --console=plain
 
@@ -3572,7 +3414,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests
 CMD ["/bin/bash"]"""
 
@@ -3604,8 +3445,6 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 # Use compile instead of install to avoid trying to move the missing models JAR to the local repo
 RUN mvn clean compile -B -q -DskipTests
 
@@ -3650,8 +3489,6 @@ RUN yes | sdkmanager --licenses && \\
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN git checkout {self.commit}
-
 RUN sed -i 's|distributionUrl=.*|distributionUrl=https\\\\://services.gradle.org/distributions/gradle-8.0-bin.zip|' gradle/wrapper/gradle-wrapper.properties
 
 RUN echo "sdk.dir=/opt/android-sdk" > local.properties
