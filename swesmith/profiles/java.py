@@ -148,8 +148,8 @@ class Mindustry2ad41a90(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN ./gradlew --no-daemon --console=plain assemble -x test
 
@@ -176,8 +176,8 @@ class Asynchttpclientae59f51f(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN mvn clean install -B -DskipTests -Dgpg.skip
 CMD ["/bin/bash"]"""
@@ -207,8 +207,8 @@ class Recaf2a93d630(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN ./gradlew :recaf-core:build -x test --no-daemon --console=plain
 
@@ -236,8 +236,8 @@ class HMCL79a1c3af(JavaProfile):
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 RUN ./gradlew --no-daemon --console=plain assemble -x test
@@ -265,8 +265,8 @@ class Web3j37d9bc9b(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 RUN ./gradlew assemble --no-daemon --console=plain
@@ -294,8 +294,8 @@ class Disruptorc871ca49(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN ./gradlew assemble --no-daemon --console=plain
 
@@ -323,8 +323,8 @@ class MycatServer243539fb(JavaProfile):
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 RUN mvn clean install -B -q -DskipTests
@@ -356,8 +356,8 @@ class Eureka459fcf59(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 RUN ./gradlew build -x test --no-daemon --console=plain
@@ -385,8 +385,8 @@ class Paper81b91224(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 # Paper uses a complex build system that often requires initializing submodules or running setup scripts.
@@ -416,8 +416,8 @@ class MPAndroidChart9c7275a0(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN ./gradlew assembleDebug --no-daemon --console=plain
 CMD ["/bin/bash"]"""
@@ -458,8 +458,8 @@ RUN mkdir -p ${{ANDROID_SDK_ROOT}}/cmdline-tools && \
 
 ENV PATH=${{PATH}}:${{ANDROID_SDK_ROOT}}/cmdline-tools/latest/bin:${{ANDROID_SDK_ROOT}}/platform-tools
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 RUN yes | sdkmanager --licenses && \
@@ -503,8 +503,8 @@ ENV PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/plat
 RUN yes | sdkmanager --licenses
 RUN sdkmanager "platforms;android-32" "platform-tools"
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 RUN sed -i 's/..\\\\keystore\\\\GoGoGo.jks/..\/keystore\/GoGoGo.jks/g' app/build.gradle
@@ -537,8 +537,8 @@ class Austin4c921ea0(JavaProfile):
 
 RUN apt-get update && apt-get install -y git maven && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests -pl '!austin-data-house'
 
@@ -569,8 +569,8 @@ class Mapper3aa82765(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests
 CMD ["/bin/bash"]"""
@@ -600,8 +600,8 @@ class QLExpressa632409f(JavaProfile):
 
 RUN apt-get update && apt-get install -y git maven && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests
 
@@ -632,8 +632,8 @@ class Druid933dee04(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests
 CMD ["/bin/bash"]"""
@@ -663,8 +663,8 @@ class Otter7544d051(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 RUN cd lib && bash install.sh
@@ -697,8 +697,8 @@ class Dolphinscheduler37d2dc3e(JavaProfile):
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 # Use -T 1C for install as well to speed up, and skip UI build to avoid nodejs dependency if not needed for backend tests
@@ -730,8 +730,8 @@ class Hbase30c42a87(JavaProfile):
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 # Use -pl hbase-common to limit the scope because HBase is massive and might timeout/fail on a full build in some environments
@@ -765,8 +765,8 @@ class Jmeterb1843c2a(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 RUN ./gradlew help --no-daemon --console=plain
@@ -797,8 +797,8 @@ class Pulsarc51346fa(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 # Pulsar is a massive project. We install a subset (pulsar-common) to ensure the Dockerfile is manageable and builds reliably.
@@ -832,8 +832,8 @@ class Rocketmq9ad4a1b9(JavaProfile):
 RUN apt-get update && apt-get install -y git maven && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 # Build only a subset of core modules to stay within time limits
@@ -866,8 +866,8 @@ class Seatunneled021460(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests -pl seatunnel-common,seatunnel-api -am
 CMD ["/bin/bash"]"""
@@ -897,8 +897,8 @@ class Shardingsphereecf76ffc(JavaProfile):
 
 RUN apt-get update && apt-get install -y git maven && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 # Build required modules for infra-common
@@ -931,8 +931,8 @@ class Shenyu74954fa2(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 RUN mvn clean install -B -q -DskipTests
@@ -963,8 +963,8 @@ class Mybatisplus9c06ccaf(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN ./gradlew build -x test --no-daemon --console=plain
 CMD ["/bin/bash"]"""
@@ -1004,8 +1004,8 @@ RUN curl -L https://github.com/bazelbuild/bazelisk/releases/download/v1.19.0/baz
 
 
 # Shallow clone the repository
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 # Pre-fetch dependencies
@@ -1038,8 +1038,8 @@ class HikariCPbba167f0(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests -Ddocker.skip=true
 CMD ["/bin/bash"]"""
@@ -1070,8 +1070,8 @@ class YCSB6d0fbba2(JavaProfile):
 RUN apt-get update && apt-get install -y git maven && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 RUN mvn clean install -B -q -DskipTests -pl core -am
@@ -1103,8 +1103,8 @@ class Btrace3ba0198d(JavaProfile):
 
 RUN apt-get update && apt-get install -y git openjdk-8-jdk openjdk-11-jdk && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN ./gradlew assemble --no-daemon --console=plain
 CMD ["/bin/bash"]"""
@@ -1128,8 +1128,8 @@ class Hutool44836454(JavaProfile):
     def dockerfile(self):
         return f"""FROM maven:3.9.6-eclipse-temurin-8
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 RUN mvn clean install -B -q -DskipTests
@@ -1161,8 +1161,8 @@ class Thumbnailator068d36e3(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests
 CMD ["/bin/bash"]"""
@@ -1192,8 +1192,8 @@ class Spotless8e776ec8(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN ./gradlew :lib:build :testlib:build -x test --no-daemon --console=plain
 CMD ["/bin/bash"]"""
@@ -1220,8 +1220,8 @@ class Dropwizarde01f4694(JavaProfile):
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 RUN ./mvnw clean install -B -q -DskipTests
@@ -1254,8 +1254,8 @@ class Metrics968f367a(JavaProfile):
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 RUN ./mvnw clean install -B -q -DskipTests"""
@@ -1284,8 +1284,8 @@ class Flowableengine1d9f04bc(JavaProfile):
         return f"""FROM maven:3.9.6-eclipse-temurin-17
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 RUN mvn clean install -B -q -DskipTests -pl modules/flowable-bpmn-model -am
@@ -1317,8 +1317,8 @@ class Gephi8f9b9faa(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests
 CMD ["/bin/bash"]"""
@@ -1348,8 +1348,8 @@ class Googlejavaformat737b0032(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests
 
@@ -1380,8 +1380,8 @@ class Guice6682b69d(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests
 CMD ["/bin/bash"]"""
@@ -1411,8 +1411,8 @@ class Hibernateorm8cc56928(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 # Use -x test to skip tests during installation phase
@@ -1441,8 +1441,8 @@ class Apktool1981d35b(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN ./gradlew assemble --no-daemon --console=plain
 
@@ -1469,8 +1469,8 @@ class Jetlinkscommunity858dab55(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN ./mvnw clean install -B -q -DskipTests
 
@@ -1501,8 +1501,8 @@ class Jsonschema2pojo8c90ed48(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests
 CMD ["/bin/bash"]"""
@@ -1544,8 +1544,8 @@ ENV PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/plat
 RUN yes | sdkmanager --licenses && \
     sdkmanager "platform-tools" "platforms;android-30" "build-tools;30.0.3"
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 RUN ./gradlew :zxing-android-embedded:assembleDebug --no-daemon --console=plain
@@ -1573,8 +1573,8 @@ class JsonPathb6c60b3d(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN ./gradlew assemble --no-daemon --console=plain
 
@@ -1601,8 +1601,8 @@ class JustAuth694bbf1b(JavaProfile):
 
 RUN apt-get update && apt-get install -y git maven && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests
 
@@ -1633,8 +1633,8 @@ class Aviatorscript231198d3(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests
 CMD ["/bin/bash"]"""
@@ -1665,8 +1665,8 @@ class Langchain4j82b882d8(JavaProfile):
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 # Build only core and open-ai modules to keep it manageable and stable
@@ -1699,8 +1699,8 @@ class Usbserialforandroida8b9ecc7(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 RUN ./gradlew assembleDebug --no-daemon --console=plain
@@ -1728,8 +1728,8 @@ class OsmAnd14a13bbc(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 # Increase memory for Gradle and Java compiler
@@ -1760,8 +1760,8 @@ class Miaoshae5801765(JavaProfile):
 
 RUN apt-get update && apt-get install -y git maven && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 RUN sed -i 's/<packaging>war<\/packaging>/<packaging>jar<\/packaging>/g' miaosha-admin/miaosha-admin-service/pom.xml
@@ -1794,8 +1794,8 @@ class Quarkus99a220ef(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 # Remove Maven 4/Extension configs
@@ -1843,8 +1843,8 @@ ENV PATH="/root/.cargo/bin:${{PATH}}"
 
 
 # Clone the repository
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 # Install dependencies and build native components
@@ -1878,8 +1878,8 @@ class Bytebuddy9689261b(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 RUN ./mvnw clean install -B -q -DskipTests
@@ -1910,8 +1910,8 @@ class Reactorcore2198701c(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 RUN ./gradlew classes --no-daemon --console=plain
@@ -1939,8 +1939,8 @@ class Jedis52483b82(JavaProfile):
 
 RUN apt-get update && apt-get install -y git maven && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests
 
@@ -1971,8 +1971,8 @@ class Restassureda67ed7ac(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests
 CMD ["/bin/bash"]"""
@@ -2002,8 +2002,8 @@ class TelegramBots082d9846(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN ./mvnw clean install -B -q -DskipTests -Dgpg.skip
 CMD ["/bin/bash"]"""
@@ -2046,8 +2046,8 @@ ENV PATH=${{PATH}}:${{ANDROID_HOME}}/cmdline-tools/latest/bin:${{ANDROID_HOME}}/
 # Accept licenses
 RUN yes | sdkmanager --licenses
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 RUN chmod +x gradlew
@@ -2078,8 +2078,8 @@ class SignalServer065e7302(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN ./mvnw clean install -B -q -DskipTests
 CMD ["/bin/bash"]"""
@@ -2109,8 +2109,8 @@ class Jadx331c4aaa(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 # Build specific modules using full task paths to avoid memory issues
@@ -2143,8 +2143,8 @@ RUN apt-get update && \
     apt-get install -y nodejs && \
     rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN mvn install -B -q -DskipTests -Dgpg.skip
 CMD ["/bin/bash"]"""
@@ -2177,8 +2177,8 @@ RUN apt-get update && apt-get install -y git maven wget && \
     chmod +x /usr/bin/yq && \
     rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN mvn clean install -B -DskipTests -q
 
@@ -2209,8 +2209,8 @@ class Traccardc1dfe15(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 RUN ./gradlew assemble --no-daemon --console=plain
@@ -2238,8 +2238,8 @@ class Motan4c18b71e(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests
 
@@ -2270,8 +2270,8 @@ class Zxing50799640(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests
 CMD ["/bin/bash"]"""
@@ -2317,8 +2317,8 @@ ENV PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/plat
 RUN yes | sdkmanager --licenses && \\
     sdkmanager "platform-tools" "platforms;android-28" "build-tools;28.0.3"
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 RUN echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
@@ -2349,8 +2349,8 @@ class Sentinel222670e6(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests
 
@@ -2381,8 +2381,8 @@ class Canalc0619c42(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 RUN mvn clean install -B -q -DskipTests -Dgpg.skip
@@ -2413,8 +2413,8 @@ class Fastjsonc942c834(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests
 
@@ -2445,8 +2445,8 @@ class Jvmsandboxc01c28ab(JavaProfile):
 
 RUN apt-get update && apt-get install -y git maven && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests
 CMD ["/bin/bash"]"""
@@ -2476,8 +2476,8 @@ class Nacosf39ce37f(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests
 CMD ["/bin/bash"]"""
@@ -2507,8 +2507,8 @@ class Calcite84e35baf(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 # Use gradle wrapper to install dependencies. 
@@ -2539,8 +2539,8 @@ class Cassandra7fe688b0(JavaProfile):
 
 RUN apt-get update && apt-get install -y git ant ant-optional python3 python3-pip && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 # Cassandra build can be heavy, we'll run 'ant jar' to download dependencies and build the core
@@ -2570,8 +2570,8 @@ class Dubboa92d5d08(JavaProfile):
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 RUN ./mvnw clean install -B -q -DskipTests -pl dubbo-common,dubbo-remoting,dubbo-rpc,dubbo-cluster,dubbo-registry,dubbo-config -am
@@ -2603,8 +2603,8 @@ class Flinkcdc7d9e1c62(JavaProfile):
 
 RUN apt-get update && apt-get install -y git maven && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 # Use -pl flink-cdc-common -am to keep the build manageable if needed, 
@@ -2652,8 +2652,8 @@ RUN apt-get update && apt-get install -y \\
 
 
 # Clone the repository
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 # Build specific modules to save time and ensure stability in a container environment
@@ -2687,8 +2687,8 @@ class Iceberg15485f55(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 # Use assemble to avoid running integration tests during build
@@ -2723,8 +2723,8 @@ RUN wget https://archive.apache.org/dist/maven/maven-3/${{MAVEN_VERSION}}/binari
     ln -s /opt/apache-maven-${{MAVEN_VERSION}}/bin/mvn /usr/bin/mvn && \\
     rm apache-maven-${{MAVEN_VERSION}}-bin.tar.gz
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests -Denforcer.skip=true -pl drools-core,drools-compiler -am
 CMD ["/bin/bash"]"""
@@ -2754,8 +2754,8 @@ class Iotdb36dadf5d(JavaProfile):
 
 RUN apt-get update && apt-get install -y git maven thrift-compiler && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 RUN mvn clean install -B -q -DskipTests -am -pl iotdb-api/udf-api,iotdb-api/trigger-api,iotdb-core/node-commons
@@ -2787,8 +2787,8 @@ class Nifiab050e0c(JavaProfile):
 
 RUN apt-get update && apt-get install -y git maven && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 RUN ./mvnw clean install -B -q -DskipTests -pl nifi-commons/nifi-utils -am
@@ -2823,8 +2823,8 @@ RUN apt-get update && apt-get install -y git maven python3 python2 build-essenti
 
 RUN ln -sf /usr/bin/python3 /usr/bin/python
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 # Use -DskipTests to only install dependencies.
@@ -2858,8 +2858,8 @@ class Dynamicdatasource1d7f40ec(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 RUN ./gradlew build -x test --no-daemon --console=plain
@@ -2888,8 +2888,8 @@ class Bisqf2fe13d0(JavaProfile):
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 RUN ./gradlew build -x test --no-daemon --console=plain -Dorg.gradle.dependency.verification=off
@@ -2917,8 +2917,8 @@ class Tcctransaction874cb910(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 RUN mvn clean install -B -q -DskipTests
@@ -2949,8 +2949,8 @@ class Cate815e74d(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 RUN mvn clean install -B -q -DskipTests
@@ -2982,8 +2982,8 @@ class Guava0bf87046(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN ./mvnw clean install -B -q -DskipTests -pl guava,guava-tests -am
 CMD ["/bin/bash"]"""
@@ -3014,8 +3014,8 @@ class Tsunamisecurityscannercf018549(JavaProfile):
 USER root
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 RUN gradle classes --no-daemon --console=plain
@@ -3043,8 +3043,8 @@ class Hswebframework8c23cc95(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN ./mvnw clean install -B -q -DskipTests
 
@@ -3107,8 +3107,8 @@ RUN yes | sdkmanager --licenses && \\
 # Fix XML validation error in SDK
 RUN find $ANDROID_SDK_ROOT -name "package.xml" -exec sed -i '/<base-extension/,/<\\/base-extension>/d' {{}} +
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 # Fix build scripts and JCenter issues
@@ -3144,8 +3144,8 @@ class Analysisik9b820257(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 RUN mvn clean install -B -q -DskipTests
@@ -3177,8 +3177,8 @@ class Mapdb8721c0e8(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN ./gradlew assemble --no-daemon --console=plain
 
@@ -3205,8 +3205,8 @@ class Junit471c33ce5(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN ./mvnw clean install -B -q -DskipTests
 CMD ["/bin/bash"]"""
@@ -3236,8 +3236,8 @@ class Keycloak051fcab5(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 # Build only the 'core' module and its dependencies to keep the build manageable
@@ -3271,8 +3271,8 @@ class Killbillf7d48b59(JavaProfile):
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 RUN mvn clean install -B -q -DskipTests
@@ -3304,8 +3304,8 @@ class Generatorc8cd0c8e(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed/core
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}/core
 RUN git checkout {self.commit}
 RUN ./mvnw clean install -B -q -DskipTests
 CMD ["/bin/bash"]"""
@@ -3335,8 +3335,8 @@ class Mybatis359a0bcab(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN ./mvnw clean install -B -q -DskipTests
 CMD ["/bin/bash"]"""
@@ -3366,8 +3366,8 @@ class MybatisPageHelperb4212c4d(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests
 CMD ["/bin/bash"]"""
@@ -3397,8 +3397,8 @@ class Plantuml783ae241(JavaProfile):
 
 RUN apt-get update && apt-get install -y git graphviz && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN ./gradlew --no-daemon --console=plain classes
 CMD ["/bin/bash"]"""
@@ -3424,8 +3424,8 @@ class Lettucefa5433c2(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN mvn clean install -B -DskipTests
 
@@ -3456,8 +3456,8 @@ class Picocli121646e4(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN ./gradlew assemble --no-daemon --console=plain
 CMD ["/bin/bash"]"""
@@ -3483,8 +3483,8 @@ class Runelite6e2d0b20(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 # Use multiple retries for the initial gradle run to ensure the wrapper and dependencies are downloaded
 RUN (./gradlew assemble -x test -x javadoc -x checkstyleMain -x checkstyleTest --no-daemon --console=plain || \\
@@ -3513,8 +3513,8 @@ class Springauthorizationserver7d72f556(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN ./gradlew classes --no-daemon --console=plain
 
@@ -3541,8 +3541,8 @@ class Springbootf73a809c(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 # Use -x javadoc to skip the failing javadoc task
 RUN ./gradlew :core:spring-boot:assemble -x javadoc --no-daemon --console=plain
@@ -3570,8 +3570,8 @@ class Javapoetb9017a95(JavaProfile):
 
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 RUN mvn clean install -B -q -DskipTests
 CMD ["/bin/bash"]"""
@@ -3602,8 +3602,8 @@ class CoreNLP1b7edd19(JavaProfile):
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 # Use compile instead of install to avoid trying to move the missing models JAR to the local repo
@@ -3648,8 +3648,8 @@ ENV PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/plat
 RUN yes | sdkmanager --licenses && \\
     sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git checkout {self.commit}
 
 RUN sed -i 's|distributionUrl=.*|distributionUrl=https\\\\://services.gradle.org/distributions/gradle-8.0-bin.zip|' gradle/wrapper/gradle-wrapper.properties
