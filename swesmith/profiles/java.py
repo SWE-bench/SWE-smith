@@ -658,37 +658,6 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Dolphinscheduler37d2dc3e(JavaProfile):
-    owner: str = "apache"
-    repo: str = "dolphinscheduler"
-    commit: str = "37d2dc3ec1a8ec31498005d364f9ac1b4668c04c"
-    test_cmd: str = "./mvnw test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain"
-    timeout: int = 400  # Maven tests can be slow
-
-    @property
-    def dockerfile(self):
-        return f"""FROM eclipse-temurin:8-jdk
-
-RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
-
-
-RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
-WORKDIR /{ENV_NAME}
-# Use -T 1C for install as well to speed up, and skip UI build to avoid nodejs dependency if not needed for backend tests
-RUN ./mvnw clean install -B -q -DskipTests -Dmaven.javadoc.skip=true -Dskip.ui.build=true -T 1C"""
-
-    def log_parser(self, log: str) -> dict[str, str]:
-        """Parse Maven Surefire text output with per-method granularity.
-        
-        Parses individual test methods from Maven Surefire output when using:
-        mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
-        """
-        return parse_log_maven_surefire(log)
-
-
-
-
-@dataclass
 class Hbase30c42a87(JavaProfile):
     owner: str = "apache"
     repo: str = "hbase"
@@ -3043,36 +3012,6 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse JUnit XML test results from Gradle output."""
         return parse_log_gradle_junit_xml(log)
-
-
-
-
-@dataclass
-class Junit471c33ce5(JavaProfile):
-    owner: str = "junit-team"
-    repo: str = "junit4"
-    commit: str = "71c33ce555230d9dfb6cab5e133e22a4cc95cdff"
-    test_cmd: str = "./mvnw test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain"
-    timeout: int = 400  # Maven tests can be slow
-
-    @property
-    def dockerfile(self):
-        return f"""FROM eclipse-temurin:8-jdk
-
-RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
-
-RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
-WORKDIR /{ENV_NAME}
-RUN ./mvnw clean install -B -q -DskipTests
-CMD ["/bin/bash"]"""
-
-    def log_parser(self, log: str) -> dict[str, str]:
-        """Parse Maven Surefire text output with per-method granularity.
-        
-        Parses individual test methods from Maven Surefire output when using:
-        mvn test -B -T 1C -Dsurefire.useFile=false -Dsurefire.printSummary=true -Dsurefire.reportFormat=plain
-        """
-        return parse_log_maven_surefire(log)
 
 
 
