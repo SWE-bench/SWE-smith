@@ -1,4 +1,5 @@
 import re
+import xml.etree.ElementTree as ET
 
 from dataclasses import dataclass, field
 from swebench.harness.constants import TestStatus
@@ -80,8 +81,6 @@ def parse_log_gradle_junit_xml(log: str) -> dict[str, str]:
     Returns:
         dict: test case to test status mapping
     """
-    import xml.etree.ElementTree as ET
-
     test_status_map = {}
     xml_matches = re.findall(r"<\?xml version.*?</testsuite>", log, re.DOTALL)
 
@@ -137,8 +136,6 @@ RUN mvn clean install -B -pl gson -DskipTests -am
         return parse_log_maven_surefire(log)
 
 
-# Auto-generated profiles from mini-swe-agent (73 profiles)
-# Generated: 2026-01-30
 @dataclass
 class Mindustry2ad41a90(JavaProfile):
     owner: str = "Anuken"
@@ -471,7 +468,7 @@ RUN sdkmanager "platforms;android-32" "platform-tools"
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN sed -i 's/..\\\\keystore\\\\GoGoGo.jks/..\/keystore\/GoGoGo.jks/g' app/build.gradle
+RUN sed -i 's/..\\\\keystore\\\\GoGoGo.jks/..\\/keystore\\/GoGoGo.jks/g' app/build.gradle
 RUN echo "MAPS_API_KEY=unused" > local.properties && echo "MAPS_SAFE_CODE=unused" >> local.properties
 
 RUN sed -i 's/locationOption.setIgnoreCacheException(true);//g' app/src/main/java/com/zcshou/gogogo/MainActivity.java
@@ -865,7 +862,7 @@ class Bazel08e077e7(JavaProfile):
     repo: str = "bazel"
     commit: str = "08e077e7a46b5f2137cf3335104219133f8d997f"
     test_cmd: str = 'bazel test //src/test/java/com/google/devtools/build/lib/util:UtilTests --test_output=all --noshow_progress --show_result=10 --test_summary=detailed || true; find bazel-testlogs -name "test.xml" -exec cat {} +'
-    timeout: int = 300  # Gradle tests can be slow
+    timeout: int = 300
 
     @property
     def dockerfile(self):
@@ -1562,7 +1559,7 @@ RUN apt-get update && apt-get install -y git maven && rm -rf /var/lib/apt/lists/
 
 RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
-RUN sed -i 's/<packaging>war<\/packaging>/<packaging>jar<\/packaging>/g' miaosha-admin/miaosha-admin-service/pom.xml
+RUN sed -i 's/<packaging>war<\\/packaging>/<packaging>jar<\\/packaging>/g' miaosha-admin/miaosha-admin-service/pom.xml
 RUN mvn clean install -B -q -Dmaven.test.skip=true -Dspring-boot.repackage.skip=true
 
 CMD ["/bin/bash"]"""
@@ -2249,7 +2246,7 @@ class Cassandra7fe688b0(JavaProfile):
     repo: str = "cassandra"
     commit: str = "7fe688b00096319453afcc5c3da3331816c64072"
     test_cmd: str = "ant test -Dtest.name=StorageServiceTest -Dtest.methods=testBinaryArchive || true; find build/test/output -type f -name 'TEST-*.xml' -exec cat {} \\;"
-    timeout: int = 300  # Gradle tests can be slow
+    timeout: int = 300
 
     @property
     def dockerfile(self):
