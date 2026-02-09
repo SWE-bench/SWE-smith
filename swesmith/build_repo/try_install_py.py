@@ -110,6 +110,7 @@ def main(
     if extra_test_deps:
         env["SWESMITH_EXTRA_TEST_DEPS"] = extra_test_deps
 
+    base_cwd = os.getcwd()
     try:
         # Shallow clone repository at the specified commit
         if not os.path.exists(p.repo):
@@ -215,6 +216,7 @@ def main(
     except Exception as e:
         print(f"> Installation procedure failed: {e}")
     finally:
+        os.chdir(base_cwd)
         if not no_cleanup:
             cleanup(p.repo, ENV_NAME)
 
