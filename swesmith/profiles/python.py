@@ -548,10 +548,8 @@ class MidoA0158ff9(PythonProfile):
     def get_test_files(self, instance: dict) -> list[str]:
         f2p_files, p2p_files = super().get_test_files(instance)
         prefix = "../dev/"
-        _helper = (
-            lambda test_file: test_file[len(prefix) :]
-            if test_file.startswith(prefix)
-            else test_file
+        _helper = lambda test_file: (
+            test_file[len(prefix) :] if test_file.startswith(prefix) else test_file
         )
         remove_prefix = lambda test_files: sorted(list(set(map(_helper, test_files))))
         return remove_prefix(f2p_files), remove_prefix(p2p_files)

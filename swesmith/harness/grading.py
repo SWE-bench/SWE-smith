@@ -221,10 +221,8 @@ def get_eval_report(
     if f2p_only:
         # Only examine f2p tests
         f2p_files, _ = rp.get_test_files(inst)
-        filter_irrelevant_tests = (
-            lambda tests: [
-                x for x in tests if any([x.startswith(y) for y in f2p_files])
-            ]
+        filter_irrelevant_tests = lambda tests: (
+            [x for x in tests if any([x.startswith(y) for y in f2p_files])]
             if len(f2p_files) > 0
             else tests
         )
