@@ -83,6 +83,7 @@ class IssueGen:
         dataset_path: str = HF_DATASET,
         redo_existing: bool = False,
     ):
+        self.dataset_path = dataset_path
         self.redo_existing = redo_existing
         self.workers = workers
 
@@ -376,6 +377,31 @@ class IssueGen:
 
         # Cleanup cloned repositories
         self._cleanup_repos(all_repos_to_remove)
+
+        # Merge generated issues into task instances
+        if self.dataset_path == HF_DATASET:
+            return
+        dataset_path = Path(self.dataset_path)
+        full_dataset = json.loads(dataset_path.read_text())
+        kept = []
+        for instance in full_dataset:
+            repo = instance["repo"].split("/")[-1]
+            output_file = LOG_DIR_ISSUE_GEN / repo / f"{instance[KEY_INSTANCE_ID]}.json"
+            if not output_file.exists():
+                continue
+            metadata = json.loads(output_file.read_text())
+            if "responses" not in metadata or self.model not in metadata["responses"]:
+                continue
+            instance["problem_statement"] = metadata["responses"][self.model][0]
+            kept.append(instance)
+
+        if kept:
+            out_path = dataset_path.parent / f"{dataset_path.stem}__ig_llm.json"
+            with open(out_path, "w") as f:
+                json.dump(kept, f, indent=2)
+            print(
+                f"Wrote {len(kept)}/{len(full_dataset)} instances with problem statements to {out_path}"
+            )
 
 
 if __name__ == "__main__":
