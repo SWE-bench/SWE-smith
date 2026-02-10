@@ -360,7 +360,7 @@ def parse_log_qtest(log: str) -> dict[str, str]:
 
 
 @dataclass
-class Waybar$COMMIT_(RepoProfile):
+class Waybar$COMMIT_(CppProfile):
     owner: str = "Alexays"
     repo: str = "Waybar"
     commit: str = "$COMMIT_HASH"
@@ -422,7 +422,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class FTXUIf73d92d3(RepoProfile):
+class FTXUIf73d92d3(CppProfile):
     owner: str = "ArthurSonzogni"
     repo: str = "FTXUI"
     commit: str = "f73d92d31f5efeccadfb7081edadbc070ef42f73"
@@ -456,7 +456,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class LibreCAD7a288fff(RepoProfile):
+class LibreCAD7a288fff(CppProfile):
     owner: str = "LibreCAD"
     repo: str = "LibreCAD"
     commit: str = "7a288ffff76215dea36c3bc4794765ccb85d1a06"
@@ -505,7 +505,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class LibreSprite85ced3b6(RepoProfile):
+class LibreSprite85ced3b6(CppProfile):
     owner: str = "LibreSprite"
     repo: str = "LibreSprite"
     commit: str = "85ced3b6b23d38a5cf03ecab2218bc755131cc21"
@@ -566,7 +566,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Magicenumc1aa6de9(RepoProfile):
+class Magicenumc1aa6de9(CppProfile):
     owner: str = "Neargye"
     repo: str = "magic_enum"
     commit: str = "c1aa6de965960250f4ab762e97e67e6290395dc7"
@@ -600,7 +600,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class OpenRCT2f228d738(RepoProfile):
+class OpenRCT2f228d738(CppProfile):
     owner: str = "OpenRCT2"
     repo: str = "OpenRCT2"
     commit: str = "f228d738155b06f13156af70ec6560db97b1b2cb"
@@ -668,7 +668,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class OpenTTDae80a47c(RepoProfile):
+class OpenTTDae80a47c(CppProfile):
     owner: str = "OpenTTD"
     repo: str = "OpenTTD"
     commit: str = "ae80a47c7db48e543d9a9ebc682df1a889661d2a"
@@ -716,7 +716,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Qv2rayd5c5aeb3(RepoProfile):
+class Qv2rayd5c5aeb3(CppProfile):
     owner: str = "Qv2ray"
     repo: str = "Qv2ray"
     commit: str = "d5c5aeb366e2fbe9c9243648af36b0d11da14920"
@@ -769,7 +769,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Rapidjson24b5e7a8(RepoProfile):
+class Rapidjson24b5e7a8(CppProfile):
     owner: str = "Tencent"
     repo: str = "rapidjson"
     commit: str = "24b5e7a8b27f42fa16b96fc70aade9106cf7102f"
@@ -799,7 +799,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class WasmEdgecb41f751(RepoProfile):
+class WasmEdgecb41f751(CppProfile):
     owner: str = "WasmEdge"
     repo: str = "WasmEdge"
     commit: str = "cb41f751daac037b61ebf9df3bb3fcbcf625edb4"
@@ -855,7 +855,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class ImHexf4768420(RepoProfile):
+class ImHexf4768420(CppProfile):
     owner: str = "WerWolv"
     repo: str = "ImHex"
     commit: str = "f4768420087f27fc9f40a41b028529b2f0efd6e3"
@@ -921,7 +921,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class ZLMediaKitda9deb35(RepoProfile):
+class ZLMediaKitda9deb35(CppProfile):
     owner: str = "ZLMediaKit"
     repo: str = "ZLMediaKit"
     commit: str = "da9deb352c39f51fc018c465428486d9dd74d228"
@@ -963,7 +963,7 @@ CMD ["./release/linux/Release/MediaServer"]"""
 
 
 @dataclass
-class Albert897c7797(RepoProfile):
+class Albert897c7797(CppProfile):
     owner: str = "albertlauncher"
     repo: str = "albert"
     commit: str = "897c77979d55fdfaba23babddc91fbe841ee7a3e"
@@ -1018,7 +1018,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Brpcd22fa17f(RepoProfile):
+class Brpcd22fa17f(CppProfile):
     owner: str = "apache"
     repo: str = "brpc"
     commit: str = "d22fa17f09514ed42e7b15e0a439827dc8310a8e"
@@ -1077,7 +1077,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Aria2b4fd7cb1(RepoProfile):
+class Aria2b4fd7cb1(CppProfile):
     owner: str = "aria2"
     repo: str = "aria2"
     commit: str = "b4fd7cb1ca03e38ad9d7ab9308b8200cb1d41c25"
@@ -1129,7 +1129,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Btopabcb906c(RepoProfile):
+class Btopabcb906c(CppProfile):
     owner: str = "aristocratos"
     repo: str = "btop"
     commit: str = "abcb906c951d1e79ccc1c03d219f55d2e5c52655"
@@ -1162,7 +1162,7 @@ CMD ["./build/btop"]"""
 
 
 @dataclass
-class Libtorrentf0f8a352(RepoProfile):
+class Libtorrentf0f8a352(CppProfile):
     owner: str = "arvidn"
     repo: str = "libtorrent"
     commit: str = "f0f8a352cc9eb1bb8936f0b985d20867580c6463"
@@ -1211,7 +1211,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Asepriteda0d3228(RepoProfile):
+class Asepriteda0d3228(CppProfile):
     owner: str = "aseprite"
     repo: str = "aseprite"
     commit: str = "da0d3228599580ec4bc447bab303751a51c09d9a"
@@ -1258,7 +1258,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Retdec8be53bbd(RepoProfile):
+class Retdec8be53bbd(CppProfile):
     owner: str = "avast"
     repo: str = "retdec"
     commit: str = "8be53bbd3d2cd0f550c0e98d3b31d9ee1366f304"
@@ -1304,7 +1304,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Azahar37e688f8(RepoProfile):
+class Azahar37e688f8(CppProfile):
     owner: str = "azahar-emu"
     repo: str = "azahar"
     commit: str = "37e688f82d42917a8d232b8e9b49ecee814846b4"
@@ -1357,7 +1357,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Azerothcorewotlk3ffbbe98(RepoProfile):
+class Azerothcorewotlk3ffbbe98(CppProfile):
     owner: str = "azerothcore"
     repo: str = "azerothcore-wotlk"
     commit: str = "3ffbbe981f9a94377b6e13761da45fdd405448d9"
@@ -1404,7 +1404,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class ArduinoJsonaa7fbd6c(RepoProfile):
+class ArduinoJsonaa7fbd6c(CppProfile):
     owner: str = "bblanchon"
     repo: str = "ArduinoJson"
     commit: str = "aa7fbd6c8be280121cf57044ef986da7353ffd67"
@@ -1432,7 +1432,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Conky673d3174(RepoProfile):
+class Conky673d3174(CppProfile):
     owner: str = "brndnmtthws"
     repo: str = "conky"
     commit: str = "673d31742a784ca8f566458514934167e43689ce"
@@ -1496,7 +1496,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Cuberite7fd3fa5c(RepoProfile):
+class Cuberite7fd3fa5c(CppProfile):
     owner: str = "cuberite"
     repo: str = "cuberite"
     commit: str = "7fd3fa5c9345a3f1b949c0988c4849db00a68486"
@@ -1534,7 +1534,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Cppcheck67606e6e(RepoProfile):
+class Cppcheck67606e6e(CppProfile):
     owner: str = "danmar"
     repo: str = "cppcheck"
     commit: str = "67606e6ee50aaefa3ba6c312c644b8b962d7d9da"
@@ -1574,7 +1574,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class DevilutionXafdaa2ac(RepoProfile):
+class DevilutionXafdaa2ac(CppProfile):
     owner: str = "diasurgical"
     repo: str = "DevilutionX"
     commit: str = "afdaa2ac5e8e92830e8dac5be1976ea42ae67434"
@@ -1630,7 +1630,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Doctest1da23a3e(RepoProfile):
+class Doctest1da23a3e(CppProfile):
     owner: str = "doctest"
     repo: str = "doctest"
     commit: str = "1da23a3e8119ec5cce4f9388e91b065e20bf06f5"
@@ -1664,7 +1664,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Doxygencbd8c4bc(RepoProfile):
+class Doxygencbd8c4bc(CppProfile):
     owner: str = "doxygen"
     repo: str = "doxygen"
     commit: str = "cbd8c4bcf0ebb58651fefbfbf9142a92e0a26a2f"
@@ -1702,7 +1702,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Dragonfly14103bde(RepoProfile):
+class Dragonfly14103bde(CppProfile):
     owner: str = "dragonflydb"
     repo: str = "dragonfly"
     commit: str = "14103bde242967fa55dea98d08391640c12cd4db"
@@ -1750,7 +1750,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Drogon34955222(RepoProfile):
+class Drogon34955222(CppProfile):
     owner: str = "drogonframework"
     repo: str = "drogon"
     commit: str = "3495522200664bfef150257157c30aa076188a79"
@@ -1803,7 +1803,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Duckdbcb9e7c21(RepoProfile):
+class Duckdbcb9e7c21(CppProfile):
     owner: str = "duckdb"
     repo: str = "duckdb"
     commit: str = "cb9e7c2193963670f358682fb369c17ead60e90c"
@@ -1839,7 +1839,7 @@ RUN mkdir build && cd build && cmake -G Ninja -DENABLE_EXTENSION_AUTOLOADING=0 -
 
 
 @dataclass
-class Endlesssky059f2a3f(RepoProfile):
+class Endlesssky059f2a3f(CppProfile):
     owner: str = "endless-sky"
     repo: str = "endless-sky"
     commit: str = "059f2a3f429f68f67ce502a8b9ac8a4f5197528f"
@@ -1874,7 +1874,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Falco43aaffc4(RepoProfile):
+class Falco43aaffc4(CppProfile):
     owner: str = "falcosecurity"
     repo: str = "falco"
     commit: str = "43aaffc4e05a62f6f29d719a1dee51a5ccc3856d"
@@ -1929,7 +1929,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Spdlog472945ba(RepoProfile):
+class Spdlog472945ba(CppProfile):
     owner: str = "gabime"
     repo: str = "spdlog"
     commit: str = "472945ba489e3f5684761affc431ae532ab5ed8c"
@@ -1957,7 +1957,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Ggwave23c2a939(RepoProfile):
+class Ggwave23c2a939(CppProfile):
     owner: str = "ggerganov"
     repo: str = "ggwave"
     commit: str = "23c2a93910c08272a81878d65c3445e9d9681423"
@@ -1989,7 +1989,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Benchmarkeed8f5c6(RepoProfile):
+class Benchmarkeed8f5c6(CppProfile):
     owner: str = "google"
     repo: str = "benchmark"
     commit: str = "eed8f5c682ed70d596b2b07c68b1588ecab3b24a"
@@ -2028,7 +2028,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Bloatya277a440(RepoProfile):
+class Bloatya277a440(CppProfile):
     owner: str = "google"
     repo: str = "bloaty"
     commit: str = "a277a440f906729cd69894ca8ceb9b7144eb7f42"
@@ -2066,7 +2066,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Dracob91aa918(RepoProfile):
+class Dracob91aa918(CppProfile):
     owner: str = "google"
     repo: str = "draco"
     commit: str = "b91aa9181a753e70d005fdb0cdcde06acddf68fa"
@@ -2100,7 +2100,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Glog53d58e45(RepoProfile):
+class Glog53d58e45(CppProfile):
     owner: str = "google"
     repo: str = "glog"
     commit: str = "53d58e4531c7c90f71ddab503d915e027432447a"
@@ -2135,7 +2135,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Googletest5a9c3f9e(RepoProfile):
+class Googletest5a9c3f9e(CppProfile):
     owner: str = "google"
     repo: str = "googletest"
     commit: str = "5a9c3f9e8d9b90bbbe8feb32902146cb8f7c1757"
@@ -2167,7 +2167,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Highway224b014b(RepoProfile):
+class Highway224b014b(CppProfile):
     owner: str = "google"
     repo: str = "highway"
     commit: str = "224b014b1e6ebd1b9c1e134ebb5fbce899844c79"
@@ -2203,7 +2203,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Leveldbac691084(RepoProfile):
+class Leveldbac691084(CppProfile):
     owner: str = "google"
     repo: str = "leveldb"
     commit: str = "ac691084fdc5546421a55b25e7653d450e5a25fb"
@@ -2237,7 +2237,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Sentencepiece0f4ca43a(RepoProfile):
+class Sentencepiece0f4ca43a(CppProfile):
     owner: str = "google"
     repo: str = "sentencepiece"
     commit: str = "0f4ca43a084fac098420afc110d81e2c23cf1dc3"
@@ -2274,7 +2274,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Snappyda459b52(RepoProfile):
+class Snappyda459b52(CppProfile):
     owner: str = "google"
     repo: str = "snappy"
     commit: str = "da459b5263676ccf0dc65a3fcf93fb876e09baac"
@@ -2311,7 +2311,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Gperftoolsa4724315(RepoProfile):
+class Gperftoolsa4724315(CppProfile):
     owner: str = "gperftools"
     repo: str = "gperftools"
     commit: str = "a47243150ec41097602730ff8779fafcc172d1fb"
@@ -2350,7 +2350,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Grpc9d7a53ea(RepoProfile):
+class Grpc9d7a53ea(CppProfile):
     owner: str = "grpc"
     repo: str = "grpc"
     commit: str = "9d7a53ea80b719178be5753400e104c3f6ad4afc"
@@ -2403,7 +2403,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Halidec2a6e34e(RepoProfile):
+class Halidec2a6e34e(CppProfile):
     owner: str = "halide"
     repo: str = "Halide"
     commit: str = "c2a6e34e7f3cff6657de1a85e8bc0e82fd545003"
@@ -2463,7 +2463,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Inputleap34a34fb2(RepoProfile):
+class Inputleap34a34fb2(CppProfile):
     owner: str = "input-leap"
     repo: str = "input-leap"
     commit: str = "34a34fb20b93113a6b26052cb5a54f9be2327775"
@@ -2511,7 +2511,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Yamlcpp2e6383d2(RepoProfile):
+class Yamlcpp2e6383d2(CppProfile):
     owner: str = "jbeder"
     repo: str = "yaml-cpp"
     commit: str = "2e6383d272f676e1ad28ae5c47016045cbaff938"
@@ -2549,7 +2549,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Keepassxc69f214f4(RepoProfile):
+class Keepassxc69f214f4(CppProfile):
     owner: str = "keepassxreboot"
     repo: str = "keepassxc"
     commit: str = "69f214f4e2f895ec0a5e840f968df72620785121"
@@ -2613,7 +2613,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class QuantLiba05b6ab3(RepoProfile):
+class QuantLiba05b6ab3(CppProfile):
     owner: str = "lballabio"
     repo: str = "QuantLib"
     commit: str = "a05b6ab328ca7c01063d8209fcfb9e54a0eecf0b"
@@ -2653,7 +2653,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Ledger920059e6(RepoProfile):
+class Ledger920059e6(CppProfile):
     owner: str = "ledger"
     repo: str = "ledger"
     commit: str = "920059e6a4a9fbb7ccb9e2cbd6e8a8a06648c113"
@@ -2711,7 +2711,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Stablediffusioncppf0f641a1(RepoProfile):
+class Stablediffusioncppf0f641a1(CppProfile):
     owner: str = "leejet"
     repo: str = "stable-diffusion.cpp"
     commit: str = "f0f641a142705798d5064ffd3808165d75723344"
@@ -2748,7 +2748,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Tinyxml23324d04d(RepoProfile):
+class Tinyxml23324d04d(CppProfile):
     owner: str = "leethomason"
     repo: str = "tinyxml2"
     commit: str = "3324d04d58de9d5db09327db6442f075e519f11b"
@@ -2778,7 +2778,7 @@ CMD ["./build/xmltest"]"""
 
 
 @dataclass
-class Cpr22a41e60(RepoProfile):
+class Cpr22a41e60(CppProfile):
     owner: str = "libcpr"
     repo: str = "cpr"
     commit: str = "22a41e60836f2207bf54131e6ef7752009ec31e1"
@@ -2806,7 +2806,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Luantifc363085(RepoProfile):
+class Luantifc363085(CppProfile):
     owner: str = "luanti-org"
     repo: str = "luanti"
     commit: str = "fc363085dd46330908b3a485dbe5bd7adfcc91b8"
@@ -2864,7 +2864,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Luau54a2ea00(RepoProfile):
+class Luau54a2ea00(CppProfile):
     owner: str = "luau-lang"
     repo: str = "luau"
     commit: str = "54a2ea00831df4c791e6cfc896a98da75d1ae126"
@@ -2892,7 +2892,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class AirSim13448700(RepoProfile):
+class AirSim13448700(CppProfile):
     owner: str = "microsoft"
     repo: str = "AirSim"
     commit: str = "13448700ec2b36d6aad7a4e0909bc9daf9d3d931"
@@ -2937,7 +2937,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class GSL756c91ab(RepoProfile):
+class GSL756c91ab(CppProfile):
     owner: str = "microsoft"
     repo: str = "GSL"
     commit: str = "756c91ab895aa52f650599bb1a3fc131f1f4b5ef"
@@ -2972,7 +2972,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Magnumf3a4ce7d(RepoProfile):
+class Magnumf3a4ce7d(CppProfile):
     owner: str = "mosra"
     repo: str = "magnum"
     commit: str = "f3a4ce7d1d0cd8085d4f05811c378813ada3cfcc"
@@ -3020,7 +3020,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Mumble997ecba9(RepoProfile):
+class Mumble997ecba9(CppProfile):
     owner: str = "mumble-voip"
     repo: str = "mumble"
     commit: str = "997ecba92c7314d9b8964c50a0621230694bbf85"
@@ -3095,7 +3095,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Ninjacc60300a(RepoProfile):
+class Ninjacc60300a(CppProfile):
     owner: str = "ninja-build"
     repo: str = "ninja"
     commit: str = "cc60300ab94dae9bb28fece3c9b7c397235b17de"
@@ -3128,7 +3128,7 @@ CMD ["./build/ninja_test"]"""
 
 
 @dataclass
-class Oatpp$COMMIT_(RepoProfile):
+class Oatpp$COMMIT_(CppProfile):
     owner: str = "oatpp"
     repo: str = "oatpp"
     commit: str = "$COMMIT_HASH"
@@ -3155,7 +3155,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Jsoncppe799ca05(RepoProfile):
+class Jsoncppe799ca05(CppProfile):
     owner: str = "open-source-parsers"
     repo: str = "jsoncpp"
     commit: str = "e799ca052df0f859d8d4133211344581c211b925"
@@ -3185,7 +3185,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class OpenMVGc76d8724(RepoProfile):
+class OpenMVGc76d8724(CppProfile):
     owner: str = "openMVG"
     repo: str = "openMVG"
     commit: str = "c76d87244fb3590fb8b9a752be34f07411057ae2"
@@ -3242,7 +3242,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Opencvaea90a9e(RepoProfile):
+class Opencvaea90a9e(CppProfile):
     owner: str = "opencv"
     repo: str = "opencv"
     commit: str = "aea90a9e314d220dcaa80a616808afc38e1c78b6"
@@ -3300,7 +3300,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Srs6e2392f3(RepoProfile):
+class Srs6e2392f3(CppProfile):
     owner: str = "ossrs"
     repo: str = "srs"
     commit: str = "6e2392f3667512e8c75899dd7d71294785ea0cf7"
@@ -3343,7 +3343,7 @@ CMD ["./objs/srs"]"""
 
 
 @dataclass
-class Polybarf99e0b1c(RepoProfile):
+class Polybarf99e0b1c(CppProfile):
     owner: str = "polybar"
     repo: str = "polybar"
     commit: str = "f99e0b1c7a5b094f5a04b14101899d0cb4ece69d"
@@ -3411,7 +3411,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Recastnavigation13f43344(RepoProfile):
+class Recastnavigation13f43344(CppProfile):
     owner: str = "recastnavigation"
     repo: str = "recastnavigation"
     commit: str = "13f433443867c4fb283bf230089b7250d09e331e"
@@ -3448,7 +3448,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Seastar7e457cf7(RepoProfile):
+class Seastar7e457cf7(CppProfile):
     owner: str = "scylladb"
     repo: str = "seastar"
     commit: str = "7e457cf72dad2987c8fbf8f2382ea712e8bf1c34"
@@ -3519,7 +3519,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Entte08302e1(RepoProfile):
+class Entte08302e1(CppProfile):
     owner: str = "skypjack"
     repo: str = "entt"
     commit: str = "e08302e169690a40500fe6547209fa82f17f913e"
@@ -3548,7 +3548,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Snapcast2f4063d8(RepoProfile):
+class Snapcast2f4063d8(CppProfile):
     owner: str = "snapcast"
     repo: str = "snapcast"
     commit: str = "2f4063d8393540be965d5df9e19d554a99905952"
@@ -3597,7 +3597,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Sqlitebrowser95f92180(RepoProfile):
+class Sqlitebrowser95f92180(CppProfile):
     owner: str = "sqlitebrowser"
     repo: str = "sqlitebrowser"
     commit: str = "95f92180cd88f7e51f3678fc5133191393edc19d"
@@ -3643,7 +3643,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Supercollider438bf480(RepoProfile):
+class Supercollider438bf480(CppProfile):
     owner: str = "supercollider"
     repo: str = "supercollider"
     commit: str = "438bf480d84af4978a5773fdee05a861ac69136a"
@@ -3720,7 +3720,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Taskflowd8776bc0(RepoProfile):
+class Taskflowd8776bc0(CppProfile):
     owner: str = "taskflow"
     repo: str = "taskflow"
     commit: str = "d8776bc0d3317efbf2c2376006d74a04a6eabf2a"
@@ -3755,7 +3755,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class OneTBB3ebfedd8(RepoProfile):
+class OneTBB3ebfedd8(CppProfile):
     owner: str = "uxlfoundation"
     repo: str = "oneTBB"
     commit: str = "3ebfedd8638e3bf39db754d458099684488ad8f4"
@@ -3793,7 +3793,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Websocketpp4dfe1be7(RepoProfile):
+class Websocketpp4dfe1be7(CppProfile):
     owner: str = "zaphoyd"
     repo: str = "websocketpp"
     commit: str = "4dfe1be74e684acca19ac1cf96cce0df9eac2a2d"
@@ -3840,7 +3840,7 @@ CMD ["/bin/bash"]"""
 
 
 @dataclass
-class Libzmq51a5a9cb(RepoProfile):
+class Libzmq51a5a9cb(CppProfile):
     owner: str = "zeromq"
     repo: str = "libzmq"
     commit: str = "51a5a9cbe315ab149357afe063e9e2d41f4c99a8"
