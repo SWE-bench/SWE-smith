@@ -360,10 +360,10 @@ def parse_log_qtest(log: str) -> dict[str, str]:
 
 
 @dataclass
-class Waybar$COMMIT_(CppProfile):
+class Waybard527ccd4(CppProfile):
     owner: str = "Alexays"
     repo: str = "Waybar"
-    commit: str = "$COMMIT_HASH"
+    commit: str = "d527ccd4c1f53f4bb161677b451aabb89556f2d5"
     test_cmd: str = "meson test -C build --verbose"
 
     @property
@@ -404,7 +404,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -438,7 +438,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -487,7 +487,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -543,7 +543,7 @@ RUN apt-get update && apt-get install -y \
     pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -582,7 +582,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -639,7 +639,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -698,7 +698,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -747,7 +747,7 @@ RUN apt-get update && apt-get install -y \
     libssl-dev \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -781,7 +781,7 @@ class Rapidjson24b5e7a8(CppProfile):
 
 RUN apt-get update && apt-get install -y git cmake build-essential && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -803,7 +803,7 @@ class WasmEdgecb41f751(CppProfile):
     owner: str = "WasmEdge"
     repo: str = "WasmEdge"
     commit: str = "cb41f751daac037b61ebf9df3bb3fcbcf625edb4"
-    test_cmd: str = "export LD_LIBRARY_PATH="/app/build/lib/api:$LD_LIBRARY_PATH" && cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = 'export LD_LIBRARY_PATH="/app/build/lib/api:$LD_LIBRARY_PATH" && cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1'
 
     @property
     def dockerfile(self):
@@ -837,7 +837,7 @@ ENV CC=/usr/bin/clang-15
 ENV CXX=/usr/bin/clang++-15
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -896,7 +896,7 @@ RUN apt-get update && apt-get install -y \
     libmd4c-html0-dev \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -941,13 +941,13 @@ RUN apt-get update && apt-get install -y \
     ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
 # Add ctest support
 RUN sed -i '1i enable_testing()' CMakeLists.txt && \
-    sed -i '/add_executable(${TEST_EXE_NAME} ${TEST_SRC})/a \  add_test(NAME ${TEST_EXE_NAME} COMMAND ${TEST_EXE_NAME})' tests/CMakeLists.txt
+    sed -i '/add_executable(${{TEST_EXE_NAME}} ${{TEST_SRC}})/a \\  add_test(NAME ${{TEST_EXE_NAME}} COMMAND ${{TEST_EXE_NAME}})' tests/CMakeLists.txt
 
 RUN mkdir build && cd build && \
     cmake -DENABLE_TESTS=ON -DENABLE_WEBRTC=OFF -DENABLE_FFMPEG=ON -DCMAKE_BUILD_TYPE=Release .. && \
@@ -1001,7 +1001,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -1058,7 +1058,7 @@ RUN cd /usr/src/googletest/googletest && \
 
 
 # Clone the repository
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -1110,7 +1110,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -1146,7 +1146,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -1188,7 +1188,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -1237,7 +1237,7 @@ RUN apt-get update && apt-get install -y \
     clang \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -1262,7 +1262,7 @@ class Retdec8be53bbd(CppProfile):
     owner: str = "avast"
     repo: str = "retdec"
     commit: str = "8be53bbd3d2cd0f550c0e98d3b31d9ee1366f304"
-    test_cmd: str = "find build/tests -name "retdec-tests-*" -type f -executable -exec {} --gtest_color=no \;"
+    test_cmd: str = 'find build/tests -name "retdec-tests-*" -type f -executable -exec {} --gtest_color=no \\;'
 
     @property
     def dockerfile(self):
@@ -1285,7 +1285,7 @@ RUN apt-get update && apt-get install -y \
     libtool \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -1293,7 +1293,7 @@ RUN mkdir build && cd build && \
     cmake .. -DCMAKE_INSTALL_PREFIX=/testbed/install -DRETDEC_TESTS=ON -DRETDEC_ENABLE_ALL=ON && \
     make -j$(nproc)
 
-ENV PATH="/testbed/install/bin:${PATH}"
+ENV PATH="/testbed/install/bin:${{PATH}}"
 CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
@@ -1329,7 +1329,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -1384,7 +1384,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -1416,7 +1416,7 @@ class ArduinoJsonaa7fbd6c(CppProfile):
 
 RUN apt-get update && apt-get install -y git cmake && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -1474,8 +1474,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
+RUN git fetch --all --tags
 RUN git checkout {self.commit}
 
 RUN mkdir build && cd build && \
@@ -1516,7 +1517,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -1556,7 +1557,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -1606,7 +1607,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -1646,7 +1647,7 @@ RUN apt-get update && apt-get install -y \
     git \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -1686,7 +1687,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -1731,14 +1732,14 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
 RUN ./helio/blaze.sh -release -DWITH_AWS=OFF -DWITH_GCP=OFF -DWITH_TIERING=OFF -DWITH_SEARCH=OFF
 
 # Build dragonfly and a larger set of core tests to improve test count ratio
-RUN cd build-opt && ninja dragonfly hash_test string_view_sso_test dense_set_test small_string_test
+RUN cd build-opt && ninja dragonfly hash_test string_view_sso_test
 
 CMD ["/bin/bash"]"""
 
@@ -1785,7 +1786,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -1807,7 +1808,7 @@ class Duckdbcb9e7c21(CppProfile):
     owner: str = "duckdb"
     repo: str = "duckdb"
     commit: str = "cb9e7c2193963670f358682fb369c17ead60e90c"
-    test_cmd: str = "./build/test/unittest "[common]" -s"
+    test_cmd: str = './build/test/unittest "[common]" -s'
 
     @property
     def dockerfile(self):
@@ -1824,7 +1825,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -1854,11 +1855,11 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y     git     build-essential     cmake     pkg-config     libglew-dev     libsdl2-dev     libpng-dev     libjpeg-turbo8-dev     libmad0-dev     uuid-dev     libflac-dev     libflac++-dev     libminizip-dev     libopenal-dev     libavif-dev     && rm -rf /var/lib/apt/lists/*
 
 # Build and install Catch2 v3 from source
-RUN git clone --branch v3.4.0 https://github.com/{self.owner}/{self.repo}.git /tmp/catch2 &&     cd /tmp/catch2 &&     mkdir build && cd build &&     cmake /testbed. -DBUILD_TESTING=OFF &&     make -j$(nproc) &&     make install &&     rm -rf /tmp/catch2
+RUN git clone --branch v3.4.0 https://github.com/catchorg/Catch2.git /tmp/catch2 &&     cd /tmp/catch2 &&     mkdir build && cd build &&     cmake .. -DBUILD_TESTING=OFF &&     make -j$(nproc) &&     make install &&     rm -rf /tmp/catch2
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -1904,7 +1905,7 @@ RUN apt-get update && apt-get install -y \
 
 
 # Clone the repository
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -1941,7 +1942,7 @@ class Spdlog472945ba(CppProfile):
 
 RUN apt-get update && apt-get install -y cmake git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -1973,8 +1974,9 @@ RUN apt-get update && apt-get install -y \
     git \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
+RUN git fetch --all --tags
 RUN git checkout {self.commit}
 
 RUN mkdir build && cd build && cmake -DGGWAVE_BUILD_TESTS=ON -DGGWAVE_BUILD_EXAMPLES=OFF .. && make
@@ -2007,7 +2009,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -2048,7 +2050,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -2082,7 +2084,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -2117,7 +2119,7 @@ RUN apt-get update && apt-get install -y \
     libgflags-dev \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -2151,7 +2153,7 @@ RUN apt-get update && apt-get install -y \
     git \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -2183,7 +2185,7 @@ RUN apt-get update && apt-get install -y \
     ninja-build \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -2219,7 +2221,7 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -2256,7 +2258,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -2290,7 +2292,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -2334,7 +2336,7 @@ RUN apt-get update && apt-get install -y \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -2385,7 +2387,7 @@ RUN curl -L https://github.com/bazelbuild/bazelisk/releases/download/v1.17.0/baz
     chmod +x /usr/local/bin/bazel
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -2407,7 +2409,7 @@ class Halidec2a6e34e(CppProfile):
     owner: str = "halide"
     repo: str = "Halide"
     commit: str = "c2a6e34e7f3cff6657de1a85e8bc0e82fd545003"
-    test_cmd: str = "cd build && ctest -R "^_test_internal$" --verbose"
+    test_cmd: str = 'cd build && ctest -R "^_test_internal$" --verbose'
 
     @property
     def dockerfile(self):
@@ -2438,7 +2440,7 @@ RUN wget https://apt.llvm.org/llvm.sh && \
     rm llvm.sh
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -2495,7 +2497,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -2531,7 +2533,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -2590,8 +2592,9 @@ RUN apt-get update && apt-get install -y \
     xvfb \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
+RUN git fetch --all --tags
 RUN git checkout {self.commit}
 
 RUN mkdir build && cd build && \
@@ -2635,7 +2638,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -2693,7 +2696,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -2729,7 +2732,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -2760,7 +2763,7 @@ class Tinyxml23324d04d(CppProfile):
 
 RUN apt-get update && apt-get install -y cmake git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -2790,7 +2793,7 @@ class Cpr22a41e60(CppProfile):
 
 RUN apt-get update && apt-get install -y     cmake     git     libcurl4-openssl-dev     libssl-dev     zlib1g-dev     meson     ninja-build     pkg-config     python3-pip     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -2843,7 +2846,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -2876,7 +2879,7 @@ class Luau54a2ea00(CppProfile):
 
 RUN apt-get update && apt-get install -y     build-essential     cmake     git     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -2918,7 +2921,7 @@ RUN apt-get update && apt-get install -y \
     libc++-8-dev \
     libc++abi-8-dev \
     && rm -rf /var/lib/apt/lists/*
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -2954,7 +2957,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -2987,12 +2990,12 @@ ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 
 RUN wget -qO- https://github.com/Kitware/CMake/releases/download/v3.26.4/cmake-3.26.4-linux-$(uname -m).tar.gz | tar --strip-components=1 -xz -C /usr/local && \
     mkdir -p /deps && cd /deps && \
-    git clone https://github.com/{self.owner}/{self.repo}.git && \
+    git clone --recurse-submodules https://github.com/{self.owner}/corrade.git && \
     cmake -S corrade -B corrade/build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local && \
     cmake --build corrade/build --target install -j$(nproc) && \
     rm -rf /deps/corrade && \
     mkdir -p /app && cd /app && \
-    git clone https://github.com/{self.owner}/{self.repo}.git . && \
+    git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git . && \
     cmake -B build \
         -DCMAKE_BUILD_TYPE=Release \
         -DMAGNUM_BUILD_TESTS=ON \
@@ -3008,7 +3011,7 @@ RUN wget -qO- https://github.com/Kitware/CMake/releases/download/v3.26.4/cmake-3
     cmake --build build -j$(nproc) && \
     cmake --install build
 
-WORKDIR /testbed
+WORKDIR /app
 RUN git checkout {self.commit}
 CMD ["/bin/bash"]"""
 
@@ -3072,7 +3075,7 @@ RUN apt-get update && apt-get install -y ca-certificates gpg wget && \
 RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 100 --slave /usr/bin/g++ g++ /usr/bin/g++-12
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -3112,7 +3115,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -3128,10 +3131,10 @@ CMD ["./build/ninja_test"]"""
 
 
 @dataclass
-class Oatpp$COMMIT_(CppProfile):
+class Oatppf83d648f(CppProfile):
     owner: str = "oatpp"
     repo: str = "oatpp"
-    commit: str = "$COMMIT_HASH"
+    commit: str = "f83d648fd82dc222ef88aabbafb68efbd7d7bf50"
     test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
@@ -3140,7 +3143,7 @@ class Oatpp$COMMIT_(CppProfile):
 
 RUN apt-get update && apt-get install -y     build-essential     cmake     git     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -3167,7 +3170,7 @@ class Jsoncppe799ca05(CppProfile):
 
 RUN apt-get update && apt-get install -y cmake python3 git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -3216,7 +3219,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -3276,7 +3279,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -3327,7 +3330,7 @@ RUN apt-get update && apt-get install -y \
     perl \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 
 WORKDIR /testbed/trunk
 RUN git checkout {self.commit}
@@ -3385,7 +3388,7 @@ RUN apt-get update && apt-get install -y \
     libjsoncpp-dev xcb-proto python3-xcbgen i3-wm \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -3430,7 +3433,7 @@ RUN apt-get update && apt-get install -y \
     mesa-common-dev \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -3500,7 +3503,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -3532,7 +3535,7 @@ class Entte08302e1(CppProfile):
 RUN apt-get update && apt-get install -y     cmake     git     build-essential     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -3579,8 +3582,9 @@ RUN apt-get update && apt-get install -y \
     libexpat1-dev \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
+RUN git fetch --all --tags
 RUN git checkout {self.commit}
 
 RUN mkdir build && cd build && \
@@ -3625,7 +3629,7 @@ RUN apt-get update && apt-get install -y \
     qttools5-dev-tools \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -3697,7 +3701,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -3737,7 +3741,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -3775,7 +3779,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -3815,7 +3819,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
@@ -3860,7 +3864,7 @@ RUN apt-get update && apt-get install -y \
     automake \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone --recurse-submodules https://github.com/{self.owner}/{self.repo}.git /testbed
 WORKDIR /testbed
 RUN git checkout {self.commit}
 
