@@ -1,7 +1,5 @@
 import re
 from dataclasses import dataclass, field
-from swebench.harness.constants import TestStatus
-from swesmith.constants import ENV_NAME
 from swesmith.profiles.base import RepoProfile, registry
 
 
@@ -56,23 +54,32 @@ class CppProfile(RepoProfile):
 def parse_log_ctest(log: str) -> dict[str, str]:
     results = {}
     # Pattern for CTest output: " 47/70 Test #47: brpc_load_balancer_unittest .................   Passed  173.42 sec"
-    ctest_pattern = re.compile(r'\s*\d+/\d+\s+Test\s+#\d+:\s+([\w\-/.]+)\s+\.+\s+(Passed|Failed)', re.IGNORECASE)
+    ctest_pattern = re.compile(
+        r"\s*\d+/\d+\s+Test\s+#\d+:\s+([\w\-/.]+)\s+\.+\s+(Passed|Failed)",
+        re.IGNORECASE,
+    )
     for match in ctest_pattern.finditer(log):
         test_name = match.group(1)
         status = "PASSED" if match.group(2).lower() == "passed" else "FAILED"
         results[test_name] = status
-    
+
     # Fallback/complement: "The following tests FAILED:" section
-    failed_section = re.search(r'The following tests FAILED:\n((?:\s+\d+\s+-\s+[\w\-/.]+.*\n?)+)', log)
+    failed_section = re.search(
+        r"The following tests FAILED:\n((?:\s+\d+\s+-\s+[\w\-/.]+.*\n?)+)", log
+    )
     if failed_section:
         for line in failed_section.group(1).splitlines():
-            m = re.search(r'\d+\s+-\s+([\w\-/.]+)', line)
+            m = re.search(r"\d+\s+-\s+([\w\-/.]+)", line)
             if m:
                 results[m.group(1)] = "FAILED"
-    
+
     # If no individual tests found, try summary
     if not results:
-        summary_match = re.search(r'(\d+)%\s+tests\s+passed,\s+(\d+)\s+tests\s+failed\s+out\s+of\s+(\d+)', log, re.IGNORECASE)
+        summary_match = re.search(
+            r"(\d+)%\s+tests\s+passed,\s+(\d+)\s+tests\s+failed\s+out\s+of\s+(\d+)",
+            log,
+            re.IGNORECASE,
+        )
         if summary_match:
             total = int(summary_match.group(3))
             failed = int(summary_match.group(2))
@@ -80,7 +87,7 @@ def parse_log_ctest(log: str) -> dict[str, str]:
                 results[f"synthetic_pass_{i}"] = "PASSED"
             for i in range(failed):
                 results[f"synthetic_fail_{i}"] = "FAILED"
-                
+
     return results
 
 
@@ -94,7 +101,6 @@ def parse_log_gtest(log: str) -> dict[str, str]:
         dict: test case to test status mapping
     """
     test_status_map = {}
-    current_test = None
 
     # Pattern for individual test results
     # Examples:
@@ -107,46 +113,35 @@ def parse_log_gtest(log: str) -> dict[str, str]:
     for line in log.split("\n"):
         line = line.strip()
 
-        # Match RUN lines to capture test name
-        run_match = re.match(r'\[\s*RUN\s*\]\s+([\w:/.]+)', line)
-        if run_match:
-            current_test = run_match.group(1)
-            continue
-
         # Match OK/PASSED result lines
-        ok_match = re.match(r'\[\s*(OK|PASSED)\s*\]\s+([\w:/.]+)', line)
+        ok_match = re.match(r"\[\s*(OK|PASSED)\s*\]\s+([\w:/.]+)", line)
         if ok_match:
             test_name = ok_match.group(2)
             # Skip summary lines like "[  PASSED  ] 1 test." or "[  PASSED  ] 150 tests."
             # Summary lines have numeric test names or end with "test." / "tests."
-            if test_name.isdigit() or re.search(r'\d+\s+tests?[\.,]', line):
+            if test_name.isdigit() or re.search(r"\d+\s+tests?[\.,]", line):
                 continue
             test_status_map[test_name] = "PASSED"
-            current_test = None
             continue
 
         # Match FAILED result lines (but not summary lines with "tests")
-        failed_match = re.match(r'\[\s*FAILED\s*\]\s+([\w:/.]+)(?:\s+\(|$)', line)
+        failed_match = re.match(r"\[\s*FAILED\s*\]\s+([\w:/.]+)(?:\s+\(|$)", line)
         if failed_match:
             test_name = failed_match.group(1)
             # Skip summary lines like "[  FAILED  ] 2 tests, listed below:"
-            if test_name.isdigit() or re.search(r'\d+\s+tests?[\.,]', line):
-                current_test = None
+            if test_name.isdigit() or re.search(r"\d+\s+tests?[\.,]", line):
                 continue
             test_status_map[test_name] = "FAILED"
-            current_test = None
             continue
 
         # Match SKIPPED/DISABLED result lines
-        skip_match = re.match(r'\[\s*(SKIPPED|DISABLED)\s*\]\s+([\w:/.]+)', line)
+        skip_match = re.match(r"\[\s*(SKIPPED|DISABLED)\s*\]\s+([\w:/.]+)", line)
         if skip_match:
             test_name = skip_match.group(2)
             # Skip summary lines and numeric test names
-            if test_name.isdigit() or re.search(r'\d+\s+tests?[\.,]', line):
-                current_test = None
+            if test_name.isdigit() or re.search(r"\d+\s+tests?[\.,]", line):
                 continue
             test_status_map[test_name] = "SKIPPED"
-            current_test = None
             continue
 
     # Fallback: Try to parse summary lines if no individual tests found
@@ -155,20 +150,19 @@ def parse_log_gtest(log: str) -> dict[str, str]:
     # "[==========] 150 tests from 25 test suites ran."
     # "[  PASSED  ] 149 tests."
     # "[  FAILED  ] 1 test, listed below:"
-    summary_tests = re.search(r'\[\s*=+\s*\]\s*(\d+)\s+tests?\s+from', log)
-    summary_passed = re.search(r'\[\s*PASSED\s*\]\s*(\d+)\s+tests?', log)
-    summary_failed = re.search(r'\[\s*FAILED\s*\]\s*(\d+)\s+tests?', log)
+    summary_tests = re.search(r"\[\s*=+\s*\]\s*(\d+)\s+tests?\s+from", log)
+    summary_passed = re.search(r"\[\s*PASSED\s*\]\s*(\d+)\s+tests?", log)
+    summary_failed = re.search(r"\[\s*FAILED\s*\]\s*(\d+)\s+tests?", log)
 
     if summary_tests:
-        total_tests = int(summary_tests.group(1))
         passed_tests = int(summary_passed.group(1)) if summary_passed else 0
         failed_tests = int(summary_failed.group(1)) if summary_failed else 0
 
         # Create synthetic test entries
         for i in range(passed_tests):
-            test_status_map[f"test_passed_{i+1}"] = "PASSED"
+            test_status_map[f"test_passed_{i + 1}"] = "PASSED"
         for i in range(failed_tests):
-            test_status_map[f"test_failed_{i+1}"] = "FAILED"
+            test_status_map[f"test_failed_{i + 1}"] = "FAILED"
 
     return test_status_map
 
@@ -187,12 +181,14 @@ def parse_log_catch2(log: str) -> dict[str, str]:
 
     # Try XML format first (most common for CI)
     # Pattern: <TestCase name="Test Name" ...><OverallResult success="true|false"/>
-    xml_pattern = r'<TestCase\s+name="([^"]+)"[^>]*>.*?<OverallResult\s+success="(true|false)"'
-    
+    xml_pattern = (
+        r'<TestCase\s+name="([^"]+)"[^>]*>.*?<OverallResult\s+success="(true|false)"'
+    )
+
     for match in re.finditer(xml_pattern, log, re.DOTALL):
         test_name = match.group(1)
         success = match.group(2)
-        
+
         if success == "true":
             test_status_map[test_name] = "PASSED"
         else:
@@ -206,19 +202,21 @@ def parse_log_catch2(log: str) -> dict[str, str]:
     # Pattern for test results in text mode:
     # Catch2 has very specific format: "TestName ... PASSED" or similar
     # We need to be strict to avoid matching GTest/CTest output
-    
+
     # Look for Catch2-specific test result patterns
     # Catch2 format: test name followed by "..." then status
-    catch2_pattern = re.compile(r'^([^.:\[\]]+?)\s*\.\.\.\s*(PASSED|FAILED)', re.MULTILINE | re.IGNORECASE)
-    
+    catch2_pattern = re.compile(
+        r"^([^.:\[\]]+?)\s*\.\.\.\s*(PASSED|FAILED)", re.MULTILINE | re.IGNORECASE
+    )
+
     for match in catch2_pattern.finditer(log):
         test_name = match.group(1).strip()
         status = match.group(2).upper()
-        
+
         # Skip if it looks like CTest output (has numeric prefix or brackets)
-        if re.match(r'^\d+:', test_name) or '[' in test_name or ']' in test_name:
+        if re.match(r"^\d+:", test_name) or "[" in test_name or "]" in test_name:
             continue
-        
+
         if test_name:
             if status == "PASSED":
                 test_status_map[test_name] = "PASSED"
@@ -232,26 +230,31 @@ def parse_log_catch2(log: str) -> dict[str, str]:
     # Fallback: Parse summary line
     # "test cases: 150 | 149 passed | 1 failed"
     # "All tests passed (1234 assertions in 150 test cases)"
-    summary_match = re.search(r'test cases:\s*(\d+)\s*\|\s*(\d+)\s*passed\s*\|\s*(\d+)\s*failed', log, re.IGNORECASE)
+    summary_match = re.search(
+        r"test cases:\s*(\d+)\s*\|\s*(\d+)\s*passed\s*\|\s*(\d+)\s*failed",
+        log,
+        re.IGNORECASE,
+    )
     if summary_match:
-        total = int(summary_match.group(1))
         passed = int(summary_match.group(2))
         failed = int(summary_match.group(3))
-        
+
         # Create synthetic test entries based on counts
         for i in range(passed):
-            test_status_map[f"test_passed_{i+1}"] = "PASSED"
+            test_status_map[f"test_passed_{i + 1}"] = "PASSED"
         for i in range(failed):
-            test_status_map[f"test_failed_{i+1}"] = "FAILED"
-        
+            test_status_map[f"test_failed_{i + 1}"] = "FAILED"
+
         return test_status_map
 
     # Try "All tests passed" format
-    all_passed = re.search(r'All tests passed\s*\(.*?(\d+)\s+test cases?\)', log, re.IGNORECASE)
+    all_passed = re.search(
+        r"All tests passed\s*\(.*?(\d+)\s+test cases?\)", log, re.IGNORECASE
+    )
     if all_passed:
         passed = int(all_passed.group(1))
         for i in range(passed):
-            test_status_map[f"test_passed_{i+1}"] = "PASSED"
+            test_status_map[f"test_passed_{i + 1}"] = "PASSED"
 
     return test_status_map
 
@@ -271,7 +274,7 @@ def parse_log_boost_test(log: str) -> dict[str, str]:
     # Example: "error: in "test_suite/test_case_name": check x == y has failed"
     # Example: "error in "test_suite/test_case_name": some error message"
     failure_pattern = r'error(?:\s+in)?\s+"([^"]+)"'
-    
+
     failed_tests = set()
     for match in re.finditer(failure_pattern, log, re.IGNORECASE):
         test_name = match.group(1)
@@ -282,7 +285,7 @@ def parse_log_boost_test(log: str) -> dict[str, str]:
     # "Entering test case "test_name""
     # "Leaving test case "test_name""
     entering_pattern = r'Entering test (?:case|suite) "([^"]+)"'
-    
+
     all_tests = set()
     for match in re.finditer(entering_pattern, log):
         test_name = match.group(1)
@@ -299,15 +302,17 @@ def parse_log_boost_test(log: str) -> dict[str, str]:
 
     # Fallback: Check for summary indicators
     # "*** No errors detected" means all tests passed
-    if re.search(r'\*\*\* No errors detected', log):
+    if re.search(r"\*\*\* No errors detected", log):
         # Try to extract test count from summary
         # "Test case ... passed"
         # "N test cases passed"
-        test_count_match = re.search(r'(\d+)\s+test cases?\s+(?:out of \d+ )?passed', log, re.IGNORECASE)
+        test_count_match = re.search(
+            r"(\d+)\s+test cases?\s+(?:out of \d+ )?passed", log, re.IGNORECASE
+        )
         if test_count_match:
             passed = int(test_count_match.group(1))
             for i in range(passed):
-                test_status_map[f"test_passed_{i+1}"] = "PASSED"
+                test_status_map[f"test_passed_{i + 1}"] = "PASSED"
         elif not test_status_map:
             # If we see "No errors detected" but no count, mark as at least one passing test
             test_status_map["boost_test_suite"] = "PASSED"
@@ -315,49 +320,48 @@ def parse_log_boost_test(log: str) -> dict[str, str]:
 
     # Check for failure summary
     # "*** N failure(s) detected"
-    failure_summary = re.search(r'\*\*\* (\d+) failure(?:s)? detected', log)
+    failure_summary = re.search(r"\*\*\* (\d+) failure(?:s)? detected", log)
     if failure_summary:
         failures = int(failure_summary.group(1))
-        
+
         # If we already have specific failed tests from earlier parsing
         if len([v for v in test_status_map.values() if v == "FAILED"]) == 0:
             # Create synthetic failure entries
             for i in range(failures):
-                test_status_map[f"test_failed_{i+1}"] = "FAILED"
+                test_status_map[f"test_failed_{i + 1}"] = "FAILED"
 
     return test_status_map
 
 
 def parse_log_qtest(log: str) -> dict[str, str]:
     """Parse Qt Test (QTest) output.
-    
+
     Matches patterns like:
     PASS   : TestClass::testMethod()
     FAIL!  : TestClass::testMethod() Comparison failed
     SKIP   : TestClass::testMethod() Condition not met
     """
     test_status_map = {}
-    
+
     for line in log.split("\n"):
         # Match: PASS   : TestClass::testMethod()
-        pass_match = re.match(r'^PASS\s+:\s+(.+?)(?:\s*\(.*?\))?\s*$', line)
+        pass_match = re.match(r"^PASS\s+:\s+(.+?)(?:\s*\(.*?\))?\s*$", line)
         if pass_match:
             test_status_map[pass_match.group(1)] = "PASSED"
             continue
-        
+
         # Match: FAIL!  : TestClass::testMethod() ...
-        fail_match = re.match(r'^FAIL!\s+:\s+(.+?)(?:\s+.*)?\s*$', line)
+        fail_match = re.match(r"^FAIL!\s+:\s+(.+?)(?:\s+.*)?\s*$", line)
         if fail_match:
             test_status_map[fail_match.group(1)] = "FAILED"
             continue
-        
+
         # Match: SKIP   : TestClass::testMethod() ...
-        skip_match = re.match(r'^SKIP\s+:\s+(.+?)(?:\s+.*)?\s*$', line)
+        skip_match = re.match(r"^SKIP\s+:\s+(.+?)(?:\s+.*)?\s*$", line)
         if skip_match:
             test_status_map[skip_match.group(1)] = "SKIPPED"
-    
-    return test_status_map
 
+    return test_status_map
 
 
 @dataclass
@@ -419,8 +423,6 @@ CMD ["/bin/bash"]"""
         return parse_log_catch2(log)
 
 
-
-
 @dataclass
 class FTXUIf73d92d3(CppProfile):
     owner: str = "ArthurSonzogni"
@@ -451,8 +453,6 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Google Test output."""
         return parse_log_gtest(log)
-
-
 
 
 @dataclass
@@ -500,8 +500,6 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Catch2 test output."""
         return parse_log_catch2(log)
-
-
 
 
 @dataclass
@@ -563,8 +561,6 @@ CMD ["/bin/bash"]"""
         return parse_log_ctest(log)
 
 
-
-
 @dataclass
 class Magicenumc1aa6de9(CppProfile):
     owner: str = "Neargye"
@@ -595,8 +591,6 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse CTest output."""
         return parse_log_ctest(log)
-
-
 
 
 @dataclass
@@ -663,8 +657,6 @@ CMD ["/bin/bash"]"""
         return parse_log_ctest(log)
 
 
-
-
 @dataclass
 class OpenTTDae80a47c(CppProfile):
     owner: str = "OpenTTD"
@@ -709,8 +701,6 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse CTest output."""
         return parse_log_ctest(log)
-
-
 
 
 @dataclass
@@ -764,8 +754,6 @@ CMD ["/bin/bash"]"""
         return parse_log_ctest(log)
 
 
-
-
 @dataclass
 class Rapidjson24b5e7a8(CppProfile):
     owner: str = "Tencent"
@@ -792,8 +780,6 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse CTest output."""
         return parse_log_ctest(log)
-
-
 
 
 @dataclass
@@ -848,8 +834,6 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse CTest output."""
         return parse_log_ctest(log)
-
-
 
 
 @dataclass
@@ -916,8 +900,6 @@ CMD ["/bin/bash"]"""
         return parse_log_ctest(log)
 
 
-
-
 @dataclass
 class Albert897c7797(CppProfile):
     owner: str = "albertlauncher"
@@ -969,8 +951,6 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse CTest output."""
         return parse_log_ctest(log)
-
-
 
 
 @dataclass
@@ -1026,8 +1006,6 @@ CMD ["/bin/bash"]"""
         return parse_log_gtest(log)
 
 
-
-
 @dataclass
 class Aria2b4fd7cb1(CppProfile):
     owner: str = "aria2"
@@ -1078,14 +1056,16 @@ CMD ["/bin/bash"]"""
         results = {}
         # CPPUnit format: "OK (N)" where N is number of tests
         # Each test is represented by a dot (.) for pass or F for fail
-        ok_match = re.search(r'OK \((\d+)\)', log)
+        ok_match = re.search(r"OK \((\d+)\)", log)
         if ok_match:
             num_tests = int(ok_match.group(1))
             for i in range(num_tests):
                 results[f"test_{i}"] = "PASSED"
-        
+
         # Check for failures
-        failures_match = re.search(r'FAILURES!!!.*?Tests run: (\d+),\s+Failures: (\d+)', log, re.DOTALL)
+        failures_match = re.search(
+            r"FAILURES!!!.*?Tests run: (\d+),\s+Failures: (\d+)", log, re.DOTALL
+        )
         if failures_match:
             total = int(failures_match.group(1))
             failures = int(failures_match.group(2))
@@ -1094,10 +1074,8 @@ CMD ["/bin/bash"]"""
                 results[f"test_{i}"] = "PASSED"
             for i in range(failures):
                 results[f"test_fail_{i}"] = "FAILED"
-        
+
         return results
-
-
 
 
 @dataclass
@@ -1129,8 +1107,6 @@ CMD ["./build/btop"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse CTest output."""
         return parse_log_ctest(log)
-
-
 
 
 @dataclass
@@ -1180,8 +1156,6 @@ CMD ["/bin/bash"]"""
         return parse_log_ctest(log)
 
 
-
-
 @dataclass
 class Asepriteda0d3228(CppProfile):
     owner: str = "aseprite"
@@ -1227,8 +1201,6 @@ CMD ["/bin/bash"]"""
         return parse_log_ctest(log)
 
 
-
-
 @dataclass
 class Retdec8be53bbd(CppProfile):
     owner: str = "avast"
@@ -1271,8 +1243,6 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Google Test output."""
         return parse_log_gtest(log)
-
-
 
 
 @dataclass
@@ -1326,8 +1296,6 @@ CMD ["/bin/bash"]"""
         return parse_log_catch2(log)
 
 
-
-
 @dataclass
 class Azerothcorewotlk3ffbbe98(CppProfile):
     owner: str = "azerothcore"
@@ -1373,8 +1341,6 @@ CMD ["/bin/bash"]"""
         return parse_log_gtest(log)
 
 
-
-
 @dataclass
 class ArduinoJsonaa7fbd6c(CppProfile):
     owner: str = "bblanchon"
@@ -1399,8 +1365,6 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse CTest output."""
         return parse_log_ctest(log)
-
-
 
 
 @dataclass
@@ -1466,8 +1430,6 @@ CMD ["/bin/bash"]"""
         return parse_log_ctest(log)
 
 
-
-
 @dataclass
 class Cuberite7fd3fa5c(CppProfile):
     owner: str = "cuberite"
@@ -1502,8 +1464,6 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse CTest output."""
         return parse_log_ctest(log)
-
-
 
 
 @dataclass
@@ -1542,8 +1502,6 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse CTest output."""
         return parse_log_ctest(log)
-
-
 
 
 @dataclass
@@ -1600,8 +1558,6 @@ CMD ["/bin/bash"]"""
         return parse_log_ctest(log)
 
 
-
-
 @dataclass
 class Doctest1da23a3e(CppProfile):
     owner: str = "doctest"
@@ -1632,8 +1588,6 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse CTest output."""
         return parse_log_ctest(log)
-
-
 
 
 @dataclass
@@ -1670,8 +1624,6 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse CTest output."""
         return parse_log_ctest(log)
-
-
 
 
 @dataclass
@@ -1717,8 +1669,6 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse CTest output."""
         return parse_log_ctest(log)
-
-
 
 
 @dataclass
@@ -1772,8 +1722,6 @@ CMD ["/bin/bash"]"""
         return parse_log_ctest(log)
 
 
-
-
 @dataclass
 class Duckdbcb9e7c21(CppProfile):
     owner: str = "duckdb"
@@ -1808,8 +1756,6 @@ RUN mkdir build && cd build && cmake -G Ninja -DENABLE_EXTENSION_AUTOLOADING=0 -
         return parse_log_catch2(log)
 
 
-
-
 @dataclass
 class Endlesskyf1dba50f(CppProfile):
     owner: str = "endless-sky"
@@ -1839,8 +1785,6 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse CTest output."""
         return parse_log_ctest(log)
-
-
 
 
 @dataclass
@@ -1892,8 +1836,6 @@ CMD ["/bin/bash"]"""
         return parse_log_gtest(log)
 
 
-
-
 @dataclass
 class Spdlog472945ba(CppProfile):
     owner: str = "gabime"
@@ -1918,8 +1860,6 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse CTest output."""
         return parse_log_ctest(log)
-
-
 
 
 @dataclass
@@ -1951,8 +1891,6 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse CTest output."""
         return parse_log_ctest(log)
-
-
 
 
 @dataclass
@@ -1992,8 +1930,6 @@ CMD ["/bin/bash"]"""
         return parse_log_ctest(log)
 
 
-
-
 @dataclass
 class Bloatya277a440(CppProfile):
     owner: str = "google"
@@ -2030,8 +1966,6 @@ CMD ["/bin/bash"]"""
         return parse_log_ctest(log)
 
 
-
-
 @dataclass
 class Dracob91aa918(CppProfile):
     owner: str = "google"
@@ -2062,8 +1996,6 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Google Test output."""
         return parse_log_gtest(log)
-
-
 
 
 @dataclass
@@ -2099,8 +2031,6 @@ CMD ["/bin/bash"]"""
         return parse_log_ctest(log)
 
 
-
-
 @dataclass
 class Googletest5a9c3f9e(CppProfile):
     owner: str = "google"
@@ -2131,14 +2061,14 @@ CMD ["/bin/bash"]"""
         return parse_log_gtest(log)
 
 
-
-
 @dataclass
 class Highway224b014b(CppProfile):
     owner: str = "google"
     repo: str = "highway"
     commit: str = "224b014b1e6ebd1b9c1e134ebb5fbce899844c79"
-    test_cmd: str = "cd build && ctest --verbose --output-on-failure -j $(nproc) --timeout 300"
+    test_cmd: str = (
+        "cd build && ctest --verbose --output-on-failure -j $(nproc) --timeout 300"
+    )
 
     @property
     def dockerfile(self):
@@ -2165,8 +2095,6 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse CTest output."""
         return parse_log_ctest(log)
-
-
 
 
 @dataclass
@@ -2199,8 +2127,6 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse CTest output."""
         return parse_log_ctest(log)
-
-
 
 
 @dataclass
@@ -2238,8 +2164,6 @@ CMD ["/bin/bash"]"""
         return parse_log_ctest(log)
 
 
-
-
 @dataclass
 class Snappyda459b52(CppProfile):
     owner: str = "google"
@@ -2273,8 +2197,6 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse CTest output."""
         return parse_log_ctest(log)
-
-
 
 
 @dataclass
@@ -2312,8 +2234,6 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse CTest output."""
         return parse_log_ctest(log)
-
-
 
 
 @dataclass
@@ -2364,8 +2284,6 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Google Test output."""
         return parse_log_gtest(log)
-
-
 
 
 @dataclass
@@ -2425,8 +2343,6 @@ CMD ["/bin/bash"]"""
         return parse_log_ctest(log)
 
 
-
-
 @dataclass
 class Inputleap34a34fb2(CppProfile):
     owner: str = "input-leap"
@@ -2473,8 +2389,6 @@ CMD ["/bin/bash"]"""
         return parse_log_ctest(log)
 
 
-
-
 @dataclass
 class Yamlcpp2e6383d2(CppProfile):
     owner: str = "jbeder"
@@ -2509,8 +2423,6 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Google Test output."""
         return parse_log_gtest(log)
-
-
 
 
 @dataclass
@@ -2576,8 +2488,6 @@ CMD ["/bin/bash"]"""
         return parse_log_ctest(log)
 
 
-
-
 @dataclass
 class QuantLiba05b6ab3(CppProfile):
     owner: str = "lballabio"
@@ -2614,8 +2524,6 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Boost Test output."""
         return parse_log_boost_test(log)
-
-
 
 
 @dataclass
@@ -2674,8 +2582,6 @@ CMD ["/bin/bash"]"""
         return parse_log_ctest(log)
 
 
-
-
 @dataclass
 class Stablediffusioncppf0f641a1(CppProfile):
     owner: str = "leejet"
@@ -2711,8 +2617,6 @@ CMD ["/bin/bash"]"""
         return parse_log_ctest(log)
 
 
-
-
 @dataclass
 class Tinyxml23324d04d(CppProfile):
     owner: str = "leethomason"
@@ -2741,8 +2645,6 @@ CMD ["./build/xmltest"]"""
         return parse_log_ctest(log)
 
 
-
-
 @dataclass
 class Cpr22a41e60(CppProfile):
     owner: str = "libcpr"
@@ -2767,8 +2669,6 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse CTest output."""
         return parse_log_ctest(log)
-
-
 
 
 @dataclass
@@ -2827,8 +2727,6 @@ CMD ["/bin/bash"]"""
         return parse_log_catch2(log)
 
 
-
-
 @dataclass
 class Luau54a2ea00(CppProfile):
     owner: str = "luau-lang"
@@ -2853,8 +2751,6 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Catch2 test output."""
         return parse_log_catch2(log)
-
-
 
 
 @dataclass
@@ -2899,25 +2795,23 @@ CMD ["/bin/bash"]"""
         """Parse custom AirSim test wrapper output."""
         results = {}
         # Custom format: [==========] Running N test(s) and [  PASSED  ] test_name
-        passed_match = re.findall(r'\[\s+PASSED\s+\]\s+([\w.]+)', log)
+        passed_match = re.findall(r"\[\s+PASSED\s+\]\s+([\w.]+)", log)
         for test_name in passed_match:
             results[test_name] = "PASSED"
-        
+
         # Also check for failed tests
-        failed_match = re.findall(r'\[\s+FAILED\s+\]\s+([\w.]+)', log)
+        failed_match = re.findall(r"\[\s+FAILED\s+\]\s+([\w.]+)", log)
         for test_name in failed_match:
             results[test_name] = "FAILED"
-        
+
         # If no specific tests found, check for Running N test pattern
         if not results:
-            running_match = re.search(r'Running (\d+) test', log)
+            running_match = re.search(r"Running (\d+) test", log)
             if running_match:
                 # Assume 1 test passed if we see the wrapper format
                 results["AirLibUnitTests.Main"] = "PASSED"
-        
+
         return results
-
-
 
 
 @dataclass
@@ -2951,8 +2845,6 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse CTest output."""
         return parse_log_ctest(log)
-
-
 
 
 @dataclass
@@ -2999,8 +2891,6 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse CTest output."""
         return parse_log_ctest(log)
-
-
 
 
 @dataclass
@@ -3076,8 +2966,6 @@ CMD ["/bin/bash"]"""
         return parse_log_ctest(log)
 
 
-
-
 @dataclass
 class Ninjacc60300a(CppProfile):
     owner: str = "ninja-build"
@@ -3109,8 +2997,6 @@ CMD ["./build/ninja_test"]"""
         return parse_log_gtest(log)
 
 
-
-
 @dataclass
 class Oatppf83d648f(CppProfile):
     owner: str = "oatpp"
@@ -3134,8 +3020,6 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse CTest output."""
         return parse_log_ctest(log)
-
-
 
 
 @dataclass
@@ -3164,8 +3048,6 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse CTest output."""
         return parse_log_ctest(log)
-
-
 
 
 @dataclass
@@ -3223,14 +3105,14 @@ CMD ["/bin/bash"]"""
         return parse_log_ctest(log)
 
 
-
-
 @dataclass
 class Opencvaea90a9e(CppProfile):
     owner: str = "opencv"
     repo: str = "opencv"
     commit: str = "aea90a9e314d220dcaa80a616808afc38e1c78b6"
-    test_cmd: str = "cd build && ./bin/opencv_test_core --gtest_color=no --gtest_filter=-*OCL*"
+    test_cmd: str = (
+        "cd build && ./bin/opencv_test_core --gtest_color=no --gtest_filter=-*OCL*"
+    )
 
     @property
     def dockerfile(self):
@@ -3281,8 +3163,6 @@ CMD ["/bin/bash"]"""
         return parse_log_gtest(log)
 
 
-
-
 @dataclass
 class Srs6e2392f3(CppProfile):
     owner: str = "ossrs"
@@ -3322,8 +3202,6 @@ CMD ["./objs/srs"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse Google Test output."""
         return parse_log_gtest(log)
-
-
 
 
 @dataclass
@@ -3392,8 +3270,6 @@ CMD ["/bin/bash"]"""
         return parse_log_gtest(log)
 
 
-
-
 @dataclass
 class Recastnavigation13f43344(CppProfile):
     owner: str = "recastnavigation"
@@ -3429,14 +3305,14 @@ CMD ["/bin/bash"]"""
         return parse_log_ctest(log)
 
 
-
-
 @dataclass
 class Seastar7e457cf7(CppProfile):
     owner: str = "scylladb"
     repo: str = "seastar"
     commit: str = "7e457cf72dad2987c8fbf8f2382ea712e8bf1c34"
-    test_cmd: str = "cd build/release && ctest --verbose --output-on-failure --repeat until-pass:1"
+    test_cmd: str = (
+        "cd build/release && ctest --verbose --output-on-failure --repeat until-pass:1"
+    )
 
     @property
     def dockerfile(self):
@@ -3498,8 +3374,6 @@ CMD ["/bin/bash"]"""
         return parse_log_ctest(log)
 
 
-
-
 @dataclass
 class Entte08302e1(CppProfile):
     owner: str = "skypjack"
@@ -3525,8 +3399,6 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse CTest output."""
         return parse_log_ctest(log)
-
-
 
 
 @dataclass
@@ -3577,8 +3449,6 @@ CMD ["/bin/bash"]"""
         return parse_log_catch2(log)
 
 
-
-
 @dataclass
 class Sqlitebrowser95f92180(CppProfile):
     owner: str = "sqlitebrowser"
@@ -3621,8 +3491,6 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse CTest output."""
         return parse_log_ctest(log)
-
-
 
 
 @dataclass
@@ -3700,8 +3568,6 @@ CMD ["/bin/bash"]"""
         return parse_log_ctest(log)
 
 
-
-
 @dataclass
 class Taskflowd8776bc0(CppProfile):
     owner: str = "taskflow"
@@ -3733,8 +3599,6 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse CTest output."""
         return parse_log_ctest(log)
-
-
 
 
 @dataclass
@@ -3771,8 +3635,6 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse CTest output."""
         return parse_log_ctest(log)
-
-
 
 
 @dataclass
@@ -3820,8 +3682,6 @@ CMD ["/bin/bash"]"""
         return parse_log_boost_test(log)
 
 
-
-
 @dataclass
 class Libzmq51a5a9cb(CppProfile):
     owner: str = "zeromq"
@@ -3858,14 +3718,10 @@ CMD ["/bin/bash"]"""
         return parse_log_ctest(log)
 
 
-
-
-
-
 for name, obj in list(globals().items()):
     if (
         isinstance(obj, type)
         and issubclass(obj, CppProfile)
-        and obj.__name__ != 'CppProfile'
+        and obj.__name__ != "CppProfile"
     ):
         registry.register_profile(obj)

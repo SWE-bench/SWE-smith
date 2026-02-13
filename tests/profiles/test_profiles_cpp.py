@@ -381,6 +381,7 @@ Test Four ... FAILED
 
 def make_dummy_cpp_profile():
     """Create a minimal concrete CppProfile for testing."""
+
     class DummyCppProfile(CppProfile):
         owner = "dummy"
         repo = "dummyrepo"
