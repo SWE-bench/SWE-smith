@@ -117,8 +117,9 @@ def parse_log_gtest(log: str) -> dict[str, str]:
         ok_match = re.match(r'\[\s*(OK|PASSED)\s*\]\s+([\w:/.]+)', line)
         if ok_match:
             test_name = ok_match.group(2)
-            # Skip summary lines like "[  PASSED  ] 1 test." or numeric test names
-            if test_name.isdigit() or 'test' in line.lower():
+            # Skip summary lines like "[  PASSED  ] 1 test." or "[  PASSED  ] 150 tests."
+            # Summary lines have numeric test names or end with "test." / "tests."
+            if test_name.isdigit() or re.search(r'\d+\s+tests?[\.,]', line):
                 continue
             test_status_map[test_name] = "PASSED"
             current_test = None
@@ -128,8 +129,8 @@ def parse_log_gtest(log: str) -> dict[str, str]:
         failed_match = re.match(r'\[\s*FAILED\s*\]\s+([\w:/.]+)(?:\s+\(|$)', line)
         if failed_match:
             test_name = failed_match.group(1)
-            # Skip summary lines and numeric test names
-            if test_name.isdigit() or 'test' in line.lower():
+            # Skip summary lines like "[  FAILED  ] 2 tests, listed below:"
+            if test_name.isdigit() or re.search(r'\d+\s+tests?[\.,]', line):
                 current_test = None
                 continue
             test_status_map[test_name] = "FAILED"
@@ -141,7 +142,7 @@ def parse_log_gtest(log: str) -> dict[str, str]:
         if skip_match:
             test_name = skip_match.group(2)
             # Skip summary lines and numeric test names
-            if test_name.isdigit() or 'test' in line.lower():
+            if test_name.isdigit() or re.search(r'\d+\s+tests?[\.,]', line):
                 current_test = None
                 continue
             test_status_map[test_name] = "SKIPPED"
@@ -1279,7 +1280,7 @@ class Azahar37e688f8(CppProfile):
     owner: str = "azahar-emu"
     repo: str = "azahar"
     commit: str = "37e688f82d42917a8d232b8e9b49ecee814846b4"
-    test_cmd: str = "find . -name tests -type f -executable -exec {} \;"
+    test_cmd: str = "find . -name tests -type f -executable -exec {} \\;"
 
     @property
     def dockerfile(self):
