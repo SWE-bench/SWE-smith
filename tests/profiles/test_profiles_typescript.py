@@ -65,13 +65,8 @@ def test_ts_profile_inheritance():
 def test_ts_profile_extract_entities_default_excludes():
     """Test that extract_entities has correct default exclusions."""
     profile = make_dummy_ts_profile()
-    expected_excludes = [
-        "dist", "build", "node_modules", "coverage",
-        ".next", "out", "examples", "docs", "bin", "lib",
-    ]
-    # We verify the method exists and is callable; the defaults are tested
-    # by checking the class source directly
     assert hasattr(profile, "extract_entities")
+    assert callable(profile.extract_entities)
 
 
 # =============================================================================
@@ -246,7 +241,12 @@ def test_rxjs_profile_log_parser():
 
 def test_ts_profile_inheritance_in_concrete_profiles():
     """Test that concrete TS profiles properly inherit from TypeScriptProfile."""
-    profiles_to_test = [CrossEnv9951937a, Trpc2f40ba93, ClassValidator977d2c70, Rxjsc15b37f8]
+    profiles_to_test = [
+        CrossEnv9951937a,
+        Trpc2f40ba93,
+        ClassValidator977d2c70,
+        Rxjsc15b37f8,
+    ]
 
     for profile_class in profiles_to_test:
         profile = profile_class()
@@ -262,7 +262,12 @@ def test_ts_profile_inheritance_in_concrete_profiles():
 
 def test_all_profiles_have_mirror_name_in_dockerfile():
     """Test that all concrete profiles use mirror_name (not owner/repo) in dockerfiles."""
-    profiles_to_test = [CrossEnv9951937a, Trpc2f40ba93, ClassValidator977d2c70, Rxjsc15b37f8]
+    profiles_to_test = [
+        CrossEnv9951937a,
+        Trpc2f40ba93,
+        ClassValidator977d2c70,
+        Rxjsc15b37f8,
+    ]
 
     for profile_class in profiles_to_test:
         profile = profile_class()
@@ -274,7 +279,12 @@ def test_all_profiles_have_mirror_name_in_dockerfile():
 
 def test_all_profiles_have_checkout_in_dockerfile():
     """Test that all concrete profiles have git checkout in dockerfiles."""
-    profiles_to_test = [CrossEnv9951937a, Trpc2f40ba93, ClassValidator977d2c70, Rxjsc15b37f8]
+    profiles_to_test = [
+        CrossEnv9951937a,
+        Trpc2f40ba93,
+        ClassValidator977d2c70,
+        Rxjsc15b37f8,
+    ]
 
     for profile_class in profiles_to_test:
         profile = profile_class()

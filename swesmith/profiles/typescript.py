@@ -11,6 +11,7 @@ from swesmith.profiles.javascript import (
     parse_log_vitest,
 )
 
+
 @dataclass
 class TypeScriptProfile(RepoProfile):
     """
@@ -40,7 +41,7 @@ class TypeScriptProfile(RepoProfile):
                 "examples",
                 "docs",
                 "bin",
-                "lib", 
+                "lib",
             ]
 
         return super().extract_entities(
@@ -49,6 +50,7 @@ class TypeScriptProfile(RepoProfile):
             exclude_tests=exclude_tests,
             max_entities=max_entities,
         )
+
 
 def default_npm_install_dockerfile(mirror_name: str, node_version: str = "20") -> str:
     """Default Dockerfile for TypeScript projects using npm."""
@@ -59,6 +61,7 @@ WORKDIR /{ENV_NAME}
 RUN npm install
 """
 
+
 def default_pnpm_install_dockerfile(mirror_name: str, node_version: str = "20") -> str:
     """Default Dockerfile for TypeScript projects using pnpm."""
     return f"""FROM node:{node_version}-bullseye
@@ -68,6 +71,7 @@ RUN git clone https://github.com/{mirror_name} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
 RUN pnpm install
 """
+
 
 @dataclass
 class CrossEnv9951937a(TypeScriptProfile):
@@ -88,6 +92,7 @@ RUN npm install
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_vitest(log)
+
 
 @dataclass
 class Trpc2f40ba93(TypeScriptProfile):
@@ -110,6 +115,7 @@ RUN pnpm install
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_vitest(log)
 
+
 @dataclass
 class ClassValidator977d2c70(TypeScriptProfile):
     owner: str = "typestack"
@@ -130,12 +136,15 @@ RUN npm install
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
 
+
 @dataclass
 class NextChatc3b8c158(TypeScriptProfile):
     owner: str = "ChatGPTNextWeb"
     repo: str = "NextChat"
     commit: str = "c3b8c1587c04fff05f7b42276a43016e87771527"
-    test_cmd: str = "node --no-warnings --experimental-vm-modules $(yarn bin jest) --ci --forceExit"
+    test_cmd: str = (
+        "node --no-warnings --experimental-vm-modules $(yarn bin jest) --ci --forceExit"
+    )
 
     @property
     def dockerfile(self):
@@ -153,12 +162,15 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
 
+
 @dataclass
 class Cherrystudiob767d6e2(TypeScriptProfile):
     owner: str = "CherryHQ"
     repo: str = "cherry-studio"
     commit: str = "b767d6e2bff302740f2e6d8e49b8cec221147a4d"
-    test_cmd: str = "pnpm vitest run --reporter=verbose --silent --passWithNoTests || true"
+    test_cmd: str = (
+        "pnpm vitest run --reporter=verbose --silent --passWithNoTests || true"
+    )
 
     @property
     def dockerfile(self):
@@ -178,6 +190,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
+
 
 @dataclass
 class CopilotKitfd993504(TypeScriptProfile):
@@ -215,6 +228,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
 
+
 @dataclass
 class RSSHubee161b72(TypeScriptProfile):
     owner: str = "DIYgod"
@@ -238,6 +252,7 @@ CMD ["pnpm", "start"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_vitest(log)
+
 
 @dataclass
 class Dokploy1e7522d1(TypeScriptProfile):
@@ -271,6 +286,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
 
+
 @dataclass
 class Effect5df4da10(TypeScriptProfile):
     owner: str = "Effect-TS"
@@ -301,6 +317,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
 
+
 @dataclass
 class Fuelstsb3f37c91(TypeScriptProfile):
     owner: str = "FuelLabs"
@@ -325,6 +342,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_vitest(log)
+
 
 @dataclass
 class FigmaContextMCPc7304173(TypeScriptProfile):
@@ -353,6 +371,7 @@ CMD ["pnpm", "start"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
 
+
 @dataclass
 class Gitbook81f8ddcf(TypeScriptProfile):
     owner: str = "GitbookIO"
@@ -378,6 +397,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
 
+
 @dataclass
 class Reactselect052e864b(TypeScriptProfile):
     owner: str = "JedWatson"
@@ -402,6 +422,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
+
 
 @dataclass
 class Metamaskextension5b029fa6(TypeScriptProfile):
@@ -430,6 +451,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
 
+
 @dataclass
 class NativeScript3d6a4392(TypeScriptProfile):
     owner: str = "NativeScript"
@@ -454,6 +476,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_vitest(log)
+
 
 @dataclass
 class OpenCute84c0cfd(TypeScriptProfile):
@@ -480,6 +503,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
 
+
 @dataclass
 class Qwencodea38a5ba8(TypeScriptProfile):
     owner: str = "QwenLM"
@@ -504,6 +528,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
+
 
 @dataclass
 class Folo62efdd29(TypeScriptProfile):
@@ -531,6 +556,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_vitest(log)
 
+
 @dataclass
 class Rxjsc15b37f8(TypeScriptProfile):
     owner: str = "ReactiveX"
@@ -556,6 +582,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_mocha(log)
 
+
 @dataclass
 class Redocd41fd46f(TypeScriptProfile):
     owner: str = "Redocly"
@@ -580,6 +607,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
+
 
 @dataclass
 class Queryd6884583(TypeScriptProfile):
@@ -607,12 +635,15 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
 
+
 @dataclass
 class Unleash120f50bc(TypeScriptProfile):
     owner: str = "Unleash"
     repo: str = "unleash"
     commit: str = "120f50bcd0e939699162d572c975974a57ea7cfc"
-    test_cmd: str = "NODE_ENV=test PORT=4243 npx vitest run --config vitest.unit.config.ts src/lib"
+    test_cmd: str = (
+        "NODE_ENV=test PORT=4243 npx vitest run --config vitest.unit.config.ts src/lib"
+    )
 
     @property
     def dockerfile(self):
@@ -640,6 +671,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_mocha(log)
 
+
 @dataclass
 class Million13406265(TypeScriptProfile):
     owner: str = "aidenybai"
@@ -666,6 +698,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
 
+
 @dataclass
 class SponsorBlockdfddffbc(TypeScriptProfile):
     owner: str = "ajayyy"
@@ -687,6 +720,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
+
 
 @dataclass
 class Bulletproofreact63f68340(TypeScriptProfile):
@@ -717,6 +751,7 @@ CMD ["yarn", "test"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
 
+
 @dataclass
 class Antdesignpro607e63f4(TypeScriptProfile):
     owner: str = "ant-design"
@@ -741,6 +776,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_vitest(log)
+
 
 @dataclass
 class Antdesignef322504(TypeScriptProfile):
@@ -767,6 +803,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
 
+
 @dataclass
 class G2e58f72b1(TypeScriptProfile):
     owner: str = "antvis"
@@ -791,6 +828,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
+
 
 @dataclass
 class G691c0ac85(TypeScriptProfile):
@@ -827,6 +865,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
 
+
 @dataclass
 class Awscdk17f69d67(TypeScriptProfile):
     owner: str = "aws"
@@ -860,6 +899,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
 
+
 @dataclass
 class Backstagef2fc1def(TypeScriptProfile):
     owner: str = "backstage"
@@ -891,6 +931,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
+
 
 @dataclass
 class Etchera79db1db(TypeScriptProfile):
@@ -926,6 +967,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_mocha(log)
 
+
 @dataclass
 class Betterauth71a0297b(TypeScriptProfile):
     owner: str = "better-auth"
@@ -952,6 +994,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_vitest(log)
+
 
 @dataclass
 class Socialappcbd48c85(TypeScriptProfile):
@@ -983,6 +1026,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
 
+
 @dataclass
 class Reactwindow2b982512(TypeScriptProfile):
     owner: str = "bvaughn"
@@ -1007,6 +1051,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
+
 
 @dataclass
 class UITARSdesktop3f254968(TypeScriptProfile):
@@ -1035,6 +1080,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
 
+
 @dataclass
 class Calcom3c1d9068(TypeScriptProfile):
     owner: str = "calcom"
@@ -1062,6 +1108,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_vitest(log)
 
+
 @dataclass
 class Gitmoji72dd6f38(TypeScriptProfile):
     owner: str = "carloscuesta"
@@ -1085,6 +1132,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
+
 
 @dataclass
 class Chakraui527a04c7(TypeScriptProfile):
@@ -1110,6 +1158,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
+
 
 @dataclass
 class Clineb5b503dd(TypeScriptProfile):
@@ -1138,6 +1187,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
 
+
 @dataclass
 class Ohmyopencode976ffaeb(TypeScriptProfile):
     owner: str = "code-yeongyu"
@@ -1162,6 +1212,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
+
 
 @dataclass
 class Codeservere90504b8(TypeScriptProfile):
@@ -1197,6 +1248,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
+
 
 @dataclass
 class Editorjs90d6dec9(TypeScriptProfile):
@@ -1236,6 +1288,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
 
+
 @dataclass
 class Zod54902cb7(TypeScriptProfile):
     owner: str = "colinhacks"
@@ -1260,6 +1313,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_vitest(log)
+
 
 @dataclass
 class Continue437ac08a(TypeScriptProfile):
@@ -1288,6 +1342,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
 
+
 @dataclass
 class Commitlint5635cf0a(TypeScriptProfile):
     owner: str = "conventional-changelog"
@@ -1312,6 +1367,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
+
 
 @dataclass
 class Datefnsdd663983(TypeScriptProfile):
@@ -1339,6 +1395,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
 
+
 @dataclass
 class Directusac922d18(TypeScriptProfile):
     owner: str = "directus"
@@ -1365,6 +1422,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_vitest(log)
 
+
 @dataclass
 class Univercc701579(TypeScriptProfile):
     owner: str = "dream-num"
@@ -1390,6 +1448,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_vitest(log)
+
 
 @dataclass
 class Drizzleorma086f59f(TypeScriptProfile):
@@ -1438,6 +1497,7 @@ CMD ["/bin/bash"]"""
                     results[f"turbo_task_failed_{i}"] = "FAILED"
         return results
 
+
 @dataclass
 class Excalidrawf39ac4a6(TypeScriptProfile):
     owner: str = "excalidraw"
@@ -1463,6 +1523,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
 
+
 @dataclass
 class Fabricjs6742471c(TypeScriptProfile):
     owner: str = "fabricjs"
@@ -1487,6 +1548,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_vitest(log)
+
 
 @dataclass
 class Firecrawl43f61e7f(TypeScriptProfile):
@@ -1538,6 +1600,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
 
+
 @dataclass
 class Foam2cac8162(TypeScriptProfile):
     owner: str = "foambubble"
@@ -1570,6 +1633,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
 
+
 @dataclass
 class Formbricks4b0c5186(TypeScriptProfile):
     owner: str = "formbricks"
@@ -1599,12 +1663,13 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_vitest(log)
 
+
 @dataclass
 class Pangoline4d4c628(TypeScriptProfile):
     owner: str = "fosrl"
     repo: str = "pangolin"
     commit: str = "e4d4c62833eb309ffb2fd9db05d1dbee6b6761f6"
-    test_cmd: str = "find server -name \"*.test.ts\" -exec npx tsx {} \\;"
+    test_cmd: str = 'find server -name "*.test.ts" -exec npx tsx {} \\;'
 
     @property
     def dockerfile(self):
@@ -1629,6 +1694,7 @@ CMD ["npm", "run", "start"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_mocha(log)
+
 
 @dataclass
 class Geminicli1b274b08(TypeScriptProfile):
@@ -1661,12 +1727,15 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
 
+
 @dataclass
 class Crystal65b3b40b(TypeScriptProfile):
     owner: str = "graphile"
     repo: str = "crystal"
     commit: str = "65b3b40b33853b62366c2ba378cdb83343b0b0ac"
-    test_cmd: str = "yarn jest --ci --color=false utils/lru utils/tamedevil utils/pg-sql2"
+    test_cmd: str = (
+        "yarn jest --ci --color=false utils/lru utils/tamedevil utils/pg-sql2"
+    )
 
     @property
     def dockerfile(self):
@@ -1688,6 +1757,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
+
 
 @dataclass
 class Hexo1fd997c3(TypeScriptProfile):
@@ -1714,6 +1784,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_mocha(log)
 
+
 @dataclass
 class Homebridge3a341e08(TypeScriptProfile):
     owner: str = "homebridge"
@@ -1739,6 +1810,7 @@ CMD ["npm", "test"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
 
+
 @dataclass
 class Honof7d272ab(TypeScriptProfile):
     owner: str = "honojs"
@@ -1763,6 +1835,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
+
 
 @dataclass
 class Stimulus422eb81f(TypeScriptProfile):
@@ -1796,6 +1869,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jasmine(log)
 
+
 @dataclass
 class TwelveFactorAgentsd20c7283(TypeScriptProfile):
     owner: str = "humanlayer"
@@ -1822,6 +1896,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
+
 
 @dataclass
 class InversifyJSfdd91868(TypeScriptProfile):
@@ -1853,6 +1928,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_mocha(log)
 
+
 @dataclass
 class Reactnativefirebase7df61307(TypeScriptProfile):
     owner: str = "invertase"
@@ -1880,6 +1956,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
 
+
 @dataclass
 class Ioniconsa9d1b7e2(TypeScriptProfile):
     owner: str = "ionic-team"
@@ -1902,6 +1979,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
+
 
 @dataclass
 class NextjsBoilerplate503d2665(TypeScriptProfile):
@@ -1928,6 +2006,7 @@ CMD ["npm", "start"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_vitest(log)
 
+
 @dataclass
 class Sigmajs13062dc5(TypeScriptProfile):
     owner: str = "jacomyal"
@@ -1953,6 +2032,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_vitest(log)
+
 
 @dataclass
 class Janaffbde58(TypeScriptProfile):
@@ -1983,6 +2063,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
 
+
 @dataclass
 class Formik91475adb(TypeScriptProfile):
     owner: str = "jaredpalmer"
@@ -2007,6 +2088,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
+
 
 @dataclass
 class Jest905bcbce(TypeScriptProfile):
@@ -2035,6 +2117,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
 
+
 @dataclass
 class FastGPTcfded3af(TypeScriptProfile):
     owner: str = "labring"
@@ -2061,6 +2144,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_vitest(log)
+
 
 @dataclass
 class Langchainjs41bfea51(TypeScriptProfile):
@@ -2089,6 +2173,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_vitest(log)
 
+
 @dataclass
 class Lerna215ff002(TypeScriptProfile):
     owner: str = "lerna"
@@ -2111,6 +2196,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_vitest(log)
+
 
 @dataclass
 class Lobehubc576a13a(TypeScriptProfile):
@@ -2138,6 +2224,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
+
 
 @dataclass
 class Mapboxgljs9236fbb0(TypeScriptProfile):
@@ -2175,6 +2262,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_vitest(log)
 
+
 @dataclass
 class Markmap205367a2(TypeScriptProfile):
     owner: str = "markmap"
@@ -2199,6 +2287,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
+
 
 @dataclass
 class Reactadmin823caa0b(TypeScriptProfile):
@@ -2226,6 +2315,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
+
 
 @dataclass
 class Aipdfchatbotlangchain4bb98092(TypeScriptProfile):
@@ -2255,6 +2345,7 @@ CMD ["yarn", "build"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
+
 
 @dataclass
 class Medusa3eb69ebd(TypeScriptProfile):
@@ -2287,6 +2378,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_mocha(log)
+
 
 @dataclass
 class TypeScript0a74ec4e(TypeScriptProfile):
@@ -2324,6 +2416,7 @@ CMD ["/bin/bash"]"""
                 results[f"test_failed_{i}"] = "FAILED"
         return results
 
+
 @dataclass
 class Vscode4166e90a(TypeScriptProfile):
     owner: str = "microsoft"
@@ -2358,6 +2451,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_mocha(log)
+
 
 @dataclass
 class Losslesscut26013077(TypeScriptProfile):
@@ -2401,6 +2495,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_vitest(log)
 
+
 @dataclass
 class Msw3a7b4510(TypeScriptProfile):
     owner: str = "mswjs"
@@ -2427,6 +2522,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_vitest(log)
+
 
 @dataclass
 class N8ncfd59cc5(TypeScriptProfile):
@@ -2461,6 +2557,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
 
+
 @dataclass
 class Nanobrowser322384f8(TypeScriptProfile):
     owner: str = "nanobrowser"
@@ -2486,6 +2583,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_vitest(log)
 
+
 @dataclass
 class Nest346c9543(TypeScriptProfile):
     owner: str = "nestjs"
@@ -2510,6 +2608,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_mocha(log)
+
 
 @dataclass
 class Nx4f02c6b5(TypeScriptProfile):
@@ -2549,6 +2648,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_mocha(log)
 
+
 @dataclass
 class Nuxt06533105(TypeScriptProfile):
     owner: str = "nuxt"
@@ -2577,6 +2677,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
 
+
 @dataclass
 class Openclaw7dfa99a6(TypeScriptProfile):
     owner: str = "openclaw"
@@ -2604,6 +2705,7 @@ CMD ["pnpm", "start"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_vitest(log)
 
+
 @dataclass
 class Newsnow951241bf(TypeScriptProfile):
     owner: str = "ourongxing"
@@ -2625,6 +2727,7 @@ CMD ["pnpm", "dev"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
+
 
 @dataclass
 class Payload8f660355(TypeScriptProfile):
@@ -2653,6 +2756,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_vitest(log)
 
+
 @dataclass
 class Drawnixa046d152(TypeScriptProfile):
     owner: str = "plait-board"
@@ -2677,6 +2781,7 @@ CMD ["npm", "start"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_mocha(log)
+
 
 @dataclass
 class Reactspring2ff6de7a(TypeScriptProfile):
@@ -2703,6 +2808,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
 
+
 @dataclass
 class Reactthreefiber9525ea0d(TypeScriptProfile):
     owner: str = "pmndrs"
@@ -2728,6 +2834,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
 
+
 @dataclass
 class Zustand99379a6e(TypeScriptProfile):
     owner: str = "pmndrs"
@@ -2752,6 +2859,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_vitest(log)
+
 
 @dataclass
 class Pnpm47e85018(TypeScriptProfile):
@@ -2786,6 +2894,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
 
+
 @dataclass
 class Prismaf6b1ac64(TypeScriptProfile):
     owner: str = "prisma"
@@ -2815,6 +2924,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
 
+
 @dataclass
 class Tsx3a3a0071(TypeScriptProfile):
     owner: str = "privatenumber"
@@ -2841,6 +2951,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_mocha(log)
+
 
 @dataclass
 class Puppeteerf4c9feef(TypeScriptProfile):
@@ -2908,6 +3019,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_mocha(log)
 
+
 @dataclass
 class Primitives90751370(TypeScriptProfile):
     owner: str = "radix-ui"
@@ -2935,6 +3047,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_vitest(log)
 
+
 @dataclass
 class Reacthookform3adba2b8(TypeScriptProfile):
     owner: str = "react-hook-form"
@@ -2959,6 +3072,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
+
 
 @dataclass
 class Readest9cd88fe8(TypeScriptProfile):
@@ -3005,6 +3119,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_vitest(log)
 
+
 @dataclass
 class Recharts5108cfdf(TypeScriptProfile):
     owner: str = "recharts"
@@ -3029,6 +3144,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
+
 
 @dataclass
 class Noderedised55918a(TypeScriptProfile):
@@ -3055,6 +3171,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_mocha(log)
 
+
 @dataclass
 class Reduxthunk184205d4(TypeScriptProfile):
     owner: str = "reduxjs"
@@ -3079,6 +3196,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
+
 
 @dataclass
 class Redux849c8ce5(TypeScriptProfile):
@@ -3107,6 +3225,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_vitest(log)
 
+
 @dataclass
 class Refinedgithubd4a7c3fb(TypeScriptProfile):
     owner: str = "refined-github"
@@ -3131,6 +3250,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_vitest(log)
+
 
 @dataclass
 class Refinefa022dc8(TypeScriptProfile):
@@ -3158,6 +3278,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_vitest(log)
+
 
 @dataclass
 class Reactrouter445eacd5(TypeScriptProfile):
@@ -3188,6 +3309,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
 
+
 @dataclass
 class Rete2aae1995(TypeScriptProfile):
     owner: str = "retejs"
@@ -3210,6 +3332,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
+
 
 @dataclass
 class Ui28ebf1b8(TypeScriptProfile):
@@ -3237,6 +3360,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_mocha(log)
+
 
 @dataclass
 class Shardeum0c454caf(TypeScriptProfile):
@@ -3271,6 +3395,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
+
 
 @dataclass
 class Kyeb5c3eba(TypeScriptProfile):
@@ -3319,6 +3444,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_mocha(log)
 
+
 @dataclass
 class Typefest051325ac(TypeScriptProfile):
     owner: str = "sindresorhus"
@@ -3343,6 +3469,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_mocha(log)
+
 
 @dataclass
 class Solida0524c06(TypeScriptProfile):
@@ -3370,6 +3497,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_vitest(log)
 
+
 @dataclass
 class FossFLOWdaa0dd3b(TypeScriptProfile):
     owner: str = "stan-smith"
@@ -3394,6 +3522,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
+
 
 @dataclass
 class Xstate1710ace0(TypeScriptProfile):
@@ -3420,6 +3549,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
+
 
 @dataclass
 class Strapie5b87a54(TypeScriptProfile):
@@ -3452,6 +3582,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
 
+
 @dataclass
 class Reactuse9ef95352(TypeScriptProfile):
     owner: str = "streamich"
@@ -3477,6 +3608,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
 
+
 @dataclass
 class Styledcomponents2bd64021(TypeScriptProfile):
     owner: str = "styled-components"
@@ -3500,6 +3632,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
+
 
 @dataclass
 class Signaturepad43989b6d(TypeScriptProfile):
@@ -3525,6 +3658,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
+
 
 @dataclass
 class Tailwindcssdf96ea5e(TypeScriptProfile):
@@ -3567,6 +3701,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_vitest(log)
 
+
 @dataclass
 class Bit2d92cae7(TypeScriptProfile):
     owner: str = "teambit"
@@ -3606,6 +3741,7 @@ CMD ["/bin/bash"]"""
                 results[f"test_failed_{i}"] = "FAILED"
         return results
 
+
 @dataclass
 class Claudemem1341e93f(TypeScriptProfile):
     owner: str = "thedotmack"
@@ -3630,6 +3766,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
+
 
 @dataclass
 class Tinacmsdffb104f(TypeScriptProfile):
@@ -3658,6 +3795,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
 
+
 @dataclass
 class Tldraw9b55464f(TypeScriptProfile):
     owner: str = "tldraw"
@@ -3682,6 +3820,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
+
 
 @dataclass
 class Uppy89fbbc72(TypeScriptProfile):
@@ -3712,12 +3851,15 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
 
+
 @dataclass
 class Tremornpm7613bff6(TypeScriptProfile):
     owner: str = "tremorlabs"
     repo: str = "tremor-npm"
     commit: str = "7613bff631f713616b7b2ae52fb96dbc8e3dcc97"
-    test_cmd: str = "pnpm tests --ci --colors --reporters=default 2>&1 | tee test_output.txt"
+    test_cmd: str = (
+        "pnpm tests --ci --colors --reporters=default 2>&1 | tee test_output.txt"
+    )
 
     @property
     def dockerfile(self):
@@ -3740,6 +3882,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
+
 
 @dataclass
 class Trpc5845dc28(TypeScriptProfile):
@@ -3767,6 +3910,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
+
 
 @dataclass
 class Typescripteslint8a95834b(TypeScriptProfile):
@@ -3796,6 +3940,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_vitest(log)
 
+
 @dataclass
 class Classvalidator977d2c70(TypeScriptProfile):
     owner: str = "typestack"
@@ -3820,6 +3965,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
+
 
 @dataclass
 class Tiptap2d6de06c(TypeScriptProfile):
@@ -3846,6 +3992,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_vitest(log)
 
+
 @dataclass
 class Umami860e6390(TypeScriptProfile):
     owner: str = "umami-software"
@@ -3870,6 +4017,7 @@ CMD ["npm", "start"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
+
 
 @dataclass
 class Qiankun693cdde7(TypeScriptProfile):
@@ -3896,6 +4044,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_vitest(log)
 
+
 @dataclass
 class Inke8b08e75(TypeScriptProfile):
     owner: str = "vadimdemedes"
@@ -3919,6 +4068,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_mocha(log)
+
 
 @dataclass
 class Satori6203e870(TypeScriptProfile):
@@ -3956,6 +4106,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
 
+
 @dataclass
 class Verdacciocda2467f(TypeScriptProfile):
     owner: str = "verdaccio"
@@ -3981,6 +4132,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_vitest(log)
+
 
 @dataclass
 class Vite8b47ff76(TypeScriptProfile):
@@ -4009,6 +4161,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_vitest(log)
+
 
 @dataclass
 class Void17e7a5b1(TypeScriptProfile):
@@ -4050,6 +4203,7 @@ CMD ["/bin/bash"]"""
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_mocha(log)
 
+
 @dataclass
 class Xyflow39ff6e94(TypeScriptProfile):
     owner: str = "xyflow"
@@ -4076,6 +4230,7 @@ CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
+
 
 # Register all TypeScript profiles with the global registry
 for name, obj in list(globals().items()):
