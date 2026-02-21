@@ -1,6 +1,7 @@
 import pytest
 from swesmith.bug_gen.adapters.cpp import get_entities_from_file_cpp
 from swesmith.bug_gen.procedural.cpp.control_flow import (
+    ControlBreakContinueSwapModifier,
     ControlIfElseInvertModifier,
     ControlShuffleLinesModifier,
 )
@@ -180,3 +181,100 @@ def test_control_shuffle_lines_single_statement(tmp_path):
     result = modifier.modify(entities[0])
 
     assert result is None, "Expected None when there's only one statement to shuffle"
+
+
+@pytest.mark.parametrize(
+    "src,expected",
+    [
+        (
+            """void foo(int x) {
+    while (x > 0) {
+        if (x == 2) {
+            break;
+        }
+        --x;
+    }
+}""",
+            """void foo(int x) {
+    while (x > 0) {
+        if (x == 2) {
+            continue;
+        }
+        --x;
+    }
+}""",
+        ),
+        (
+            """void bar(int x) {
+    for (int i = 0; i < x; ++i) {
+        continue;
+    }
+}""",
+            """void bar(int x) {
+    for (int i = 0; i < x; ++i) {
+        break;
+    }
+}""",
+        ),
+    ],
+)
+def test_control_break_continue_swap_modifier(tmp_path, src, expected):
+    """Test that ControlBreakContinueSwapModifier swaps break/continue within loops."""
+    test_file = tmp_path / "test.cpp"
+    test_file.write_text(src, encoding="utf-8")
+
+    entities = []
+    get_entities_from_file_cpp(entities, str(test_file))
+    assert len(entities) == 1
+
+    modifier = ControlBreakContinueSwapModifier(likelihood=1.0, seed=42)
+    result = modifier.modify(entities[0])
+
+    assert result is not None
+    assert result.rewrite.strip() == expected.strip(), (
+        f"Expected {expected}, got {result.rewrite}"
+    )
+
+
+def test_control_break_continue_swap_modifier_ignores_switch_break(tmp_path):
+    """Test that ControlBreakContinueSwapModifier ignores switch-only break statements."""
+    src = """int foo(int x) {
+    switch (x) {
+        case 1:
+            break;
+        default:
+            return x;
+    }
+}"""
+    test_file = tmp_path / "test.cpp"
+    test_file.write_text(src, encoding="utf-8")
+
+    entities = []
+    get_entities_from_file_cpp(entities, str(test_file))
+    assert len(entities) == 1
+
+    modifier = ControlBreakContinueSwapModifier(likelihood=1.0, seed=42)
+    result = modifier.modify(entities[0])
+
+    assert result is None
+
+
+def test_control_break_continue_swap_modifier_no_candidates(tmp_path):
+    """Test that ControlBreakContinueSwapModifier returns None when no break/continue exists."""
+    src = """int foo(int x) {
+    while (x > 0) {
+        --x;
+    }
+    return x;
+}"""
+    test_file = tmp_path / "test.cpp"
+    test_file.write_text(src, encoding="utf-8")
+
+    entities = []
+    get_entities_from_file_cpp(entities, str(test_file))
+    assert len(entities) == 1
+
+    modifier = ControlBreakContinueSwapModifier(likelihood=1.0, seed=42)
+    result = modifier.modify(entities[0])
+
+    assert result is None
