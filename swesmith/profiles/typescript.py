@@ -669,7 +669,7 @@ RUN printf 'import {{ defineConfig }} from "vitest/config";\\nexport default def
 CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
-        return parse_log_mocha(log)
+        return parse_log_vitest(log)
 
 
 @dataclass
@@ -2377,7 +2377,7 @@ RUN yarn build
 CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
-        return parse_log_mocha(log)
+        return parse_log_jest(log)
 
 
 @dataclass
