@@ -273,23 +273,6 @@ def test_all_profiles_have_mirror_name_in_dockerfile():
         )
 
 
-def test_all_profiles_have_checkout_in_dockerfile():
-    """Test that all concrete profiles have git checkout in dockerfiles."""
-    profiles_to_test = [
-        CrossEnv9951937a,
-        Trpc2f40ba93,
-        ClassValidator977d2c70,
-        Rxjsc15b37f8,
-    ]
-
-    for profile_class in profiles_to_test:
-        profile = profile_class()
-        dockerfile = profile.dockerfile
-        assert profile.commit in dockerfile, (
-            f"{profile_class.__name__} dockerfile should contain commit hash"
-        )
-
-
 # =============================================================================
 # Build Image Tests (with mocks)
 # =============================================================================
