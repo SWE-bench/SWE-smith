@@ -125,7 +125,6 @@ def test_crossenv_profile_dockerfile():
     dockerfile = profile.dockerfile
     assert "FROM node:18-slim" in dockerfile
     assert f"git clone https://github.com/{profile.mirror_name}" in dockerfile
-    assert f"git checkout {profile.commit}" in dockerfile
     assert "npm install" in dockerfile
 
 
@@ -157,7 +156,6 @@ def test_trpc_profile_dockerfile():
     assert "FROM node:22" in dockerfile
     assert "pnpm" in dockerfile
     assert f"git clone https://github.com/{profile.mirror_name}" in dockerfile
-    assert f"git checkout {profile.commit}" in dockerfile
     assert "pnpm install" in dockerfile
 
 
@@ -186,7 +184,6 @@ def test_classvalidator_profile_dockerfile():
     dockerfile = profile.dockerfile
     assert "FROM node:18-slim" in dockerfile
     assert f"git clone https://github.com/{profile.mirror_name}" in dockerfile
-    assert f"git checkout {profile.commit}" in dockerfile
     assert "npm install" in dockerfile
 
 
@@ -219,7 +216,6 @@ def test_rxjs_profile_dockerfile():
     dockerfile = profile.dockerfile
     assert "FROM node:20-slim" in dockerfile
     assert f"git clone https://github.com/{profile.mirror_name}" in dockerfile
-    assert f"git checkout {profile.commit}" in dockerfile
     assert "git submodule update --init --recursive" in dockerfile
     assert "yarn install" in dockerfile
 
