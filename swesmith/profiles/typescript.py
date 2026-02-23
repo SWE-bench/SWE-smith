@@ -488,29 +488,29 @@ CMD ["/bin/bash"]"""
         return parse_log_jest(log)
 
 
-@dataclass
-class Qwencodea38a5ba8(TypeScriptProfile):
-    owner: str = "QwenLM"
-    repo: str = "qwen-code"
-    commit: str = "a38a5ba87d0642368b93acbf5ca8822277810e7e"
-    test_cmd: str = "npm test --workspaces --if-present --parallel"
+# @dataclass
+# class Qwencodea38a5ba8(TypeScriptProfile):
+#     owner: str = "QwenLM"
+#     repo: str = "qwen-code"
+#     commit: str = "a38a5ba87d0642368b93acbf5ca8822277810e7e"
+#     test_cmd: str = "npm test --workspaces --if-present --parallel"
 
-    @property
-    def dockerfile(self):
-        return f"""FROM node:20-slim
+#     @property
+#     def dockerfile(self):
+#         return f"""FROM node:20-slim
 
-RUN apt-get update && apt-get install -y git python3 make g++ && rm -rf /var/lib/apt/lists/*
+# RUN apt-get update && apt-get install -y git python3 make g++ && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.mirror_name}.git /testbed
-WORKDIR /testbed
-RUN git submodule update --init --recursive
+# RUN git clone https://github.com/{self.mirror_name}.git /testbed
+# WORKDIR /testbed
+# RUN git submodule update --init --recursive
 
-RUN npm install
+# RUN npm install
 
-CMD ["/bin/bash"]"""
+# CMD ["/bin/bash"]"""
 
-    def log_parser(self, log: str) -> dict[str, str]:
-        return parse_log_jest(log)
+#     def log_parser(self, log: str) -> dict[str, str]:
+#         return parse_log_jest(log)
 
 
 @dataclass
@@ -1246,29 +1246,29 @@ CMD ["/bin/bash"]"""
         return parse_log_jest(log)
 
 
-@dataclass
-class Zod54902cb7(TypeScriptProfile):
-    owner: str = "colinhacks"
-    repo: str = "zod"
-    commit: str = "54902cb794f24f4ceb0cf8830e5a27b3490191f7"
-    test_cmd: str = "pnpm run test"
+# @dataclass
+# class Zod54902cb7(TypeScriptProfile):
+#     owner: str = "colinhacks"
+#     repo: str = "zod"
+#     commit: str = "54902cb794f24f4ceb0cf8830e5a27b3490191f7"
+#     test_cmd: str = "pnpm run test"
 
-    @property
-    def dockerfile(self):
-        return f"""FROM node:22-slim
+#     @property
+#     def dockerfile(self):
+#         return f"""FROM node:22-slim
 
-RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
-RUN npm install -g pnpm@10.12.1
+# RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+# RUN npm install -g pnpm@10.12.1
 
-RUN git clone https://github.com/{self.mirror_name}.git /testbed
-WORKDIR /testbed
-RUN git submodule update --init --recursive
-RUN pnpm install
+# RUN git clone https://github.com/{self.mirror_name}.git /testbed
+# WORKDIR /testbed
+# RUN git submodule update --init --recursive
+# RUN pnpm install
 
-CMD ["/bin/bash"]"""
+# CMD ["/bin/bash"]"""
 
-    def log_parser(self, log: str) -> dict[str, str]:
-        return parse_log_vitest(log)
+#     def log_parser(self, log: str) -> dict[str, str]:
+#         return parse_log_vitest(log)
 
 
 @dataclass
@@ -1340,7 +1340,6 @@ RUN npm install -g pnpm
 WORKDIR /testbed
 RUN git config --global url."https://github.com/".insteadOf "git@github.com:" && \
     git clone https://github.com/{self.mirror_name}.git . && \
-    git checkout {self.commit} && \
     git submodule update --init --recursive
 RUN pnpm install
 
@@ -1499,54 +1498,54 @@ CMD ["/bin/bash"]"""
         return parse_log_vitest(log)
 
 
-@dataclass
-class Firecrawl43f61e7f(TypeScriptProfile):
-    owner: str = "firecrawl"
-    repo: str = "firecrawl"
-    commit: str = "43f61e7fe5c85e106cd016a69cb2bbe42a419569"
-    test_cmd: str = "pnpm test --ci --coverage=false --testPathIgnorePatterns='none'"
+# @dataclass
+# class Firecrawl43f61e7f(TypeScriptProfile):
+#     owner: str = "firecrawl"
+#     repo: str = "firecrawl"
+#     commit: str = "43f61e7fe5c85e106cd016a69cb2bbe42a419569"
+#     test_cmd: str = "pnpm test --ci --coverage=false --testPathIgnorePatterns='none'"
 
-    @property
-    def dockerfile(self):
-        return f"""FROM node:22
+#     @property
+#     def dockerfile(self):
+#         return f"""FROM node:22
 
-RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    build-essential \
-    pkg-config \
-    python3 \
-    && rm -rf /var/lib/apt/lists/*
+# RUN apt-get update && apt-get install -y \
+#     git \
+#     curl \
+#     build-essential \
+#     pkg-config \
+#     python3 \
+#     && rm -rf /var/lib/apt/lists/*
 
-RUN curl -L https://go.dev/dl/go1.23.4.linux-arm64.tar.gz | tar -C /usr/local -xz
-ENV PATH=$PATH:/usr/local/go/bin
+# RUN curl -L https://go.dev/dl/go1.23.4.linux-arm64.tar.gz | tar -C /usr/local -xz
+# ENV PATH=$PATH:/usr/local/go/bin
 
-ENV RUSTUP_HOME=/usr/local/rustup \
-    CARGO_HOME=/usr/local/cargo \
-    PATH=/usr/local/cargo/bin:$PATH
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path \
-    && chmod -R a+w $RUSTUP_HOME $CARGO_HOME
+# ENV RUSTUP_HOME=/usr/local/rustup \
+#     CARGO_HOME=/usr/local/cargo \
+#     PATH=/usr/local/cargo/bin:$PATH
+# RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path \
+#     && chmod -R a+w $RUSTUP_HOME $CARGO_HOME
 
-WORKDIR /testbed
+# WORKDIR /testbed
 
-RUN corepack enable
+# RUN corepack enable
 
-RUN git clone https://github.com/{self.mirror_name}.git /testbed
-WORKDIR /testbed
-RUN git submodule update --init --recursive
+# RUN git clone https://github.com/{self.mirror_name}.git /testbed
+# WORKDIR /testbed
+# RUN git submodule update --init --recursive
 
-WORKDIR /testbed/apps/api
+# WORKDIR /testbed/apps/api
 
-RUN cd sharedLibs/go-html-to-md && \
-    go build -o libhtml-to-markdown.so -buildmode=c-shared html-to-markdown.go
+# RUN cd sharedLibs/go-html-to-md && \
+#     go build -o libhtml-to-markdown.so -buildmode=c-shared html-to-markdown.go
 
-RUN pnpm install --no-frozen-lockfile
-RUN pnpm run build
+# RUN pnpm install --no-frozen-lockfile
+# RUN pnpm run build
 
-CMD ["/bin/bash"]"""
+# CMD ["/bin/bash"]"""
 
-    def log_parser(self, log: str) -> dict[str, str]:
-        return parse_log_jest(log)
+#     def log_parser(self, log: str) -> dict[str, str]:
+#         return parse_log_jest(log)
 
 
 @dataclass
@@ -2590,31 +2589,31 @@ CMD ["/bin/bash"]"""
         return parse_log_jest(log)
 
 
-@dataclass
-class Openclaw7dfa99a6(TypeScriptProfile):
-    owner: str = "openclaw"
-    repo: str = "openclaw"
-    commit: str = "7dfa99a6f70c161ca88459be8b419cbfb9b75d7d"
-    test_cmd: str = "pnpm exec vitest run --config vitest.unit.config.ts"
+# @dataclass
+# class Openclaw7dfa99a6(TypeScriptProfile):
+#     owner: str = "openclaw"
+#     repo: str = "openclaw"
+#     commit: str = "7dfa99a6f70c161ca88459be8b419cbfb9b75d7d"
+#     test_cmd: str = "pnpm exec vitest run --config vitest.unit.config.ts"
 
-    @property
-    def dockerfile(self):
-        return f"""FROM node:20-slim
+#     @property
+#     def dockerfile(self):
+#         return f"""FROM node:20-slim
 
-RUN apt-get update && apt-get install -y git python3 make g++ pkg-config libpixman-1-dev libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev && rm -rf /var/lib/apt/lists/*
+# RUN apt-get update && apt-get install -y git python3 make g++ pkg-config libpixman-1-dev libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev && rm -rf /var/lib/apt/lists/*
 
-RUN npm install -g pnpm
+# RUN npm install -g pnpm
 
-RUN git clone https://github.com/{self.mirror_name}.git /testbed
-WORKDIR /testbed
-RUN git submodule update --init --recursive
+# RUN git clone https://github.com/{self.mirror_name}.git /testbed
+# WORKDIR /testbed
+# RUN git submodule update --init --recursive
 
-RUN pnpm install --frozen-lockfile
+# RUN pnpm install --frozen-lockfile
 
-CMD ["pnpm", "start"]"""
+# CMD ["pnpm", "start"]"""
 
-    def log_parser(self, log: str) -> dict[str, str]:
-        return parse_log_vitest(log)
+#     def log_parser(self, log: str) -> dict[str, str]:
+#         return parse_log_vitest(log)
 
 
 @dataclass
@@ -3145,31 +3144,31 @@ CMD ["/bin/bash"]"""
         return parse_log_vitest(log)
 
 
-@dataclass
-class Refinefa022dc8(TypeScriptProfile):
-    owner: str = "refinedev"
-    repo: str = "refine"
-    commit: str = "fa022dc8a50764994678b666cf44554f39d4b823"
-    test_cmd: str = "pnpm test:all"
+# @dataclass
+# class Refinefa022dc8(TypeScriptProfile):
+#     owner: str = "refinedev"
+#     repo: str = "refine"
+#     commit: str = "fa022dc8a50764994678b666cf44554f39d4b823"
+#     test_cmd: str = "pnpm test:all"
 
-    @property
-    def dockerfile(self):
-        return f"""FROM node:20-slim
+#     @property
+#     def dockerfile(self):
+#         return f"""FROM node:20-slim
 
-RUN apt-get update && apt-get install -y git python3 build-essential && rm -rf /var/lib/apt/lists/*
+# RUN apt-get update && apt-get install -y git python3 build-essential && rm -rf /var/lib/apt/lists/*
 
-RUN npm install -g pnpm@9.4.0
+# RUN npm install -g pnpm@9.4.0
 
-RUN git clone https://github.com/{self.mirror_name}.git /testbed
-WORKDIR /testbed
-RUN git submodule update --init --recursive
+# RUN git clone https://github.com/{self.mirror_name}.git /testbed
+# WORKDIR /testbed
+# RUN git submodule update --init --recursive
 
-RUN pnpm install
+# RUN pnpm install
 
-CMD ["/bin/bash"]"""
+# CMD ["/bin/bash"]"""
 
-    def log_parser(self, log: str) -> dict[str, str]:
-        return parse_log_vitest(log)
+#     def log_parser(self, log: str) -> dict[str, str]:
+#         return parse_log_vitest(log)
 
 
 @dataclass
@@ -3251,38 +3250,38 @@ CMD ["/bin/bash"]"""
         return parse_log_mocha(log)
 
 
-@dataclass
-class Shardeum0c454caf(TypeScriptProfile):
-    owner: str = "shardeum"
-    repo: str = "shardeum"
-    commit: str = "0c454caf067f7b896569eabdd5f47cb8b61738b3"
-    test_cmd: str = "npm test"
+# @dataclass
+# class Shardeum0c454caf(TypeScriptProfile):
+#     owner: str = "shardeum"
+#     repo: str = "shardeum"
+#     commit: str = "0c454caf067f7b896569eabdd5f47cb8b61738b3"
+#     test_cmd: str = "npm test"
 
-    @property
-    def dockerfile(self):
-        return f"""FROM node:20
+#     @property
+#     def dockerfile(self):
+#         return f"""FROM node:20
 
-RUN apt-get update && apt-get install -y git python3 make g++ curl && rm -rf /var/lib/apt/lists/*
+# RUN apt-get update && apt-get install -y git python3 make g++ curl && rm -rf /var/lib/apt/lists/*
 
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-ENV PATH="/root/.cargo/bin:${{PATH}}"
+# RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+# ENV PATH="/root/.cargo/bin:${{PATH}}"
 
-RUN git clone https://github.com/{self.mirror_name}.git /testbed
-WORKDIR /testbed
-RUN git submodule update --init --recursive
+# RUN git clone https://github.com/{self.mirror_name}.git /testbed
+# WORKDIR /testbed
+# RUN git submodule update --init --recursive
 
-# Install dependencies without running scripts first to allow patching
-RUN npm install --ignore-scripts
+# # Install dependencies without running scripts first to allow patching
+# RUN npm install --ignore-scripts
 
-# Patch the offending Rust file to remove deny(warnings)
-RUN find node_modules -name lib.rs -exec sed -i 's/#!\\[deny(warnings)\\]//' {{}} +
+# # Patch the offending Rust file to remove deny(warnings)
+# RUN find node_modules -name lib.rs -exec sed -i 's/#!\\[deny(warnings)\\]//' {{}} +
 
-RUN npm install
+# RUN npm install
 
-CMD ["/bin/bash"]"""
+# CMD ["/bin/bash"]"""
 
-    def log_parser(self, log: str) -> dict[str, str]:
-        return parse_log_jest(log)
+#     def log_parser(self, log: str) -> dict[str, str]:
+#         return parse_log_jest(log)
 
 
 @dataclass
