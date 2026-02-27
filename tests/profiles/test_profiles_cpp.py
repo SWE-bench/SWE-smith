@@ -3,6 +3,27 @@ from swesmith.profiles.cpp import (
     parse_log_ctest,
     parse_log_gtest,
     parse_log_catch2,
+    parse_log_boost_test,
+    parse_log_pytest,
+    parse_log_qtest,
+    parse_log_lit,
+    parse_log_autotools,
+    parse_log_bun,
+    parse_log_pycdc,
+    parse_log_jakttest,
+    parse_log_kakoune,
+    parse_log_pugixml,
+    parse_log_coost,
+    parse_log_python_unittest,
+    parse_log_redis_tcl,
+    parse_log_async_profiler,
+    parse_log_i2pd,
+    parse_log_fastllm,
+    parse_log_libsass,
+    parse_log_ugrep,
+    parse_log_fswatch,
+    parse_log_tippecanoe,
+    parse_log_platformio,
 )
 
 
@@ -421,3 +442,555 @@ def test_cpp_profile_extract_entities_merges_excludes():
     # This would require more complex mocking to test fully
     assert hasattr(profile, "extract_entities")
     assert callable(profile.extract_entities)
+
+
+# ========== Boost.Test Parser Tests ==========
+
+
+def test_boost_test_parser_individual_tests():
+    """Test Boost.Test parser with entering/leaving test cases."""
+    log = """
+Running 3 test cases...
+Entering test case "test_addition"
+Leaving test case "test_addition"
+Entering test case "test_subtraction"
+Leaving test case "test_subtraction"
+Entering test case "test_division"
+error in "test_division": check x == y has failed [1 != 2]
+Leaving test case "test_division"
+
+*** 1 failure detected in test suite "MathTests"
+"""
+    result = parse_log_boost_test(log)
+    assert result["test_addition"] == "PASSED"
+    assert result["test_subtraction"] == "PASSED"
+    assert result["test_division"] == "FAILED"
+
+
+def test_boost_test_parser_no_errors():
+    """Test Boost.Test parser with 'No errors detected' summary."""
+    log = "*** No errors detected\n"
+    result = parse_log_boost_test(log)
+    assert result["boost_test_suite"] == "PASSED"
+
+
+def test_boost_test_parser_failure_summary():
+    """Test Boost.Test parser with failure summary only."""
+    log = '*** 3 failures detected in test suite "AllTests"\n'
+    result = parse_log_boost_test(log)
+    assert sum(1 for v in result.values() if v == "FAILED") == 3
+
+
+def test_boost_test_parser_empty_log():
+    """Test Boost.Test parser with empty log."""
+    assert parse_log_boost_test("") == {}
+
+
+# ========== Pytest Parser Tests ==========
+
+
+def test_pytest_parser_basic():
+    """Test pytest parser with verbose output."""
+    log = """tests/test_foo.py::test_bar PASSED                  [ 33%]
+tests/test_foo.py::test_baz FAILED                  [ 66%]
+tests/test_foo.py::test_qux SKIPPED                 [100%]
+"""
+    result = parse_log_pytest(log)
+    assert result["tests/test_foo.py::test_bar"] == "PASSED"
+    assert result["tests/test_foo.py::test_baz"] == "FAILED"
+    assert result["tests/test_foo.py::test_qux"] == "SKIPPED"
+
+
+def test_pytest_parser_empty_log():
+    """Test pytest parser with empty log."""
+    assert parse_log_pytest("") == {}
+
+
+# ========== QTest Parser Tests ==========
+
+
+def test_qtest_parser_basic():
+    """Test QTest parser with pass, fail, and skip."""
+    log = """PASS   : TestClass::testMethod()
+FAIL!  : TestClass::failMethod() Comparison failed
+SKIP   : TestClass::skipMethod() Condition not met
+"""
+    result = parse_log_qtest(log)
+    assert result["TestClass::testMethod"] == "PASSED"
+    assert result["TestClass::failMethod()"] == "FAILED"
+    assert result["TestClass::skipMethod()"] == "SKIPPED"
+
+
+def test_qtest_parser_empty_log():
+    """Test QTest parser with empty log."""
+    assert parse_log_qtest("") == {}
+
+
+# ========== LIT Parser Tests ==========
+
+
+def test_lit_parser_summary():
+    """Test LIT parser with expected passes and unexpected failures."""
+    log = """Expected Passes    : 120
+Unexpected Failures: 3
+"""
+    result = parse_log_lit(log)
+    assert sum(1 for v in result.values() if v == "PASSED") == 120
+    assert sum(1 for v in result.values() if v == "FAILED") == 3
+
+
+def test_lit_parser_individual_fail():
+    """Test LIT parser with individual FAIL lines."""
+    log = """FAIL: TestSuite :: some/test_name (5 of 100)
+Expected Passes    : 99
+Unexpected Failures: 1
+"""
+    result = parse_log_lit(log)
+    assert result["some/test_name"] == "FAILED"
+    assert sum(1 for v in result.values() if v == "PASSED") == 99
+
+
+def test_lit_parser_klee_format():
+    """Test LIT parser with KLEE-style summary."""
+    log = """Passed: 50
+Failed: 2
+"""
+    result = parse_log_lit(log)
+    assert sum(1 for v in result.values() if v == "PASSED") == 50
+    assert sum(1 for v in result.values() if v == "FAILED") == 2
+
+
+def test_lit_parser_empty_log():
+    """Test LIT parser with empty log."""
+    assert parse_log_lit("") == {}
+
+
+# ========== Autotools Parser Tests ==========
+
+
+def test_autotools_parser_basic():
+    """Test autotools parser with PASS, FAIL, XFAIL, SKIP."""
+    log = """PASS: test_basic
+FAIL: test_broken
+XFAIL: test_known_issue
+SKIP: test_optional
+ERROR: test_crash
+"""
+    result = parse_log_autotools(log)
+    assert result["test_basic"] == "PASSED"
+    assert result["test_broken"] == "FAILED"
+    assert result["test_known_issue"] == "PASSED"
+    assert result["test_optional"] == "SKIPPED"
+    assert result["test_crash"] == "FAILED"
+
+
+def test_autotools_parser_empty_log():
+    """Test autotools parser with empty log."""
+    assert parse_log_autotools("") == {}
+
+
+# ========== Bun Parser Tests ==========
+
+
+def test_bun_parser_basic():
+    """Test bun parser with pass and fail lines."""
+    log = """(pass) Suite > test addition [5ms]
+(fail) Suite > test division
+(pass) Suite > test subtraction [2ms]
+"""
+    result = parse_log_bun(log)
+    assert result["Suite > test addition"] == "PASSED"
+    assert result["Suite > test division"] == "FAILED"
+    assert result["Suite > test subtraction"] == "PASSED"
+
+
+def test_bun_parser_empty_log():
+    """Test bun parser with empty log."""
+    assert parse_log_bun("") == {}
+
+
+# ========== Pycdc Parser Tests ==========
+
+
+def test_pycdc_parser_basic():
+    """Test pycdc parser with PASS, XFAIL, and FAIL."""
+    log = """*** test_basic: PASS (1)
+*** test_known: XFAIL (2)
+*** test_broken: FAIL (3)
+"""
+    result = parse_log_pycdc(log)
+    assert result["test_basic"] == "PASSED"
+    assert result["test_known"] == "PASSED"
+    assert result["test_broken"] == "FAILED"
+
+
+def test_pycdc_parser_with_ansi():
+    """Test pycdc parser strips ANSI codes."""
+    log = "\x1b[32m*** test_color: PASS (1)\x1b[0m\n"
+    result = parse_log_pycdc(log)
+    assert result["test_color"] == "PASSED"
+
+
+def test_pycdc_parser_empty_log():
+    """Test pycdc parser with empty log."""
+    assert parse_log_pycdc("") == {}
+
+
+# ========== Jakttest Parser Tests ==========
+
+
+def test_jakttest_parser_basic():
+    """Test jakttest parser with FAIL, SKIP, and passed summary."""
+    log = """[ FAIL ] test_broken
+[ SKIP ] test_optional
+42 passed
+"""
+    result = parse_log_jakttest(log)
+    assert result["test_broken"] == "FAILED"
+    assert result["test_optional"] == "SKIPPED"
+    assert sum(1 for v in result.values() if v == "PASSED") == 42
+
+
+def test_jakttest_parser_empty_log():
+    """Test jakttest parser with empty log."""
+    assert parse_log_jakttest("") == {}
+
+
+# ========== Kakoune Parser Tests ==========
+
+
+def test_kakoune_parser_basic():
+    """Test kakoune parser with ANSI color codes."""
+    log = "\x1b[32mtest_passed\x1b[0m\n\x1b[31mtest_failed\x1b[0m\n\x1b[33mtest_skipped\x1b[0m\n"
+    result = parse_log_kakoune(log)
+    assert result["test_passed"] == "PASSED"
+    assert result["test_failed"] == "FAILED"
+    assert result["test_skipped"] == "SKIPPED"
+
+
+def test_kakoune_parser_empty_log():
+    """Test kakoune parser with empty log."""
+    assert parse_log_kakoune("") == {}
+
+
+# ========== Pugixml Parser Tests ==========
+
+
+def test_pugixml_parser_with_failures():
+    """Test pugixml parser with failed tests and summary."""
+    log = """Test xpath_large_node_set failed: doc.load_file is false
+Test document_load_file failed: doc.load_file is false
+FAILURE: 2 out of 977 tests failed.
+"""
+    result = parse_log_pugixml(log)
+    assert result["xpath_large_node_set"] == "FAILED"
+    assert result["document_load_file"] == "FAILED"
+    assert sum(1 for v in result.values() if v == "PASSED") == 975
+
+
+def test_pugixml_parser_all_pass():
+    """Test pugixml parser with all tests passing."""
+    log = "Success: 0 out of 500 tests failed.\n"
+    result = parse_log_pugixml(log)
+    assert sum(1 for v in result.values() if v == "PASSED") == 500
+    assert sum(1 for v in result.values() if v == "FAILED") == 0
+
+
+def test_pugixml_parser_success_passed_format():
+    """Test pugixml parser with 'Success: N tests passed' format."""
+    log = "Success: 300 tests passed.\n"
+    result = parse_log_pugixml(log)
+    assert sum(1 for v in result.values() if v == "PASSED") == 300
+    assert sum(1 for v in result.values() if v == "FAILED") == 0
+
+
+def test_pugixml_parser_empty_log():
+    """Test pugixml parser with empty log."""
+    assert parse_log_pugixml("") == {}
+
+
+# ========== Coost Parser Tests ==========
+
+
+def test_coost_parser_basic():
+    """Test coost parser with test sections and cases."""
+    log = """> begin test: alien
+ case find_index:
+  EXPECT_EQ(find_index(1u << 4), 0) passed
+  EXPECT_EQ(find_index(1u << 5), 1) passed
+> begin test: math
+ case abs:
+  EXPECT_EQ(abs(-1), 1) passed
+Congratulations! All tests passed!
+"""
+    result = parse_log_coost(log)
+    assert "alien::find_index" in result
+    assert "math::abs" in result
+    assert all(v == "PASSED" for v in result.values())
+
+
+def test_coost_parser_with_failure():
+    """Test coost parser with a failed expectation."""
+    log = """> begin test: math
+ case divide:
+  EXPECT_EQ(divide(1, 0), 0) failed: got inf
+"""
+    result = parse_log_coost(log)
+    assert result["math"] == "FAILED"
+
+
+def test_coost_parser_empty_log():
+    """Test coost parser with empty log."""
+    assert parse_log_coost("") == {}
+
+
+# ========== Python Unittest Parser Tests ==========
+
+
+def test_python_unittest_parser_all_pass():
+    """Test python unittest parser with all tests passing."""
+    log = """Ran 169 tests in 0.089s
+
+OK
+"""
+    result = parse_log_python_unittest(log)
+    assert len(result) == 169
+    assert all(v == "PASSED" for v in result.values())
+
+
+def test_python_unittest_parser_with_failures():
+    """Test python unittest parser with failures and errors."""
+    log = """Ran 50 tests in 1.2s
+
+FAILED (failures=3, errors=2)
+"""
+    result = parse_log_python_unittest(log)
+    assert sum(1 for v in result.values() if v == "PASSED") == 45
+    assert sum(1 for v in result.values() if v == "FAILED") == 5
+
+
+def test_python_unittest_parser_empty_log():
+    """Test python unittest parser with empty log."""
+    assert parse_log_python_unittest("") == {}
+
+
+# ========== Redis TCL Parser Tests ==========
+
+
+def test_redis_tcl_parser_basic():
+    """Test Redis TCL parser with ok and err lines."""
+    log = """[ok]: SET and GET an item
+[ok]: DEL all keys
+[err]: AUTH requires password
+[ok]: PING returns PONG
+"""
+    result = parse_log_redis_tcl(log)
+    assert result["SET and GET an item"] == "PASSED"
+    assert result["DEL all keys"] == "PASSED"
+    assert result["AUTH requires password"] == "FAILED"
+    assert result["PING returns PONG"] == "PASSED"
+
+
+def test_redis_tcl_parser_empty_log():
+    """Test Redis TCL parser with empty log."""
+    assert parse_log_redis_tcl("") == {}
+
+
+# ========== Async Profiler Parser Tests ==========
+
+
+def test_async_profiler_parser_basic():
+    """Test async-profiler parser with PASS and FAIL lines."""
+    log = """PASS [1/125] BasicTests.agentLoad took 1234 ms
+PASS [2/125] BasicTests.cpuProfiler took 567 ms
+FAIL [3/125] BasicTests.wallClock took 890 ms
+PASS [4/125] BasicTests.allocProfiler took 123 ms
+"""
+    result = parse_log_async_profiler(log)
+    assert result["BasicTests.agentLoad"] == "PASSED"
+    assert result["BasicTests.cpuProfiler"] == "PASSED"
+    assert result["BasicTests.wallClock"] == "FAILED"
+    assert result["BasicTests.allocProfiler"] == "PASSED"
+
+
+def test_async_profiler_parser_empty_log():
+    """Test async-profiler parser with empty log."""
+    assert parse_log_async_profiler("") == {}
+
+
+# ========== i2pd Parser Tests ==========
+
+
+def test_i2pd_parser_basic():
+    """Test i2pd parser with Running lines."""
+    log = """Running test-http-merge_chunked
+Running test-http-req
+Running test-http-res
+Running test-gost
+Running test-aes
+"""
+    result = parse_log_i2pd(log)
+    assert len(result) == 5
+    assert result["test-http-merge_chunked"] == "PASSED"
+    assert result["test-http-req"] == "PASSED"
+    assert result["test-gost"] == "PASSED"
+    assert result["test-aes"] == "PASSED"
+
+
+def test_i2pd_parser_empty_log():
+    """Test i2pd parser with empty log."""
+    assert parse_log_i2pd("") == {}
+
+
+# ========== FastLLM Parser Tests ==========
+
+
+def test_fastllm_parser_basic():
+    """Test fastllm parser with 'test X finished!' lines."""
+    log = """testing BaseOp...
+shape: 1 2
+data: 3.000000 4.000000
+test BaseOp finished!
+testing LinearOp...
+shape: 1 3
+data: 11.000000 16.000000 21.000000
+test LinearOp finished!
+"""
+    result = parse_log_fastllm(log)
+    assert result["BaseOp"] == "PASSED"
+    assert result["LinearOp"] == "PASSED"
+
+
+def test_fastllm_parser_empty_log():
+    """Test fastllm parser with empty log."""
+    assert parse_log_fastllm("") == {}
+
+
+# ========== Libsass Parser Tests ==========
+
+
+def test_libsass_parser_basic():
+    """Test libsass parser with passed/failed counts per test binary."""
+    log = """build/test_shared_ptr: Passed: 11, failed: 0.
+build/test_util_string: Passed: 16, failed: 3.
+"""
+    result = parse_log_libsass(log)
+    passed = sum(1 for v in result.values() if v == "PASSED")
+    failed = sum(1 for v in result.values() if v == "FAILED")
+    assert passed == 27
+    assert failed == 3
+
+
+def test_libsass_parser_empty_log():
+    """Test libsass parser with empty log."""
+    assert parse_log_libsass("") == {}
+
+
+# ========== Ugrep Parser Tests ==========
+
+
+def test_ugrep_parser_sections():
+    """Test ugrep parser with multiple test sections."""
+    log = """*** SINGLE-THREADED TESTS ***
+.......
+ALL TESTS PASSED
+
+*** MULTI-THREADED TESTS ***
+.......
+ALL TESTS PASSED
+"""
+    result = parse_log_ugrep(log)
+    assert result["SINGLE-THREADED TESTS"] == "PASSED"
+    assert result["MULTI-THREADED TESTS"] == "PASSED"
+
+
+def test_ugrep_parser_simple():
+    """Test ugrep parser with just ALL TESTS PASSED and no sections."""
+    log = "ALL TESTS PASSED\n"
+    result = parse_log_ugrep(log)
+    assert result["all_tests"] == "PASSED"
+
+
+def test_ugrep_parser_empty_log():
+    """Test ugrep parser with empty log."""
+    assert parse_log_ugrep("") == {}
+
+
+# ========== Fswatch Parser Tests ==========
+
+
+def test_fswatch_parser_basic():
+    """Test fswatch parser with all passing."""
+    log = "1 tests, 1 passing\n"
+    result = parse_log_fswatch(log)
+    assert len(result) == 1
+    assert result["test_pass_1"] == "PASSED"
+
+
+def test_fswatch_parser_with_failures():
+    """Test fswatch parser with some failures."""
+    log = "5 tests, 3 passing\n"
+    result = parse_log_fswatch(log)
+    assert sum(1 for v in result.values() if v == "PASSED") == 3
+    assert sum(1 for v in result.values() if v == "FAILED") == 2
+
+
+def test_fswatch_parser_empty_log():
+    """Test fswatch parser with empty log."""
+    assert parse_log_fswatch("") == {}
+
+
+# ========== Tippecanoe Parser Tests ==========
+
+
+def test_tippecanoe_parser_basic():
+    """Test tippecanoe parser with cmp lines."""
+    log = """cmp tests/accumulate/out/result.json.check.out tests/accumulate/out/result.json
+cmp tests/border/out/borders.json.check.out tests/border/out/borders.json
+"""
+    result = parse_log_tippecanoe(log)
+    assert all(v == "PASSED" for v in result.values())
+    assert len(result) == 2
+
+
+def test_tippecanoe_parser_with_make_error():
+    """Test tippecanoe parser with make error marking last test as failed."""
+    log = """cmp tests/first/out/a.json.check.out tests/first/out/a.json
+cmp tests/second/out/b.json.check.out tests/second/out/b.json
+make: *** [Makefile:116: parallel-test] Error 127
+"""
+    result = parse_log_tippecanoe(log)
+    keys = list(result.keys())
+    assert result[keys[0]] == "PASSED"
+    assert result[keys[-1]] == "FAILED"
+
+
+def test_tippecanoe_parser_empty_log():
+    """Test tippecanoe parser with empty log."""
+    assert parse_log_tippecanoe("") == {}
+
+
+# ========== PlatformIO Parser Tests ==========
+
+
+def test_platformio_parser_basic():
+    """Test PlatformIO parser with SUCCESS and FAILED lines."""
+    log = """Environment        Status    Duration
+-----------------  --------  ------------
+linux_native_test  SUCCESS   00:00:07.850
+========================= 1 succeeded in 00:00:07.850 =========================
+"""
+    result = parse_log_platformio(log)
+    assert result["linux_native_test"] == "PASSED"
+
+
+def test_platformio_parser_failure():
+    """Test PlatformIO parser with FAILED environment."""
+    log = "test_env  FAILED   00:00:12.000\n"
+    result = parse_log_platformio(log)
+    assert result["test_env"] == "FAILED"
+
+
+def test_platformio_parser_empty_log():
+    """Test PlatformIO parser with empty log."""
+    assert parse_log_platformio("") == {}
