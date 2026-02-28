@@ -1643,7 +1643,8 @@ def print_summary(results: list[dict], repos_count: int):
 @app.function(
     image=generator_image,
     secrets=[modal.Secret.from_name("GITHUB_TOKEN")],
-    timeout=MODAL_TIMEOUT,
+    # Gather can push hundreds of branches for large repos; 10 minutes is too low.
+    timeout=60 * MINUTES,
     volumes={LOGS_MOUNT_PATH: logs_volume},
 )
 def gather_remote(
