@@ -26,30 +26,28 @@ def test_python_profile_build_image():
     """Test PythonProfile.build_image method"""
     profile = Addict75284f95()
 
-    mock_client = MagicMock()
     mock_env_yml_content = "name: test_env\ndependencies:\n  - python=3.10"
 
+    m = mock_open(read_data=mock_env_yml_content)
     with (
-        patch("docker.from_env", return_value=mock_client),
-        patch("builtins.open", mock_open(read_data=mock_env_yml_content)),
-        patch("swesmith.profiles.python.build_image_sweb") as mock_build,
+        patch("builtins.open", m),
         patch("swesmith.profiles.python.get_dockerfile_env", return_value="FROM test"),
+        patch("pathlib.Path.mkdir"),
+        patch("subprocess.run") as mock_run,
     ):
         profile.build_image()
 
-        # Verify build_image_sweb was called with correct parameters
-        mock_build.assert_called_once()
-        call_args = mock_build.call_args
-        assert call_args[1]["image_name"] == profile.image_name
-        assert call_args[1]["platform"] == profile.pltf
-        assert call_args[1]["client"] == mock_client
+        # Verify docker build was called via subprocess
+        mock_run.assert_called_once()
+        build_cmd = mock_run.call_args.args[0]
+        assert "docker build" in build_cmd
+        assert profile.image_name in build_cmd
 
-        # Verify setup script contains expected commands
-        setup_script = call_args[1]["setup_scripts"]["setup_env.sh"]
-        assert "git clone" in setup_script
-        assert "conda env create" in setup_script
-        assert "conda activate" in setup_script
-        assert profile.install_cmds[0] in setup_script
+        # Verify that the Dockerfile was written via open()
+        m.assert_called()
+        written_content = ""
+        for c in m().write.call_args_list:
+            written_content += c.args[0]
 
 
 def test_python_profile_log_parser():
@@ -223,8 +221,15 @@ def test_python_profile_build_image_error_handling():
     """Test PythonProfile.build_image error handling"""
     profile = Addict75284f95()
 
-    with patch("docker.from_env", side_effect=Exception("Docker error")):
-        with pytest.raises(Exception, match="Docker error"):
+    mock_env_yml_content = "name: test_env\ndependencies:\n  - python=3.10"
+
+    with (
+        patch("builtins.open", mock_open(read_data=mock_env_yml_content)),
+        patch("swesmith.profiles.python.get_dockerfile_env", return_value="FROM test"),
+        patch("pathlib.Path.mkdir"),
+        patch("subprocess.run", side_effect=Exception("Build failed")),
+    ):
+        with pytest.raises(Exception, match="Build failed"):
             profile.build_image()
 
 

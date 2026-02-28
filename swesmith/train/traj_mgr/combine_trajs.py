@@ -50,8 +50,8 @@ def merge_and_shuffle_jsonl(
         selected_indices = input(
             "Enter the indices of the files to merge (specify indices or range of indices, e.g. `7 11-13`): "
         )
-        process_idx = (
-            lambda idx: list(range(int(idx.split("-")[0]), int(idx.split("-")[1]) + 1))
+        process_idx = lambda idx: (
+            list(range(int(idx.split("-")[0]), int(idx.split("-")[1]) + 1))
             if "-" in idx
             else [int(idx.strip())]
         )

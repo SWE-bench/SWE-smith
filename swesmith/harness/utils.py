@@ -1,5 +1,6 @@
 import docker
 import fnmatch
+import threading
 import traceback
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -33,7 +34,11 @@ from swesmith.constants import (
     TEST_OUTPUT_START,
 )
 from swesmith.profiles import registry
+from swesmith.profiles.base import _find_ssh_key
 from unidiff import PatchSet
+
+
+_ssh_copy_lock = threading.Lock()
 
 
 def matches_instance_filter(instance_id: str, instance_ids: list[str] | None) -> bool:
@@ -147,10 +152,37 @@ def run_patch_in_container(
         )
         container.start()
 
+        # For private repos, copy SSH key into container
+        ssh_env = {}
+        if rp._is_repo_private():
+            key_file = _find_ssh_key()
+            if key_file is None:
+                raise ValueError(
+                    "Repo is private but no SSH key found. "
+                    "Set GITHUB_USER_SSH_KEY or add a key to ~/.ssh/"
+                )
+
+            # Prevent race condition
+            with _ssh_copy_lock:
+                copy_to_container(container, key_file, Path("/github_key"))
+            container.exec_run("chmod 600 /github_key", user=DOCKER_USER)
+            ssh_env = {
+                "GIT_SSH_COMMAND": "ssh -i /github_key -o StrictHostKeyChecking=accept-new -o IdentitiesOnly=yes"
+            }
+
         # If provided, checkout commit in container
         if commit is not None:
             logger.info(f"Checking out commit {commit}")
-            container.exec_run("git fetch", workdir=DOCKER_WORKDIR, user=DOCKER_USER)
+            fetch_val = container.exec_run(
+                "git fetch",
+                workdir=DOCKER_WORKDIR,
+                user=DOCKER_USER,
+                environment=ssh_env,
+            )
+            if fetch_val.exit_code != 0:
+                logger.info(
+                    f"GIT FETCH FAILED (exit={fetch_val.exit_code}): {fetch_val.output.decode(UTF8)}"
+                )
             val = container.exec_run(
                 f"git checkout {commit}", workdir=DOCKER_WORKDIR, user=DOCKER_USER
             )

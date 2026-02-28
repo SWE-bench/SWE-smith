@@ -11,15 +11,14 @@ from typing import Set
 
 from pathlib import Path
 from swebench.harness.constants import FAIL_TO_PASS, KEY_INSTANCE_ID
-from swesmith.bug_gen.procedural.generate import (
-    PM_TECHNIQUES_CLASSES,
-    PM_TECHNIQUES_FUNCS,
-)
+from swesmith.bug_gen.procedural import MAP_EXT_TO_MODIFIERS
 from tqdm.auto import tqdm
 from unidiff import PatchSet
 
 BUG_TYPE_TO_PROMPT = {
-    x.name: x.explanation for x in PM_TECHNIQUES_CLASSES + PM_TECHNIQUES_FUNCS
+    x.name: x.explanation
+    for modifiers in MAP_EXT_TO_MODIFIERS.values()
+    for x in modifiers
 }
 
 # MARK: Basic says-nothing prompt

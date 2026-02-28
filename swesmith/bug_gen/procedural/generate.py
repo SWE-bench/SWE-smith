@@ -15,9 +15,8 @@ import time
 from pathlib import Path
 from rich import print
 from swesmith.bug_gen.utils import (
-    apply_code_change,
+    generate_patch_fast,
     get_bug_directory,
-    get_patch,
 )
 from swesmith.constants import (
     LOG_DIR_BUG_GEN,
@@ -38,10 +37,17 @@ def _process_candidate(
 ):
     """
     Process a candidate by applying a given procedural modification to it.
+
+    Uses fast difflib-based patch generation instead of git subprocess calls.
     """
     # Get modified function
     bug: BugRewrite | None = pm.modify(candidate)
     if not bug:
+        return False
+
+    # Generate patch using fast difflib-based method (no git subprocess calls)
+    patch = generate_patch_fast(candidate, bug, repo)
+    if not patch:
         return False
 
     # Create artifacts
@@ -53,13 +59,9 @@ def _process_candidate(
 
     with open(bug_dir / metadata_path, "w") as f:
         json.dump(bug.to_dict(), f, indent=2)
-    apply_code_change(candidate, bug)
-    patch = get_patch(repo, reset_changes=True)
-    if patch:
-        with open(bug_dir / bug_path, "w") as f:
-            f.write(patch)
-        return True
-    return False
+    with open(bug_dir / bug_path, "w") as f:
+        f.write(patch)
+    return True
 
 
 def main(

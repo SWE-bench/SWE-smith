@@ -36,7 +36,7 @@ ENV TZ=Etc/UTC
 RUN apt update && apt install -y wget git build-essential \
 && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+RUN git clone {self.mirror_url} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
 RUN {self.test_cmd} || true
 """

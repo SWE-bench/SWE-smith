@@ -1,7 +1,7 @@
 import re
 import tree_sitter_cpp as tscpp
 
-from swesmith.constants import TODO_REWRITE, CodeEntity
+from swesmith.constants import TODO_REWRITE, CodeEntity, CodeProperty
 from tree_sitter import Language, Parser, Query, QueryCursor
 from swesmith.bug_gen.adapters.utils import build_entity
 
@@ -9,6 +9,107 @@ CPP_LANGUAGE = Language(tscpp.language())
 
 
 class CPlusPlusEntity(CodeEntity):
+    def _analyze_properties(self):
+        """Analyze the code entity and add appropriate tags."""
+
+        # Walk the tree to find patterns
+        def walk_tree(node):
+            """Recursively walk the tree to analyze properties."""
+            # Check for function
+            if node.type == "function_definition":
+                self._tags.add(CodeProperty.IS_FUNCTION)
+            # Check for class
+            elif node.type == "class_specifier":
+                self._tags.add(CodeProperty.IS_CLASS)
+
+            # Control flow
+            if node.type in [
+                "for_statement",
+                "while_statement",
+                "do_statement",
+                "for_range_loop",
+            ]:
+                self._tags.add(CodeProperty.HAS_LOOP)
+            if node.type == "if_statement":
+                self._tags.add(CodeProperty.HAS_IF)
+                # Check for else clause
+                for child in node.children:
+                    if child.type == "else_clause":
+                        self._tags.add(CodeProperty.HAS_IF_ELSE)
+            if node.type == "switch_statement":
+                self._tags.add(CodeProperty.HAS_SWITCH)
+
+            # Operations
+            if node.type == "binary_expression":
+                self._tags.add(CodeProperty.HAS_BINARY_OP)
+                # Check for arithmetic operations
+                for child in node.children:
+                    if child.type in ["+", "-", "*", "/", "%"]:
+                        self._tags.add(CodeProperty.HAS_ARITHMETIC)
+                # Check for comparison (potential off-by-one)
+                for child in node.children:
+                    if child.type in ["<", ">", "<=", ">="]:
+                        self._tags.add(CodeProperty.HAS_OFF_BY_ONE)
+                # Check for boolean ops
+                for child in node.children:
+                    if child.type in ["&&", "||"]:
+                        self._tags.add(CodeProperty.HAS_BOOL_OP)
+
+            if node.type == "unary_expression":
+                self._tags.add(CodeProperty.HAS_UNARY_OP)
+
+            if node.type == "call_expression":
+                self._tags.add(CodeProperty.HAS_FUNCTION_CALL)
+
+            if node.type == "return_statement":
+                self._tags.add(CodeProperty.HAS_RETURN)
+
+            if node.type == "assignment_expression":
+                self._tags.add(CodeProperty.HAS_ASSIGNMENT)
+
+            if node.type == "init_declarator":
+                for child in node.children:
+                    if child.type == "=":
+                        self._tags.add(CodeProperty.HAS_ASSIGNMENT)
+
+            # Recurse into children
+            for child in node.children:
+                walk_tree(child)
+
+        walk_tree(self.node)
+
+    @property
+    def complexity(self) -> int:
+        """Calculate the cyclomatic complexity of the function."""
+        complexity = 1  # Base complexity
+
+        def walk(node):
+            nonlocal complexity
+            # Decision points
+            if node.type in [
+                "if_statement",
+                "while_statement",
+                "for_statement",
+                "do_statement",
+                "for_range_loop",
+            ]:
+                complexity += 1
+            # Exception handling
+            elif node.type == "try_statement":
+                complexity += len(
+                    [c for c in node.children if c.type == "catch_clause"]
+                )
+            # Switch statements
+            elif node.type == "case_statement":
+                complexity += 1
+
+            # Recurse
+            for child in node.children:
+                walk(child)
+
+        walk(self.node)
+        return complexity
+
     @property
     def name(self) -> str:
         func_query = Query(

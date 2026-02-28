@@ -1,7 +1,7 @@
-import docker
 import re
-from dataclasses import dataclass, field
+import subprocess
 
+from dataclasses import dataclass, field
 from pathlib import Path
 from swebench.harness.constants import (
     FAIL_TO_PASS,
@@ -9,7 +9,6 @@ from swebench.harness.constants import (
     KEY_INSTANCE_ID,
     TestStatus,
 )
-from swebench.harness.docker_build import build_image as build_image_sweb
 from swebench.harness.dockerfiles import get_dockerfile_env
 from swesmith.constants import LOG_DIR_ENV, ENV_NAME, INSTANCE_REF, ORG_NAME_DH
 from swesmith.profiles.base import RepoProfile, registry
@@ -49,14 +48,13 @@ class PythonProfile(RepoProfile):
         HEREDOC_DELIMITER = "EOF_59812759871"
         PATH_TO_REQS = "swesmith_environment.yml"
 
-        client = docker.from_env()
         with open(self._env_yml) as f:
             reqs = f.read()
 
         setup_commands = [
             "#!/bin/bash",
             "set -euxo pipefail",
-            f"git clone -o origin https://github.com/{self.mirror_name} /{ENV_NAME}",
+            f"git clone -o origin {self.mirror_url} /{ENV_NAME}",
             f"cd /{ENV_NAME}",
             "source /opt/miniconda3/bin/activate",
             f"cat <<'{HEREDOC_DELIMITER}' > {PATH_TO_REQS}\n{reqs}\n{HEREDOC_DELIMITER}",
@@ -66,18 +64,31 @@ class PythonProfile(RepoProfile):
             f"conda activate {ENV_NAME}",
             'echo "Current environment: $CONDA_DEFAULT_ENV"',
         ] + self.install_cmds
+
         dockerfile = get_dockerfile_env(
             self.pltf, self.arch, "py", base_image_key=BASE_IMAGE_KEY
         )
+        dockerfile = self._prepare_dockerfile(dockerfile)
 
-        build_image_sweb(
-            image_name=self.image_name,
-            setup_scripts={"setup_env.sh": "\n".join(setup_commands) + "\n"},
-            dockerfile=dockerfile,
-            platform=self.pltf,
-            client=client,
-            build_dir=LOG_DIR_ENV / self.repo_name,
+        env_dir = LOG_DIR_ENV / self.repo_name
+        env_dir.mkdir(parents=True, exist_ok=True)
+        with open(env_dir / "setup_env.sh", "w") as f:
+            f.write("\n".join(setup_commands) + "\n")
+        with open(env_dir / "Dockerfile", "w") as f:
+            f.write(dockerfile)
+
+        build_cmd = (
+            f"docker build --platform {self.pltf} --no-cache"
+            f" {self._docker_ssh_arg} -t {self.image_name} {env_dir}"
         )
+        with open(env_dir / "build_image.log", "w") as log_file:
+            subprocess.run(
+                build_cmd,
+                check=True,
+                shell=True,
+                stdout=log_file,
+                stderr=subprocess.STDOUT,
+            )
 
     def log_parser(self, log: str) -> dict[str, str]:
         """Parser for test logs generated with PyTest framework"""
@@ -548,10 +559,8 @@ class MidoA0158ff9(PythonProfile):
     def get_test_files(self, instance: dict) -> list[str]:
         f2p_files, p2p_files = super().get_test_files(instance)
         prefix = "../dev/"
-        _helper = (
-            lambda test_file: test_file[len(prefix) :]
-            if test_file.startswith(prefix)
-            else test_file
+        _helper = lambda test_file: (
+            test_file[len(prefix) :] if test_file.startswith(prefix) else test_file
         )
         remove_prefix = lambda test_files: sorted(list(set(map(_helper, test_files))))
         return remove_prefix(f2p_files), remove_prefix(p2p_files)
