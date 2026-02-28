@@ -1,3 +1,4 @@
+import difflib
 import hashlib
 import os
 import subprocess
@@ -52,6 +53,97 @@ def apply_code_change(candidate: CodeEntity, bug: BugRewrite) -> None:
         file.writelines(
             (lines[: candidate.line_start - 1] + change + lines[candidate.line_end :])
         )
+
+
+def generate_patch_fast(
+    candidate: CodeEntity, bug: BugRewrite, repo: str
+) -> str | None:
+    """
+    Generate a patch for a bug rewrite using difflib (no git subprocess calls).
+
+    This is much faster than get_patch() as it:
+    - Computes the diff in memory without modifying files
+    - Avoids all git subprocess calls (add, diff, reset, clean, apply)
+    - Produces git-compatible unified diff format
+
+    Args:
+        candidate: The code entity being modified
+        bug: The bug rewrite to apply
+        repo: The repository path (used to compute relative file path)
+
+    Returns:
+        A unified diff string compatible with `git apply`, or None if no changes.
+    """
+    # Read original file content
+    with open(candidate.file_path, "r") as f:
+        original_content = f.read()
+    original_lines = original_content.splitlines(keepends=True)
+
+    # Validate line range
+    if (
+        candidate.line_start < 1
+        or candidate.line_end > len(original_lines)
+        or candidate.line_start > candidate.line_end
+    ):
+        return None
+
+    # Compute the modified lines (same logic as apply_code_change)
+    change = [
+        f"{' ' * candidate.indent_level * candidate.indent_size}{x}"
+        if len(x.strip()) > 0
+        else x
+        for x in bug.rewrite.splitlines(keepends=True)
+    ]
+
+    # Handle empty rewrite case
+    if not change:
+        return None
+
+    # Preserve trailing newlines from original last line
+    curr_last_line = original_lines[candidate.line_end - 1]
+    num_newlines = len(curr_last_line) - len(curr_last_line.rstrip("\n"))
+    change[-1] = change[-1].rstrip("\n") + "\n" * num_newlines
+
+    # Compute modified content
+    modified_lines = (
+        original_lines[: candidate.line_start - 1]
+        + change
+        + original_lines[candidate.line_end :]
+    )
+
+    # Check if there are actual changes
+    if original_lines == modified_lines:
+        return None
+
+    # Compute relative path for git-compatible diff header
+    rel_path = os.path.relpath(candidate.file_path, repo)
+
+    # Strip trailing newlines for difflib (it adds its own line terminators)
+    original_stripped = [line.rstrip("\n") for line in original_lines]
+    modified_stripped = [line.rstrip("\n") for line in modified_lines]
+
+    # Generate unified diff with git-compatible headers
+    # Use lineterm='' to avoid difflib adding \n to header lines
+    # (we'll join all lines with \n ourselves)
+    diff_lines = list(
+        difflib.unified_diff(
+            original_stripped,
+            modified_stripped,
+            fromfile=f"a/{rel_path}",
+            tofile=f"b/{rel_path}",
+            lineterm="",
+        )
+    )
+
+    if not diff_lines:
+        return None
+
+    # Join with newlines
+    patch = "\n".join(diff_lines)
+    if not patch.endswith("\n"):
+        patch += "\n"
+
+    return patch
 
 
 def apply_patches(repo: str, patch_files: list[str]) -> str | None:

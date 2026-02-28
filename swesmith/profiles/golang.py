@@ -31,7 +31,7 @@ class GoProfile(RepoProfile):
     @property
     def dockerfile(self):
         return f"""FROM golang:1.24
-RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+RUN git clone {self.mirror_url} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
 RUN go mod tidy
 RUN go test -v -count=1 ./... || true

@@ -51,10 +51,10 @@ class JavaScriptProfile(RepoProfile):
         )
 
 
-def default_npm_install_dockerfile(mirror_name: str, node_version: str = "18") -> str:
+def default_npm_install_dockerfile(mirror_url: str, node_version: str = "18") -> str:
     return f"""FROM node:{node_version}-bullseye
-RUN apt update && apt install -y git  
-RUN git clone https://github.com/{mirror_name} /{ENV_NAME}
+RUN apt update && apt install -y git
+RUN git clone {mirror_url} /{ENV_NAME}
 WORKDIR /{ENV_NAME}
 RUN npm install
 """
@@ -331,7 +331,7 @@ class GithubReadmeStats3e974011(JavaScriptProfile):
 
     @property
     def dockerfile(self):
-        return default_npm_install_dockerfile(self.mirror_name)
+        return default_npm_install_dockerfile(self.mirror_url)
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
@@ -346,7 +346,7 @@ class Mongoose5f57a5bb(JavaScriptProfile):
 
     @property
     def dockerfile(self):
-        return default_npm_install_dockerfile(self.mirror_name)
+        return default_npm_install_dockerfile(self.mirror_url)
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_mocha(log)
@@ -364,7 +364,7 @@ class Axiosef36347f(JavaScriptProfile):
 
     @property
     def dockerfile(self):
-        return default_npm_install_dockerfile(self.mirror_name)
+        return default_npm_install_dockerfile(self.mirror_url)
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_mocha(log)
@@ -379,7 +379,7 @@ class Async23dbf76a(JavaScriptProfile):
 
     @property
     def dockerfile(self):
-        return default_npm_install_dockerfile(self.mirror_name)
+        return default_npm_install_dockerfile(self.mirror_url)
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_mocha(log)
@@ -394,7 +394,7 @@ class Expressef5f2e13(JavaScriptProfile):
 
     @property
     def dockerfile(self):
-        return default_npm_install_dockerfile(self.mirror_name)
+        return default_npm_install_dockerfile(self.mirror_url)
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_mocha(log)
@@ -409,7 +409,7 @@ class Dayjsc8a26460(JavaScriptProfile):
 
     @property
     def dockerfile(self):
-        return default_npm_install_dockerfile(self.mirror_name)
+        return default_npm_install_dockerfile(self.mirror_url)
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
@@ -447,7 +447,7 @@ class Commanderjs395cf714(JavaScriptProfile):
 
     @property
     def dockerfile(self):
-        return default_npm_install_dockerfile(self.mirror_name, node_version="20")
+        return default_npm_install_dockerfile(self.mirror_url, node_version="20")
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
@@ -577,7 +577,7 @@ class Colorfef7b619(JavaScriptProfile):
 
     @property
     def dockerfile(self):
-        return default_npm_install_dockerfile(self.mirror_name, node_version="22")
+        return default_npm_install_dockerfile(self.mirror_url, node_version="22")
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_mocha(log)
@@ -592,7 +592,7 @@ class Qd180f4a0(JavaScriptProfile):
 
     @property
     def dockerfile(self):
-        return default_npm_install_dockerfile(self.mirror_name, node_version="22")
+        return default_npm_install_dockerfile(self.mirror_url, node_version="22")
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_mocha(log)
@@ -610,7 +610,7 @@ class ImmutableJS879adab5(JavaScriptProfile):
 
     @property
     def dockerfile(self):
-        return default_npm_install_dockerfile(self.mirror_name, node_version="22")
+        return default_npm_install_dockerfile(self.mirror_url, node_version="22")
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
@@ -628,7 +628,7 @@ class ThreeJS73b3f248(JavaScriptProfile):
 
     @property
     def dockerfile(self):
-        return default_npm_install_dockerfile(self.mirror_name, node_version="22")
+        return default_npm_install_dockerfile(self.mirror_url, node_version="22")
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
@@ -643,7 +643,7 @@ class Echarts6be0e145(JavaScriptProfile):
 
     @property
     def dockerfile(self):
-        return default_npm_install_dockerfile(self.mirror_name, node_version="22")
+        return default_npm_install_dockerfile(self.mirror_url, node_version="22")
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_jest(log)
