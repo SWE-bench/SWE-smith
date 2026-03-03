@@ -165,7 +165,7 @@ def test_ruby_profile_eval_sets():
 
 def test_parse_log_rspec_json_malformed_json():
     """Exercises the JSONDecodeError path when JSON is invalid."""
-    log = 'Building...\n{"version": "3.13.0", "examples": [{"full_description": "works"'
+    log = '{"version": "3.13.0", "examples": [{"full_description": "works"}'
     result = parse_log_rspec_json(log)
     assert result == {}
 
