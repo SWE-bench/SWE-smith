@@ -1,0 +1,199 @@
+from swesmith.bug_gen.adapters.ruby import get_entities_from_file_rb
+from swesmith.bug_gen.procedural.ruby.nil_introduction import (
+    BangMethodStripModifier,
+    NilGuardRemovalModifier,
+    OrDefaultRemovalModifier,
+    OrEqualsRemovalModifier,
+    PresenceStripModifier,
+    SafeNavigationRemovalModifier,
+)
+
+
+def test_safe_navigation_removal(tmp_path):
+    src = """\
+def get_name(user)
+  x = user&.name
+  y = x&.length
+  z = y || 0
+  w = z + 1
+  r = w * 2
+  r
+end
+"""
+    f = tmp_path / "test.rb"
+    f.write_text(src)
+    entities = []
+    get_entities_from_file_rb(entities, f)
+    assert len(entities) == 1
+
+    pm = SafeNavigationRemovalModifier(likelihood=1.0, seed=42)
+    assert pm.can_change(entities[0])
+
+    modified = pm.modify(entities[0])
+    assert modified is not None
+    # First &. replaced with ., second kept
+    assert "user.name" in modified.rewrite
+    assert "x&.length" in modified.rewrite
+
+
+def test_safe_navigation_no_safe_nav(tmp_path):
+    src = """\
+def get_name(user)
+  x = user.name
+  y = x.length + 1
+  z = y * 2
+  w = z - 1
+  w
+end
+"""
+    f = tmp_path / "test.rb"
+    f.write_text(src)
+    entities = []
+    get_entities_from_file_rb(entities, f)
+    assert len(entities) == 1
+
+    pm = SafeNavigationRemovalModifier(likelihood=1.0, seed=42)
+    result = pm.modify(entities[0])
+    assert result is None
+
+
+def test_or_default_removal(tmp_path):
+    src = """\
+def get_name(params)
+  name = params[:name] || "anonymous"
+  x = name.length + 1
+  y = x * 2
+  name
+end
+"""
+    f = tmp_path / "test.rb"
+    f.write_text(src)
+    entities = []
+    get_entities_from_file_rb(entities, f)
+    assert len(entities) == 1
+
+    pm = OrDefaultRemovalModifier(likelihood=1.0, seed=42)
+    assert pm.can_change(entities[0])
+
+    modified = pm.modify(entities[0])
+    assert modified is not None
+    # Fallback removed, left operand kept
+    assert "name = params[:name]\n" in modified.rewrite
+    assert "anonymous" not in modified.rewrite
+
+
+def test_presence_strip(tmp_path):
+    src = """\
+def get_value(params)
+  x = params[:name].presence
+  y = x.to_s + "suffix"
+  z = y.length * 2
+  x
+end
+"""
+    f = tmp_path / "test.rb"
+    f.write_text(src)
+    entities = []
+    get_entities_from_file_rb(entities, f)
+    assert len(entities) == 1
+
+    pm = PresenceStripModifier(likelihood=1.0, seed=42)
+    assert pm.can_change(entities[0])
+
+    modified = pm.modify(entities[0])
+    assert modified is not None
+    # .presence removed, receiver kept
+    assert "x = params[:name]\n" in modified.rewrite
+    assert ".presence" not in modified.rewrite
+
+
+def test_bang_method_strip(tmp_path):
+    src = """\
+def find_user(id)
+  x = id + 1
+  y = x * 2
+  User.find!(id)
+end
+"""
+    f = tmp_path / "test.rb"
+    f.write_text(src)
+    entities = []
+    get_entities_from_file_rb(entities, f)
+    assert len(entities) == 1
+
+    pm = BangMethodStripModifier(likelihood=1.0, seed=0)
+    assert pm.can_change(entities[0])
+
+    modified = pm.modify(entities[0])
+    assert modified is not None
+    assert "User.find(id)" in modified.rewrite
+    assert "find!" not in modified.rewrite
+
+
+def test_bang_method_strip_not_mutation_bang(tmp_path):
+    """sort! and map! should NOT be stripped — not in the allowlist."""
+    src = """\
+def sort_items(items)
+  x = items.length + 1
+  y = x * 2
+  items.sort!
+end
+"""
+    f = tmp_path / "test.rb"
+    f.write_text(src)
+    entities = []
+    get_entities_from_file_rb(entities, f)
+    assert len(entities) == 1
+
+    pm = BangMethodStripModifier(likelihood=1.0, seed=42)
+    result = pm.modify(entities[0])
+    assert result is None
+
+
+def test_or_equals_removal(tmp_path):
+    src = """\
+def cached_user
+  @user ||= find_user
+  x = @user.name + "suffix"
+  y = x.length * 2
+  @user
+end
+"""
+    f = tmp_path / "test.rb"
+    f.write_text(src)
+    entities = []
+    get_entities_from_file_rb(entities, f)
+    assert len(entities) == 1
+
+    pm = OrEqualsRemovalModifier(likelihood=1.0, seed=42)
+    assert pm.can_change(entities[0])
+
+    modified = pm.modify(entities[0])
+    assert modified is not None
+    assert "@user = find_user" in modified.rewrite
+    assert "||=" not in modified.rewrite
+
+
+def test_nil_guard_removal(tmp_path):
+    src = """\
+def process(x)
+  return if x.nil?
+  y = x + 1
+  z = y * 2
+  z
+end
+"""
+    f = tmp_path / "test.rb"
+    f.write_text(src)
+    entities = []
+    get_entities_from_file_rb(entities, f)
+    assert len(entities) == 1
+
+    pm = NilGuardRemovalModifier(likelihood=1.0, seed=42)
+    assert pm.can_change(entities[0])
+
+    modified = pm.modify(entities[0])
+    assert modified is not None
+    assert "return if x.nil?" not in modified.rewrite
+    # Guard removed but rest of method preserved
+    assert "y = x + 1" in modified.rewrite
