@@ -73,10 +73,12 @@ def parse_log_ruby_test(log: str) -> dict[str, str]:
             current_class = stripped[:-1]
             continue
         # test-unit verbose: "  test_name:   .: (0.001234)"
-        if current_class and ".: (" in stripped or "F: (" in stripped or "E: (" in stripped:
+        if current_class and (
+            ".: (" in stripped or "F: (" in stripped or "E: (" in stripped
+        ):
             match = re.match(r"^(\S+):\s+([.FE]):\s+\(", stripped)
             if match:
-                test_name = f"{current_class}#{ match.group(1)}"
+                test_name = f"{current_class}#{match.group(1)}"
                 status_char = match.group(2)
                 if status_char == ".":
                     test_status_map[test_name] = TestStatus.PASSED.value

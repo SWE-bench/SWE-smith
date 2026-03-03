@@ -45,8 +45,11 @@ class RubyProceduralModifier(ProceduralModifier, ABC):
     def replace_node(code: str, node, replacement: str) -> str:
         """Replace a tree-sitter node's text via byte offsets."""
         code_bytes = code.encode("utf8")
-        new_bytes = (code_bytes[:node.start_byte]
-                     + replacement.encode("utf8") + code_bytes[node.end_byte:])
+        new_bytes = (
+            code_bytes[: node.start_byte]
+            + replacement.encode("utf8")
+            + code_bytes[node.end_byte :]
+        )
         return new_bytes.decode("utf8")
 
     def _remove_matching_nodes(
@@ -64,6 +67,7 @@ class RubyProceduralModifier(ProceduralModifier, ABC):
         def collect(n):
             if n.type in node_types and self.flip():
                 removals.append(n)
+                return  # skip children to avoid stale byte offsets on nested removals
             for child in n.children:
                 collect(child)
 
@@ -74,7 +78,9 @@ class RubyProceduralModifier(ProceduralModifier, ABC):
 
         source_bytes = code_entity.src_code.encode("utf8")
         for node in sorted(removals, key=lambda x: x.start_byte, reverse=True):
-            source_bytes = source_bytes[:node.start_byte] + source_bytes[node.end_byte:]
+            source_bytes = (
+                source_bytes[: node.start_byte] + source_bytes[node.end_byte :]
+            )
 
         modified_code = source_bytes.decode("utf8")
 
