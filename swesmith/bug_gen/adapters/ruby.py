@@ -1,4 +1,4 @@
-from swesmith.constants import TODO_REWRITE, CodeEntity
+from swesmith.constants import TODO_REWRITE, CodeEntity, CodeProperty
 from tree_sitter import Language, Parser, Query, QueryCursor
 import tree_sitter_ruby as tsr
 import warnings
@@ -99,6 +99,61 @@ class RubyEntity(CodeEntity):
             return score
 
         return 1 + walk(self.node)
+
+    def _analyze_properties(self):
+        """Analyze Ruby code properties."""
+        node = self.node
+        if node.type in ["method", "singleton_method"]:
+            self._tags.add(CodeProperty.IS_FUNCTION)
+        self._walk_for_properties(node)
+
+    def _walk_for_properties(self, n):
+        """Walk the AST and analyze properties."""
+        self._check_control_flow(n)
+        self._check_operations(n)
+        self._check_expressions(n)
+        for child in n.children:
+            self._walk_for_properties(child)
+
+    def _check_control_flow(self, n):
+        """Check for control flow patterns."""
+        if n.type in ["if", "unless", "if_modifier", "unless_modifier"]:
+            self._tags.add(CodeProperty.HAS_IF)
+        if n.type in ["if", "unless"] and any(c.type in ["else", "elsif"] for c in n.children):
+            self._tags.add(CodeProperty.HAS_IF_ELSE)
+        if n.type in ["while", "until", "for", "while_modifier", "until_modifier"]:
+            self._tags.add(CodeProperty.HAS_LOOP)
+        if n.type in ["rescue", "ensure"]:
+            self._tags.add(CodeProperty.HAS_EXCEPTION)
+
+    def _check_operations(self, n):
+        """Check for various operations."""
+        if n.type in ["element_reference", "element_assignment"]:
+            self._tags.add(CodeProperty.HAS_LIST_INDEXING)
+        if n.type == "call":
+            self._tags.add(CodeProperty.HAS_FUNCTION_CALL)
+        if n.type == "return":
+            self._tags.add(CodeProperty.HAS_RETURN)
+        if n.type in ["assignment", "operator_assignment"]:
+            self._tags.add(CodeProperty.HAS_ASSIGNMENT)
+        if n.type in ["lambda", "block", "do_block"]:
+            self._tags.add(CodeProperty.HAS_LAMBDA)
+
+    def _check_expressions(self, n):
+        """Check expression patterns."""
+        if n.type == "binary":
+            self._tags.add(CodeProperty.HAS_BINARY_OP)
+            for child in n.children:
+                if hasattr(child, "text"):
+                    text = child.text.decode("utf-8")
+                    if text in ["&&", "||", "and", "or"]:
+                        self._tags.add(CodeProperty.HAS_BOOL_OP)
+                    elif text in ["<", ">", "<=", ">="]:
+                        self._tags.add(CodeProperty.HAS_OFF_BY_ONE)
+        if n.type == "unary":
+            self._tags.add(CodeProperty.HAS_UNARY_OP)
+        if n.type == "conditional":  # Ruby ternary: cond ? a : b
+            self._tags.add(CodeProperty.HAS_TERNARY)
 
 
 def get_entities_from_file_rb(
