@@ -17,6 +17,7 @@ from . import php
 from . import typescript
 from . import python
 from . import golang
+from . import ruby
 from . import rust
 
 __all__ = ["RepoProfile", "registry"]

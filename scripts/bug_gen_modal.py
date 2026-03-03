@@ -133,6 +133,7 @@ LANGUAGE_TO_BASE_CLASS = {
     "typescript": "TypeScriptProfile",
     "golang": "GoProfile",
     "go": "GoProfile",
+    "ruby": "RubyProfile",
     "rust": "RustProfile",
     "java": "JavaProfile",
     "c": "CProfile",
