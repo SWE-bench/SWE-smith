@@ -83,13 +83,17 @@ def test_parse_log_rspec_json_passes_and_failures():
 
 
 def test_parse_log_rspec_json_embedded_in_other_output():
-    log = "Building...\nCompiling gems...\n" + json.dumps(
-        {
-            "examples": [
-                {"full_description": "Foo bar", "status": "passed"},
-            ],
-        }
-    ) + "\nDone.\n"
+    log = (
+        "Building...\nCompiling gems...\n"
+        + json.dumps(
+            {
+                "examples": [
+                    {"full_description": "Foo bar", "status": "passed"},
+                ],
+            }
+        )
+        + "\nDone.\n"
+    )
     result = parse_log_rspec_json(log)
     assert len(result) == 1
     assert result["Foo bar"] == "PASSED"

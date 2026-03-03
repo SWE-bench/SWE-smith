@@ -119,7 +119,9 @@ class RubyEntity(CodeEntity):
         """Check for control flow patterns."""
         if n.type in ["if", "unless", "if_modifier", "unless_modifier"]:
             self._tags.add(CodeProperty.HAS_IF)
-        if n.type in ["if", "unless"] and any(c.type in ["else", "elsif"] for c in n.children):
+        if n.type in ["if", "unless"] and any(
+            c.type in ["else", "elsif"] for c in n.children
+        ):
             self._tags.add(CodeProperty.HAS_IF_ELSE)
         if n.type in ["while", "until", "for", "while_modifier", "until_modifier"]:
             self._tags.add(CodeProperty.HAS_LOOP)

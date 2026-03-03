@@ -85,9 +85,11 @@ end
     assert ready_idx < count_idx
 
 
-@pytest.mark.parametrize("src,expected_keyword", [
-    (
-        """\
+@pytest.mark.parametrize(
+    "src,expected_keyword",
+    [
+        (
+            """\
 def process(x)
   return if x.nil?
   y = x + 1
@@ -95,10 +97,10 @@ def process(x)
   z
 end
 """,
-        "return unless x.nil?",
-    ),
-    (
-        """\
+            "return unless x.nil?",
+        ),
+        (
+            """\
 def process(x)
   raise unless x.valid?
   y = x + 1
@@ -106,9 +108,10 @@ def process(x)
   x.perform(z)
 end
 """,
-        "raise if x.valid?",
-    ),
-])
+            "raise if x.valid?",
+        ),
+    ],
+)
 def test_guard_clause_invert(tmp_path, src, expected_keyword):
     f = tmp_path / "test.rb"
     f.write_text(src)

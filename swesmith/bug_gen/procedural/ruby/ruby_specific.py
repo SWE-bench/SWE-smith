@@ -26,7 +26,7 @@ class SymbolStringSwapModifier(RubyProceduralModifier):
             text = node.text.decode("utf8")
             # Strip leading : to get the name
             name = text[1:]
-            if re.match(r'^[a-zA-Z_]\w*[?!]?$', name):
+            if re.match(r"^[a-zA-Z_]\w*[?!]?$", name):
                 candidates.append(("symbol_to_string", node, name))
 
         # Find simple strings ("foo") — no interpolation, alphanumeric
@@ -36,7 +36,7 @@ class SymbolStringSwapModifier(RubyProceduralModifier):
             content_nodes = [c for c in node.children if c.type == "string_content"]
             if len(content_nodes) == 1:
                 content = content_nodes[0].text.decode("utf8")
-                if re.match(r'^[a-zA-Z_]\w*[?!]?$', content):
+                if re.match(r"^[a-zA-Z_]\w*[?!]?$", content):
                     candidates.append(("string_to_symbol", node, content))
 
         if not candidates:
@@ -77,7 +77,8 @@ class BlockMutationModifier(RubyProceduralModifier):
         # Collect two types of candidates
         block_params = self.find_nodes(tree.root_node, "block_parameters")
         yield_nodes = [
-            n for n in self.find_nodes(tree.root_node, "yield")
+            n
+            for n in self.find_nodes(tree.root_node, "yield")
             if any(c.type == "argument_list" for c in n.children)
         ]
 

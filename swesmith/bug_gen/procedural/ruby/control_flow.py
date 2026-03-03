@@ -67,8 +67,12 @@ class ControlIfElseInvertModifier(RubyProceduralModifier):
                 continue
 
             # Extract the text of the actual statement content
-            then_content = source_bytes[then_stmts[0].start_byte:then_stmts[-1].end_byte]
-            else_content = source_bytes[else_stmts[0].start_byte:else_stmts[-1].end_byte]
+            then_content = source_bytes[
+                then_stmts[0].start_byte : then_stmts[-1].end_byte
+            ]
+            else_content = source_bytes[
+                else_stmts[0].start_byte : else_stmts[-1].end_byte
+            ]
 
             # Determine indentation for each branch by looking at the first
             # non-whitespace content position
@@ -78,7 +82,7 @@ class ControlIfElseInvertModifier(RubyProceduralModifier):
                 line_start = source_bytes.rfind(b"\n", 0, start)
                 if line_start == -1:
                     return b""
-                return source_bytes[line_start + 1:start]
+                return source_bytes[line_start + 1 : start]
 
             then_indent = get_indent(then_stmts)
             else_indent = get_indent(else_stmts)
@@ -91,7 +95,7 @@ class ControlIfElseInvertModifier(RubyProceduralModifier):
                     if i == 0:
                         result.append(line)
                     elif line.startswith(from_indent):
-                        result.append(to_indent + line[len(from_indent):])
+                        result.append(to_indent + line[len(from_indent) :])
                     else:
                         result.append(line)
                 return b"\n".join(result)
@@ -101,14 +105,14 @@ class ControlIfElseInvertModifier(RubyProceduralModifier):
 
             # Replace else body first (later in file), then then body
             source_bytes = (
-                source_bytes[:else_stmts[0].start_byte]
+                source_bytes[: else_stmts[0].start_byte]
                 + new_else
-                + source_bytes[else_stmts[-1].end_byte:]
+                + source_bytes[else_stmts[-1].end_byte :]
             )
             source_bytes = (
-                source_bytes[:then_stmts[0].start_byte]
+                source_bytes[: then_stmts[0].start_byte]
                 + new_then
-                + source_bytes[then_stmts[-1].end_byte:]
+                + source_bytes[then_stmts[-1].end_byte :]
             )
 
         return source_bytes.decode("utf8")
@@ -147,9 +151,9 @@ class ControlShuffleLinesModifier(RubyProceduralModifier):
                     if child.type == "body_statement":
                         # Collect top-level statements (skip comments)
                         statements = [
-                            c for c in child.children
-                            if c.type not in ("comment",)
-                            and c.start_byte != c.end_byte
+                            c
+                            for c in child.children
+                            if c.type not in ("comment",) and c.start_byte != c.end_byte
                         ]
                         if len(statements) >= 2:
                             modifications.append(statements)
@@ -171,9 +175,7 @@ class ControlShuffleLinesModifier(RubyProceduralModifier):
                 if len(statements) >= 2:
                     indices[0], indices[1] = indices[1], indices[0]
 
-            texts = [
-                source_bytes[s.start_byte:s.end_byte] for s in statements
-            ]
+            texts = [source_bytes[s.start_byte : s.end_byte] for s in statements]
             shuffled = [texts[i] for i in indices]
 
             first_start = statements[0].start_byte
@@ -186,9 +188,7 @@ class ControlShuffleLinesModifier(RubyProceduralModifier):
             new_content = (b"\n" + indent).join(shuffled)
 
             source_bytes = (
-                source_bytes[:first_start]
-                + new_content
-                + source_bytes[last_end:]
+                source_bytes[:first_start] + new_content + source_bytes[last_end:]
             )
 
         return source_bytes.decode("utf8")

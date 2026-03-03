@@ -9,10 +9,12 @@ from swesmith.bug_gen.procedural.ruby.remove import (
 )
 
 
-@pytest.mark.parametrize("modifier_cls,src,removed_text", [
-    (
-        RemoveLoopModifier,
-        """\
+@pytest.mark.parametrize(
+    "modifier_cls,src,removed_text",
+    [
+        (
+            RemoveLoopModifier,
+            """\
 def count_down(n)
   x = n + 1
   y = x * 2
@@ -23,11 +25,11 @@ def count_down(n)
   y
 end
 """,
-        "while",
-    ),
-    (
-        RemoveConditionalModifier,
-        """\
+            "while",
+        ),
+        (
+            RemoveConditionalModifier,
+            """\
 def check(x)
   y = x + 1
   z = y * 2
@@ -37,11 +39,11 @@ def check(x)
   z
 end
 """,
-        "if x > 0",
-    ),
-    (
-        RemoveRescueEnsureModifier,
-        """\
+            "if x > 0",
+        ),
+        (
+            RemoveRescueEnsureModifier,
+            """\
 def safe_parse(input)
   x = input + ""
   y = x.length > 0
@@ -52,9 +54,10 @@ def safe_parse(input)
   end
 end
 """,
-        "rescue",
-    ),
-])
+            "rescue",
+        ),
+    ],
+)
 def test_remove_modifier(tmp_path, modifier_cls, src, removed_text):
     f = tmp_path / "test.rb"
     f.write_text(src)

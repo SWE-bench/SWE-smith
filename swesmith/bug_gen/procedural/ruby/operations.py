@@ -30,7 +30,14 @@ COMPARISON_OPS = ["==", "!=", "<", "<=", ">", ">="]
 LOGICAL_OPS = ["&&", "||"]
 KEYWORD_LOGICAL_OPS = ["and", "or"]
 
-ALL_BINARY_OPS = set(ARITHMETIC_OPS + BITWISE_OPS + COMPARISON_OPS + LOGICAL_OPS + KEYWORD_LOGICAL_OPS + ["**"])
+ALL_BINARY_OPS = set(
+    ARITHMETIC_OPS
+    + BITWISE_OPS
+    + COMPARISON_OPS
+    + LOGICAL_OPS
+    + KEYWORD_LOGICAL_OPS
+    + ["**"]
+)
 
 
 def _find_operator_child(node):
@@ -74,11 +81,13 @@ class OperationChangeModifier(RubyProceduralModifier):
             return None
 
         source_bytes = code_entity.src_code.encode("utf8")
-        for op_node, new_op in sorted(modifications, key=lambda x: x[0].start_byte, reverse=True):
+        for op_node, new_op in sorted(
+            modifications, key=lambda x: x[0].start_byte, reverse=True
+        ):
             source_bytes = (
-                source_bytes[:op_node.start_byte]
+                source_bytes[: op_node.start_byte]
                 + new_op.encode("utf8")
-                + source_bytes[op_node.end_byte:]
+                + source_bytes[op_node.end_byte :]
             )
 
         modified_code = source_bytes.decode("utf8")
@@ -137,11 +146,13 @@ class OperationFlipOperatorModifier(RubyProceduralModifier):
             return None
 
         source_bytes = code_entity.src_code.encode("utf8")
-        for op_node, new_op in sorted(modifications, key=lambda x: x[0].start_byte, reverse=True):
+        for op_node, new_op in sorted(
+            modifications, key=lambda x: x[0].start_byte, reverse=True
+        ):
             source_bytes = (
-                source_bytes[:op_node.start_byte]
+                source_bytes[: op_node.start_byte]
                 + new_op.encode("utf8")
-                + source_bytes[op_node.end_byte:]
+                + source_bytes[op_node.end_byte :]
             )
 
         modified_code = source_bytes.decode("utf8")
@@ -199,15 +210,15 @@ class OperationSwapOperandsModifier(RubyProceduralModifier):
         for expr, left, op, right in sorted(
             modifications, key=lambda x: x[0].start_byte, reverse=True
         ):
-            left_text = source_bytes[left.start_byte:left.end_byte]
-            op_text = source_bytes[op.start_byte:op.end_byte]
-            right_text = source_bytes[right.start_byte:right.end_byte]
+            left_text = source_bytes[left.start_byte : left.end_byte]
+            op_text = source_bytes[op.start_byte : op.end_byte]
+            right_text = source_bytes[right.start_byte : right.end_byte]
 
             new_expr = right_text + b" " + op_text + b" " + left_text
             source_bytes = (
-                source_bytes[:expr.start_byte]
+                source_bytes[: expr.start_byte]
                 + new_expr
-                + source_bytes[expr.end_byte:]
+                + source_bytes[expr.end_byte :]
             )
 
         modified_code = source_bytes.decode("utf8")
@@ -273,11 +284,13 @@ class OperationBreakChainsModifier(RubyProceduralModifier):
         for expr, replacement in sorted(
             modifications, key=lambda x: x[0].start_byte, reverse=True
         ):
-            replacement_text = source_bytes[replacement.start_byte:replacement.end_byte]
+            replacement_text = source_bytes[
+                replacement.start_byte : replacement.end_byte
+            ]
             source_bytes = (
-                source_bytes[:expr.start_byte]
+                source_bytes[: expr.start_byte]
                 + replacement_text
-                + source_bytes[expr.end_byte:]
+                + source_bytes[expr.end_byte :]
             )
 
         modified_code = source_bytes.decode("utf8")
@@ -337,9 +350,9 @@ class OperationChangeConstantsModifier(RubyProceduralModifier):
             modifications, key=lambda x: x[0].start_byte, reverse=True
         ):
             source_bytes = (
-                source_bytes[:const_node.start_byte]
+                source_bytes[: const_node.start_byte]
                 + new_value.encode("utf8")
-                + source_bytes[const_node.end_byte:]
+                + source_bytes[const_node.end_byte :]
             )
 
         modified_code = source_bytes.decode("utf8")

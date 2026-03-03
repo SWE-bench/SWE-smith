@@ -4,7 +4,9 @@ from tree_sitter import Parser
 
 
 class SafeNavigationRemovalModifier(RubyProceduralModifier):
-    explanation: str = "A safe navigation operator (&.) has been removed, allowing nil to propagate."
+    explanation: str = (
+        "A safe navigation operator (&.) has been removed, allowing nil to propagate."
+    )
     name: str = "func_pm_ruby_safe_nav_removal"
     conditions: list = [CodeProperty.IS_FUNCTION, CodeProperty.HAS_FUNCTION_CALL]
 
@@ -21,7 +23,9 @@ class SafeNavigationRemovalModifier(RubyProceduralModifier):
         candidates = []
         for call in calls:
             for child in call.children:
-                if child.type == "&." or (hasattr(child, 'text') and child.text == b"&."):
+                if child.type == "&." or (
+                    hasattr(child, "text") and child.text == b"&."
+                ):
                     candidates.append(child)
 
         if not candidates:
@@ -42,7 +46,9 @@ class SafeNavigationRemovalModifier(RubyProceduralModifier):
 
 
 class OrDefaultRemovalModifier(RubyProceduralModifier):
-    explanation: str = "A fallback default (|| value) has been removed, allowing nil to propagate."
+    explanation: str = (
+        "A fallback default (|| value) has been removed, allowing nil to propagate."
+    )
     name: str = "func_pm_ruby_or_default_removal"
     conditions: list = [CodeProperty.IS_FUNCTION, CodeProperty.HAS_BINARY_OP]
 
@@ -58,7 +64,7 @@ class OrDefaultRemovalModifier(RubyProceduralModifier):
         candidates = []
         for node in binaries:
             for child in node.children:
-                if hasattr(child, 'text') and child.text in (b"||", b"or"):
+                if hasattr(child, "text") and child.text in (b"||", b"or"):
                     candidates.append(node)
                     break
 
@@ -68,7 +74,9 @@ class OrDefaultRemovalModifier(RubyProceduralModifier):
         target = self.rand.choice(candidates)
         # Replace with just the left operand
         left = target.children[0]
-        left_text = code_entity.src_code.encode("utf8")[left.start_byte:left.end_byte].decode("utf8")
+        left_text = code_entity.src_code.encode("utf8")[
+            left.start_byte : left.end_byte
+        ].decode("utf8")
 
         modified_code = self.replace_node(code_entity.src_code, target, left_text)
 
@@ -122,7 +130,9 @@ class PresenceStripModifier(RubyProceduralModifier):
 
         call, receiver = self.rand.choice(candidates)
         src_bytes = code_entity.src_code.encode("utf8")
-        receiver_text = src_bytes[receiver.start_byte:receiver.end_byte].decode("utf8")
+        receiver_text = src_bytes[receiver.start_byte : receiver.end_byte].decode(
+            "utf8"
+        )
         modified_code = self.replace_node(code_entity.src_code, call, receiver_text)
 
         valid = self.validate_syntax(code_entity.src_code, modified_code)
@@ -140,7 +150,9 @@ BANG_METHODS = {"first!", "last!", "find!", "find_by!", "find_sole_by!"}
 
 
 class BangMethodStripModifier(RubyProceduralModifier):
-    explanation: str = "A bang method (!) has been replaced with its non-raising variant."
+    explanation: str = (
+        "A bang method (!) has been replaced with its non-raising variant."
+    )
     name: str = "func_pm_ruby_bang_method_strip"
     conditions: list = [CodeProperty.IS_FUNCTION, CodeProperty.HAS_FUNCTION_CALL]
 
@@ -180,7 +192,9 @@ class BangMethodStripModifier(RubyProceduralModifier):
 
 
 class OrEqualsRemovalModifier(RubyProceduralModifier):
-    explanation: str = "A memoization operator (||=) has been replaced with plain assignment."
+    explanation: str = (
+        "A memoization operator (||=) has been replaced with plain assignment."
+    )
     name: str = "func_pm_ruby_or_equals_removal"
     conditions: list = [CodeProperty.IS_FUNCTION, CodeProperty.HAS_ASSIGNMENT]
 
@@ -196,7 +210,7 @@ class OrEqualsRemovalModifier(RubyProceduralModifier):
         candidates = []
         for node in op_assigns:
             for child in node.children:
-                if hasattr(child, 'text') and child.text == b"||=":
+                if hasattr(child, "text") and child.text == b"||=":
                     candidates.append(child)
 
         if not candidates:
