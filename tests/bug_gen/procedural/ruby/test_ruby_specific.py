@@ -120,3 +120,42 @@ end
     pm = BlockMutationModifier(likelihood=1.0, seed=42)
     result = pm.modify(entities[0])
     assert result is None
+
+
+def test_symbol_string_swap_flip_failure(tmp_path):
+    """SymbolStringSwapModifier returns None when likelihood=0.0."""
+    src = """\
+def render_page(opts)
+  x = opts[:size] + 1
+  y = x * 2
+  render action: :index
+end
+"""
+    f = tmp_path / "test.rb"
+    f.write_text(src)
+    entities = []
+    get_entities_from_file_rb(entities, f)
+
+    pm = SymbolStringSwapModifier(likelihood=0.0, seed=42)
+    assert pm.modify(entities[0]) is None
+
+
+def test_symbol_string_swap_no_candidates(tmp_path):
+    """SymbolStringSwapModifier returns None with only dynamic/interpolated strings."""
+    src = """\
+def render_page(opts)
+  x = opts[:"dynamic_#{key}"]
+  y = x + 1
+  z = y * 2
+  z
+end
+"""
+    f = tmp_path / "test.rb"
+    f.write_text(src)
+    entities = []
+    get_entities_from_file_rb(entities, f)
+    assert len(entities) == 1
+
+    pm = SymbolStringSwapModifier(likelihood=1.0, seed=42)
+    result = pm.modify(entities[0])
+    assert result is None

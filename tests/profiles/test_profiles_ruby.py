@@ -163,6 +163,36 @@ def test_ruby_profile_eval_sets():
         )
 
 
+def test_parse_log_rspec_json_malformed_json():
+    """Exercises the JSONDecodeError path when JSON is invalid."""
+    log = 'Building...\n{"version": "3.13.0", "examples": [{"full_description": "works"'
+    result = parse_log_rspec_json(log)
+    assert result == {}
+
+
+def test_parse_log_rspec_json_no_closing_brace():
+    """Exercises the rfind("}") < start path."""
+    log = '{"examples": no closing brace here'
+    result = parse_log_rspec_json(log)
+    assert result == {}
+
+
+def test_parse_log_rspec_json_empty_description():
+    """Examples with empty full_description are skipped."""
+    rspec_output = json.dumps(
+        {
+            "examples": [
+                {"full_description": "", "status": "passed"},
+                {"full_description": "   ", "status": "passed"},
+                {"full_description": "Real test", "status": "passed"},
+            ],
+        }
+    )
+    result = parse_log_rspec_json(rspec_output)
+    assert len(result) == 1
+    assert result["Real test"] == "PASSED"
+
+
 def test_ruby_profile_is_test_path_rspec():
     """RubyProfile._is_test_path detects RSpec spec/ dirs and _spec.rb files."""
     profile = RubyProfile()

@@ -125,3 +125,65 @@ def test_guard_clause_invert(tmp_path, src, expected_keyword):
     modified = pm.modify(entities[0])
     assert modified is not None
     assert expected_keyword in modified.rewrite
+
+
+def test_control_if_else_invert_flip_failure(tmp_path):
+    """ControlIfElseInvertModifier returns None when likelihood=0.0."""
+    src = """\
+def check(x, y)
+  z = x + y
+  if x > 0
+    "positive"
+  else
+    "non-positive"
+  end
+end
+"""
+    f = tmp_path / "test.rb"
+    f.write_text(src)
+    entities = []
+    get_entities_from_file_rb(entities, f)
+
+    pm = ControlIfElseInvertModifier(likelihood=0.0, seed=42)
+    assert pm.modify(entities[0]) is None
+
+
+def test_guard_clause_invert_flip_failure(tmp_path):
+    """GuardClauseInvertModifier returns None when likelihood=0.0."""
+    src = """\
+def process(x)
+  return if x.nil?
+  y = x + 1
+  z = y * 2
+  z
+end
+"""
+    f = tmp_path / "test.rb"
+    f.write_text(src)
+    entities = []
+    get_entities_from_file_rb(entities, f)
+
+    pm = GuardClauseInvertModifier(likelihood=0.0, seed=42)
+    assert pm.modify(entities[0]) is None
+
+
+def test_guard_clause_invert_no_modifiers(tmp_path):
+    """GuardClauseInvertModifier returns None when only block-form if/unless."""
+    src = """\
+def process(x)
+  if x > 0
+    y = x + 1
+    z = y * 2
+    z
+  end
+end
+"""
+    f = tmp_path / "test.rb"
+    f.write_text(src)
+    entities = []
+    get_entities_from_file_rb(entities, f)
+    assert len(entities) == 1
+
+    pm = GuardClauseInvertModifier(likelihood=1.0, seed=42)
+    result = pm.modify(entities[0])
+    assert result is None

@@ -197,3 +197,127 @@ end
     assert "return if x.nil?" not in modified.rewrite
     # Guard removed but rest of method preserved
     assert "y = x + 1" in modified.rewrite
+
+
+def test_safe_navigation_removal_flip_failure(tmp_path):
+    """SafeNavigationRemovalModifier returns None when likelihood=0.0."""
+    src = """\
+def get_name(user)
+  x = user&.name
+  y = x&.length
+  z = y || 0
+  w = z + 1
+  r = w * 2
+  r
+end
+"""
+    f = tmp_path / "test.rb"
+    f.write_text(src)
+    entities = []
+    get_entities_from_file_rb(entities, f)
+
+    pm = SafeNavigationRemovalModifier(likelihood=0.0, seed=42)
+    assert pm.modify(entities[0]) is None
+
+
+def test_or_default_removal_no_or(tmp_path):
+    """OrDefaultRemovalModifier returns None when no || operators present."""
+    src = """\
+def check(a, b)
+  x = a && b
+  y = x + 1
+  z = y * 2
+  x
+end
+"""
+    f = tmp_path / "test.rb"
+    f.write_text(src)
+    entities = []
+    get_entities_from_file_rb(entities, f)
+    assert len(entities) == 1
+
+    pm = OrDefaultRemovalModifier(likelihood=1.0, seed=42)
+    result = pm.modify(entities[0])
+    assert result is None
+
+
+def test_presence_strip_no_presence(tmp_path):
+    """PresenceStripModifier returns None when no .presence calls present."""
+    src = """\
+def get_value(params)
+  x = params[:name].to_s
+  y = x + "suffix"
+  z = y.length * 2
+  x
+end
+"""
+    f = tmp_path / "test.rb"
+    f.write_text(src)
+    entities = []
+    get_entities_from_file_rb(entities, f)
+    assert len(entities) == 1
+
+    pm = PresenceStripModifier(likelihood=1.0, seed=42)
+    result = pm.modify(entities[0])
+    assert result is None
+
+
+def test_or_equals_removal_no_or_equals(tmp_path):
+    """OrEqualsRemovalModifier returns None when no ||= operators present."""
+    src = """\
+def update(x)
+  x += 1
+  y = x * 2
+  z = y - 1
+  z
+end
+"""
+    f = tmp_path / "test.rb"
+    f.write_text(src)
+    entities = []
+    get_entities_from_file_rb(entities, f)
+    assert len(entities) == 1
+
+    pm = OrEqualsRemovalModifier(likelihood=1.0, seed=42)
+    result = pm.modify(entities[0])
+    assert result is None
+
+
+def test_nil_guard_removal_no_guards(tmp_path):
+    """NilGuardRemovalModifier returns None when modifier-ifs aren't guard clauses."""
+    src = """\
+def process(x, verbose)
+  puts "hi" if verbose
+  y = x + 1
+  z = y * 2
+  z
+end
+"""
+    f = tmp_path / "test.rb"
+    f.write_text(src)
+    entities = []
+    get_entities_from_file_rb(entities, f)
+    assert len(entities) == 1
+
+    pm = NilGuardRemovalModifier(likelihood=1.0, seed=42)
+    result = pm.modify(entities[0])
+    assert result is None
+
+
+def test_nil_guard_removal_flip_failure(tmp_path):
+    """NilGuardRemovalModifier returns None when likelihood=0.0."""
+    src = """\
+def process(x)
+  return if x.nil?
+  y = x + 1
+  z = y * 2
+  z
+end
+"""
+    f = tmp_path / "test.rb"
+    f.write_text(src)
+    entities = []
+    get_entities_from_file_rb(entities, f)
+
+    pm = NilGuardRemovalModifier(likelihood=0.0, seed=42)
+    assert pm.modify(entities[0]) is None
