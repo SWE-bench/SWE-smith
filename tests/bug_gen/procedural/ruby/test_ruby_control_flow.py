@@ -44,6 +44,37 @@ end
     assert "if y > 0" in else_body
 
 
+def test_control_unless_else_invert(tmp_path):
+    src = """\
+def check(x)
+  y = x + 1
+  z = y * 2
+  unless x > 0
+    "non-positive"
+  else
+    "positive"
+  end
+end
+"""
+    f = tmp_path / "test.rb"
+    f.write_text(src)
+    entities = []
+    get_entities_from_file_rb(entities, f)
+    assert len(entities) == 1
+
+    pm = ControlIfElseInvertModifier(likelihood=1.0, seed=42)
+    assert pm.can_change(entities[0])
+
+    modified = pm.modify(entities[0])
+    assert modified is not None
+    parts = modified.rewrite.split("unless x > 0", 1)
+    then_else = parts[1].split("else", 1)
+    then_body = then_else[0]
+    else_body = then_else[1]
+    assert '"positive"' in then_body
+    assert '"non-positive"' in else_body
+
+
 def test_control_if_else_invert_no_else(tmp_path):
     src = """\
 def check(x)
