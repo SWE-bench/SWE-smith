@@ -21,6 +21,16 @@ def test_parse_query_properties(ruby_test_file_entities):
     assert entity.has_assignment is True
     assert entity.has_binary_op is True
     assert entity.has_function_call is True
+    assert entity.has_return is True
+    assert entity.has_list_indexing is True
+    assert entity.has_lambda is True
+    assert entity.has_bool_op is True
+    assert entity.has_ternary is True
+    # Not present in parse_query
+    assert entity.has_loop is False
+    assert entity.has_exception is False
+    assert entity.has_unary_op is False
+    assert entity.has_off_by_one is False
 
 
 def test_normalize_params_properties(ruby_test_file_entities):
@@ -35,6 +45,15 @@ def test_normalize_params_properties(ruby_test_file_entities):
     assert entity.has_assignment is True
     assert entity.has_binary_op is True
     assert entity.has_function_call is True
+    assert entity.has_list_indexing is True
+    assert entity.has_bool_op is True
+    assert entity.has_off_by_one is True
+    assert entity.has_unary_op is True
+    # Not present in _normalize_params
+    assert entity.has_loop is False
+    assert entity.has_exception is False
+    assert entity.has_lambda is False
+    assert entity.has_ternary is False
 
 
 def test_make_params_properties(ruby_test_file_entities):
