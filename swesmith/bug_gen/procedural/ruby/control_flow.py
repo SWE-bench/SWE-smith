@@ -126,6 +126,9 @@ class ControlShuffleLinesModifier(RubyProceduralModifier):
 
     def modify(self, code_entity: CodeEntity) -> BugRewrite:
         """Shuffle top-level statements in a Ruby method body."""
+        if not self.flip():
+            return None
+
         parser = Parser(RUBY_LANGUAGE)
         tree = parser.parse(bytes(code_entity.src_code, "utf8"))
 
