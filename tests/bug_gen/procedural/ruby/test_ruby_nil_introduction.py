@@ -82,6 +82,31 @@ end
     assert "anonymous" not in modified.rewrite
 
 
+def test_or_default_removal_or_keyword(tmp_path):
+    """OrDefaultRemovalModifier handles Ruby's `or` keyword (not just `||`)."""
+    src = """\
+def get_name(params)
+  name = params[:name] or "anonymous"
+  x = name.length + 1
+  y = x * 2
+  name
+end
+"""
+    f = tmp_path / "test.rb"
+    f.write_text(src)
+    entities = []
+    get_entities_from_file_rb(entities, f)
+    assert len(entities) == 1
+
+    pm = OrDefaultRemovalModifier(likelihood=1.0, seed=42)
+    assert pm.can_change(entities[0])
+
+    modified = pm.modify(entities[0])
+    assert modified is not None
+    assert "name = params[:name]\n" in modified.rewrite
+    assert "anonymous" not in modified.rewrite
+
+
 def test_presence_strip(tmp_path):
     src = """\
 def get_value(params)
