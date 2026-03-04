@@ -34,8 +34,14 @@ end
 
     modified = pm.modify(entities[0])
     assert modified is not None
-    # Outer if/else swapped: "non-positive" now in then-branch
-    assert '"non-positive"' in modified.rewrite.split("if x > 0")[1].split("else")[0]
+    # Split on outer condition then first "else" to get then/else bodies
+    parts = modified.rewrite.split("if x > 0", 1)
+    then_else = parts[1].split("else", 1)
+    then_body = then_else[0]
+    else_body = then_else[1]
+    # "non-positive" swapped into then-branch, inner if swapped into else-branch
+    assert '"non-positive"' in then_body
+    assert "if y > 0" in else_body
 
 
 def test_control_if_else_invert_no_else(tmp_path):
