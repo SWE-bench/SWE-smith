@@ -146,7 +146,7 @@ class PresenceStripModifier(RubyProceduralModifier):
         )
 
 
-BANG_METHODS = {"first!", "last!", "find!", "find_by!", "find_sole_by!"}
+BANG_METHODS = {"first!", "last!", "find!", "find_by!"}
 
 
 class BangMethodStripModifier(RubyProceduralModifier):
