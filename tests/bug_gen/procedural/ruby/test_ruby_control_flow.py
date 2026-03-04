@@ -47,6 +47,8 @@ end
 def test_control_if_else_invert_no_else(tmp_path):
     src = """\
 def check(x)
+  y = x + 1
+  z = y * 2
   if x > 0
     "positive"
   end
