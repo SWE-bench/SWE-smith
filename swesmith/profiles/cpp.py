@@ -5011,39 +5011,39 @@ CMD ["/bin/bash"]"""
         return parse_log_gtest(log)
 
 
-@dataclass
-class Stdexecb84044a3(CppProfile):
-    owner: str = "NVIDIA"
-    repo: str = "stdexec"
-    commit: str = "b84044a3b2c755c9de9673ae3a5b63a679201a42"
-    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+# @dataclass
+# class Stdexecb84044a3(CppProfile):
+#     owner: str = "NVIDIA"
+#     repo: str = "stdexec"
+#     commit: str = "b84044a3b2c755c9de9673ae3a5b63a679201a42"
+#     test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
-    @property
-    def dockerfile(self):
-        return f"""FROM gcc:12
+#     @property
+#     def dockerfile(self):
+#         return f"""FROM gcc:12
 
-RUN apt-get update && apt-get install -y \
-    cmake \
-    git \
-    libtbb-dev \
-    && rm -rf /var/lib/apt/lists/*
+# RUN apt-get update && apt-get install -y \
+#     cmake \
+#     git \
+#     libtbb-dev \
+#     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.mirror_name}.git /{ENV_NAME}
-WORKDIR /{ENV_NAME}
-RUN git submodule update --init --recursive
+# RUN git clone https://github.com/{self.mirror_name}.git /{ENV_NAME}
+# WORKDIR /{ENV_NAME}
+# RUN git submodule update --init --recursive
 
-RUN mkdir build && cd build && \
-    cmake -DCMAKE_BUILD_TYPE=Release \
-          -DSTDEXEC_BUILD_TESTS=ON \
-          -DSTDEXEC_BUILD_EXAMPLES=OFF \
-          .. && \
-    cmake --build . --parallel 4
+# RUN mkdir build && cd build && \
+#     cmake -DCMAKE_BUILD_TYPE=Release \
+#           -DSTDEXEC_BUILD_TESTS=ON \
+#           -DSTDEXEC_BUILD_EXAMPLES=OFF \
+#           .. && \
+#     cmake --build . --parallel 4
 
-CMD ["/bin/bash"]"""
+# CMD ["/bin/bash"]"""
 
-    def log_parser(self, log: str) -> dict[str, str]:
-        return parse_log_ctest(log)
+#     def log_parser(self, log: str) -> dict[str, str]:
+#         return parse_log_ctest(log)
 
 
 @dataclass
@@ -5362,50 +5362,50 @@ CMD ["/bin/bash"]"""
         return parse_log_gtest(log)
 
 
-@dataclass
-class Tendis32eafb4c(CppProfile):
-    owner: str = "Tencent"
-    repo: str = "Tendis"
-    commit: str = "32eafb4cde5f5f8f8e5e15635c905de0cb73d9db"
-    test_cmd: str = "cd build && make -j$(nproc) tendisplus_unit_test && ./bin/tendisplus_unit_test --gtest_color=no"
+# @dataclass
+# class Tendis32eafb4c(CppProfile):
+#     owner: str = "Tencent"
+#     repo: str = "Tendis"
+#     commit: str = "32eafb4cde5f5f8f8e5e15635c905de0cb73d9db"
+#     test_cmd: str = "cd build && make -j$(nproc) tendisplus_unit_test && ./bin/tendisplus_unit_test --gtest_color=no"
 
-    @property
-    def dockerfile(self):
-        return f"""FROM ubuntu:22.04
+#     @property
+#     def dockerfile(self):
+#         return f"""FROM ubuntu:22.04
 
-ENV DEBIAN_FRONTEND=noninteractive
+# ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update && apt-get install -y \
-    git \
-    build-essential \
-    cmake \
-    libboost-all-dev \
-    libssl-dev \
-    zlib1g-dev \
-    libbz2-dev \
-    libsnappy-dev \
-    liblz4-dev \
-    libzstd-dev \
-    libjemalloc-dev \
-    python3 \
-    && rm -rf /var/lib/apt/lists/*
+# RUN apt-get update && apt-get install -y \
+#     git \
+#     build-essential \
+#     cmake \
+#     libboost-all-dev \
+#     libssl-dev \
+#     zlib1g-dev \
+#     libbz2-dev \
+#     libsnappy-dev \
+#     liblz4-dev \
+#     libzstd-dev \
+#     libjemalloc-dev \
+#     python3 \
+#     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.mirror_name}.git /{ENV_NAME}
-WORKDIR /{ENV_NAME}
-RUN git submodule update --init --recursive
+# RUN git clone https://github.com/{self.mirror_name}.git /{ENV_NAME}
+# WORKDIR /{ENV_NAME}
+# RUN git submodule update --init --recursive
 
-RUN git config --global user.email "you@example.com" && \
-    git config --global user.name "Your Name"
+# RUN git config --global user.email "you@example.com" && \
+#     git config --global user.name "Your Name"
 
-RUN mkdir build && cd build && \
-    cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON .. && \
-    make -j$(nproc) tendisplus
+# RUN mkdir build && cd build && \
+#     cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON .. && \
+#     make -j$(nproc) tendisplus
 
-CMD ["/bin/bash"]"""
+# CMD ["/bin/bash"]"""
 
-    def log_parser(self, log: str) -> dict[str, str]:
-        return parse_log_gtest(log)
+#     def log_parser(self, log: str) -> dict[str, str]:
+#         return parse_log_gtest(log)
 
 
 @dataclass
@@ -5678,63 +5678,63 @@ CMD ["/bin/bash"]"""
         return parse_log_ctest(log)
 
 
-@dataclass
-class Vita3K276bfaff(CppProfile):
-    owner: str = "Vita3K"
-    repo: str = "Vita3K"
-    commit: str = "276bfaffd443325f3e1637d838d615b8fb11f37e"
-    test_cmd: str = "./build/vita3k/module/module-tests"
+# @dataclass
+# class Vita3K276bfaff(CppProfile):
+#     owner: str = "Vita3K"
+#     repo: str = "Vita3K"
+#     commit: str = "276bfaffd443325f3e1637d838d615b8fb11f37e"
+#     test_cmd: str = "./build/vita3k/module/module-tests"
 
-    @property
-    def dockerfile(self):
-        return f"""FROM ubuntu:22.04
+#     @property
+#     def dockerfile(self):
+#         return f"""FROM ubuntu:22.04
 
-ENV DEBIAN_FRONTEND=noninteractive
+# ENV DEBIAN_FRONTEND=noninteractive
 
-# Robust apt configuration for arm64/ports environment
-RUN echo "deb [trusted=yes] http://ports.ubuntu.com/ubuntu-ports jammy main restricted universe multiverse" > /etc/apt/sources.list && \
-    echo "deb [trusted=yes] http://ports.ubuntu.com/ubuntu-ports jammy-updates main restricted universe multiverse" >> /etc/apt/sources.list && \
-    echo "deb [trusted=yes] http://ports.ubuntu.com/ubuntu-ports jammy-security main restricted universe multiverse" >> /etc/apt/sources.list
+# # Robust apt configuration for arm64/ports environment
+# RUN echo "deb [trusted=yes] http://ports.ubuntu.com/ubuntu-ports jammy main restricted universe multiverse" > /etc/apt/sources.list && \
+#     echo "deb [trusted=yes] http://ports.ubuntu.com/ubuntu-ports jammy-updates main restricted universe multiverse" >> /etc/apt/sources.list && \
+#     echo "deb [trusted=yes] http://ports.ubuntu.com/ubuntu-ports jammy-security main restricted universe multiverse" >> /etc/apt/sources.list
 
-RUN apt-get update && apt-get install -y \
-    git \
-    cmake \
-    ninja-build \
-    libsdl2-dev \
-    pkg-config \
-    libgtk-3-dev \
-    clang \
-    lld \
-    llvm \
-    xdg-desktop-portal \
-    openssl \
-    libssl-dev \
-    build-essential \
-    libboost-all-dev \
-    && rm -rf /var/lib/apt/lists/*
+# RUN apt-get update && apt-get install -y \
+#     git \
+#     cmake \
+#     ninja-build \
+#     libsdl2-dev \
+#     pkg-config \
+#     libgtk-3-dev \
+#     clang \
+#     lld \
+#     llvm \
+#     xdg-desktop-portal \
+#     openssl \
+#     libssl-dev \
+#     build-essential \
+#     libboost-all-dev \
+#     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.mirror_name}.git /{ENV_NAME}
-WORKDIR /{ENV_NAME}
-RUN git submodule update --init --recursive
+# RUN git clone https://github.com/{self.mirror_name}.git /{ENV_NAME}
+# WORKDIR /{ENV_NAME}
+# RUN git submodule update --init --recursive
 
-# Fix permissions for bundled boost build scripts
-RUN chmod +x external/boost/bootstrap.sh && \
-    find external/boost/tools/build/src/engine -name "*.sh" -exec chmod +x {{}} + || true
+# # Fix permissions for bundled boost build scripts
+# RUN chmod +x external/boost/bootstrap.sh && \
+#     find external/boost/tools/build/src/engine -name "*.sh" -exec chmod +x {{}} + || true
 
-# Build the tests
-RUN cmake -S . -B build -G Ninja \
-    -DCMAKE_C_COMPILER=clang \
-    -DCMAKE_CXX_COMPILER=clang++ \
-    -DCMAKE_AR=$(which llvm-ar) \
-    -DCMAKE_RANLIB=$(which llvm-ranlib) \
-    -DBUILD_TESTING=ON
-RUN cmake --build build --target module-tests mem-tests
+# # Build the tests
+# RUN cmake -S . -B build -G Ninja \
+#     -DCMAKE_C_COMPILER=clang \
+#     -DCMAKE_CXX_COMPILER=clang++ \
+#     -DCMAKE_AR=$(which llvm-ar) \
+#     -DCMAKE_RANLIB=$(which llvm-ranlib) \
+#     -DBUILD_TESTING=ON
+# RUN cmake --build build --target module-tests mem-tests
 
-CMD ["/bin/bash"]"""
+# CMD ["/bin/bash"]"""
 
-    def log_parser(self, log: str) -> dict[str, str]:
-        return parse_log_gtest(log)
+#     def log_parser(self, log: str) -> dict[str, str]:
+#         return parse_log_gtest(log)
 
 
 @dataclass
@@ -6570,38 +6570,38 @@ CMD ["/bin/bash"]"""
         return parse_log_ctest(log)
 
 
-@dataclass
-class Fswatch5c443d22(CppProfile):
-    owner: str = "emcrisostomo"
-    repo: str = "fswatch"
-    commit: str = "5c443d22c53df1eef661d780d816700935a51e1b"
-    test_cmd: str = "bash -c 'mkdir -p /tmp/fsw_test && timeout 5s ./build/test/src/fswatch_test /tmp/fsw_test > test_run.log 2>&1 || true && if [ -f ./build/test/src/fswatch_test ]; then echo \"1 tests, 1 passing\"; else exit 1; fi'"
+# @dataclass
+# class Fswatch5c443d22(CppProfile):
+#     owner: str = "emcrisostomo"
+#     repo: str = "fswatch"
+#     commit: str = "5c443d22c53df1eef661d780d816700935a51e1b"
+#     test_cmd: str = "bash -c 'mkdir -p /tmp/fsw_test && timeout 5s ./build/test/src/fswatch_test /tmp/fsw_test > test_run.log 2>&1 || true && if [ -f ./build/test/src/fswatch_test ]; then echo \"1 tests, 1 passing\"; else exit 1; fi'"
 
-    @property
-    def dockerfile(self):
-        return f"""FROM alpine:3.18
+#     @property
+#     def dockerfile(self):
+#         return f"""FROM alpine:3.18
 
-RUN apk add --no-cache \
-    build-base \
-    cmake \
-    git \
-    gettext \
-    gettext-dev \
-    bash
+# RUN apk add --no-cache \
+#     build-base \
+#     cmake \
+#     git \
+#     gettext \
+#     gettext-dev \
+#     bash
 
 
-RUN git clone https://github.com/{self.mirror_name}.git /{ENV_NAME}
-WORKDIR /{ENV_NAME}
-RUN git submodule update --init --recursive
+# RUN git clone https://github.com/{self.mirror_name}.git /{ENV_NAME}
+# WORKDIR /{ENV_NAME}
+# RUN git submodule update --init --recursive
 
-RUN mkdir build && cd build && \
-    cmake -DBUILD_TESTING=ON .. && \
-    make -j$(nproc)
+# RUN mkdir build && cd build && \
+#     cmake -DBUILD_TESTING=ON .. && \
+#     make -j$(nproc)
 
-CMD ["/bin/bash"]"""
+# CMD ["/bin/bash"]"""
 
-    def log_parser(self, log: str) -> dict[str, str]:
-        return parse_log_fswatch(log)
+#     def log_parser(self, log: str) -> dict[str, str]:
+#         return parse_log_fswatch(log)
 
 
 @dataclass
@@ -7165,40 +7165,40 @@ CMD ["/bin/bash"]"""
         return parse_log_ctest(log)
 
 
-@dataclass
-class Flatbuffers94d6b808(CppProfile):
-    owner: str = "google"
-    repo: str = "flatbuffers"
-    commit: str = "94d6b8086b46bdff7da308aa2d3aebf336d29f55"
-    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+# @dataclass
+# class Flatbuffers94d6b808(CppProfile):
+#     owner: str = "google"
+#     repo: str = "flatbuffers"
+#     commit: str = "94d6b8086b46bdff7da308aa2d3aebf336d29f55"
+#     test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
-    @property
-    def dockerfile(self):
-        return f"""FROM ubuntu:22.04
+#     @property
+#     def dockerfile(self):
+#         return f"""FROM ubuntu:22.04
 
-ENV DEBIAN_FRONTEND=noninteractive
+# ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    cmake \
-    git \
-    python3 \
-    python3-pip \
-    && rm -rf /var/lib/apt/lists/*
+# RUN apt-get update && apt-get install -y \
+#     build-essential \
+#     cmake \
+#     git \
+#     python3 \
+#     python3-pip \
+#     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.mirror_name}.git /{ENV_NAME}
-WORKDIR /{ENV_NAME}
-RUN git submodule update --init --recursive
+# RUN git clone https://github.com/{self.mirror_name}.git /{ENV_NAME}
+# WORKDIR /{ENV_NAME}
+# RUN git submodule update --init --recursive
 
-RUN mkdir build && cd build && \
-    cmake -DFLATBUFFERS_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release .. && \
-    make -j$(nproc)
+# RUN mkdir build && cd build && \
+#     cmake -DFLATBUFFERS_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release .. && \
+#     make -j$(nproc)
 
-CMD ["/bin/bash"]"""
+# CMD ["/bin/bash"]"""
 
-    def log_parser(self, log: str) -> dict[str, str]:
-        return parse_log_ctest(log)
+#     def log_parser(self, log: str) -> dict[str, str]:
+#         return parse_log_ctest(log)
 
 
 @dataclass
@@ -8353,92 +8353,92 @@ CMD ["/bin/bash"]"""
         return parse_log_ctest(log)
 
 
-@dataclass
-class Miniob9f856a54(CppProfile):
-    owner: str = "oceanbase"
-    repo: str = "miniob"
-    commit: str = "9f856a542decb6dc678650406af7d6e351940dab"
-    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+# @dataclass
+# class Miniob9f856a54(CppProfile):
+#     owner: str = "oceanbase"
+#     repo: str = "miniob"
+#     commit: str = "9f856a542decb6dc678650406af7d6e351940dab"
+#     test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
-    @property
-    def dockerfile(self):
-        return f"""FROM ubuntu:22.04
+#     @property
+#     def dockerfile(self):
+#         return f"""FROM ubuntu:22.04
 
-ENV DEBIAN_FRONTEND=noninteractive
+# ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update && apt-get install -y \
-    git \
-    build-essential \
-    cmake \
-    libevent-dev \
-    libncurses5-dev \
-    python3 \
-    python3-pip \
-    flex \
-    bison \
-    && rm -rf /var/lib/apt/lists/*
-
-
-# Clone without shallow submodules to ensure specific commits exist
-RUN git clone https://github.com/{self.mirror_name}.git /{ENV_NAME}
-WORKDIR /{ENV_NAME}
-RUN git submodule update --init --recursive
-
-# Manually fix the submodules that build.sh init tries to checkout specifically
-RUN cd deps/3rd/libevent && git fetch --unshallow || true && git checkout 112421c8fa4840acd73502f2ab6a674fc025de37
-RUN cd deps/3rd/jsoncpp && git fetch --unshallow || true && git checkout 1.9.6
-
-# Run initialization and build
-RUN ./build.sh init && \
-    ./build.sh debug -DENABLE_ASAN=OFF --make -j$(nproc)
-
-CMD ["/bin/bash"]"""
-
-    def log_parser(self, log: str) -> dict[str, str]:
-        return parse_log_ctest(log)
+# RUN apt-get update && apt-get install -y \
+#     git \
+#     build-essential \
+#     cmake \
+#     libevent-dev \
+#     libncurses5-dev \
+#     python3 \
+#     python3-pip \
+#     flex \
+#     bison \
+#     && rm -rf /var/lib/apt/lists/*
 
 
-@dataclass
-class Seekdbb8f41a6d(CppProfile):
-    owner: str = "oceanbase"
-    repo: str = "seekdb"
-    commit: str = "b8f41a6dfef404543191dd0665f3b2e3aea44173"
-    test_cmd: str = "cd build_debug && ctest --verbose --output-on-failure"
+# # Clone without shallow submodules to ensure specific commits exist
+# RUN git clone https://github.com/{self.mirror_name}.git /{ENV_NAME}
+# WORKDIR /{ENV_NAME}
+# RUN git submodule update --init --recursive
 
-    @property
-    def dockerfile(self):
-        return f"""FROM ubuntu:22.04
+# # Manually fix the submodules that build.sh init tries to checkout specifically
+# RUN cd deps/3rd/libevent && git fetch --unshallow || true && git checkout 112421c8fa4840acd73502f2ab6a674fc025de37
+# RUN cd deps/3rd/jsoncpp && git fetch --unshallow || true && git checkout 1.9.6
 
-ENV DEBIAN_FRONTEND=noninteractive
+# # Run initialization and build
+# RUN ./build.sh init && \
+#     ./build.sh debug -DENABLE_ASAN=OFF --make -j$(nproc)
 
-RUN apt-get update && apt-get install -y \
-    wget \
-    curl \
-    git \
-    rpm2cpio \
-    cpio \
-    python3 \
-    python3-pip \
-    cmake \
-    build-essential \
-    libaio-dev \
-    pkg-config \
-    lsb-release \
-    && rm -rf /var/lib/apt/lists/*
+# CMD ["/bin/bash"]"""
+
+#     def log_parser(self, log: str) -> dict[str, str]:
+#         return parse_log_ctest(log)
 
 
-RUN git clone https://github.com/{self.mirror_name}.git /{ENV_NAME}
-WORKDIR /{ENV_NAME}
-RUN git submodule update --init --recursive
+# @dataclass
+# class Seekdbb8f41a6d(CppProfile):
+#     owner: str = "oceanbase"
+#     repo: str = "seekdb"
+#     commit: str = "b8f41a6dfef404543191dd0665f3b2e3aea44173"
+#     test_cmd: str = "cd build_debug && ctest --verbose --output-on-failure"
 
-# Initialize dependencies and build
-# We use the provided build script which handles the complex dependency setup
-RUN ./build.sh debug --init --make
+#     @property
+#     def dockerfile(self):
+#         return f"""FROM ubuntu:22.04
 
-CMD ["/bin/bash"]"""
+# ENV DEBIAN_FRONTEND=noninteractive
 
-    def log_parser(self, log: str) -> dict[str, str]:
-        return parse_log_ctest(log)
+# RUN apt-get update && apt-get install -y \
+#     wget \
+#     curl \
+#     git \
+#     rpm2cpio \
+#     cpio \
+#     python3 \
+#     python3-pip \
+#     cmake \
+#     build-essential \
+#     libaio-dev \
+#     pkg-config \
+#     lsb-release \
+#     && rm -rf /var/lib/apt/lists/*
+
+
+# RUN git clone https://github.com/{self.mirror_name}.git /{ENV_NAME}
+# WORKDIR /{ENV_NAME}
+# RUN git submodule update --init --recursive
+
+# # Initialize dependencies and build
+# # We use the provided build script which handles the complex dependency setup
+# RUN ./build.sh debug --init --make
+
+# CMD ["/bin/bash"]"""
+
+#     def log_parser(self, log: str) -> dict[str, str]:
+#         return parse_log_ctest(log)
 
 
 @dataclass
@@ -8944,55 +8944,55 @@ CMD ["/bin/bash"]"""
         return parse_log_ctest(log)
 
 
-@dataclass
-class Rtorrentf05a2ae5(CppProfile):
-    owner: str = "rakshasa"
-    repo: str = "rtorrent"
-    commit: str = "f05a2ae5205c717fba0a833abf776d88ad265f6b"
-    test_cmd: str = "make check VERBOSE=1"
+# @dataclass
+# class Rtorrentf05a2ae5(CppProfile):
+#     owner: str = "rakshasa"
+#     repo: str = "rtorrent"
+#     commit: str = "f05a2ae5205c717fba0a833abf776d88ad265f6b"
+#     test_cmd: str = "make check VERBOSE=1"
 
-    @property
-    def dockerfile(self):
-        return f"""FROM ubuntu:22.04
+#     @property
+#     def dockerfile(self):
+#         return f"""FROM ubuntu:22.04
 
-ENV DEBIAN_FRONTEND=noninteractive
+# ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update && apt-get install -y \
-    git \
-    build-essential \
-    autoconf \
-    automake \
-    libtool \
-    pkg-config \
-    libcurl4-openssl-dev \
-    libncursesw5-dev \
-    libncurses5-dev \
-    libcppunit-dev \
-    libxmlrpc-core-c3-dev \
-    liblua5.3-dev \
-    zlib1g-dev \
-    libsigc++-2.0-dev \
-    libssl-dev \
-    && rm -rf /var/lib/apt/lists/*
+# RUN apt-get update && apt-get install -y \
+#     git \
+#     build-essential \
+#     autoconf \
+#     automake \
+#     libtool \
+#     pkg-config \
+#     libcurl4-openssl-dev \
+#     libncursesw5-dev \
+#     libncurses5-dev \
+#     libcppunit-dev \
+#     libxmlrpc-core-c3-dev \
+#     liblua5.3-dev \
+#     zlib1g-dev \
+#     libsigc++-2.0-dev \
+#     libssl-dev \
+#     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /deps
-RUN git clone https://github.com/rakshasa/libtorrent.git \
-    && cd libtorrent \
-    && autoreconf -fi \
-    && ./configure \
-    && make -j$(nproc) \
-    && make install \
-    && ldconfig
+# WORKDIR /deps
+# RUN git clone https://github.com/rakshasa/libtorrent.git \
+#     && cd libtorrent \
+#     && autoreconf -fi \
+#     && ./configure \
+#     && make -j$(nproc) \
+#     && make install \
+#     && ldconfig
 
-RUN git clone https://github.com/{self.mirror_name}.git /{ENV_NAME}
-WORKDIR /{ENV_NAME}
-RUN git submodule update --init --recursive
-RUN autoreconf -fi && ./configure && make -j$(nproc)
+# RUN git clone https://github.com/{self.mirror_name}.git /{ENV_NAME}
+# WORKDIR /{ENV_NAME}
+# RUN git submodule update --init --recursive
+# RUN autoreconf -fi && ./configure && make -j$(nproc)
 
-CMD ["/bin/bash"]"""
+# CMD ["/bin/bash"]"""
 
-    def log_parser(self, log: str) -> dict[str, str]:
-        return parse_log_autotools(log)
+#     def log_parser(self, log: str) -> dict[str, str]:
+#         return parse_log_autotools(log)
 
 
 @dataclass
@@ -9720,37 +9720,37 @@ CMD ["/bin/bash"]"""
         return parse_log_ctest(log)
 
 
-@dataclass
-class USearch40d127f4(CppProfile):
-    owner: str = "unum-cloud"
-    repo: str = "USearch"
-    commit: str = "40d127f472e9073875566f0e9308c0302b89100a"
-    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+# @dataclass
+# class USearch40d127f4(CppProfile):
+#     owner: str = "unum-cloud"
+#     repo: str = "USearch"
+#     commit: str = "40d127f472e9073875566f0e9308c0302b89100a"
+#     test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
-    @property
-    def dockerfile(self):
-        return f"""FROM ubuntu:22.04
+#     @property
+#     def dockerfile(self):
+#         return f"""FROM ubuntu:22.04
 
-RUN apt-get update && apt-get install -y \
-    git \
-    build-essential \
-    cmake \
-    libjemalloc-dev \
-    && rm -rf /var/lib/apt/lists/*
+# RUN apt-get update && apt-get install -y \
+#     git \
+#     build-essential \
+#     cmake \
+#     libjemalloc-dev \
+#     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.mirror_name}.git /{ENV_NAME}
-WORKDIR /{ENV_NAME}
-RUN git submodule update --init --recursive
+# RUN git clone https://github.com/{self.mirror_name}.git /{ENV_NAME}
+# WORKDIR /{ENV_NAME}
+# RUN git submodule update --init --recursive
 
-RUN mkdir build && cd build && \
-    cmake -DUSEARCH_BUILD_TEST_CPP=ON -DUSEARCH_BUILD_TEST_C=ON -DUSEARCH_USE_SIMSIMD=ON -DUSEARCH_USE_FP16LIB=ON .. && \
-    make -j$(nproc)
+# RUN mkdir build && cd build && \
+#     cmake -DUSEARCH_BUILD_TEST_CPP=ON -DUSEARCH_BUILD_TEST_C=ON -DUSEARCH_USE_SIMSIMD=ON -DUSEARCH_USE_FP16LIB=ON .. && \
+#     make -j$(nproc)
 
-CMD ["/bin/bash"]"""
+# CMD ["/bin/bash"]"""
 
-    def log_parser(self, log: str) -> dict[str, str]:
-        return parse_log_ctest(log)
+#     def log_parser(self, log: str) -> dict[str, str]:
+#         return parse_log_ctest(log)
 
 
 @dataclass
@@ -10098,70 +10098,70 @@ CMD ["/bin/bash"]"""
         return parse_log_pugixml(log)
 
 
-@dataclass
-class KuiperInfer64e9561b(CppProfile):
-    owner: str = "zjhellofss"
-    repo: str = "KuiperInfer"
-    commit: str = "64e9561b505431ce0720c800296e2c60e15bebae"
-    test_cmd: str = "cd build/test && ./test_kuiper --gtest_color=no"
+# @dataclass
+# class KuiperInfer64e9561b(CppProfile):
+#     owner: str = "zjhellofss"
+#     repo: str = "KuiperInfer"
+#     commit: str = "64e9561b505431ce0720c800296e2c60e15bebae"
+#     test_cmd: str = "cd build/test && ./test_kuiper --gtest_color=no"
 
-    @property
-    def dockerfile(self):
-        return f"""FROM ubuntu:22.04
+#     @property
+#     def dockerfile(self):
+#         return f"""FROM ubuntu:22.04
 
-ENV DEBIAN_FRONTEND=noninteractive
+# ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    cmake \
-    git \
-    gfortran \
-    wget \
-    liblapack-dev \
-    libarpack2-dev \
-    libsuperlu-dev \
-    libopenblas-dev \
-    libomp-dev \
-    libgoogle-glog-dev \
-    libgtest-dev \
-    libbenchmark-dev \
-    && rm -rf /var/lib/apt/lists/*
+# RUN apt-get update && apt-get install -y \
+#     build-essential \
+#     cmake \
+#     git \
+#     gfortran \
+#     wget \
+#     liblapack-dev \
+#     libarpack2-dev \
+#     libsuperlu-dev \
+#     libopenblas-dev \
+#     libomp-dev \
+#     libgoogle-glog-dev \
+#     libgtest-dev \
+#     libbenchmark-dev \
+#     && rm -rf /var/lib/apt/lists/*
 
-RUN wget https://sourceforge.net/projects/arma/files/armadillo-12.6.3.tar.xz && \
-    tar -xf armadillo-12.6.3.tar.xz && \
-    mkdir armadillo-12.6.3/build && \
-    cd armadillo-12.6.3/build && \
-    cmake .. -DCMAKE_INSTALL_PREFIX=/usr && \
-    make -j$(nproc) && \
-    make install && \
-    cd / && rm -rf armadillo-12.6.3*
+# RUN wget https://sourceforge.net/projects/arma/files/armadillo-12.6.3.tar.xz && \
+#     tar -xf armadillo-12.6.3.tar.xz && \
+#     mkdir armadillo-12.6.3/build && \
+#     cd armadillo-12.6.3/build && \
+#     cmake .. -DCMAKE_INSTALL_PREFIX=/usr && \
+#     make -j$(nproc) && \
+#     make install && \
+#     cd / && rm -rf armadillo-12.6.3*
 
-RUN git clone https://github.com/{self.mirror_name}.git /{ENV_NAME}
-WORKDIR /{ENV_NAME}
-RUN git submodule update --init --recursive
+# RUN git clone https://github.com/{self.mirror_name}.git /{ENV_NAME}
+# WORKDIR /{ENV_NAME}
+# RUN git submodule update --init --recursive
 
-RUN cat <<'FEOF' > include/utils/math/fmath.hpp
-#pragma once
-#include <cmath>
-#include <cstddef>
-namespace fmath {{
-    inline float exp(float x) {{ return std::exp(x); }}
-    inline float expps(float x) {{ return std::exp(x); }}
-    inline double expd(double x) {{ return std::exp(x); }}
-    inline void expd_v(double* px, size_t n) {{
-        for (size_t i = 0; i < n; ++i) px[i] = std::exp(px[i]);
-    }}
-}}
-FEOF
+# RUN cat <<'FEOF' > include/utils/math/fmath.hpp
+# #pragma once
+# #include <cmath>
+# #include <cstddef>
+# namespace fmath {{
+#     inline float exp(float x) {{ return std::exp(x); }}
+#     inline float expps(float x) {{ return std::exp(x); }}
+#     inline double expd(double x) {{ return std::exp(x); }}
+#     inline void expd_v(double* px, size_t n) {{
+#         for (size_t i = 0; i < n; ++i) px[i] = std::exp(px[i]);
+#     }}
+# }}
+# FEOF
 
-RUN mkdir build && cd build && \
-    cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON .. && \
-    make -j$(nproc)
+# RUN mkdir build && cd build && \
+#     cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON .. && \
+#     make -j$(nproc)
 
-CMD ["/bin/bash"]"""
+# CMD ["/bin/bash"]"""
 
-    def log_parser(self, log: str) -> dict[str, str]:
-        return parse_log_gtest(log)
+#     def log_parser(self, log: str) -> dict[str, str]:
+#         return parse_log_gtest(log)
 
 
 @dataclass
