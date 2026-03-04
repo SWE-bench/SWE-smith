@@ -1,3 +1,5 @@
+import pytest
+
 from swesmith.bug_gen.adapters.ruby import get_entities_from_file_rb
 from swesmith.bug_gen.procedural.ruby.nil_introduction import (
     BangMethodStripModifier,
@@ -221,6 +223,39 @@ end
     assert modified is not None
     assert "return if x.nil?" not in modified.rewrite
     # Guard removed but rest of method preserved
+    assert "y = x + 1" in modified.rewrite
+
+
+@pytest.mark.parametrize(
+    "guard_line",
+    [
+        "return unless x.present?",
+        "raise if x.nil?",
+        "raise unless x.valid?",
+    ],
+)
+def test_nil_guard_removal_variants(tmp_path, guard_line):
+    """NilGuardRemovalModifier handles unless and other guard keywords."""
+    src = f"""\
+def process(x)
+  {guard_line}
+  y = x + 1
+  z = y * 2
+  z
+end
+"""
+    f = tmp_path / "test.rb"
+    f.write_text(src)
+    entities = []
+    get_entities_from_file_rb(entities, f)
+    assert len(entities) == 1
+
+    pm = NilGuardRemovalModifier(likelihood=1.0, seed=42)
+    assert pm.can_change(entities[0])
+
+    modified = pm.modify(entities[0])
+    assert modified is not None
+    assert guard_line not in modified.rewrite
     assert "y = x + 1" in modified.rewrite
 
 
