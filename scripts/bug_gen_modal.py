@@ -1635,7 +1635,9 @@ def print_summary(results: list[dict], repos_count: int):
 # ============================================================================
 
 
-async def show_volume_stats(language: str) -> None:
+async def show_volume_stats(
+    language: str, repo_filters: list[str] | None = None
+) -> None:
     """Display a bug breakdown by reading validation results from the Modal Volume.
 
     Similar to count_bugs_to_file.py but reads from Modal Volume instead of local files.
@@ -1646,6 +1648,40 @@ async def show_volume_stats(language: str) -> None:
     repo_stats: dict[str, dict[str, int]] = {}
     modifier_stats: dict[str, dict[str, int]] = {}  # Track stats by modifier
     semaphore = asyncio.Semaphore(100)  # Limit concurrent reads
+    selected_repo_ids: set[str] = set()
+    selected_repo_prefixes: set[str] = set()
+
+    if repo_filters:
+        for repo_filter in repo_filters:
+            repo_filter = repo_filter.strip()
+            if not repo_filter:
+                continue
+
+            if "__" in repo_filter and "." in repo_filter:
+                selected_repo_ids.add(repo_filter)
+                continue
+
+            if "__" in repo_filter and "." not in repo_filter:
+                selected_repo_prefixes.add(f"{repo_filter}.")
+                continue
+
+            if "/" in repo_filter:
+                try:
+                    selected_repo_ids.add(resolve_profile(repo_filter).repo_name)
+                except Exception:
+                    selected_repo_prefixes.add(f"{repo_filter.replace('/', '__')}.")
+                continue
+
+            selected_repo_prefixes.add(repo_filter)
+
+        print(f"Filtering stats to {len(repo_filters)} repo selector(s)")
+
+    def repo_matches(repo_id: str) -> bool:
+        if not selected_repo_ids and not selected_repo_prefixes:
+            return True
+        if repo_id in selected_repo_ids:
+            return True
+        return any(repo_id.startswith(prefix) for prefix in selected_repo_prefixes)
 
     def extract_modifier(instance_id: str) -> str:
         """Extract modifier name from instance_id (format: repo_id.modifier__hash).
@@ -1672,7 +1708,13 @@ async def show_volume_stats(language: str) -> None:
     bug_gen_dir = f"{language}/bug_gen"
     try:
         entries = await logs_volume.listdir.aio(bug_gen_dir)
-        patch_files = [e for e in entries if e.path.endswith("_all_patches.json")]
+        patch_files = []
+        for entry in entries:
+            if not entry.path.endswith("_all_patches.json"):
+                continue
+            repo_id = entry.path.split("/")[-1].replace("_all_patches.json", "")
+            if repo_matches(repo_id):
+                patch_files.append(entry)
 
         async def read_patches(entry) -> tuple[str, int, list[dict]]:
             async with semaphore:
@@ -1715,7 +1757,11 @@ async def show_volume_stats(language: str) -> None:
     run_validation_dir = f"{language}/run_validation"
     try:
         repo_entries = await logs_volume.listdir.aio(run_validation_dir)
-
+        repo_entries_filtered = []
+        for entry in repo_entries:
+            repo_id = entry.path.split("/")[-1]
+            if repo_matches(repo_id):
+                repo_entries_filtered.append(entry)
         # First, collect all report.json paths to read (with instance_id for modifier extraction)
         all_report_paths: list[
             tuple[str, str, str]
@@ -1741,7 +1787,6 @@ async def show_volume_stats(language: str) -> None:
                 return paths
 
         # Gather all report paths in parallel
-        repo_entries_filtered = [e for e in repo_entries if not e.path.endswith("/")]
         path_results = await asyncio.gather(
             *[list_repo_instances(e) for e in repo_entries_filtered]
         )
@@ -1975,6 +2020,11 @@ async def main(
 
     # Parse repos (comma-separated string to list)
     repo_list = [r.strip() for r in repos.split(",") if r.strip()] if repos else []
+
+    # Handle --show-stats early exit
+    if show_stats:
+        await show_volume_stats(language, repo_list)
+        return
 
     # Determine repos
     if repo_list:
