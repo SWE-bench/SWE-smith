@@ -5,6 +5,9 @@ from swesmith.constants import BugRewrite, CodeEntity, CodeProperty
 from tree_sitter import Parser
 
 
+_RUBY_IDENTIFIER_PATTERN = r"^[a-zA-Z_]\w*[?!]?$"
+
+
 class SymbolStringSwapModifier(RubyProceduralModifier):
     explanation: str = "A symbol/string type may be incorrect."
     name: str = "func_pm_ruby_symbol_string_swap"
@@ -26,7 +29,7 @@ class SymbolStringSwapModifier(RubyProceduralModifier):
             text = node.text.decode("utf8")
             # Strip leading : to get the name
             name = text[1:]
-            if re.match(r"^[a-zA-Z_]\w*[?!]?$", name):
+            if re.match(_RUBY_IDENTIFIER_PATTERN, name):
                 candidates.append(("symbol_to_string", node, name))
 
         # Find simple strings ("foo") — no interpolation, alphanumeric
@@ -36,7 +39,7 @@ class SymbolStringSwapModifier(RubyProceduralModifier):
             content_nodes = [c for c in node.children if c.type == "string_content"]
             if len(content_nodes) == 1:
                 content = content_nodes[0].text.decode("utf8")
-                if re.match(r"^[a-zA-Z_]\w*[?!]?$", content):
+                if re.match(_RUBY_IDENTIFIER_PATTERN, content):
                     candidates.append(("string_to_symbol", node, content))
 
         if not candidates:
