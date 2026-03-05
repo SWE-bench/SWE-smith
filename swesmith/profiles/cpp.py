@@ -6219,7 +6219,18 @@ class Vowpalwabbit0d344494(CppProfile):
     owner: str = "VowpalWabbit"
     repo: str = "vowpal_wabbit"
     commit: str = "0d344494d5d7aade6ee2811c7e6a63e8f9597265"
-    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    bug_gen_dirs_exclude: list[str] = field(
+        default_factory=lambda: [
+            *DEFAULT_CPP_BUG_GEN_DIRS_EXCLUDE,
+            "/ext_libs",
+            "/java",
+            "/cs",
+            "/python",
+            "/demo",
+            "/utl",
+        ]
+    )
 
     @property
     def dockerfile(self):
