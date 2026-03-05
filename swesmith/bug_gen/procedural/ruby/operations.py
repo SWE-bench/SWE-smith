@@ -23,6 +23,8 @@ FLIPPED_OPERATORS = {
     "or": "and",
     "=~": "!~",
     "!~": "=~",
+    "..": "...",
+    "...": "..",
 }
 
 # Operator groups for systematic changes
@@ -142,6 +144,12 @@ class OperationFlipOperatorModifier(RubyProceduralModifier):
                     op = op_node.text.decode("utf-8")
                     if op in FLIPPED_OPERATORS:
                         modifications.append((op_node, FLIPPED_OPERATORS[op]))
+            elif n.type == "range":
+                for child in n.children:
+                    if child.text in (b"..", b"...") and self.flip():
+                        op = child.text.decode("utf-8")
+                        modifications.append((child, FLIPPED_OPERATORS[op]))
+                        break
             for child in n.children:
                 collect(child)
 
