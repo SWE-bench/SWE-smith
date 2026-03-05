@@ -125,6 +125,32 @@ end
     assert "@ready" in modified.rewrite
 
 
+def test_control_shuffle_lines_singleton_method(tmp_path):
+    """ControlShuffleLinesModifier also shuffles singleton (self.) methods."""
+    src = """\
+def self.configure
+  @host = "localhost"
+  @port = 8080
+  @debug = false
+  @timeout = 30
+end
+"""
+    f = tmp_path / "test.rb"
+    f.write_text(src)
+    entities = []
+    get_entities_from_file_rb(entities, f)
+    assert len(entities) == 1
+
+    pm = ControlShuffleLinesModifier(likelihood=1.0, seed=42)
+    modified = pm.modify(entities[0])
+    assert modified is not None
+    assert modified.rewrite != src
+    assert "@host" in modified.rewrite
+    assert "@port" in modified.rewrite
+    assert "@debug" in modified.rewrite
+    assert "@timeout" in modified.rewrite
+
+
 @pytest.mark.parametrize(
     "src,expected_keyword",
     [
