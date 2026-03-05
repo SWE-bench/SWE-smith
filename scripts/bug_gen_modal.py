@@ -1204,7 +1204,10 @@ def build_repos_with_patches(all_patches: list) -> dict:
 
 
 async def run_pregold_phase_async(
-    repos_with_patches: dict, max_concurrent: int, env_name: str
+    repos_with_patches: dict,
+    max_concurrent: int,
+    env_name: str,
+    baseline_timeout: int = PREGOLD_TIMEOUT,
 ) -> set[str]:
     """Run all pre-gold (baseline) tests asynchronously. Returns set of repos with 0 passing tests (to skip)."""
     import tempfile
@@ -1299,7 +1302,7 @@ async def run_pregold_phase_async(
             test_cmd=task["profile"].test_cmd,
             workdir=task["workdir"],
             patch=None,
-            timeout=PREGOLD_TIMEOUT,
+            timeout=baseline_timeout,
         )
         return (task, result)
 
@@ -1400,7 +1403,10 @@ async def run_pregold_phase_async(
 
 
 async def run_postgold_phase_async(
-    all_patches: list, max_concurrent: int, env_name: str
+    all_patches: list,
+    max_concurrent: int,
+    env_name: str,
+    validation_timeout_override: int | None = None,
 ) -> list[dict]:
     """
     Run all post-gold tests using asyncio for efficient concurrent I/O.
@@ -1489,6 +1495,12 @@ async def run_postgold_phase_async(
             "instance": serializable_patch,
         }
 
+        timeout = (
+            validation_timeout_override
+            if validation_timeout_override is not None
+            else task["profile"].timeout
+        )
+
         result = await run_validation_in_sandbox(
             semaphore=semaphore,
             app=app,
@@ -1497,7 +1509,7 @@ async def run_postgold_phase_async(
             test_cmd=task["profile"].test_cmd,
             workdir=task["workdir"],
             patch=task["patch"],
-            timeout=task["profile"].timeout,
+            timeout=timeout,
             postgold_config=postgold_config,
         )
 
@@ -1551,7 +1563,10 @@ async def run_postgold_phase_async(
 
 
 async def run_validation_phase_async(
-    all_patches: list, max_concurrent: int, env_name: str
+    all_patches: list,
+    max_concurrent: int,
+    env_name: str,
+    validation_timeout_override: int | None = None,
 ) -> list[dict]:
     """Run complete validation (pre-gold + post-gold). Existing baselines are skipped automatically."""
     if not all_patches:
@@ -1587,7 +1602,14 @@ async def run_validation_phase_async(
     await prebuild_validator_images_async(repos_with_patches)
 
     failed_repos = await run_pregold_phase_async(
-        repos_with_patches, max_concurrent, env_name
+        repos_with_patches,
+        max_concurrent,
+        env_name,
+        baseline_timeout=(
+            validation_timeout_override
+            if validation_timeout_override is not None
+            else PREGOLD_TIMEOUT
+        ),
     )
 
     # Filter out patches from repos with broken baselines
@@ -1598,7 +1620,12 @@ async def run_validation_phase_async(
             f"Filtered out {original_count - len(all_patches)} patches from {len(failed_repos)} repos with broken baselines"
         )
 
-    return await run_postgold_phase_async(all_patches, max_concurrent, env_name)
+    return await run_postgold_phase_async(
+        all_patches,
+        max_concurrent,
+        env_name,
+        validation_timeout_override=validation_timeout_override,
+    )
 
 
 def print_summary(results: list[dict], repos_count: int):
@@ -1762,6 +1789,7 @@ async def show_volume_stats(
             repo_id = entry.path.split("/")[-1]
             if repo_matches(repo_id):
                 repo_entries_filtered.append(entry)
+
         # First, collect all report.json paths to read (with instance_id for modifier extraction)
         all_report_paths: list[
             tuple[str, str, str]
@@ -2011,11 +2039,6 @@ async def main(
         max_concurrent_tests: Max concurrent tests (default: 900)
         show_stats: If True, show bug breakdown stats and exit without running generation/validation
     """
-    # Handle --show-stats early exit
-    if show_stats:
-        await show_volume_stats(language)
-        return
-
     from swesmith.constants import ENV_NAME
 
     # Parse repos (comma-separated string to list)
@@ -2067,8 +2090,14 @@ async def main(
     all_patches = await collect_patches_from_files(target_repos, language)
     print(f"Total: {len(all_patches)} patches\n")
 
+    # For C++, force a longer validation timeout to reduce infra kills.
+    validation_timeout_override = 900 if language.lower() == "cpp" else None
+
     results = await run_validation_phase_async(
-        all_patches, max_concurrent_tests, ENV_NAME
+        all_patches,
+        max_concurrent_tests,
+        ENV_NAME,
+        validation_timeout_override=validation_timeout_override,
     )
 
     if results:
