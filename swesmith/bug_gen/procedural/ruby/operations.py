@@ -21,6 +21,8 @@ FLIPPED_OPERATORS = {
     "||": "&&",
     "and": "or",
     "or": "and",
+    "=~": "!~",
+    "!~": "=~",
 }
 
 # Operator groups for systematic changes
@@ -29,9 +31,15 @@ BITWISE_OPS = ["&", "|", "^", "<<", ">>"]
 COMPARISON_OPS = ["==", "!=", "<", "<=", ">", ">="]
 LOGICAL_OPS = ["&&", "||"]
 KEYWORD_LOGICAL_OPS = ["and", "or"]
+REGEX_OPS = ["=~", "!~"]
 
 ALL_BINARY_OPS = set(
-    ARITHMETIC_OPS + BITWISE_OPS + COMPARISON_OPS + LOGICAL_OPS + KEYWORD_LOGICAL_OPS
+    ARITHMETIC_OPS
+    + BITWISE_OPS
+    + COMPARISON_OPS
+    + LOGICAL_OPS
+    + KEYWORD_LOGICAL_OPS
+    + REGEX_OPS
 )
 
 
@@ -107,6 +115,8 @@ class OperationChangeModifier(RubyProceduralModifier):
             return self.rand.choice(LOGICAL_OPS)
         elif op in KEYWORD_LOGICAL_OPS:
             return self.rand.choice(KEYWORD_LOGICAL_OPS)
+        elif op in REGEX_OPS:
+            return self.rand.choice(REGEX_OPS)
         return op
 
 
