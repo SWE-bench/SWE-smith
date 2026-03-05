@@ -23,9 +23,7 @@ class SafeNavigationRemovalModifier(RubyProceduralModifier):
         candidates = []
         for call in calls:
             for child in call.children:
-                if child.type == "&." or (
-                    hasattr(child, "text") and child.text == b"&."
-                ):
+                if child.type == "&.":
                     candidates.append(child)
 
         if not candidates:
