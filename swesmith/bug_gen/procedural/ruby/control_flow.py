@@ -60,7 +60,7 @@ class ControlIfElseInvertModifier(RubyProceduralModifier):
             modifications, key=lambda x: x[0].start_byte, reverse=True
         ):
             # Get the statement children (not keywords) from each branch
-            then_stmts = [c for c in then_node.children]
+            then_stmts = [c for c in then_node.children if c.type != "then"]
             else_stmts = [c for c in else_node.children if c.type != "else"]
 
             if not then_stmts or not else_stmts:
