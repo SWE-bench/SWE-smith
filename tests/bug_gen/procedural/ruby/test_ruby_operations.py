@@ -272,6 +272,72 @@ end
     assert modified.rewrite != src
 
 
+def test_operation_change_comparison(tmp_path):
+    """OperationChangeModifier exercises the COMPARISON_OPS branch."""
+    src = """\
+def compare(a, b)
+  x = a == b
+  y = a < b
+  z = x != y
+  z
+end
+"""
+    f = tmp_path / "test.rb"
+    f.write_text(src)
+    entities = []
+    get_entities_from_file_rb(entities, f)
+    assert len(entities) == 1
+
+    pm = OperationChangeModifier(likelihood=1.0, seed=42)
+    modified = pm.modify(entities[0])
+    assert modified is not None
+    assert modified.rewrite != src
+
+
+def test_operation_change_logical(tmp_path):
+    """OperationChangeModifier exercises the LOGICAL_OPS branch."""
+    src = """\
+def check(a, b)
+  x = a && b
+  y = x || a
+  z = y && b
+  z
+end
+"""
+    f = tmp_path / "test.rb"
+    f.write_text(src)
+    entities = []
+    get_entities_from_file_rb(entities, f)
+    assert len(entities) == 1
+
+    pm = OperationChangeModifier(likelihood=1.0, seed=42)
+    modified = pm.modify(entities[0])
+    assert modified is not None
+    assert modified.rewrite != src
+
+
+def test_operation_change_keyword_logical(tmp_path):
+    """OperationChangeModifier exercises the KEYWORD_LOGICAL_OPS branch."""
+    src = """\
+def check(a, b)
+  x = a and b
+  y = x or a
+  z = y and b
+  z
+end
+"""
+    f = tmp_path / "test.rb"
+    f.write_text(src)
+    entities = []
+    get_entities_from_file_rb(entities, f)
+    assert len(entities) == 1
+
+    pm = OperationChangeModifier(likelihood=1.0, seed=42)
+    modified = pm.modify(entities[0])
+    assert modified is not None
+    assert modified.rewrite != src
+
+
 def test_operation_flip_no_flippable_ops(tmp_path):
     """OperationFlipOperatorModifier returns None when only bitwise ops present."""
     src = """\
