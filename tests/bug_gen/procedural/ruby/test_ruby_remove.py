@@ -110,6 +110,31 @@ end
     assert "if x > 0" not in modified.rewrite
 
 
+def test_remove_unless(tmp_path):
+    src = """\
+def check(x)
+  y = x + 1
+  z = y * 2
+  unless x.nil?
+    puts x
+  end
+  z
+end
+"""
+    f = tmp_path / "test.rb"
+    f.write_text(src)
+    entities = []
+    get_entities_from_file_rb(entities, f)
+    assert len(entities) == 1
+
+    pm = RemoveConditionalModifier(likelihood=1.0, seed=42)
+    assert pm.can_change(entities[0])
+
+    modified = pm.modify(entities[0])
+    assert modified is not None
+    assert "unless" not in modified.rewrite
+
+
 def test_remove_rescue(tmp_path):
     src = """\
 def safe_parse(input)
