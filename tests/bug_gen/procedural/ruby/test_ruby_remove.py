@@ -144,6 +144,8 @@ def safe_parse(input)
     JSON.parse(input)
   rescue JSON::ParserError
     nil
+  ensure
+    Logger.flush
   end
 end
 """
@@ -159,6 +161,7 @@ end
     modified = pm.modify(entities[0])
     assert modified is not None
     assert "rescue" not in modified.rewrite
+    assert "ensure" not in modified.rewrite
 
 
 def test_remove_assign(tmp_path):
