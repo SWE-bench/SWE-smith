@@ -1,5 +1,3 @@
-import pytest
-
 from swesmith.bug_gen.adapters.ruby import get_entities_from_file_rb
 from swesmith.bug_gen.procedural.ruby.remove import (
     RemoveAssignModifier,
@@ -9,12 +7,8 @@ from swesmith.bug_gen.procedural.ruby.remove import (
 )
 
 
-@pytest.mark.parametrize(
-    "modifier_cls,src,removed_text",
-    [
-        (
-            RemoveLoopModifier,
-            """\
+def test_remove_loop(tmp_path):
+    src = """\
 def count_down(n)
   x = n + 1
   y = x * 2
@@ -24,12 +18,23 @@ def count_down(n)
   end
   y
 end
-""",
-            "while",
-        ),
-        (
-            RemoveConditionalModifier,
-            """\
+"""
+    f = tmp_path / "test.rb"
+    f.write_text(src)
+    entities = []
+    get_entities_from_file_rb(entities, f)
+    assert len(entities) == 1
+
+    pm = RemoveLoopModifier(likelihood=1.0, seed=42)
+    assert pm.can_change(entities[0])
+
+    modified = pm.modify(entities[0])
+    assert modified is not None
+    assert "while" not in modified.rewrite
+
+
+def test_remove_conditional(tmp_path):
+    src = """\
 def check(x)
   y = x + 1
   z = y * 2
@@ -38,12 +43,23 @@ def check(x)
   end
   z
 end
-""",
-            "if x > 0",
-        ),
-        (
-            RemoveRescueEnsureModifier,
-            """\
+"""
+    f = tmp_path / "test.rb"
+    f.write_text(src)
+    entities = []
+    get_entities_from_file_rb(entities, f)
+    assert len(entities) == 1
+
+    pm = RemoveConditionalModifier(likelihood=1.0, seed=42)
+    assert pm.can_change(entities[0])
+
+    modified = pm.modify(entities[0])
+    assert modified is not None
+    assert "if x > 0" not in modified.rewrite
+
+
+def test_remove_rescue(tmp_path):
+    src = """\
 def safe_parse(input)
   x = input + ""
   y = x.length > 0
@@ -53,24 +69,19 @@ def safe_parse(input)
     nil
   end
 end
-""",
-            "rescue",
-        ),
-    ],
-)
-def test_remove_modifier(tmp_path, modifier_cls, src, removed_text):
+"""
     f = tmp_path / "test.rb"
     f.write_text(src)
     entities = []
     get_entities_from_file_rb(entities, f)
     assert len(entities) == 1
 
-    pm = modifier_cls(likelihood=1.0, seed=42)
+    pm = RemoveRescueEnsureModifier(likelihood=1.0, seed=42)
     assert pm.can_change(entities[0])
 
     modified = pm.modify(entities[0])
     assert modified is not None
-    assert removed_text not in modified.rewrite
+    assert "rescue" not in modified.rewrite
 
 
 def test_remove_assign(tmp_path):
