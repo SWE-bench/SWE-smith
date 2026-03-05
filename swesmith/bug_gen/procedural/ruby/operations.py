@@ -323,7 +323,7 @@ class OperationChangeConstantsModifier(RubyProceduralModifier):
     conditions: list = CommonPMs.OPERATION_CHANGE_CONSTANTS.conditions
 
     def modify(self, code_entity: CodeEntity) -> BugRewrite:
-        """Apply off-by-one changes to integer constants in Ruby binary expressions."""
+        """Apply off-by-one changes to numeric constants in Ruby binary expressions."""
         if not self.flip():
             return None
 
