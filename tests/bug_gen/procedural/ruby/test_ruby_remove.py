@@ -33,6 +33,58 @@ end
     assert "while" not in modified.rewrite
 
 
+def test_remove_until_loop(tmp_path):
+    src = """\
+def count_up(n)
+  x = n + 1
+  y = x * 2
+  i = 0
+  until i >= n
+    puts i
+    i += 1
+  end
+  y
+end
+"""
+    f = tmp_path / "test.rb"
+    f.write_text(src)
+    entities = []
+    get_entities_from_file_rb(entities, f)
+    assert len(entities) == 1
+
+    pm = RemoveLoopModifier(likelihood=1.0, seed=42)
+    assert pm.can_change(entities[0])
+
+    modified = pm.modify(entities[0])
+    assert modified is not None
+    assert "until" not in modified.rewrite
+
+
+def test_remove_for_loop(tmp_path):
+    src = """\
+def iterate(items)
+  x = items.length + 1
+  y = x * 2
+  for item in items
+    puts item
+  end
+  y
+end
+"""
+    f = tmp_path / "test.rb"
+    f.write_text(src)
+    entities = []
+    get_entities_from_file_rb(entities, f)
+    assert len(entities) == 1
+
+    pm = RemoveLoopModifier(likelihood=1.0, seed=42)
+    assert pm.can_change(entities[0])
+
+    modified = pm.modify(entities[0])
+    assert modified is not None
+    assert "for item" not in modified.rewrite
+
+
 def test_remove_conditional(tmp_path):
     src = """\
 def check(x)
