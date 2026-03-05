@@ -24,7 +24,7 @@ FLIPPED_OPERATORS = {
 }
 
 # Operator groups for systematic changes
-ARITHMETIC_OPS = ["+", "-", "*", "/", "%"]
+ARITHMETIC_OPS = ["+", "-", "*", "/", "%", "**"]
 BITWISE_OPS = ["&", "|", "^", "<<", ">>"]
 COMPARISON_OPS = ["==", "!=", "<", "<=", ">", ">="]
 LOGICAL_OPS = ["&&", "||"]
@@ -36,7 +36,6 @@ ALL_BINARY_OPS = set(
     + COMPARISON_OPS
     + LOGICAL_OPS
     + KEYWORD_LOGICAL_OPS
-    + ["**"]
 )
 
 

@@ -32,7 +32,7 @@ end
     # All three operators changed within their category
     assert "a * b" in modified.rewrite
     assert "x - 2" in modified.rewrite
-    assert "y % a" in modified.rewrite
+    assert "y ** a" in modified.rewrite
 
 
 def test_operation_flip_operator(tmp_path):
