@@ -164,6 +164,38 @@ end
     assert "ensure" not in modified.rewrite
 
 
+def test_remove_rescue_keyword_not_matched(tmp_path):
+    """Ensure the rescue keyword token isn't matched as a removable node."""
+    src = """\
+def safe_parse(input)
+  x = input + ""
+  y = x.length > 0
+  begin
+    JSON.parse(input)
+  rescue JSON::ParserError
+    nil
+  ensure
+    Logger.flush
+  end
+end
+"""
+    f = tmp_path / "test.rb"
+    f.write_text(src)
+    entities = []
+    get_entities_from_file_rb(entities, f)
+    assert len(entities) == 1
+
+    # likelihood=0.5, seed=3 previously deleted just the rescue keyword,
+    # leaving JSON::ParserError orphaned without its keyword
+    pm = RemoveRescueEnsureModifier(likelihood=0.5, seed=3)
+    modified = pm.modify(entities[0])
+    assert modified is not None
+    # ensure block removed, rescue block kept intact
+    assert "rescue" in modified.rewrite
+    assert "JSON::ParserError" in modified.rewrite
+    assert "ensure" not in modified.rewrite
+
+
 def test_remove_assign(tmp_path):
     src = """\
 def setup
