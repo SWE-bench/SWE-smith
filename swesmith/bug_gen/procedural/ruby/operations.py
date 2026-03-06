@@ -195,6 +195,7 @@ class OperationSwapOperandsModifier(RubyProceduralModifier):
         modifications = []
 
         def collect(n):
+            collected = False
             if n.type == "binary" and len(n.children) >= 3:
                 if self.flip():
                     left = n.children[0]
@@ -210,9 +211,11 @@ class OperationSwapOperandsModifier(RubyProceduralModifier):
 
                     if left and op_node and right:
                         modifications.append((n, left, op_node, right))
+                        collected = True
 
-            for child in n.children:
-                collect(child)
+            if not collected:
+                for child in n.children:
+                    collect(child)
 
         collect(tree.root_node)
 
