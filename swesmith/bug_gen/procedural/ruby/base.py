@@ -29,7 +29,15 @@ class RubyProceduralModifier(ProceduralModifier, ABC):
 
     @staticmethod
     def find_nodes(node, *types) -> list:
-        """Recursively find all AST nodes matching any of the given types."""
+        """Recursively find all AST nodes matching any of the given types.
+
+        Note: tree-sitter Ruby reuses the type name for both compound
+        statement nodes and their keyword tokens (e.g. ``while`` appears
+        as both the loop node and its keyword child). Callers searching
+        for compound statements like ``while``, ``if``, ``rescue`` etc.
+        should filter out leaf nodes (``n.children == 0``) to avoid
+        matching bare keywords.
+        """
         results = []
 
         def walk(n):
@@ -65,7 +73,9 @@ class RubyProceduralModifier(ProceduralModifier, ABC):
         removals = []
 
         def collect(n):
-            if n.type in node_types and self.flip():
+            # Keyword tokens (e.g. `while` inside while_modifier) are leaf
+            # nodes in tree-sitter; compound statements always have children.
+            if n.type in node_types and n.children and self.flip():
                 removals.append(n)
                 return  # skip children to avoid stale byte offsets on nested removals
             for child in n.children:
