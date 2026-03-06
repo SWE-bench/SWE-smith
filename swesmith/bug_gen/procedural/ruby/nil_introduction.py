@@ -43,10 +43,19 @@ class SafeNavigationRemovalModifier(RubyProceduralModifier):
         )
 
 
-_CONDITIONAL_CONTEXTS = frozenset({
-    "if", "unless", "while", "until", "conditional",
-    "if_modifier", "unless_modifier", "while_modifier", "until_modifier",
-})
+_CONDITIONAL_CONTEXTS = frozenset(
+    {
+        "if",
+        "unless",
+        "while",
+        "until",
+        "conditional",
+        "if_modifier",
+        "unless_modifier",
+        "while_modifier",
+        "until_modifier",
+    }
+)
 
 
 class OrDefaultRemovalModifier(RubyProceduralModifier):
