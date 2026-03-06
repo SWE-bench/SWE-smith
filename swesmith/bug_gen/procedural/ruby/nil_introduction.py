@@ -43,12 +43,28 @@ class SafeNavigationRemovalModifier(RubyProceduralModifier):
         )
 
 
+_CONDITIONAL_CONTEXTS = frozenset({
+    "if", "unless", "while", "until", "conditional",
+    "if_modifier", "unless_modifier", "while_modifier", "until_modifier",
+})
+
+
 class OrDefaultRemovalModifier(RubyProceduralModifier):
     explanation: str = (
         "A fallback default (|| value) has been removed, allowing nil to propagate."
     )
     name: str = "func_pm_ruby_or_default_removal"
     conditions: list = [CodeProperty.IS_FUNCTION, CodeProperty.HAS_BINARY_OP]
+
+    @staticmethod
+    def _in_conditional(node) -> bool:
+        """Check if node is inside a conditional context."""
+        ancestor = node.parent
+        while ancestor:
+            if ancestor.type in _CONDITIONAL_CONTEXTS:
+                return True
+            ancestor = ancestor.parent
+        return False
 
     def modify(self, code_entity: CodeEntity) -> BugRewrite:
         """Replace `x || default` with just `x`."""
@@ -61,10 +77,13 @@ class OrDefaultRemovalModifier(RubyProceduralModifier):
         binaries = self.find_nodes(tree.root_node, "binary")
         candidates = []
         for node in binaries:
+            is_or = False
             for child in node.children:
                 if hasattr(child, "text") and child.text in (b"||", b"or"):
-                    candidates.append(node)
+                    is_or = True
                     break
+            if is_or and not self._in_conditional(node):
+                candidates.append(node)
 
         if not candidates:
             return None

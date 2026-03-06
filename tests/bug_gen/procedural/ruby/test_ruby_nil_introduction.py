@@ -280,6 +280,28 @@ end
     assert pm.modify(entities[0]) is None
 
 
+def test_or_default_removal_skips_conditionals(tmp_path):
+    """OrDefaultRemovalModifier skips || inside conditionals."""
+    src = """\
+def check_date(date, from_date, to_date)
+  x = date.to_i + 1
+  y = x * 2
+  if date > to_date || date < from_date
+    raise "out of range"
+  end
+end
+"""
+    f = tmp_path / "test.rb"
+    f.write_text(src)
+    entities = []
+    get_entities_from_file_rb(entities, f)
+    assert len(entities) == 1
+
+    pm = OrDefaultRemovalModifier(likelihood=1.0, seed=42)
+    result = pm.modify(entities[0])
+    assert result is None
+
+
 def test_or_default_removal_no_or(tmp_path):
     """OrDefaultRemovalModifier returns None when no || operators present."""
     src = """\
