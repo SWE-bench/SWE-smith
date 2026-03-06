@@ -139,7 +139,7 @@ def test_bang_method_strip(tmp_path):
 def find_user(id)
   x = id + 1
   y = x * 2
-  User.find!(id)
+  User.take!(id)
 end
 """
     f = tmp_path / "test.rb"
@@ -153,8 +153,8 @@ end
 
     modified = pm.modify(entities[0])
     assert modified is not None
-    assert "User.find(id)" in modified.rewrite
-    assert "find!" not in modified.rewrite
+    assert "User.take(id)" in modified.rewrite
+    assert "take!" not in modified.rewrite
 
 
 def test_bang_method_strip_not_mutation_bang(tmp_path):
