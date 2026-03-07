@@ -170,6 +170,7 @@ def main():
         test_cmd = config['test_cmd']
         output_path = Path(config['output_path'])
         baseline_path = Path(config['baseline_path'])
+        baseline_text = config.get('baseline_text')
         report_path = Path(config['report_path'])
         instance = config['instance']
         
@@ -206,6 +207,12 @@ def main():
             "error": None,
             "exit_code": exit_code
         }
+
+        # Fall back to the inline pregold baseline if the mounted volume path
+        # is not visible inside this sandbox yet.
+        if not baseline_path.exists() and baseline_text is not None:
+            baseline_path.parent.mkdir(parents=True, exist_ok=True)
+            baseline_path.write_text(baseline_text, encoding='utf-8')
 
         # Check baseline and validate
         if baseline_path.exists():
@@ -1406,6 +1413,7 @@ async def run_postgold_phase_async(
     all_patches: list,
     max_concurrent: int,
     env_name: str,
+    baseline_texts: dict[str, str] | None = None,
     validation_timeout_override: int | None = None,
 ) -> list[dict]:
     """
@@ -1492,6 +1500,7 @@ async def run_postgold_phase_async(
             "output_path": f"/logs/{lang}/run_validation/{repo_id}/{instance_id}/test_output.txt",
             "baseline_path": f"/logs/{lang}/run_validation/{repo_id}/{repo_id}.ref/test_output.txt",
             "report_path": f"/logs/{lang}/run_validation/{repo_id}/{instance_id}/report.json",
+            "baseline_text": (baseline_texts or {}).get(repo_id),
             "instance": serializable_patch,
         }
 
@@ -1612,6 +1621,17 @@ async def run_validation_phase_async(
         ),
     )
 
+    lang = all_patches[0]["_language"] if all_patches else ""
+    baseline_texts = {}
+    for repo, info in repos_with_patches.items():
+        if repo in failed_repos:
+            continue
+        baseline_text = await volume_read_text(
+            f"{lang}/run_validation/{info['repo_id']}/{info['repo_id']}.ref/test_output.txt"
+        )
+        if baseline_text:
+            baseline_texts[info["repo_id"]] = baseline_text
+
     # Filter out patches from repos with broken baselines
     if failed_repos:
         original_count = len(all_patches)
@@ -1624,6 +1644,7 @@ async def run_validation_phase_async(
         all_patches,
         max_concurrent,
         env_name,
+        baseline_texts=baseline_texts,
         validation_timeout_override=validation_timeout_override,
     )
 
