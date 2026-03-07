@@ -1055,10 +1055,10 @@ RUN git checkout {self.commit} && \
 RUN meson setup build -Dtests=enabled -Dman-pages=disabled && \
     meson compile -C build
 
-CMD ["/bin/bash"]"""
+    CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
-        return parse_log_catch2(log)
+        return parse_log_ctest(log)
 
 
 @dataclass
@@ -1154,10 +1154,10 @@ RUN mkdir build && cd build && \
     cmake -DBUILD_TESTS=ON .. && \
     make -j$(nproc)
 
-CMD ["/bin/bash"]"""
+    CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
-        return parse_log_catch2(log)
+        return parse_log_ctest(log)
 
 
 @dataclass
@@ -4733,7 +4733,7 @@ RUN mkdir build && cd build && \
 CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
-        return parse_log_catch2(log)
+        return parse_log_ctest(log)
 
 
 @dataclass

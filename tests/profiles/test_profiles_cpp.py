@@ -1,5 +1,6 @@
 from swesmith.profiles.cpp import (
     CppProfile,
+    Crowb8c021a7,
     parse_log_ctest,
     parse_log_gtest,
     parse_log_catch2,
@@ -119,6 +120,26 @@ def test_ctest_parser_empty_log():
     """Test CTest parser with empty log."""
     result = parse_log_ctest("")
     assert result == {}
+
+
+def test_crow_profile_uses_ctest_parser_for_ctest_wrapped_catch2_output():
+    """Crow runs ctest, so grading must key off ctest test names, not Catch2 summaries."""
+    log = """
+1: ===============================================================================
+1: test cases: 109 | 104 passed |  5 failed
+1: assertions: 901 | 885 passed | 16 failed
+1/2 Test #1: crow_test ........................***Failed   43.65 sec
+2/2 Test #2: template_test ....................***Failed    0.08 sec
+
+0% tests passed, 2 tests failed out of 2
+
+The following tests FAILED:
+\t  1 - crow_test (Failed)
+\t  2 - template_test (Failed)
+Errors while running CTest
+"""
+    result = Crowb8c021a7().log_parser(log)
+    assert result == {"crow_test": "FAILED", "template_test": "FAILED"}
 
 
 def test_ctest_parser_no_matches():
