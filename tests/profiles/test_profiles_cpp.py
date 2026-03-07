@@ -1,9 +1,13 @@
 from swesmith.profiles.cpp import (
+    CLI11fe3772d3,
     CppProfile,
     Crowb8c021a7,
+    Luantifc363085,
+    Waybard527ccd4,
     parse_log_ctest,
     parse_log_gtest,
     parse_log_catch2,
+    parse_log_luanti,
     parse_log_boost_test,
     parse_log_pytest,
     parse_log_qtest,
@@ -140,6 +144,73 @@ Errors while running CTest
 """
     result = Crowb8c021a7().log_parser(log)
     assert result == {"crow_test": "FAILED", "template_test": "FAILED"}
+
+
+def test_cli11_profile_uses_ctest_parser_for_ctest_wrapped_catch2_output():
+    """CLI11 also runs ctest, so grading must use CTest test names."""
+    log = """
+1: ===============================================================================
+1: test cases: 26 | 25 passed | 1 failed
+1: assertions: 148 | 147 passed | 1 failed
+1/2 Test #1: CLI11_basics ......................***Failed    0.22 sec
+2/2 Test #2: CLI11_helpers .....................   Passed    0.03 sec
+
+50% tests passed, 1 tests failed out of 2
+
+The following tests FAILED:
+\t  1 - CLI11_basics (Failed)
+Errors while running CTest
+"""
+    result = CLI11fe3772d3().log_parser(log)
+    assert result == {"CLI11_basics": "FAILED", "CLI11_helpers": "PASSED"}
+
+
+def test_waybar_profile_uses_catch2_parser_for_raw_test_binaries():
+    """Waybar validation now runs Catch2 binaries directly instead of meson test."""
+    log = """
+<?xml version="1.0" encoding="UTF-8"?>
+<Catch2TestRun>
+  <TestCase name="Config loads">
+    <OverallResult success="true"/>
+  </TestCase>
+</Catch2TestRun>
+<?xml version="1.0" encoding="UTF-8"?>
+<Catch2TestRun>
+  <TestCase name="Hyprland IPC">
+    <OverallResult success="false"/>
+  </TestCase>
+</Catch2TestRun>
+"""
+    result = Waybard527ccd4().log_parser(log)
+    assert result == {"Config loads": "PASSED", "Hyprland IPC": "FAILED"}
+
+
+def test_luanti_parser_uses_module_scoped_test_names():
+    log = """
+======== Testing module TestSocket
+[PASS] testIPv4Socket - 52ms
+[FAIL] testIPv6Socket - 0ms
+======== Module TestSocket failed (1 failures / 2 tests) - 53ms
+======== Testing module TestOther
+[PASS] testIPv4Socket - 1ms
+"""
+    result = parse_log_luanti(log)
+    assert result["TestSocket::testIPv4Socket"] == "PASSED"
+    assert result["TestSocket::testIPv6Socket"] == "FAILED"
+    assert result["TestOther::testIPv4Socket"] == "PASSED"
+
+
+def test_luanti_profile_uses_custom_runner_parser():
+    log = """
+======== Testing module TestSocket
+[PASS] testIPv4Socket - 52ms
+[FAIL] testIPv6Socket - 0ms
+"""
+    result = Luantifc363085().log_parser(log)
+    assert result == {
+        "TestSocket::testIPv4Socket": "PASSED",
+        "TestSocket::testIPv6Socket": "FAILED",
+    }
 
 
 def test_ctest_parser_no_matches():

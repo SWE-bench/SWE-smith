@@ -360,6 +360,43 @@ def parse_log_jakttest(log: str) -> dict[str, str]:
     return results
 
 
+def parse_log_luanti(log: str) -> dict[str, str]:
+    """Parse Luanti's custom unit test runner output.
+
+    The runner prints per-module sections:
+      ======== Testing module TestSocket
+      [PASS] testIPv4Socket - 52ms
+      [FAIL] testIPv6Socket - 0ms
+
+    Test names are not globally unique, so we key them as Module::Test.
+    """
+    results: dict[str, str] = {}
+    clean = re.sub(r"\x1b\[[0-9;]*m", "", log)
+    current_module: str | None = None
+
+    for line in clean.split("\n"):
+        stripped = line.strip()
+        module_match = re.match(r"^======== Testing module (.+)$", stripped)
+        if module_match:
+            current_module = module_match.group(1).strip()
+            continue
+
+        status_match = re.match(r"^\[(PASS|FAIL|SKIP)\]\s+(\S+)\s+-", stripped)
+        if status_match:
+            status, test_name = status_match.groups()
+            key = (
+                f"{current_module}::{test_name}" if current_module else test_name
+            )
+            if status == "PASS":
+                results[key] = TestStatus.PASSED.value
+            elif status == "SKIP":
+                results[key] = TestStatus.SKIPPED.value
+            else:
+                results[key] = TestStatus.FAILED.value
+
+    return results
+
+
 def parse_log_kakoune(log: str) -> dict[str, str]:
     """Parse Kakoune test runner output (ANSI colored test names).
 
@@ -1007,7 +1044,7 @@ class Waybard527ccd4(CppProfile):
     owner: str = "Alexays"
     repo: str = "Waybar"
     commit: str = "d527ccd4c1f53f4bb161677b451aabb89556f2d5"
-    test_cmd: str = "meson compile -C build && meson test -C build --verbose"
+    test_cmd: str = "meson compile -C build && ./build/test/waybar_test --reporter xml && ./build/test/hyprland/hyprland_test --reporter xml"
 
     @property
     def dockerfile(self):
@@ -1058,7 +1095,7 @@ RUN meson setup build -Dtests=enabled -Dman-pages=disabled && \
     CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
-        return parse_log_ctest(log)
+        return parse_log_catch2(log)
 
 
 @dataclass
@@ -1321,6 +1358,17 @@ class OpenTTDae80a47c(CppProfile):
     repo: str = "OpenTTD"
     commit: str = "ae80a47c7db48e543d9a9ebc682df1a889661d2a"
     test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure"
+    bug_gen_dirs_exclude: list[str] = field(
+        default_factory=lambda: [
+            *DEFAULT_CPP_BUG_GEN_DIRS_EXCLUDE,
+            "/src/3rdparty",
+            "/src/ai",
+            "/src/music",
+            "/src/newgrf",
+            "/src/os",
+            "/src/video",
+        ]
+    )
 
     @property
     def dockerfile(self):
@@ -3487,10 +3535,10 @@ RUN mkdir build && cd build && \
     -DCMAKE_BUILD_TYPE=Release && \
     make -j$(nproc)
 
-CMD ["/bin/bash"]"""
+    CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
-        return parse_log_catch2(log)
+        return parse_log_luanti(log)
 
 
 @dataclass
@@ -4652,10 +4700,10 @@ RUN mkdir build && cd build && \
     cmake -DCLI11_BUILD_TESTS=ON -DCLI11_BUILD_EXAMPLES=ON .. && \
     make -j$(nproc)
 
-CMD ["/bin/bash"]"""
+    CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
-        return parse_log_catch2(log)
+        return parse_log_ctest(log)
 
 
 @dataclass
@@ -5301,6 +5349,9 @@ class EternalTerminal90b10d5f(CppProfile):
     repo: str = "EternalTerminal"
     commit: str = "90b10d5f99be322d2ad9deabc4b86aa36a5f6894"
     test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure"
+    bug_gen_dirs_exclude: list[str] = field(
+        default_factory=lambda: [*DEFAULT_CPP_BUG_GEN_DIRS_EXCLUDE, "/external"]
+    )
 
     @property
     def dockerfile(self):
