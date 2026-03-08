@@ -51,7 +51,9 @@ def _attach_issue_statement(task: dict, issue_gen_dir: Path, repo_id: str) -> di
     secrets=[modal.Secret.from_name("john-hf-secret")],
     timeout=10800,
 )
-def upload_from_volume_remote(target_dataset: str, language: str = "javascript") -> dict:
+def upload_from_volume_remote(
+    target_dataset: str, language: str = "javascript"
+) -> dict:
     """Robust end-to-end upload: volume -> issue merge -> validate -> HF push."""
     import os
     from datasets import Dataset
