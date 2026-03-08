@@ -37,7 +37,7 @@ def parse_log_rspec_json(log: str) -> dict[str, str]:
         status = example.get("status", "")
         if status == "passed":
             test_status_map[desc] = TestStatus.PASSED.value
-        elif status in ("failed", "error"):
+        elif status == "failed":
             test_status_map[desc] = TestStatus.FAILED.value
     return test_status_map
 
