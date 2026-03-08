@@ -22,10 +22,18 @@ def backfill_repo(repo_patch_file: str, language: str = "java") -> dict:
     run_val_repo_dir = Path(LOGS_MOUNT_PATH) / language / "run_validation" / repo_id
 
     if not bug_file.exists():
-        return {"repo_id": repo_id, "status": "skipped", "reason": "missing bug_gen file"}
+        return {
+            "repo_id": repo_id,
+            "status": "skipped",
+            "reason": "missing bug_gen file",
+        }
 
     if not run_val_repo_dir.exists():
-        return {"repo_id": repo_id, "status": "skipped", "reason": "missing run_validation repo dir"}
+        return {
+            "repo_id": repo_id,
+            "status": "skipped",
+            "reason": "missing run_validation repo dir",
+        }
 
     try:
         patches = json.loads(bug_file.read_text())
@@ -69,7 +77,9 @@ def backfill_repo(repo_patch_file: str, language: str = "java") -> dict:
 @app.local_entrypoint()
 def main(language: str = "java"):
     entries = logs_volume.listdir(f"{language}/bug_gen")
-    patch_files = [e.path.split("/")[-1] for e in entries if e.path.endswith("_all_patches.json")]
+    patch_files = [
+        e.path.split("/")[-1] for e in entries if e.path.endswith("_all_patches.json")
+    ]
 
     print(f"Found {len(patch_files)} patch files in {language}/bug_gen")
 
@@ -82,7 +92,9 @@ def main(language: str = "java"):
     failed = 0
 
     for i, result in enumerate(
-        backfill_repo.map(patch_files, [language] * len(patch_files), order_outputs=False),
+        backfill_repo.map(
+            patch_files, [language] * len(patch_files), order_outputs=False
+        ),
         start=1,
     ):
         status = result.get("status")
@@ -94,7 +106,9 @@ def main(language: str = "java"):
             total_missing_instance += result.get("missing_instance", 0)
             total_missing_patch += result.get("missing_patch", 0)
             if i % 10 == 0 or result.get("written", 0) > 0:
-                print(f"[{i}/{len(patch_files)}] {repo_id}: wrote {result.get('written', 0)}")
+                print(
+                    f"[{i}/{len(patch_files)}] {repo_id}: wrote {result.get('written', 0)}"
+                )
         elif status == "skipped":
             skipped += 1
         else:
