@@ -302,6 +302,30 @@ end
     assert result is None
 
 
+def test_or_default_removal_inside_conditional_body(tmp_path):
+    """OrDefaultRemovalModifier modifies || defaults inside conditional bodies."""
+    src = """\
+def get_name(params, flag)
+  x = flag.to_s + "check"
+  y = x.length * 2
+  if flag == true
+    name = params[:name] || "anonymous"
+  end
+end
+"""
+    f = tmp_path / "test.rb"
+    f.write_text(src)
+    entities = []
+    get_entities_from_file_rb(entities, f)
+    assert len(entities) == 1
+
+    pm = OrDefaultRemovalModifier(likelihood=1.0, seed=42)
+    modified = pm.modify(entities[0])
+    assert modified is not None
+    assert "name = params[:name]\n" in modified.rewrite
+    assert '"anonymous"' not in modified.rewrite
+
+
 def test_or_default_removal_no_or(tmp_path):
     """OrDefaultRemovalModifier returns None when no || operators present."""
     src = """\

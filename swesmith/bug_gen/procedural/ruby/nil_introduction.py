@@ -67,13 +67,8 @@ class OrDefaultRemovalModifier(RubyProceduralModifier):
 
     @staticmethod
     def _in_conditional(node) -> bool:
-        """Check if node is inside a conditional context."""
-        ancestor = node.parent
-        while ancestor:
-            if ancestor.type in _CONDITIONAL_CONTEXTS:
-                return True
-            ancestor = ancestor.parent
-        return False
+        """Check if node is a direct child of a conditional."""
+        return node.parent is not None and node.parent.type in _CONDITIONAL_CONTEXTS
 
     def modify(self, code_entity: CodeEntity) -> BugRewrite:
         """Replace `x || default` with just `x`."""
