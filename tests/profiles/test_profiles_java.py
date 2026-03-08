@@ -5,8 +5,10 @@ This test suite follows the standard testing pattern established in other
 language profile tests (Go, JavaScript, Python, Rust).
 """
 
+import os
 import pytest
 import subprocess
+import tempfile
 from unittest.mock import patch, mock_open
 from swesmith.profiles.java import (
     JavaProfile,
@@ -446,3 +448,258 @@ def test_java_profile_build_image_subprocess_parameters():
         assert call_args[1]["shell"] is True
         assert call_args[1]["stdout"] is not None
         assert call_args[1]["stderr"] == subprocess.STDOUT
+
+
+def _write_file(base, relpath, content):
+    full = os.path.join(base, relpath)
+    os.makedirs(os.path.dirname(full), exist_ok=True)
+    with open(full, "w") as f:
+        f.write(content)
+
+
+def _make_profile_with_clone(tmp_path):
+    profile = make_dummy_java_profile()
+
+    def fake_clone(dest=None):
+        return str(tmp_path), False
+
+    profile.clone = fake_clone
+    return profile
+
+
+def _make_profile_with_cache(cache):
+    profile = make_dummy_java_profile()
+    profile._test_name_to_files_cache = cache
+    return profile
+
+
+def test_extract_test_class_name_fqn_with_parens():
+    cls = JavaProfile._extract_test_class_name(
+        "com.google.gson.functional.ArrayTest.testSerialization()"
+    )
+    assert cls == "ArrayTest"
+
+
+def test_extract_test_class_name_fqn_no_parens():
+    cls = JavaProfile._extract_test_class_name(
+        "brut.androlib.BuildAndDecodeApkTest.valuesDrawablesTest"
+    )
+    assert cls == "BuildAndDecodeApkTest"
+
+
+def test_extract_test_class_name_parameterized():
+    cls = JavaProfile._extract_test_class_name(
+        "com.codahale.metrics.ExponentiallyDecayingReservoirTest.spotFall[0: EXPONENTIALLY_DECAYING]"
+    )
+    assert cls == "ExponentiallyDecayingReservoirTest"
+
+
+def test_extract_test_class_name_parameterized_with_signature():
+    cls = JavaProfile._extract_test_class_name(
+        "io.dropwizard.configuration.ConfigurationMetadataTest.isCollectionOfStringsShouldWork(String, boolean)[6]"
+    )
+    assert cls == "ConfigurationMetadataTest"
+
+
+def test_extract_test_class_name_nested_class():
+    cls = JavaProfile._extract_test_class_name(
+        "power.PowerTests$PowerGraphTests.directConsumptionStopsWithNoPower()"
+    )
+    assert cls == "PowerTests"
+
+
+def test_extract_test_class_name_nested_class_no_parens():
+    cls = JavaProfile._extract_test_class_name(
+        "software.coley.recaf.services.search.SearchServiceTest$Jvm.testMethodPath"
+    )
+    assert cls == "SearchServiceTest"
+
+
+def test_extract_test_class_name_repetition():
+    cls = JavaProfile._extract_test_class_name(
+        "com.baomidou.mybatisplus.test.h2.H2UserTest.repetition 1 of 1000"
+    )
+    assert cls == "H2UserTest"
+
+
+def test_extract_test_class_name_simple_no_package():
+    cls = JavaProfile._extract_test_class_name("ApplicationTests.groundZero")
+    assert cls == "ApplicationTests"
+
+
+def test_extract_test_class_name_simple_with_parens():
+    cls = JavaProfile._extract_test_class_name("ApplicationTests.saveLoad()")
+    assert cls == "ApplicationTests"
+
+
+def test_extract_test_class_name_indexed_display():
+    cls = JavaProfile._extract_test_class_name(
+        "org.jackhuang.hmcl.util.io.CompressingUtilsTest.[2] /testbed/file.zip, GB18030"
+    )
+    assert cls == "CompressingUtilsTest"
+
+
+def test_extract_test_class_name_display_name_with_colon():
+    cls = JavaProfile._extract_test_class_name(
+        "org.apache.calcite.test.SqlOperatorUnparseTest.CoercionEnabled: true"
+    )
+    assert cls == "SqlOperatorUnparseTest"
+
+
+def test_extract_test_class_name_jdk_suffix():
+    cls = JavaProfile._extract_test_class_name(
+        "org.apache.cassandra.service.StorageServiceTest.testScheduledExecutorsShutdownOnDrain-_jdk11"
+    )
+    assert cls == "StorageServiceTest"
+
+
+def test_extract_test_class_name_nested_parameterized():
+    cls = JavaProfile._extract_test_class_name(
+        "software.coley.recaf.util.StringUtilTest$StringDecoding.[3] name=lorem-long-ru.txt"
+    )
+    assert cls == "StringUtilTest"
+
+
+def test_build_test_name_to_files_map_basic(tmp_path):
+    _write_file(
+        tmp_path,
+        "src/test/java/com/example/FooTest.java",
+        "package com.example;\npublic class FooTest {}\n",
+    )
+    profile = _make_profile_with_clone(tmp_path)
+    result = profile._build_test_name_to_files_map()
+    assert "FooTest" in result
+    assert "src/test/java/com/example/FooTest.java" in result["FooTest"]
+
+
+def test_build_test_name_to_files_map_multiple_files(tmp_path):
+    _write_file(tmp_path, "module-a/src/test/java/FooTest.java", "class FooTest {}\n")
+    _write_file(tmp_path, "module-b/src/test/java/FooTest.java", "class FooTest {}\n")
+    profile = _make_profile_with_clone(tmp_path)
+    result = profile._build_test_name_to_files_map()
+    assert "FooTest" in result
+    assert len(result["FooTest"]) == 2
+
+
+def test_build_test_name_to_files_map_non_java_ignored(tmp_path):
+    _write_file(tmp_path, "src/main/FooTest.py", "class FooTest:\n    pass\n")
+    _write_file(tmp_path, "src/test/java/BarTest.java", "public class BarTest {}\n")
+    profile = _make_profile_with_clone(tmp_path)
+    result = profile._build_test_name_to_files_map()
+    assert "FooTest" not in result
+    assert "BarTest" in result
+
+
+def test_build_test_name_to_files_map_cleanup_on_fresh_clone(tmp_path):
+    src_dir = tmp_path / "repo"
+    src_dir.mkdir()
+    _write_file(str(src_dir), "src/test/java/FooTest.java", "class FooTest {}\n")
+
+    profile = make_dummy_java_profile()
+
+    def fake_clone(dest=None):
+        return str(src_dir), True
+
+    profile.clone = fake_clone
+
+    with patch("swesmith.profiles.java.shutil.rmtree") as mock_rm:
+        profile._build_test_name_to_files_map()
+        mock_rm.assert_called_once_with(str(src_dir))
+
+
+def test_get_test_files_basic_f2p_p2p():
+    cache = {
+        "ArrayTest": {"src/test/java/com/example/ArrayTest.java"},
+        "FormatterTest": {"src/test/java/com/example/FormatterTest.java"},
+        "ErrorTest": {"src/test/java/com/example/ErrorTest.java"},
+    }
+    profile = _make_profile_with_cache(cache)
+    instance = {
+        "instance_id": "dummy__dummyrepo.deadbeef.1",
+        "FAIL_TO_PASS": ["com.example.ArrayTest.testSerialization()"],
+        "PASS_TO_PASS": [
+            "com.example.FormatterTest.testFormat()",
+            "com.example.ErrorTest.testHandle",
+        ],
+    }
+    f2p, p2p = profile.get_test_files(instance)
+    assert set(f2p) == {"src/test/java/com/example/ArrayTest.java"}
+    assert set(p2p) == {
+        "src/test/java/com/example/FormatterTest.java",
+        "src/test/java/com/example/ErrorTest.java",
+    }
+
+
+def test_get_test_files_nested_class():
+    cache = {"PowerTests": {"src/test/java/power/PowerTests.java"}}
+    profile = _make_profile_with_cache(cache)
+    instance = {
+        "instance_id": "dummy__dummyrepo.deadbeef.1",
+        "FAIL_TO_PASS": [
+            "power.PowerTests$PowerGraphTests.directConsumptionStopsWithNoPower()"
+        ],
+        "PASS_TO_PASS": [],
+    }
+    f2p, _ = profile.get_test_files(instance)
+    assert set(f2p) == {"src/test/java/power/PowerTests.java"}
+
+
+def test_get_test_files_parameterized():
+    cache = {
+        "ExponentiallyDecayingReservoirTest": {
+            "src/test/java/com/codahale/metrics/ExponentiallyDecayingReservoirTest.java"
+        }
+    }
+    profile = _make_profile_with_cache(cache)
+    instance = {
+        "instance_id": "dummy__dummyrepo.deadbeef.1",
+        "FAIL_TO_PASS": [
+            "com.codahale.metrics.ExponentiallyDecayingReservoirTest.spotFall[0: EXPONENTIALLY_DECAYING]"
+        ],
+        "PASS_TO_PASS": [],
+    }
+    f2p, _ = profile.get_test_files(instance)
+    assert set(f2p) == {
+        "src/test/java/com/codahale/metrics/ExponentiallyDecayingReservoirTest.java"
+    }
+
+
+def test_get_test_files_missing_test_names():
+    cache = {"ArrayTest": {"src/test/java/ArrayTest.java"}}
+    profile = _make_profile_with_cache(cache)
+    instance = {
+        "instance_id": "dummy__dummyrepo.deadbeef.1",
+        "FAIL_TO_PASS": ["com.example.NonexistentTest.testMissing()"],
+        "PASS_TO_PASS": ["com.example.AlsoMissingTest.testNotFound"],
+    }
+    f2p, p2p = profile.get_test_files(instance)
+    assert f2p == []
+    assert p2p == []
+
+
+def test_get_test_files_cache_reuse():
+    profile = make_dummy_java_profile()
+    clone_count = 0
+
+    def counting_clone(dest=None):
+        nonlocal clone_count
+        clone_count += 1
+        d = tempfile.mkdtemp()
+        return d, True
+
+    profile.clone = counting_clone
+
+    instance = {
+        "instance_id": "dummy__dummyrepo.deadbeef.1",
+        "FAIL_TO_PASS": ["com.example.FooTest.testA()"],
+        "PASS_TO_PASS": ["com.example.BarTest.testB()"],
+    }
+    profile.get_test_files(instance)
+    profile.get_test_files(instance)
+    assert clone_count == 1
+
+
+def test_get_test_files_assertion_error_on_missing_keys():
+    profile = _make_profile_with_cache({})
+    with pytest.raises(AssertionError):
+        profile.get_test_files({"instance_id": "dummy__dummyrepo.deadbeef.1"})

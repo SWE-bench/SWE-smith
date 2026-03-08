@@ -1,7 +1,15 @@
-from dataclasses import dataclass, field
+import os
+import re
+import shutil
 
+from dataclasses import dataclass, field
+from swebench.harness.constants import (
+    FAIL_TO_PASS,
+    PASS_TO_PASS,
+    KEY_INSTANCE_ID,
+    TestStatus,
+)
 from swesmith.constants import ENV_NAME
-from swebench.harness.constants import TestStatus
 from swesmith.profiles.base import RepoProfile, registry
 
 
@@ -14,6 +22,114 @@ class RustProfile(RepoProfile):
     test_cmd: str = "cargo test --verbose"
     exts: list[str] = field(default_factory=lambda: [".rs"])
     rust_version: str = "1.88"
+    _test_name_to_files_cache: dict[str, set[str]] = field(
+        default=None, init=False, repr=False
+    )
+
+    @staticmethod
+    def _extract_test_fn_name(test_name: str) -> tuple[str, str | None]:
+        """Extract the function name (and optional file path) from a Rust test name.
+
+        Returns (fn_name, file_path | None). file_path is only set for doc tests.
+
+        Handles these formats:
+        - Bare function: "test_foo" -> ("test_foo", None)
+        - Module-qualified: "module::sub::test_foo" -> ("test_foo", None)
+        - Should-panic: "module::test_foo - should panic" -> ("test_foo", None)
+        - Doc test: "src/lib.rs - Foo::bar (line 42)" -> ("src/lib.rs", "src/lib.rs")
+        """
+        if " - " in test_name:
+            before, _after = test_name.split(" - ", 1)
+            if ".rs" in before:
+                # Doc test — the file path is the part before " - "
+                return before.strip(), before.strip()
+            else:
+                # Should-panic or similar suffix — strip it, then extract fn name
+                test_name = before.strip()
+
+        # Take last :: segment (or entire string if no ::)
+        if "::" in test_name:
+            return test_name.rsplit("::", 1)[1], None
+        return test_name, None
+
+    def _build_test_name_to_files_map(self) -> dict[str, set[str]]:
+        """Build a mapping from test function names to the files that contain them."""
+        dest, cloned = self.clone()
+        test_name_to_files: dict[str, set[str]] = {}
+
+        # Regex to match #[test] and common async test attributes
+        test_attr_re = re.compile(r"^\s*#\[(?:\w+::)*test")
+        fn_re = re.compile(r"^\s*(?:pub(?:\s*\([^)]*\))?\s+)?(?:async\s+)?fn\s+(\w+)")
+        # Attributes, blank lines, or comments that can appear between #[test] and fn
+        intervening_re = re.compile(r"^\s*(?:#\[|//|$)")
+
+        for dirpath, _, filenames in os.walk(dest):
+            for fname in filenames:
+                if not fname.endswith(".rs"):
+                    continue
+
+                full_path = os.path.join(dirpath, fname)
+                relative_path = os.path.relpath(full_path, dest)
+
+                try:
+                    with open(full_path, "r", encoding="utf-8") as f:
+                        lines = f.readlines()
+                except (OSError, UnicodeDecodeError):
+                    continue
+
+                expecting_fn = False
+                for line in lines:
+                    if test_attr_re.match(line):
+                        expecting_fn = True
+                        continue
+
+                    if expecting_fn:
+                        fn_match = fn_re.match(line)
+                        if fn_match:
+                            fn_name = fn_match.group(1)
+                            test_name_to_files.setdefault(fn_name, set()).add(
+                                relative_path
+                            )
+                            expecting_fn = False
+                        elif not intervening_re.match(line):
+                            # Not an attribute/comment/blank — stop expecting
+                            expecting_fn = False
+
+        if cloned:
+            shutil.rmtree(dest)
+        return test_name_to_files
+
+    def get_test_files(self, instance: dict) -> tuple[list[str], list[str]]:
+        assert FAIL_TO_PASS in instance and PASS_TO_PASS in instance, (
+            f"Instance {instance[KEY_INSTANCE_ID]} missing required keys {FAIL_TO_PASS} or {PASS_TO_PASS}"
+        )
+
+        # Lazy load the cache if needed
+        if self._test_name_to_files_cache is None:
+            with self._lock:
+                if self._test_name_to_files_cache is None:
+                    self._test_name_to_files_cache = (
+                        self._build_test_name_to_files_map()
+                    )
+
+        f2p_files: set[str] = set()
+        for test_name in instance[FAIL_TO_PASS]:
+            fn_name, file_path = self._extract_test_fn_name(test_name)
+            if file_path is not None:
+                # Doc test — use the embedded file path directly
+                f2p_files.add(file_path)
+            elif fn_name in self._test_name_to_files_cache:
+                f2p_files.update(self._test_name_to_files_cache[fn_name])
+
+        p2p_files: set[str] = set()
+        for test_name in instance[PASS_TO_PASS]:
+            fn_name, file_path = self._extract_test_fn_name(test_name)
+            if file_path is not None:
+                p2p_files.add(file_path)
+            elif fn_name in self._test_name_to_files_cache:
+                p2p_files.update(self._test_name_to_files_cache[fn_name])
+
+        return list(f2p_files), list(p2p_files)
 
     def log_parser(self, log: str):
         test_status_map = {}

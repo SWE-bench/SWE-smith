@@ -1,8 +1,15 @@
+import os
 import re
+import shutil
 
 from dataclasses import dataclass, field
+from swebench.harness.constants import (
+    FAIL_TO_PASS,
+    PASS_TO_PASS,
+    KEY_INSTANCE_ID,
+    TestStatus,
+)
 from swesmith.constants import ENV_NAME, KEY_PATCH
-from swebench.harness.constants import TestStatus
 from swesmith.profiles.base import RepoProfile, registry
 from swesmith.profiles.utils import X11_DEPS
 from unidiff import PatchSet
@@ -15,6 +22,99 @@ class JavaScriptProfile(RepoProfile):
     """
 
     exts: list[str] = field(default_factory=lambda: [".js"])
+    _test_name_to_files_cache: dict[str, set[str]] = field(
+        default=None, init=False, repr=False
+    )
+
+    _JS_TEST_EXTS: tuple[str, ...] = (
+        ".js",
+        ".ts",
+        ".jsx",
+        ".tsx",
+        ".mjs",
+        ".cjs",
+    )
+
+    @staticmethod
+    def _is_js_test_file(root: str, fname: str) -> bool:
+        """Return True if the file looks like a JS/TS test file."""
+        parts = root.split(os.sep)
+        in_test_dir = any(
+            p in ("test", "tests", "__tests__", "spec", "specs") for p in parts
+        )
+        is_test_named = any(
+            x in fname
+            for x in (".test.", ".spec.", "_test.", "_spec.", "test.", "spec.")
+        )
+        return in_test_dir or is_test_named
+
+    def _build_test_name_to_files_map(self) -> dict[str, set[str]]:
+        """Build a mapping from test description strings to the files that contain them."""
+        dest, cloned = self.clone()
+        test_name_to_files: dict[str, set[str]] = {}
+
+        # Match it('...'), it("..."), it(`...`), test('...'), test("..."), test(`...`)
+        # Also handle .only and .skip variants
+        test_call_re = re.compile(
+            r"""(?:it|test)(?:\.only|\.skip)?\s*\(\s*(['"`])(.+?)\1"""
+        )
+
+        for dirpath, _, filenames in os.walk(dest):
+            # Skip node_modules
+            if "node_modules" in dirpath.split(os.sep):
+                continue
+            for fname in filenames:
+                if not fname.endswith(self._JS_TEST_EXTS):
+                    continue
+                if not self._is_js_test_file(dirpath, fname):
+                    continue
+
+                full_path = os.path.join(dirpath, fname)
+                relative_path = os.path.relpath(full_path, dest)
+
+                try:
+                    with open(full_path, "r", encoding="utf-8") as f:
+                        content = f.read()
+                except (OSError, UnicodeDecodeError):
+                    continue
+
+                for match in test_call_re.finditer(content):
+                    test_name = match.group(2)
+                    test_name_to_files.setdefault(test_name, set()).add(relative_path)
+
+        if cloned:
+            shutil.rmtree(dest)
+        return test_name_to_files
+
+    def get_test_files(self, instance: dict) -> tuple[list[str], list[str]]:
+        assert FAIL_TO_PASS in instance and PASS_TO_PASS in instance, (
+            f"Instance {instance[KEY_INSTANCE_ID]} missing required keys {FAIL_TO_PASS} or {PASS_TO_PASS}"
+        )
+
+        # Lazy load the cache if needed
+        if self._test_name_to_files_cache is None:
+            with self._lock:
+                if self._test_name_to_files_cache is None:
+                    self._test_name_to_files_cache = (
+                        self._build_test_name_to_files_map()
+                    )
+
+        f2p_files: set[str] = set()
+        for test_name in instance[FAIL_TO_PASS]:
+            # File-path test names (e.g. Svelte vitest)
+            if test_name.endswith(self._JS_TEST_EXTS):
+                f2p_files.add(test_name)
+            elif test_name in self._test_name_to_files_cache:
+                f2p_files.update(self._test_name_to_files_cache[test_name])
+
+        p2p_files: set[str] = set()
+        for test_name in instance[PASS_TO_PASS]:
+            if test_name.endswith(self._JS_TEST_EXTS):
+                p2p_files.add(test_name)
+            elif test_name in self._test_name_to_files_cache:
+                p2p_files.update(self._test_name_to_files_cache[test_name])
+
+        return list(f2p_files), list(p2p_files)
 
     def extract_entities(
         self,
