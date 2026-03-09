@@ -158,6 +158,9 @@ RUN {self.test_cmd} || true
 """
 
 
+# SWE-bench_Multilingual repos
+
+
 @dataclass
 class Faker9ef1ecae(RubyProfile):
     owner: str = "faker-ruby"
@@ -190,9 +193,6 @@ class Jekylld0cf1791(RubyProfile):
     eval_sets: set[str] = field(
         default_factory=lambda: {"SWE-bench/SWE-bench_Multilingual"}
     )
-
-
-# SWE-bench_Multilingual repos
 
 
 @dataclass
