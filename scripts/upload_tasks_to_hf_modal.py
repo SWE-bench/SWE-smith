@@ -18,29 +18,13 @@ REQUIRED_KEYS = [
 ISSUE_MODEL_KEY = "portkey/gpt-5-mini"
 
 
-def _attach_issue_statement(task: dict, issue_gen_dir: Path, repo_id: str) -> dict:
-    """Attach issue text and normalize fields for a task instance."""
-    instance_id = task.get("instance_id")
-    if not instance_id:
-        return task
-
+def _normalize_task(task: dict) -> dict:
+    """Normalize fields for a task instance before upload."""
     if "image_name" in task and ".architecture." in task["image_name"]:
         task["image_name"] = task["image_name"].replace(".architecture", "")
 
-    task["problem_statement"] = ""
-    issue_file = issue_gen_dir / repo_id / f"{instance_id}.json"
-    if not issue_file.exists():
-        return task
-
-    try:
-        issue_data = json.loads(issue_file.read_text())
-    except Exception:
-        return task
-
-    responses = issue_data.get("responses", {})
-    content = responses.get(ISSUE_MODEL_KEY)
-    if isinstance(content, list) and content:
-        task["problem_statement"] = content[0]
+    if "problem_statement" not in task:
+        task["problem_statement"] = ""
 
     return task
 
@@ -54,7 +38,7 @@ def _attach_issue_statement(task: dict, issue_gen_dir: Path, repo_id: str) -> di
 def upload_from_volume_remote(
     target_dataset: str, language: str = "javascript"
 ) -> dict:
-    """Robust end-to-end upload: volume -> issue merge -> validate -> HF push."""
+    """Upload issue-generated task instances from the Modal volume to HF."""
     import os
     from datasets import Dataset
     from huggingface_hub import create_repo
@@ -64,15 +48,17 @@ def upload_from_volume_remote(
         return {"success": False, "error": "HF_TOKEN not found in environment"}
 
     task_insts_dir = Path(f"/data/{language}/task_insts")
-    issue_gen_dir = Path(f"/data/{language}/issue_gen")
     if not task_insts_dir.exists():
         return {"success": False, "error": f"Missing task_insts dir: {task_insts_dir}"}
 
-    task_files = sorted(task_insts_dir.glob("*.json"))
+    task_files = sorted(task_insts_dir.glob("*__ig_llm.json"))
     if not task_files:
-        return {"success": False, "error": f"No task files in {task_insts_dir}"}
+        return {
+            "success": False,
+            "error": f"No __ig_llm task files in {task_insts_dir}",
+        }
 
-    print(f"Found {len(task_files)} task files in volume.")
+    print(f"Found {len(task_files)} __ig_llm task files in volume.")
 
     cleaned_tasks = []
     skipped_missing_keys = 0
@@ -92,10 +78,8 @@ def upload_from_volume_remote(
         print(f"[{repo_id}] Processing {len(tasks)} tasks...")
 
         for task in tasks:
-            task = _attach_issue_statement(task, issue_gen_dir, repo_id)
+            task = _normalize_task(task)
             if all(k in task for k in REQUIRED_KEYS):
-                if "problem_statement" not in task:
-                    task["problem_statement"] = ""
                 cleaned_tasks.append(task)
             else:
                 skipped_missing_keys += 1
