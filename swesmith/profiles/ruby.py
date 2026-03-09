@@ -65,8 +65,10 @@ def parse_log_ruby_test(log: str) -> dict[str, str]:
                 test_name = parts[0].rsplit(" = ", 1)[0].strip()
                 if status_char == ".":
                     test_status_map[test_name] = TestStatus.PASSED.value
-                elif status_char in ("F", "E"):
+                elif status_char == "F":
                     test_status_map[test_name] = TestStatus.FAILED.value
+                elif status_char == "E":
+                    test_status_map[test_name] = TestStatus.ERROR.value
             continue
         # test-unit: class header line like "TestClassName:"
         if stripped.endswith(":") and stripped[0].isupper() and " " not in stripped:
@@ -82,8 +84,10 @@ def parse_log_ruby_test(log: str) -> dict[str, str]:
                 status_char = match.group(2)
                 if status_char == ".":
                     test_status_map[test_name] = TestStatus.PASSED.value
-                elif status_char in ("F", "E"):
+                elif status_char == "F":
                     test_status_map[test_name] = TestStatus.FAILED.value
+                elif status_char == "E":
+                    test_status_map[test_name] = TestStatus.ERROR.value
     return test_status_map
 
 

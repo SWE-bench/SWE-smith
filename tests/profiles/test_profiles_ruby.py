@@ -29,7 +29,7 @@ TestBar#test_works = 0.00 s = .
 def test_parse_log_ruby_test_minitest_error():
     log = "TestFoo#test_boom = 0.01 s = E\n"
     result = parse_log_ruby_test(log)
-    assert result["TestFoo#test_boom"] == "FAILED"
+    assert result["TestFoo#test_boom"] == "ERROR"
 
 
 def test_parse_log_ruby_test_test_unit_verbose():
@@ -52,7 +52,7 @@ Finished in 4.715342625 seconds.
     assert result["TestArLocale#test_ar_app_methods"] == "PASSED"
     assert result["TestChileRut#test_check_digit"] == "PASSED"
     assert result["TestChileRut#test_full_rut"] == "FAILED"
-    assert result["TestChileRut#test_rut_length"] == "FAILED"
+    assert result["TestChileRut#test_rut_length"] == "ERROR"
 
 
 def test_parse_log_rspec_json_passes_and_failures():
