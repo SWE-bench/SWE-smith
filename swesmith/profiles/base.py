@@ -23,8 +23,8 @@ from docker.models.containers import Container
 from dotenv import load_dotenv
 from functools import cached_property
 from ghapi.all import GhApi
-from multiprocessing import Lock
 from pathlib import Path
+from threading import Lock as ThreadLock
 
 # Note: swesmith.bug_gen.adapters is imported lazily in extract_entities() to avoid
 # loading tree-sitter dependencies when only using Registry/get_valid_report
@@ -117,11 +117,12 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
     # Affects valid.py
     min_pregold: bool = False
 
-    # The lock is to prevent concurrent clones of the same repository.
-    # In this repo, all subclasses of RepoProfile are meant to be Singletons (only one instance
-    # of the class will ever be created). If this changes for some reason in the future,
-    # this design may have to be updated.
-    _lock: Lock = field(default_factory=Lock, init=False, repr=False, compare=False)
+    # Per-profile lock to prevent concurrent clone/cache initialization races.
+    # We intentionally use threading.Lock (not multiprocessing.Lock) to avoid
+    # allocating OS semaphores for every registered profile instance.
+    _lock: object = field(
+        default_factory=ThreadLock, init=False, repr=False, compare=False
+    )
 
     # GitHub API instance (lazily initialized)
     _api: GhApi | None = field(default=None, init=False, repr=False, compare=False)
@@ -438,6 +439,7 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
         self,
         dirs_exclude: list[str] = [],
         dirs_include: list[str] = [],
+        files_exclude: list[str] = [],
         exclude_tests: bool = True,
         max_entities: int = -1,
     ) -> list[CodeEntity]:
@@ -469,6 +471,11 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
                     continue
 
                 file_path = os.path.join(root, file)
+                rel_file_path = "/" + os.path.relpath(file_path, dir_path).replace(
+                    os.sep, "/"
+                )
+                if files_exclude and rel_file_path in files_exclude:
+                    continue
 
                 try:
                     open(file_path, "r", encoding="utf-8").close()

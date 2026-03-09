@@ -170,6 +170,7 @@ def main():
         test_cmd = config['test_cmd']
         output_path = Path(config['output_path'])
         baseline_path = Path(config['baseline_path'])
+        baseline_text = config.get('baseline_text')
         report_path = Path(config['report_path'])
         instance = config['instance']
         
@@ -206,6 +207,12 @@ def main():
             "error": None,
             "exit_code": exit_code
         }
+
+        # Fall back to the inline pregold baseline if the mounted volume path
+        # is not visible inside this sandbox yet.
+        if not baseline_path.exists() and baseline_text is not None:
+            baseline_path.parent.mkdir(parents=True, exist_ok=True)
+            baseline_path.write_text(baseline_text, encoding='utf-8')
 
         # Check baseline and validate
         if baseline_path.exists():
@@ -392,7 +399,7 @@ async def prebuild_validator_images_async(
                     sb = await modal.Sandbox.create.aio(
                         app=app, image=image, timeout=300
                     )
-                    process = await sb.exec.aio("echo", "warmup_ok")
+                    process = await sb.exec.aio("echo", "warmup_ok", text=False)
                     output = await process.stdout.read.aio()
                     await sb.terminate.aio()
                     print(f"  ✓ Built: {img_name}")
@@ -854,7 +861,9 @@ async def run_validation_in_sandbox(
 
             # Execute the script
             _log("exec_script", "starting bash /tmp/run.sh")
-            process = await sb.exec.aio("bash", "/tmp/run.sh")
+            # Read raw bytes from Modal so repo/build output with non-UTF-8 bytes
+            # doesn't fail inside the SDK before we can decode it defensively here.
+            process = await sb.exec.aio("bash", "/tmp/run.sh", text=False)
             _log("exec_script", "process started")
 
             _log("read_stdout", "reading...")
@@ -1209,7 +1218,10 @@ def build_repos_with_patches(all_patches: list) -> dict:
 
 
 async def run_pregold_phase_async(
-    repos_with_patches: dict, max_concurrent: int, env_name: str
+    repos_with_patches: dict,
+    max_concurrent: int,
+    env_name: str,
+    baseline_timeout: int = PREGOLD_TIMEOUT,
 ) -> set[str]:
     """Run all pre-gold (baseline) tests asynchronously. Returns set of repos with 0 passing tests (to skip)."""
     import tempfile
@@ -1304,7 +1316,7 @@ async def run_pregold_phase_async(
             test_cmd=task["profile"].test_cmd,
             workdir=task["workdir"],
             patch=None,
-            timeout=PREGOLD_TIMEOUT,
+            timeout=baseline_timeout,
         )
         return (task, result)
 
@@ -1405,7 +1417,11 @@ async def run_pregold_phase_async(
 
 
 async def run_postgold_phase_async(
-    all_patches: list, max_concurrent: int, env_name: str
+    all_patches: list,
+    max_concurrent: int,
+    env_name: str,
+    baseline_texts: dict[str, str] | None = None,
+    validation_timeout_override: int | None = None,
 ) -> list[dict]:
     """
     Run all post-gold tests using asyncio for efficient concurrent I/O.
@@ -1496,8 +1512,15 @@ async def run_postgold_phase_async(
             "output_path": f"/logs/{lang}/run_validation/{repo_id}/{instance_id}/test_output.txt",
             "baseline_path": f"/logs/{lang}/run_validation/{repo_id}/{repo_id}.ref/test_output.txt",
             "report_path": f"/logs/{lang}/run_validation/{repo_id}/{instance_id}/report.json",
+            "baseline_text": (baseline_texts or {}).get(repo_id),
             "instance": serializable_patch,
         }
+
+        timeout = (
+            validation_timeout_override
+            if validation_timeout_override is not None
+            else task["profile"].timeout
+        )
 
         result = await run_validation_in_sandbox(
             semaphore=semaphore,
@@ -1507,7 +1530,7 @@ async def run_postgold_phase_async(
             test_cmd=task["profile"].test_cmd,
             workdir=task["workdir"],
             patch=task["patch"],
-            timeout=task["profile"].timeout,
+            timeout=timeout,
             postgold_config=postgold_config,
         )
 
@@ -1561,7 +1584,10 @@ async def run_postgold_phase_async(
 
 
 async def run_validation_phase_async(
-    all_patches: list, max_concurrent: int, env_name: str
+    all_patches: list,
+    max_concurrent: int,
+    env_name: str,
+    validation_timeout_override: int | None = None,
 ) -> list[dict]:
     """Run complete validation (pre-gold + post-gold). Existing baselines are skipped automatically."""
     if not all_patches:
@@ -1597,8 +1623,26 @@ async def run_validation_phase_async(
     await prebuild_validator_images_async(repos_with_patches)
 
     failed_repos = await run_pregold_phase_async(
-        repos_with_patches, max_concurrent, env_name
+        repos_with_patches,
+        max_concurrent,
+        env_name,
+        baseline_timeout=(
+            validation_timeout_override
+            if validation_timeout_override is not None
+            else PREGOLD_TIMEOUT
+        ),
     )
+
+    lang = all_patches[0]["_language"] if all_patches else ""
+    baseline_texts = {}
+    for repo, info in repos_with_patches.items():
+        if repo in failed_repos:
+            continue
+        baseline_text = await volume_read_text(
+            f"{lang}/run_validation/{info['repo_id']}/{info['repo_id']}.ref/test_output.txt"
+        )
+        if baseline_text:
+            baseline_texts[info["repo_id"]] = baseline_text
 
     # Filter out patches from repos with broken baselines
     if failed_repos:
@@ -1608,7 +1652,13 @@ async def run_validation_phase_async(
             f"Filtered out {original_count - len(all_patches)} patches from {len(failed_repos)} repos with broken baselines"
         )
 
-    return await run_postgold_phase_async(all_patches, max_concurrent, env_name)
+    return await run_postgold_phase_async(
+        all_patches,
+        max_concurrent,
+        env_name,
+        baseline_texts=baseline_texts,
+        validation_timeout_override=validation_timeout_override,
+    )
 
 
 def print_summary(results: list[dict], repos_count: int):
@@ -2055,7 +2105,9 @@ async def run_issue_gen_phase_async(
 # ============================================================================
 
 
-async def show_volume_stats(language: str) -> None:
+async def show_volume_stats(
+    language: str, repo_filters: list[str] | None = None
+) -> None:
     """Display a bug breakdown by reading validation results from the Modal Volume.
 
     Similar to count_bugs_to_file.py but reads from Modal Volume instead of local files.
@@ -2066,6 +2118,40 @@ async def show_volume_stats(language: str) -> None:
     repo_stats: dict[str, dict[str, int]] = {}
     modifier_stats: dict[str, dict[str, int]] = {}  # Track stats by modifier
     semaphore = asyncio.Semaphore(100)  # Limit concurrent reads
+    selected_repo_ids: set[str] = set()
+    selected_repo_prefixes: set[str] = set()
+
+    if repo_filters:
+        for repo_filter in repo_filters:
+            repo_filter = repo_filter.strip()
+            if not repo_filter:
+                continue
+
+            if "__" in repo_filter and "." in repo_filter:
+                selected_repo_ids.add(repo_filter)
+                continue
+
+            if "__" in repo_filter and "." not in repo_filter:
+                selected_repo_prefixes.add(f"{repo_filter}.")
+                continue
+
+            if "/" in repo_filter:
+                try:
+                    selected_repo_ids.add(resolve_profile(repo_filter).repo_name)
+                except Exception:
+                    selected_repo_prefixes.add(f"{repo_filter.replace('/', '__')}.")
+                continue
+
+            selected_repo_prefixes.add(repo_filter)
+
+        print(f"Filtering stats to {len(repo_filters)} repo selector(s)")
+
+    def repo_matches(repo_id: str) -> bool:
+        if not selected_repo_ids and not selected_repo_prefixes:
+            return True
+        if repo_id in selected_repo_ids:
+            return True
+        return any(repo_id.startswith(prefix) for prefix in selected_repo_prefixes)
 
     def extract_modifier(instance_id: str) -> str:
         """Extract modifier name from instance_id (format: repo_id.modifier__hash).
@@ -2092,7 +2178,13 @@ async def show_volume_stats(language: str) -> None:
     bug_gen_dir = f"{language}/bug_gen"
     try:
         entries = await logs_volume.listdir.aio(bug_gen_dir)
-        patch_files = [e for e in entries if e.path.endswith("_all_patches.json")]
+        patch_files = []
+        for entry in entries:
+            if not entry.path.endswith("_all_patches.json"):
+                continue
+            repo_id = entry.path.split("/")[-1].replace("_all_patches.json", "")
+            if repo_matches(repo_id):
+                patch_files.append(entry)
 
         async def read_patches(entry) -> tuple[str, int, list[dict]]:
             async with semaphore:
@@ -2135,6 +2227,11 @@ async def show_volume_stats(language: str) -> None:
     run_validation_dir = f"{language}/run_validation"
     try:
         repo_entries = await logs_volume.listdir.aio(run_validation_dir)
+        repo_entries_filtered = []
+        for entry in repo_entries:
+            repo_id = entry.path.split("/")[-1]
+            if repo_matches(repo_id):
+                repo_entries_filtered.append(entry)
 
         # First, collect all report.json paths to read (with instance_id for modifier extraction)
         all_report_paths: list[
@@ -2161,7 +2258,6 @@ async def show_volume_stats(language: str) -> None:
                 return paths
 
         # Gather all report paths in parallel
-        repo_entries_filtered = [e for e in repo_entries if not e.path.endswith("/")]
         path_results = await asyncio.gather(
             *[list_repo_instances(e) for e in repo_entries_filtered]
         )
@@ -2394,9 +2490,14 @@ async def main(
         issue_gen_config: Path to issue generation config (default: configs/issue_gen/ig_v2.yaml)
         issue_gen_workers: Number of workers per repo for issue generation (default: 4)
     """
+    from swesmith.constants import ENV_NAME
+
+    # Parse repos (comma-separated string to list)
+    repo_list = [r.strip() for r in repos.split(",") if r.strip()] if repos else []
+
     # Handle --show-stats early exit
     if show_stats:
-        await show_volume_stats(language)
+        await show_volume_stats(language, repo_list)
         return
 
     # Parse and validate phases
@@ -2411,11 +2512,6 @@ async def main(
         return
 
     print(f"Running phases: {', '.join(sorted(active_phases))}")
-
-    from swesmith.constants import ENV_NAME
-
-    # Parse repos (comma-separated string to list)
-    repo_list = [r.strip() for r in repos.split(",") if r.strip()] if repos else []
 
     # Determine repos
     if repo_list:
@@ -2463,8 +2559,14 @@ async def main(
         all_patches = await collect_patches_from_files(target_repos, language)
         print(f"Total: {len(all_patches)} patches\n")
 
+        # For C++, force a longer validation timeout to reduce infra kills.
+        validation_timeout_override = 900 if language.lower() == "cpp" else None
+
         results = await run_validation_phase_async(
-            all_patches, max_concurrent_tests, ENV_NAME
+            all_patches,
+            max_concurrent_tests,
+            ENV_NAME,
+            validation_timeout_override=validation_timeout_override,
         )
 
         if results:

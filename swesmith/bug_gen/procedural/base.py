@@ -108,6 +108,21 @@ class CommonPMs(Enum):
         explanation="The constants in an expression might be incorrect.",
         conditions=[CodeProperty.IS_FUNCTION, CodeProperty.HAS_BINARY_OP],
     )
+    OPERATION_INC_DEC_FLIP = CommonPMProp(
+        name="func_pm_inc_dec_flip",
+        explanation="The increment/decrement operation in the code is likely incorrect.",
+        conditions=[CodeProperty.IS_FUNCTION, CodeProperty.HAS_UNARY_OP],
+    )
+    OPERATION_COMPOUND_ASSIGN_SWAP = CommonPMProp(
+        name="func_pm_aug_assign_swap",
+        explanation="The compound assignment operator in the code is likely incorrect.",
+        conditions=[CodeProperty.IS_FUNCTION, CodeProperty.HAS_ASSIGNMENT],
+    )
+    OPERATION_BOOL_LITERAL_FLIP = CommonPMProp(
+        name="func_pm_bool_negate",
+        explanation="A boolean literal has likely been flipped.",
+        conditions=[CodeProperty.IS_FUNCTION],
+    )
     REMOVE_LOOP = CommonPMProp(
         name="func_pm_remove_loop",
         explanation="There is one or more missing loops that is causing the bug.",
@@ -122,6 +137,11 @@ class CommonPMs(Enum):
         name="func_pm_remove_assign",
         explanation="There is likely a missing assignment in the code.",
         conditions=[CodeProperty.IS_FUNCTION, CodeProperty.HAS_ASSIGNMENT],
+    )
+    CONTROL_BREAK_CONTINUE_SWAP = CommonPMProp(
+        name="func_pm_loop_break_continue_swap",
+        explanation="A break/continue statement may be swapped in loop control flow.",
+        conditions=[CodeProperty.IS_FUNCTION, CodeProperty.HAS_LOOP],
     )
 
     def __init__(self, name, explanation, conditions):

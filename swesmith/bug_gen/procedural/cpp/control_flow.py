@@ -188,3 +188,65 @@ class ControlShuffleLinesModifier(CppProceduralModifier):
                 candidates.append(node)
         for child in node.children:
             self._find_blocks(child, candidates)
+
+
+class ControlBreakContinueSwapModifier(CppProceduralModifier):
+    """Swap break/continue statements inside loops."""
+
+    explanation: str = CommonPMs.CONTROL_BREAK_CONTINUE_SWAP.explanation
+    name: str = CommonPMs.CONTROL_BREAK_CONTINUE_SWAP.name
+    conditions: list = CommonPMs.CONTROL_BREAK_CONTINUE_SWAP.conditions
+
+    def modify(self, code_entity: CodeEntity) -> BugRewrite | None:
+        if not self.flip():
+            return None
+
+        parser = Parser(CPP_LANGUAGE)
+        tree = parser.parse(bytes(code_entity.src_code, "utf8"))
+        modified_code = self._swap_break_continue(code_entity.src_code, tree.root_node)
+
+        if modified_code == code_entity.src_code:
+            return None
+
+        return BugRewrite(
+            rewrite=modified_code,
+            explanation=self.explanation,
+            strategy=self.name,
+        )
+
+    def _swap_break_continue(self, code: str, node) -> str:
+        candidates = []
+        self._find_loop_control_statements(node, candidates)
+
+        if not candidates:
+            return code
+
+        target = self.rand.choice(candidates)
+        statement = code[target.start_byte : target.end_byte]
+
+        replacement = "continue;" if target.type == "break_statement" else "break;"
+        if statement.endswith("\n"):
+            replacement += "\n"
+        return code[: target.start_byte] + replacement + code[target.end_byte :]
+
+    def _find_loop_control_statements(self, node, candidates):
+        if node.type in ["break_statement", "continue_statement"] and self._inside_loop(
+            node
+        ):
+            candidates.append(node)
+        for child in node.children:
+            self._find_loop_control_statements(child, candidates)
+
+    def _inside_loop(self, node) -> bool:
+        loop_types = [
+            "for_statement",
+            "for_range_loop",
+            "while_statement",
+            "do_statement",
+        ]
+        parent = node.parent
+        while parent:
+            if parent.type in loop_types:
+                return True
+            parent = parent.parent
+        return False

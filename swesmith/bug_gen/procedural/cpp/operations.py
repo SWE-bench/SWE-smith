@@ -50,6 +50,17 @@ LOGICAL_OPS = {"&&", "||"}
 BITWISE_OPS = {"&", "|", "^", "<<", ">>"}
 SUPPORTED_BINARY_OPERATORS = ARITHMETIC_OPS | COMPARISON_OPS | LOGICAL_OPS | BITWISE_OPS
 
+COMPOUND_ASSIGNMENT_SWAPS = {
+    "+=": "-=",
+    "-=": "+=",
+    "*=": "/=",
+    "/=": "*=",
+    "&=": "|=",
+    "|=": "&=",
+    "<<=": ">>=",
+    ">>=": "<<=",
+}
+
 
 class OperationChangeModifier(CppProceduralModifier):
     """Randomly change operations in C++ code."""
@@ -321,6 +332,142 @@ class OperationChangeConstantsModifier(CppProceduralModifier):
             candidates.append(node)
         for child in node.children:
             self._find_numeric_literals(child, candidates)
+
+
+class OperationIncDecFlipModifier(CppProceduralModifier):
+    """Flip increment/decrement operators (++ <-> --)."""
+
+    explanation: str = CommonPMs.OPERATION_INC_DEC_FLIP.explanation
+    name: str = CommonPMs.OPERATION_INC_DEC_FLIP.name
+    conditions: list = CommonPMs.OPERATION_INC_DEC_FLIP.conditions
+
+    def modify(self, code_entity: CodeEntity) -> BugRewrite | None:
+        if not self.flip():
+            return None
+
+        parser = Parser(CPP_LANGUAGE)
+        tree = parser.parse(bytes(code_entity.src_code, "utf8"))
+        modified_code = self._flip_inc_dec(code_entity.src_code, tree.root_node)
+
+        if modified_code == code_entity.src_code:
+            return None
+
+        return BugRewrite(
+            rewrite=modified_code,
+            explanation=self.explanation,
+            strategy=self.name,
+        )
+
+    def _flip_inc_dec(self, code: str, node) -> str:
+        candidates = []
+        self._find_update_operators(node, candidates)
+
+        if not candidates:
+            return code
+
+        target = self.rand.choice(candidates)
+        op_text = code[target.start_byte : target.end_byte]
+        replacement = "--" if op_text == "++" else "++"
+
+        return code[: target.start_byte] + replacement + code[target.end_byte :]
+
+    def _find_update_operators(self, node, candidates):
+        if node.type == "update_expression":
+            for child in node.children:
+                if child.type in ["++", "--"]:
+                    candidates.append(child)
+        for child in node.children:
+            self._find_update_operators(child, candidates)
+
+
+class OperationCompoundAssignSwapModifier(CppProceduralModifier):
+    """Swap compound assignment operators (e.g., += <-> -=)."""
+
+    explanation: str = CommonPMs.OPERATION_COMPOUND_ASSIGN_SWAP.explanation
+    name: str = CommonPMs.OPERATION_COMPOUND_ASSIGN_SWAP.name
+    conditions: list = CommonPMs.OPERATION_COMPOUND_ASSIGN_SWAP.conditions
+
+    def modify(self, code_entity: CodeEntity) -> BugRewrite | None:
+        if not self.flip():
+            return None
+
+        parser = Parser(CPP_LANGUAGE)
+        tree = parser.parse(bytes(code_entity.src_code, "utf8"))
+        modified_code = self._swap_compound_assign(code_entity.src_code, tree.root_node)
+
+        if modified_code == code_entity.src_code:
+            return None
+
+        return BugRewrite(
+            rewrite=modified_code,
+            explanation=self.explanation,
+            strategy=self.name,
+        )
+
+    def _swap_compound_assign(self, code: str, node) -> str:
+        candidates = []
+        self._find_compound_assignment_operators(node, candidates)
+
+        if not candidates:
+            return code
+
+        target = self.rand.choice(candidates)
+        op_text = code[target.start_byte : target.end_byte]
+        replacement = COMPOUND_ASSIGNMENT_SWAPS[op_text]
+
+        return code[: target.start_byte] + replacement + code[target.end_byte :]
+
+    def _find_compound_assignment_operators(self, node, candidates):
+        if node.type == "assignment_expression":
+            for child in node.children:
+                if child.type in COMPOUND_ASSIGNMENT_SWAPS:
+                    candidates.append(child)
+        for child in node.children:
+            self._find_compound_assignment_operators(child, candidates)
+
+
+class OperationBoolLiteralFlipModifier(CppProceduralModifier):
+    """Flip boolean literals (true <-> false)."""
+
+    explanation: str = CommonPMs.OPERATION_BOOL_LITERAL_FLIP.explanation
+    name: str = CommonPMs.OPERATION_BOOL_LITERAL_FLIP.name
+    conditions: list = CommonPMs.OPERATION_BOOL_LITERAL_FLIP.conditions
+
+    def modify(self, code_entity: CodeEntity) -> BugRewrite | None:
+        if not self.flip():
+            return None
+
+        parser = Parser(CPP_LANGUAGE)
+        tree = parser.parse(bytes(code_entity.src_code, "utf8"))
+        modified_code = self._flip_bool_literals(code_entity.src_code, tree.root_node)
+
+        if modified_code == code_entity.src_code:
+            return None
+
+        return BugRewrite(
+            rewrite=modified_code,
+            explanation=self.explanation,
+            strategy=self.name,
+        )
+
+    def _flip_bool_literals(self, code: str, node) -> str:
+        candidates = []
+        self._find_bool_literals(node, candidates)
+
+        if not candidates:
+            return code
+
+        target = self.rand.choice(candidates)
+        literal = code[target.start_byte : target.end_byte]
+        replacement = "false" if literal == "true" else "true"
+
+        return code[: target.start_byte] + replacement + code[target.end_byte :]
+
+    def _find_bool_literals(self, node, candidates):
+        if node.type in ["true", "false"]:
+            candidates.append(node)
+        for child in node.children:
+            self._find_bool_literals(child, candidates)
 
 
 class OperationBreakChainsModifier(CppProceduralModifier):

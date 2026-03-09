@@ -1,8 +1,12 @@
 import pytest
 from swesmith.bug_gen.adapters.cpp import get_entities_from_file_cpp
 from swesmith.bug_gen.procedural.cpp.operations import (
+    COMPOUND_ASSIGNMENT_SWAPS,
+    OperationBoolLiteralFlipModifier,
     OperationChangeModifier,
+    OperationCompoundAssignSwapModifier,
     OperationFlipOperatorModifier,
+    OperationIncDecFlipModifier,
     OperationSwapOperandsModifier,
     OperationBreakChainsModifier,
     OperationChangeConstantsModifier,
@@ -418,3 +422,208 @@ def test_operation_change_constants_modifier_float(tmp_path):
     # The float constant should be transformed (the exact value depends on the random seed)
     # We just verify the code was modified - the modifier applies transformations like *10, +100, etc.
     assert "return" in result.rewrite, f"Expected return statement: {result.rewrite}"
+
+
+@pytest.mark.parametrize(
+    "src,expected",
+    [
+        (
+            """void foo() {
+    int i = 0;
+    ++i;
+}""",
+            """void foo() {
+    int i = 0;
+    --i;
+}""",
+        ),
+        (
+            """void bar() {
+    int i = 0;
+    i--;
+}""",
+            """void bar() {
+    int i = 0;
+    i++;
+}""",
+        ),
+    ],
+)
+def test_operation_inc_dec_flip_modifier(tmp_path, src, expected):
+    """Test that OperationIncDecFlipModifier flips ++ and -- operators."""
+    test_file = tmp_path / "test.cpp"
+    test_file.write_text(src, encoding="utf-8")
+
+    entities = []
+    get_entities_from_file_cpp(entities, str(test_file))
+    assert len(entities) == 1
+
+    modifier = OperationIncDecFlipModifier(likelihood=1.0, seed=42)
+    result = modifier.modify(entities[0])
+
+    assert result is not None
+    assert result.rewrite.strip() == expected.strip(), (
+        f"Expected {expected}, got {result.rewrite}"
+    )
+
+
+def test_operation_inc_dec_flip_modifier_no_update_expression(tmp_path):
+    """Test that OperationIncDecFlipModifier returns None without ++/-- operators."""
+    src = """void foo() {
+    int i = 0;
+    i += 1;
+}"""
+    test_file = tmp_path / "test.cpp"
+    test_file.write_text(src, encoding="utf-8")
+
+    entities = []
+    get_entities_from_file_cpp(entities, str(test_file))
+    assert len(entities) == 1
+
+    modifier = OperationIncDecFlipModifier(likelihood=1.0, seed=42)
+    result = modifier.modify(entities[0])
+
+    assert result is None
+
+
+@pytest.mark.parametrize(
+    "src,expected",
+    [
+        (
+            """void foo() {
+    int x = 1;
+    x += 3;
+}""",
+            """void foo() {
+    int x = 1;
+    x -= 3;
+}""",
+        ),
+        (
+            """void bar() {
+    int x = 12;
+    x <<= 1;
+}""",
+            """void bar() {
+    int x = 12;
+    x >>= 1;
+}""",
+        ),
+        (
+            """void baz() {
+    int x = 12;
+    x &= 7;
+}""",
+            """void baz() {
+    int x = 12;
+    x |= 7;
+}""",
+        ),
+    ],
+)
+def test_operation_compound_assign_swap_modifier(tmp_path, src, expected):
+    """Test that OperationCompoundAssignSwapModifier swaps compound assignment operators."""
+    test_file = tmp_path / "test.cpp"
+    test_file.write_text(src, encoding="utf-8")
+
+    entities = []
+    get_entities_from_file_cpp(entities, str(test_file))
+    assert len(entities) == 1
+
+    modifier = OperationCompoundAssignSwapModifier(likelihood=1.0, seed=42)
+    result = modifier.modify(entities[0])
+
+    assert result is not None
+    assert result.rewrite.strip() == expected.strip(), (
+        f"Expected {expected}, got {result.rewrite}"
+    )
+
+
+def test_operation_compound_assign_swap_mappings():
+    """Test that compound assignment swap mappings are defined as expected."""
+    assert COMPOUND_ASSIGNMENT_SWAPS["+="] == "-="
+    assert COMPOUND_ASSIGNMENT_SWAPS["-="] == "+="
+    assert COMPOUND_ASSIGNMENT_SWAPS["*="] == "/="
+    assert COMPOUND_ASSIGNMENT_SWAPS["/="] == "*="
+    assert COMPOUND_ASSIGNMENT_SWAPS["&="] == "|="
+    assert COMPOUND_ASSIGNMENT_SWAPS["|="] == "&="
+    assert COMPOUND_ASSIGNMENT_SWAPS["<<="] == ">>="
+    assert COMPOUND_ASSIGNMENT_SWAPS[">>="] == "<<="
+
+
+def test_operation_compound_assign_swap_modifier_no_compound_assignment(tmp_path):
+    """Test that OperationCompoundAssignSwapModifier returns None without compound assignments."""
+    src = """void foo() {
+    int x = 1;
+    x = x + 1;
+}"""
+    test_file = tmp_path / "test.cpp"
+    test_file.write_text(src, encoding="utf-8")
+
+    entities = []
+    get_entities_from_file_cpp(entities, str(test_file))
+    assert len(entities) == 1
+
+    modifier = OperationCompoundAssignSwapModifier(likelihood=1.0, seed=42)
+    result = modifier.modify(entities[0])
+
+    assert result is None
+
+
+@pytest.mark.parametrize(
+    "src,expected",
+    [
+        (
+            """bool foo() {
+    return true;
+}""",
+            """bool foo() {
+    return false;
+}""",
+        ),
+        (
+            """bool bar() {
+    bool ok = false;
+    return ok;
+}""",
+            """bool bar() {
+    bool ok = true;
+    return ok;
+}""",
+        ),
+    ],
+)
+def test_operation_bool_literal_flip_modifier(tmp_path, src, expected):
+    """Test that OperationBoolLiteralFlipModifier flips true/false literals."""
+    test_file = tmp_path / "test.cpp"
+    test_file.write_text(src, encoding="utf-8")
+
+    entities = []
+    get_entities_from_file_cpp(entities, str(test_file))
+    assert len(entities) == 1
+
+    modifier = OperationBoolLiteralFlipModifier(likelihood=1.0, seed=42)
+    result = modifier.modify(entities[0])
+
+    assert result is not None
+    assert result.rewrite.strip() == expected.strip(), (
+        f"Expected {expected}, got {result.rewrite}"
+    )
+
+
+def test_operation_bool_literal_flip_modifier_no_bool_literals(tmp_path):
+    """Test that OperationBoolLiteralFlipModifier returns None when no bool literals are present."""
+    src = """int foo() {
+    return 42;
+}"""
+    test_file = tmp_path / "test.cpp"
+    test_file.write_text(src, encoding="utf-8")
+
+    entities = []
+    get_entities_from_file_cpp(entities, str(test_file))
+    assert len(entities) == 1
+
+    modifier = OperationBoolLiteralFlipModifier(likelihood=1.0, seed=42)
+    result = modifier.modify(entities[0])
+
+    assert result is None
