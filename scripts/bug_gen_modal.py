@@ -1934,7 +1934,6 @@ def issue_gen_remote(
         workers: Number of workers per repo
     """
     import os
-    import sys
     from pathlib import Path
 
     # Set up paths
