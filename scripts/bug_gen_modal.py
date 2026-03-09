@@ -1710,7 +1710,6 @@ def gather_remote(
 ) -> dict:
     """Run gather.py for a repository to create task instances and push branches."""
     import os
-    import sys
     import subprocess
     import traceback
     from pathlib import Path
@@ -2055,7 +2054,7 @@ async def run_issue_gen_phase_async(
         issue_gen_redo: Whether to regenerate existing issues
     """
     print(f"\n{'=' * 80}")
-    print(f"ISSUE GENERATION PHASE")
+    print("ISSUE GENERATION PHASE")
     print(f"{'=' * 80}")
     print(f"Processing {len(repos)} repositories...")
     print(f"Config: {issue_gen_config}")

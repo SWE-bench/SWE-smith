@@ -11,7 +11,7 @@ It only:
 import os
 
 import modal
-from datasets import Dataset, DatasetDict, load_dataset
+from datasets import DatasetDict, load_dataset
 from huggingface_hub import create_repo
 
 app = modal.App("swesmith-overwrite-hf")
