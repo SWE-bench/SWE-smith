@@ -397,7 +397,7 @@ async def prebuild_validator_images_async(
                     sb = await modal.Sandbox.create.aio(
                         app=app, image=image, timeout=300
                     )
-                    process = await sb.exec.aio("echo", "warmup_ok")
+                    process = await sb.exec.aio("echo", "warmup_ok", text=False)
                     output = await process.stdout.read.aio()
                     await sb.terminate.aio()
                     print(f"  ✓ Built: {img_name}")
@@ -856,7 +856,9 @@ async def run_validation_in_sandbox(
 
             # Execute the script
             _log("exec_script", "starting bash /tmp/run.sh")
-            process = await sb.exec.aio("bash", "/tmp/run.sh")
+            # Read raw bytes from Modal so repo/build output with non-UTF-8 bytes
+            # doesn't fail inside the SDK before we can decode it defensively here.
+            process = await sb.exec.aio("bash", "/tmp/run.sh", text=False)
             _log("exec_script", "process started")
 
             _log("read_stdout", "reading...")
