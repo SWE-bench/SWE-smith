@@ -75,7 +75,9 @@ def redo_issue_gen_remote(
     issue_count = 0
     if ig_file.exists():
         data = json.loads(ig_file.read_text())
-        issue_count = sum(1 for row in data if (row.get("problem_statement") or "").strip())
+        issue_count = sum(
+            1 for row in data if (row.get("problem_statement") or "").strip()
+        )
 
     return {
         "success": True,
