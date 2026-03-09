@@ -371,7 +371,10 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
                 'git config user.email "swesmith@anon.com"',
                 "rm -rf .github/workflows",
                 "rm -rf .github/dependabot.y*",
+                "mv .gitignore .gitignore.bak 2>/dev/null; true",  # <-- temporarily hide .gitignore
                 "git add .",
+                "mv .gitignore.bak .gitignore 2>/dev/null; true",  # <-- restore it
+                "git add -f .gitignore 2>/dev/null; true",  # <-- force-add .gitignore itself
                 "git commit --no-gpg-sign -m 'Initial commit'",
                 "git branch -M main",
                 f"git remote add origin git@github.com:{self.mirror_name}.git",

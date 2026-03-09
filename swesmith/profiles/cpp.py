@@ -1,8 +1,8 @@
 import re
 from dataclasses import dataclass, field
 from swebench.harness.constants import TestStatus
-from swesmith.constants import ENV_NAME
 from swesmith.profiles.base import RepoProfile, registry
+from swesmith.constants import ENV_NAME
 
 
 DEFAULT_CPP_BUG_GEN_DIRS_EXCLUDE = [
@@ -20,221 +20,6 @@ DEFAULT_CPP_BUG_GEN_DIRS_EXCLUDE = [
     "/tools",
 ]
 
-
-# Coverage-derived file excludes for Dracob91aa918 bug generation.
-DRACO_B91AA918_BUG_GEN_FILES_EXCLUDE = [
-    "/src/draco/animation/animation.cc",
-    "/src/draco/animation/animation.h",
-    "/src/draco/animation/keyframe_animation_encoder.h",
-    "/src/draco/animation/node_animation_data.h",
-    "/src/draco/animation/skin.cc",
-    "/src/draco/animation/skin.h",
-    "/src/draco/attributes/attribute_transform_type.h",
-    "/src/draco/attributes/geometry_indices.h",
-    "/src/draco/compression/attributes/kd_tree_attributes_decoder.h",
-    "/src/draco/compression/attributes/kd_tree_attributes_encoder.h",
-    "/src/draco/compression/attributes/kd_tree_attributes_shared.h",
-    "/src/draco/compression/attributes/prediction_schemes/mesh_prediction_scheme_constrained_multi_parallelogram_decoder.h",
-    "/src/draco/compression/attributes/prediction_schemes/mesh_prediction_scheme_constrained_multi_parallelogram_shared.h",
-    "/src/draco/compression/attributes/prediction_schemes/mesh_prediction_scheme_multi_parallelogram_decoder.h",
-    "/src/draco/compression/attributes/prediction_schemes/mesh_prediction_scheme_multi_parallelogram_encoder.h",
-    "/src/draco/compression/attributes/prediction_schemes/mesh_prediction_scheme_tex_coords_decoder.h",
-    "/src/draco/compression/attributes/prediction_schemes/mesh_prediction_scheme_tex_coords_encoder.h",
-    "/src/draco/compression/attributes/prediction_schemes/prediction_scheme_decoder_interface.h",
-    "/src/draco/compression/attributes/prediction_schemes/prediction_scheme_decoding_transform.h",
-    "/src/draco/compression/attributes/prediction_schemes/prediction_scheme_encoder_interface.h",
-    "/src/draco/compression/attributes/prediction_schemes/prediction_scheme_encoding_transform.h",
-    "/src/draco/compression/attributes/prediction_schemes/prediction_scheme_normal_octahedron_decoding_transform.h",
-    "/src/draco/compression/attributes/sequential_quantization_attribute_decoder.h",
-    "/src/draco/compression/bit_coders/adaptive_rans_bit_coding_shared.h",
-    "/src/draco/compression/bit_coders/adaptive_rans_bit_decoder.cc",
-    "/src/draco/compression/bit_coders/adaptive_rans_bit_decoder.h",
-    "/src/draco/compression/bit_coders/adaptive_rans_bit_encoder.cc",
-    "/src/draco/compression/bit_coders/adaptive_rans_bit_encoder.h",
-    "/src/draco/compression/bit_coders/rans_bit_encoder.h",
-    "/src/draco/compression/bit_coders/symbol_bit_decoder.cc",
-    "/src/draco/compression/bit_coders/symbol_bit_decoder.h",
-    "/src/draco/compression/bit_coders/symbol_bit_encoder.cc",
-    "/src/draco/compression/bit_coders/symbol_bit_encoder.h",
-    "/src/draco/compression/config/compression_shared.h",
-    "/src/draco/compression/config/decoder_options.h",
-    "/src/draco/compression/config/encoding_features.h",
-    "/src/draco/compression/decode.h",
-    "/src/draco/compression/draco_compression_options.cc",
-    "/src/draco/compression/draco_compression_options.h",
-    "/src/draco/compression/entropy/symbol_decoding.h",
-    "/src/draco/compression/entropy/symbol_encoding.h",
-    "/src/draco/compression/expert_encode.h",
-    "/src/draco/compression/mesh/mesh_edgebreaker_traversal_predictive_decoder.h",
-    "/src/draco/compression/mesh/mesh_edgebreaker_traversal_predictive_encoder.h",
-    "/src/draco/compression/mesh/mesh_edgebreaker_traversal_valence_decoder.h",
-    "/src/draco/compression/mesh/mesh_edgebreaker_traversal_valence_encoder.h",
-    "/src/draco/compression/mesh/mesh_sequential_decoder.h",
-    "/src/draco/compression/point_cloud/algorithms/dynamic_integer_points_kd_tree_decoder.cc",
-    "/src/draco/compression/point_cloud/algorithms/dynamic_integer_points_kd_tree_encoder.cc",
-    "/src/draco/compression/point_cloud/algorithms/float_points_tree_decoder.cc",
-    "/src/draco/compression/point_cloud/algorithms/float_points_tree_decoder.h",
-    "/src/draco/compression/point_cloud/algorithms/float_points_tree_encoder.cc",
-    "/src/draco/compression/point_cloud/algorithms/float_points_tree_encoder.h",
-    "/src/draco/compression/point_cloud/algorithms/integer_points_kd_tree_decoder.cc",
-    "/src/draco/compression/point_cloud/algorithms/integer_points_kd_tree_decoder.h",
-    "/src/draco/compression/point_cloud/algorithms/integer_points_kd_tree_encoder.cc",
-    "/src/draco/compression/point_cloud/algorithms/integer_points_kd_tree_encoder.h",
-    "/src/draco/compression/point_cloud/algorithms/point_cloud_compression_method.h",
-    "/src/draco/compression/point_cloud/algorithms/point_cloud_types.h",
-    "/src/draco/compression/point_cloud/algorithms/quantize_points_3.h",
-    "/src/draco/compression/point_cloud/algorithms/queuing_policy.h",
-    "/src/draco/compression/point_cloud/point_cloud_kd_tree_decoder.h",
-    "/src/draco/compression/point_cloud/point_cloud_sequential_decoder.h",
-    "/src/draco/core/bounding_box.cc",
-    "/src/draco/core/bounding_box.h",
-    "/src/draco/core/constants.h",
-    "/src/draco/core/cycle_timer.cc",
-    "/src/draco/core/cycle_timer.h",
-    "/src/draco/core/divide.cc",
-    "/src/draco/core/draco_test_base.h",
-    "/src/draco/core/draco_types.h",
-    "/src/draco/core/draco_version.h",
-    "/src/draco/core/macros.h",
-    "/src/draco/io/file_reader_factory.h",
-    "/src/draco/io/file_reader_test_common.h",
-    "/src/draco/io/file_utils.h",
-    "/src/draco/io/file_writer_factory.h",
-    "/src/draco/io/file_writer_utils.h",
-    "/src/draco/io/gltf_decoder.cc",
-    "/src/draco/io/gltf_decoder.h",
-    "/src/draco/io/gltf_encoder.cc",
-    "/src/draco/io/gltf_encoder.h",
-    "/src/draco/io/gltf_test_helper.cc",
-    "/src/draco/io/gltf_test_helper.h",
-    "/src/draco/io/gltf_utils.cc",
-    "/src/draco/io/gltf_utils.h",
-    "/src/draco/io/image_compression_options.h",
-    "/src/draco/io/parser_utils.h",
-    "/src/draco/io/ply_encoder.cc",
-    "/src/draco/io/ply_encoder.h",
-    "/src/draco/io/scene_io.cc",
-    "/src/draco/io/scene_io.h",
-    "/src/draco/io/stl_decoder.h",
-    "/src/draco/io/texture_io.cc",
-    "/src/draco/io/texture_io.h",
-    "/src/draco/io/tiny_gltf_utils.cc",
-    "/src/draco/io/tiny_gltf_utils.h",
-    "/src/draco/javascript/emscripten/decoder_webidl_wrapper.cc",
-    "/src/draco/javascript/emscripten/decoder_webidl_wrapper.h",
-    "/src/draco/javascript/emscripten/draco_decoder_glue_wrapper.cc",
-    "/src/draco/javascript/emscripten/draco_encoder_glue_wrapper.cc",
-    "/src/draco/javascript/emscripten/encoder_webidl_wrapper.cc",
-    "/src/draco/javascript/emscripten/encoder_webidl_wrapper.h",
-    "/src/draco/material/material.cc",
-    "/src/draco/material/material.h",
-    "/src/draco/material/material_library.cc",
-    "/src/draco/material/material_library.h",
-    "/src/draco/material/material_utils.cc",
-    "/src/draco/material/material_utils.h",
-    "/src/draco/maya/draco_maya_plugin.cc",
-    "/src/draco/maya/draco_maya_plugin.h",
-    "/src/draco/mesh/mesh_features.cc",
-    "/src/draco/mesh/mesh_features.h",
-    "/src/draco/mesh/mesh_indices.h",
-    "/src/draco/mesh/mesh_misc_functions.h",
-    "/src/draco/mesh/mesh_splitter.cc",
-    "/src/draco/mesh/mesh_splitter.h",
-    "/src/draco/mesh/mesh_stripifier.cc",
-    "/src/draco/mesh/mesh_stripifier.h",
-    "/src/draco/mesh/mesh_utils.cc",
-    "/src/draco/mesh/mesh_utils.h",
-    "/src/draco/mesh/triangle_soup_mesh_builder.h",
-    "/src/draco/metadata/metadata_decoder.h",
-    "/src/draco/metadata/property_attribute.cc",
-    "/src/draco/metadata/property_attribute.h",
-    "/src/draco/metadata/property_table.cc",
-    "/src/draco/metadata/property_table.h",
-    "/src/draco/metadata/structural_metadata.cc",
-    "/src/draco/metadata/structural_metadata.h",
-    "/src/draco/metadata/structural_metadata_schema.cc",
-    "/src/draco/metadata/structural_metadata_schema.h",
-    "/src/draco/point_cloud/point_cloud_builder.h",
-    "/src/draco/scene/instance_array.cc",
-    "/src/draco/scene/instance_array.h",
-    "/src/draco/scene/light.cc",
-    "/src/draco/scene/light.h",
-    "/src/draco/scene/mesh_group.h",
-    "/src/draco/scene/scene.cc",
-    "/src/draco/scene/scene.h",
-    "/src/draco/scene/scene_are_equivalent.cc",
-    "/src/draco/scene/scene_are_equivalent.h",
-    "/src/draco/scene/scene_indices.h",
-    "/src/draco/scene/scene_node.h",
-    "/src/draco/scene/scene_utils.cc",
-    "/src/draco/scene/scene_utils.h",
-    "/src/draco/scene/trs_matrix.cc",
-    "/src/draco/scene/trs_matrix.h",
-    "/src/draco/texture/source_image.cc",
-    "/src/draco/texture/source_image.h",
-    "/src/draco/texture/texture.h",
-    "/src/draco/texture/texture_library.cc",
-    "/src/draco/texture/texture_library.h",
-    "/src/draco/texture/texture_map.cc",
-    "/src/draco/texture/texture_map.h",
-    "/src/draco/texture/texture_transform.cc",
-    "/src/draco/texture/texture_transform.h",
-    "/src/draco/texture/texture_utils.cc",
-    "/src/draco/texture/texture_utils.h",
-    "/src/draco/tools/draco_decoder.cc",
-    "/src/draco/tools/draco_encoder.cc",
-    "/src/draco/tools/draco_transcoder.cc",
-    "/src/draco/tools/draco_transcoder_lib.cc",
-    "/src/draco/tools/draco_transcoder_lib.h",
-    "/src/draco/tools/fuzz/draco_mesh_decoder_fuzzer.cc",
-    "/src/draco/tools/fuzz/draco_mesh_decoder_without_dequantization_fuzzer.cc",
-    "/src/draco/tools/fuzz/draco_pc_decoder_fuzzer.cc",
-    "/src/draco/tools/fuzz/draco_pc_decoder_without_dequantization_fuzzer.cc",
-    "/src/draco/tools/install_test/main.cc",
-    "/src/draco/unity/draco_unity_plugin.cc",
-    "/src/draco/unity/draco_unity_plugin.h",
-]
-
-
-TASKFLOW_D8776BC0_BUG_GEN_FILES_EXCLUDE = [
-    "/taskflow/algorithm/algorithm.hpp",
-    "/taskflow/algorithm/sort.hpp",
-    "/taskflow/core/atomic_notifier.hpp",
-    "/taskflow/core/declarations.hpp",
-    "/taskflow/core/environment.hpp",
-    "/taskflow/core/error.hpp",
-    "/taskflow/core/observer.hpp",
-    "/taskflow/cuda/algorithm/find.hpp",
-    "/taskflow/cuda/algorithm/for_each.hpp",
-    "/taskflow/cuda/algorithm/matmul.hpp",
-    "/taskflow/cuda/algorithm/merge.hpp",
-    "/taskflow/cuda/algorithm/reduce.hpp",
-    "/taskflow/cuda/algorithm/scan.hpp",
-    "/taskflow/cuda/algorithm/single_task.hpp",
-    "/taskflow/cuda/algorithm/sort.hpp",
-    "/taskflow/cuda/algorithm/transform.hpp",
-    "/taskflow/cuda/algorithm/transpose.hpp",
-    "/taskflow/cuda/cuda_capturer.hpp",
-    "/taskflow/cuda/cuda_device.hpp",
-    "/taskflow/cuda/cuda_error.hpp",
-    "/taskflow/cuda/cuda_execution_policy.hpp",
-    "/taskflow/cuda/cuda_graph.hpp",
-    "/taskflow/cuda/cuda_graph_exec.hpp",
-    "/taskflow/cuda/cuda_memory.hpp",
-    "/taskflow/cuda/cuda_meta.hpp",
-    "/taskflow/cuda/cuda_optimizer.hpp",
-    "/taskflow/cuda/cuda_stream.hpp",
-    "/taskflow/cuda/cudaflow.hpp",
-    "/taskflow/taskflow.hpp",
-    "/taskflow/utility/lazy_string.hpp",
-    "/taskflow/utility/macros.hpp",
-    "/taskflow/utility/mpmc.hpp",
-    "/taskflow/utility/object_pool.hpp",
-    "/taskflow/utility/os.hpp",
-    "/taskflow/utility/serializer.hpp",
-    "/taskflow/utility/stream.hpp",
-    "/taskflow/utility/uuid.hpp",
-]
 
 def parse_log_lit(log: str) -> dict[str, str]:
     """Parse LLVM lit test runner output.
@@ -357,43 +142,6 @@ def parse_log_jakttest(log: str) -> dict[str, str]:
         n_passed = int(passed_m.group(1))
         for i in range(n_passed):
             results[f"jakt_pass_{i + 1}"] = TestStatus.PASSED.value
-    return results
-
-
-def parse_log_luanti(log: str) -> dict[str, str]:
-    """Parse Luanti's custom unit test runner output.
-
-    The runner prints per-module sections:
-      ======== Testing module TestSocket
-      [PASS] testIPv4Socket - 52ms
-      [FAIL] testIPv6Socket - 0ms
-
-    Test names are not globally unique, so we key them as Module::Test.
-    """
-    results: dict[str, str] = {}
-    clean = re.sub(r"\x1b\[[0-9;]*m", "", log)
-    current_module: str | None = None
-
-    for line in clean.split("\n"):
-        stripped = line.strip()
-        module_match = re.match(r"^======== Testing module (.+)$", stripped)
-        if module_match:
-            current_module = module_match.group(1).strip()
-            continue
-
-        status_match = re.match(r"^\[(PASS|FAIL|SKIP)\]\s+(\S+)\s+-", stripped)
-        if status_match:
-            status, test_name = status_match.groups()
-            key = (
-                f"{current_module}::{test_name}" if current_module else test_name
-            )
-            if status == "PASS":
-                results[key] = TestStatus.PASSED.value
-            elif status == "SKIP":
-                results[key] = TestStatus.SKIPPED.value
-            else:
-                results[key] = TestStatus.FAILED.value
-
     return results
 
 
@@ -679,27 +427,20 @@ class CppProfile(RepoProfile):
     bug_gen_dirs_exclude: list[str] = field(
         default_factory=lambda: list(DEFAULT_CPP_BUG_GEN_DIRS_EXCLUDE)
     )
-    # Optionally exclude specific files (relative path from repo root, with leading "/").
-    bug_gen_files_exclude: list[str] = field(default_factory=list)
 
     def extract_entities(
         self,
         dirs_exclude: list[str] | None = None,
         dirs_include: list[str] = [],
-        files_exclude: list[str] | None = None,
         exclude_tests: bool = True,
         max_entities: int = -1,
     ) -> list:
         if dirs_exclude is None:
             dirs_exclude = []
-        if files_exclude is None:
-            files_exclude = []
         merged_excludes = [*dirs_exclude, *self.bug_gen_dirs_exclude]
-        merged_files_exclude = [*files_exclude, *self.bug_gen_files_exclude]
         return super().extract_entities(
             dirs_exclude=merged_excludes,
             dirs_include=dirs_include,
-            files_exclude=merged_files_exclude,
             exclude_tests=exclude_tests,
             max_entities=max_entities,
         )
@@ -1044,7 +785,7 @@ class Waybard527ccd4(CppProfile):
     owner: str = "Alexays"
     repo: str = "Waybar"
     commit: str = "d527ccd4c1f53f4bb161677b451aabb89556f2d5"
-    test_cmd: str = "meson compile -C build && ./build/test/waybar_test --reporter xml && ./build/test/hyprland/hyprland_test --reporter xml"
+    test_cmd: str = "meson test -C build --verbose"
 
     @property
     def dockerfile(self):
@@ -1084,15 +825,14 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN meson setup build -Dtests=enabled -Dman-pages=disabled && \
     meson compile -C build
 
-    CMD ["/bin/bash"]"""
+CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
         return parse_log_catch2(log)
@@ -1103,11 +843,7 @@ class FTXUIf73d92d3(CppProfile):
     owner: str = "ArthurSonzogni"
     repo: str = "FTXUI"
     commit: str = "f73d92d31f5efeccadfb7081edadbc070ef42f73"
-    test_cmd: str = "cd build && cmake --build . -j4 && ./ftxui-tests --gtest_color=no"
-    timeout: int = 500
-    bug_gen_dirs_exclude: list[str] = field(
-        default_factory=lambda: [*DEFAULT_CPP_BUG_GEN_DIRS_EXCLUDE, "/bazel"]
-    )
+    test_cmd: str = "cd build && ./ftxui-tests --gtest_color=no"
 
     @property
     def dockerfile(self):
@@ -1119,10 +855,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && \
     cmake -DFTXUI_BUILD_TESTS=ON .. && \
@@ -1139,23 +874,7 @@ class LibreCAD7a288fff(CppProfile):
     owner: str = "LibreCAD"
     repo: str = "LibreCAD"
     commit: str = "7a288ffff76215dea36c3bc4794765ccb85d1a06"
-    test_cmd: str = "cd build && cmake --build . -j4 && ./librecad_tests"
-    timeout: int = 500
-    bug_gen_dirs_exclude: list[str] = field(
-        default_factory=lambda: [
-            *DEFAULT_CPP_BUG_GEN_DIRS_EXCLUDE,
-            "/CI",
-            "/ChangeLogs",
-            "/desktop",
-            "/externals",
-            "/libraries",
-            "/licenses",
-            "/plugins",
-            "/librecad/src/actions",
-            "/librecad/src/main",
-            "/librecad/src/ui",
-        ]
-    )
+    test_cmd: str = "cd build && ./librecad_tests"
 
     @property
     def dockerfile(self):
@@ -1182,19 +901,18 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && \
     cmake -DBUILD_TESTS=ON .. && \
     make -j$(nproc)
 
-    CMD ["/bin/bash"]"""
+CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
-        return parse_log_ctest(log)
+        return parse_log_catch2(log)
 
 
 @dataclass
@@ -1236,10 +954,9 @@ RUN apt-get update && apt-get install -y \
     pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN sed -i 's/cmake_minimum_required(VERSION 4.1)/cmake_minimum_required(VERSION 3.25)/' CMakeLists.txt
 
@@ -1261,7 +978,7 @@ class Magicenumc1aa6de9(CppProfile):
     owner: str = "Neargye"
     repo: str = "magic_enum"
     commit: str = "c1aa6de965960250f4ab762e97e67e6290395dc7"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -1273,10 +990,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && \
     cmake -DMAGIC_ENUM_OPT_BUILD_TESTS=ON -DMAGIC_ENUM_OPT_BUILD_EXAMPLES=OFF .. && \
@@ -1293,7 +1009,7 @@ class OpenRCT2f228d738(CppProfile):
     owner: str = "OpenRCT2"
     repo: str = "OpenRCT2"
     commit: str = "f228d738155b06f13156af70ec6560db97b1b2cb"
-    test_cmd: str = "cd build && cmake --build . -j4 && ./openrct2-cli scan-objects && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ./openrct2-cli scan-objects && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -1328,10 +1044,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && \
     cmake -G Ninja \
@@ -1357,18 +1072,7 @@ class OpenTTDae80a47c(CppProfile):
     owner: str = "OpenTTD"
     repo: str = "OpenTTD"
     commit: str = "ae80a47c7db48e543d9a9ebc682df1a889661d2a"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure"
-    bug_gen_dirs_exclude: list[str] = field(
-        default_factory=lambda: [
-            *DEFAULT_CPP_BUG_GEN_DIRS_EXCLUDE,
-            "/src/3rdparty",
-            "/src/ai",
-            "/src/music",
-            "/src/newgrf",
-            "/src/os",
-            "/src/video",
-        ]
-    )
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure"
 
     @property
     def dockerfile(self):
@@ -1394,10 +1098,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && \
     cmake -DOPTION_DEDICATED=ON -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Release .. && \
@@ -1414,7 +1117,7 @@ class Qv2rayd5c5aeb3(CppProfile):
     owner: str = "Qv2ray"
     repo: str = "Qv2ray"
     commit: str = "d5c5aeb366e2fbe9c9243648af36b0d11da14920"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -1441,10 +1144,9 @@ RUN apt-get update && apt-get install -y \
     libssl-dev \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && \
     cmake -GNinja \
@@ -1465,7 +1167,7 @@ class Rapidjson24b5e7a8(CppProfile):
     owner: str = "Tencent"
     repo: str = "rapidjson"
     commit: str = "24b5e7a8b27f42fa16b96fc70aade9106cf7102f"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -1473,10 +1175,9 @@ class Rapidjson24b5e7a8(CppProfile):
 
 RUN apt-get update && apt-get install -y git cmake build-essential && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && \
     cmake -DRAPIDJSON_BUILD_TESTS=ON -DRAPIDJSON_BUILD_EXAMPLES=OFF -DRAPIDJSON_BUILD_THIRDPARTY_GTEST=ON .. && \
@@ -1493,7 +1194,7 @@ class WasmEdgecb41f751(CppProfile):
     owner: str = "WasmEdge"
     repo: str = "WasmEdge"
     commit: str = "cb41f751daac037b61ebf9df3bb3fcbcf625edb4"
-    test_cmd: str = 'export LD_LIBRARY_PATH="/app/build/lib/api:$LD_LIBRARY_PATH" && cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1'
+    test_cmd: str = 'export LD_LIBRARY_PATH="/app/build/lib/api:$LD_LIBRARY_PATH" && cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1'
 
     @property
     def dockerfile(self):
@@ -1527,10 +1228,9 @@ ENV CC=/usr/bin/clang-15
 ENV CXX=/usr/bin/clang++-15
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && \
     cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DWASMEDGE_BUILD_TESTS=ON .. && \
@@ -1547,7 +1247,7 @@ class ImHexf4768420(CppProfile):
     owner: str = "WerWolv"
     repo: str = "ImHex"
     commit: str = "f4768420087f27fc9f40a41b028529b2f0efd6e3"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure"
 
     @property
     def dockerfile(self):
@@ -1584,10 +1284,9 @@ RUN apt-get update && apt-get install -y \
     libmd4c-html0-dev \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 # Explicitly build unit_tests target to ensure test binaries are produced
 RUN mkdir build && cd build && \
@@ -1611,7 +1310,7 @@ class Albert897c7797(CppProfile):
     owner: str = "albertlauncher"
     repo: str = "albert"
     commit: str = "897c77979d55fdfaba23babddc91fbe841ee7a3e"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -1645,10 +1344,9 @@ RUN export DEBIAN_FRONTEND=noninteractive \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN cmake -B build -DBUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Release
 RUN cmake --build build -j$(nproc)
@@ -1664,7 +1362,7 @@ class Brpcd22fa17f(CppProfile):
     owner: str = "apache"
     repo: str = "brpc"
     commit: str = "d22fa17f09514ed42e7b15e0a439827dc8310a8e"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -1697,10 +1395,9 @@ RUN cd /usr/src/googletest/googletest && \
     cp lib/libgtest* /usr/lib/
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && \
     cmake -DBUILD_UNIT_TESTS=ON .. && \
@@ -1717,7 +1414,7 @@ class Aria2b4fd7cb1(CppProfile):
     owner: str = "aria2"
     repo: str = "aria2"
     commit: str = "b4fd7cb1ca03e38ad9d7ab9308b8200cb1d41c25"
-    test_cmd: str = "cd build && make -j$(nproc) && cd ../test && ./aria2c"
+    test_cmd: str = "cd test && ./aria2c"
 
     @property
     def dockerfile(self):
@@ -1746,10 +1443,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN autoreconf -i && \
     ./configure && \
@@ -1789,7 +1485,7 @@ class Btopabcb906c(CppProfile):
     owner: str = "aristocratos"
     repo: str = "btop"
     commit: str = "abcb906c951d1e79ccc1c03d219f55d2e5c52655"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -1802,10 +1498,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && cmake -DBUILD_TESTING=ON .. && make -j$(nproc)
 
@@ -1820,7 +1515,7 @@ class Libtorrentf0f8a352(CppProfile):
     owner: str = "arvidn"
     repo: str = "libtorrent"
     commit: str = "f0f8a352cc9eb1bb8936f0b985d20867580c6463"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1 -j$(nproc)"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1 -j$(nproc)"
 
     @property
     def dockerfile(self):
@@ -1842,10 +1537,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && \
     cmake -DCMAKE_BUILD_TYPE=Release \
@@ -1867,7 +1561,7 @@ class Asepriteda0d3228(CppProfile):
     owner: str = "aseprite"
     repo: str = "aseprite"
     commit: str = "da0d3228599580ec4bc447bab303751a51c09d9a"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -1889,10 +1583,9 @@ RUN apt-get update && apt-get install -y \
     clang \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && \
     cmake -G Ninja \
@@ -1912,7 +1605,7 @@ class Retdec8be53bbd(CppProfile):
     owner: str = "avast"
     repo: str = "retdec"
     commit: str = "8be53bbd3d2cd0f550c0e98d3b31d9ee1366f304"
-    test_cmd: str = 'cd build && cmake --build . -j4 && cd /app && find build/tests -name "retdec-tests-*" -type f -executable -exec {} --gtest_color=no \\;'
+    test_cmd: str = 'find build/tests -name "retdec-tests-*" -type f -executable -exec {} --gtest_color=no \\;'
 
     @property
     def dockerfile(self):
@@ -1935,10 +1628,9 @@ RUN apt-get update && apt-get install -y \
     libtool \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && \
     cmake .. -DCMAKE_INSTALL_PREFIX=/{ENV_NAME}/install -DRETDEC_TESTS=ON -DRETDEC_ENABLE_ALL=ON && \
@@ -1951,56 +1643,54 @@ CMD ["/bin/bash"]"""
         return parse_log_gtest(log)
 
 
-@dataclass
-class Azahar37e688f8(CppProfile):
-    owner: str = "azahar-emu"
-    repo: str = "azahar"
-    commit: str = "37e688f82d42917a8d232b8e9b49ecee814846b4"
-    test_cmd: str = "cd build && cmake --build . -j4 && cd /app && find . -name tests -type f -executable -exec {} \\;"
+# @dataclass
+# class Azahar37e688f8(CppProfile):
+#     owner: str = "azahar-emu"
+#     repo: str = "azahar"
+#     commit: str = "37e688f82d42917a8d232b8e9b49ecee814846b4"
+#     test_cmd: str = "find . -name tests -type f -executable -exec {} \\;"
 
-    @property
-    def dockerfile(self):
-        return f"""FROM ubuntu:24.04
+#     @property
+#     def dockerfile(self):
+#         return f"""FROM ubuntu:24.04
 
-ENV DEBIAN_FRONTEND=noninteractive
+# ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    cmake \
-    git \
-    pkg-config \
-    libsdl2-dev \
-    libusb-1.0-0-dev \
-    qt6-base-dev \
-    qt6-multimedia-dev \
-    libssl-dev \
-    && rm -rf /var/lib/apt/lists/*
+# RUN apt-get update && apt-get install -y \
+#     build-essential \
+#     cmake \
+#     git \
+#     pkg-config \
+#     libsdl2-dev \
+#     libusb-1.0-0-dev \
+#     qt6-base-dev \
+#     qt6-multimedia-dev \
+#     libssl-dev \
+#     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+# RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+# WORKDIR /{ENV_NAME}
+# RUN git submodule update --init --recursive
 
-RUN sed -i '1i #include <memory>' src/video_core/shader/shader_jit_a64_compiler.h
+# RUN sed -i '1i #include <memory>' src/video_core/shader/shader_jit_a64_compiler.h
 
-RUN mkdir build && cd build && \
-    cmake .. \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DENABLE_QT=OFF \
-    -DENABLE_SDL2=ON \
-    -DENABLE_VULKAN=ON \
-    -DENABLE_TESTS=ON \
-    -DBUILD_TESTING=OFF \
-    -DCITRA_USE_BUNDLED_BOOST=ON \
-    -DCITRA_USE_PRECOMPILED_HEADERS=OFF && \
-    make -j$(nproc) tests
+# RUN mkdir build && cd build && \
+#     cmake .. \
+#     -DCMAKE_BUILD_TYPE=Release \
+#     -DENABLE_QT=OFF \
+#     -DENABLE_SDL2=ON \
+#     -DENABLE_VULKAN=ON \
+#     -DENABLE_TESTS=ON \
+#     -DBUILD_TESTING=OFF \
+#     -DCITRA_USE_BUNDLED_BOOST=ON \
+#     -DCITRA_USE_PRECOMPILED_HEADERS=OFF && \
+#     make -j$(nproc) tests
 
-CMD ["/bin/bash"]"""
+# CMD ["/bin/bash"]"""
 
-    def log_parser(self, log: str) -> dict[str, str]:
-        """Parse Catch2 test output."""
-        return parse_log_catch2(log)
+#     def log_parser(self, log: str) -> dict[str, str]:
+#         return parse_log_catch2(log)
 
 
 @dataclass
@@ -2008,7 +1698,7 @@ class Azerothcorewotlk3ffbbe98(CppProfile):
     owner: str = "azerothcore"
     repo: str = "azerothcore-wotlk"
     commit: str = "3ffbbe981f9a94377b6e13761da45fdd405448d9"
-    test_cmd: str = "cd build && cmake --build . -j4 && ./src/test/unit_tests --gtest_color=no"
+    test_cmd: str = "cd build && ./src/test/unit_tests --gtest_color=no"
 
     @property
     def dockerfile(self):
@@ -2031,10 +1721,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && \
     cmake .. \
@@ -2053,11 +1742,7 @@ class ArduinoJsonaa7fbd6c(CppProfile):
     owner: str = "bblanchon"
     repo: str = "ArduinoJson"
     commit: str = "aa7fbd6c8be280121cf57044ef986da7353ffd67"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
-    timeout: int = 500
-    bug_gen_dirs_exclude: list[str] = field(
-        default_factory=lambda: [*DEFAULT_CPP_BUG_GEN_DIRS_EXCLUDE, "/extras"]
-    )
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -2065,10 +1750,9 @@ class ArduinoJsonaa7fbd6c(CppProfile):
 
 RUN apt-get update && apt-get install -y git cmake && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && cmake -DBUILD_TESTING=ON .. && make -j$(nproc)
 
@@ -2083,7 +1767,7 @@ class Conky4f829244(CppProfile):
     owner: str = "brndnmtthws"
     repo: str = "conky"
     commit: str = "4f8292449ae8c1a0a6138f2bfe2ebc5368221633"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -2121,11 +1805,10 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git fetch --all --tags
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && \
     cmake -DBUILD_TESTING=ON \
@@ -2146,19 +1829,7 @@ class Cuberite7fd3fa5c(CppProfile):
     owner: str = "cuberite"
     repo: str = "cuberite"
     commit: str = "7fd3fa5c9345a3f1b949c0988c4849db00a68486"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
-    timeout: int = 500
-    bug_gen_dirs_exclude: list[str] = field(
-        default_factory=lambda: [
-            *DEFAULT_CPP_BUG_GEN_DIRS_EXCLUDE,
-            "/CMake",
-            "/Server",
-            "/Tools",
-            "/android",
-            "/dev-docs",
-            "/lib",
-        ]
-    )
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -2174,10 +1845,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && \
     cmake -DSELF_TEST=ON -DNO_NATIVE_OPTIMIZATION=ON -DCMAKE_BUILD_TYPE=Release .. && \
@@ -2194,26 +1864,7 @@ class Cppcheck67606e6e(CppProfile):
     owner: str = "danmar"
     repo: str = "cppcheck"
     commit: str = "67606e6ee50aaefa3ba6c312c644b8b962d7d9da"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
-    timeout: int = 500
-    bug_gen_dirs_exclude: list[str] = field(
-        default_factory=lambda: [
-            *DEFAULT_CPP_BUG_GEN_DIRS_EXCLUDE,
-            "/addons",
-            "/cfg",
-            "/democlient",
-            "/externals",
-            "/gui",
-            "/htmlreport",
-            "/oss-fuzz",
-            "/platforms",
-            "/rules",
-            "/samples",
-            "/snap",
-            "/valgrind",
-            "/win_installer",
-        ]
-    )
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -2231,10 +1882,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && \
     cmake -DBUILD_TESTS=ON -DREGISTER_TESTS=ON .. && \
@@ -2251,7 +1901,7 @@ class DevilutionXafdaa2ac(CppProfile):
     owner: str = "diasurgical"
     repo: str = "DevilutionX"
     commit: str = "afdaa2ac5e8e92830e8dac5be1976ea42ae67434"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -2279,10 +1929,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 # Explicitly disable LTO and Benchmarks to avoid system library version mismatches
 RUN mkdir build && cd build && \
@@ -2305,8 +1954,7 @@ class Doctest1da23a3e(CppProfile):
     owner: str = "doctest"
     repo: str = "doctest"
     commit: str = "1da23a3e8119ec5cce4f9388e91b065e20bf06f5"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
-    timeout: int = 500
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -2318,10 +1966,9 @@ RUN apt-get update && apt-get install -y \
     git \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && \
     cmake -DDOCTEST_WITH_TESTS=ON -DDOCTEST_WITH_EXAMPLES=ON .. && \
@@ -2338,7 +1985,7 @@ class Doxygencbd8c4bc(CppProfile):
     owner: str = "doxygen"
     repo: str = "doxygen"
     commit: str = "cbd8c4bcf0ebb58651fefbfbf9142a92e0a26a2f"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure"
 
     @property
     def dockerfile(self):
@@ -2356,10 +2003,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && cmake -DBUILD_TESTING=ON .. && make -j$(nproc)
 
@@ -2374,7 +2020,7 @@ class Dragonfly14103bde(CppProfile):
     owner: str = "dragonflydb"
     repo: str = "dragonfly"
     commit: str = "14103bde242967fa55dea98d08391640c12cd4db"
-    test_cmd: str = "cd build-opt && cmake --build . -j4 && ctest --verbose --output-on-failure"
+    test_cmd: str = "cd build-opt && ctest --verbose --output-on-failure"
 
     @property
     def dockerfile(self):
@@ -2399,10 +2045,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN ./helio/blaze.sh -release -DWITH_AWS=OFF -DWITH_GCP=OFF -DWITH_TIERING=OFF -DWITH_SEARCH=OFF
 
@@ -2419,19 +2064,7 @@ class Drogon34955222(CppProfile):
     owner: str = "drogonframework"
     repo: str = "drogon"
     commit: str = "3495522200664bfef150257157c30aa076188a79"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
-    timeout: int = 500
-    bug_gen_dirs_exclude: list[str] = field(
-        default_factory=lambda: [
-            *DEFAULT_CPP_BUG_GEN_DIRS_EXCLUDE,
-            "/cmake_modules",
-            "/docker",
-            "/drogon_ctl",
-            "/nosql_lib",
-            "/orm_lib",
-            "/third_party",
-        ]
-    )
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -2462,10 +2095,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && \
     cmake -DBUILD_TESTING=ON -DCMAKE_BUILD_TYPE=Release .. && \
@@ -2482,7 +2114,7 @@ class Duckdbcb9e7c21(CppProfile):
     owner: str = "duckdb"
     repo: str = "duckdb"
     commit: str = "cb9e7c2193963670f358682fb369c17ead60e90c"
-    test_cmd: str = 'cd build && cmake --build . -j4 && ./test/unittest "[common]" -s'
+    test_cmd: str = './build/test/unittest "[common]" -s'
 
     @property
     def dockerfile(self):
@@ -2499,10 +2131,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 # Build DuckDB unit tests without autoloading to avoid network dependency in tests
 RUN mkdir build && cd build && cmake -G Ninja -DENABLE_EXTENSION_AUTOLOADING=0 -DENABLE_EXTENSION_AUTOINSTALL=0 .. && ninja unittest
@@ -2518,7 +2149,7 @@ class Endlesskyf1dba50f(CppProfile):
     owner: str = "endless-sky"
     repo: str = "endless-sky"
     commit: str = "f1dba50fe4cd22bd5ed51dc601203c9f62cd9164"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -2530,11 +2161,10 @@ RUN apt-get update && apt-get install -y     git     build-essential     cmake  
 
 RUN git clone --branch v3.4.0 https://github.com/catchorg/Catch2.git /tmp/catch2 &&     cd /tmp/catch2 &&     mkdir build && cd build &&     cmake .. -DBUILD_TESTING=OFF &&     make -j$(nproc) &&     make install &&     rm -rf /tmp/catch2
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git fetch --all --tags
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && cmake -DES_USE_SYSTEM_LIBRARIES=ON -DBUILD_TESTING=ON .. && make -j$(nproc)
 
@@ -2549,15 +2179,7 @@ class Falco43aaffc4(CppProfile):
     owner: str = "falcosecurity"
     repo: str = "falco"
     commit: str = "43aaffc4e05a62f6f29d719a1dee51a5ccc3856d"
-    test_cmd: str = "cd build && cmake --build . -j4 && ./unit_tests/falco_unit_tests"
-    timeout: int = 500
-    bug_gen_dirs_exclude: list[str] = field(
-        default_factory=lambda: [
-            *DEFAULT_CPP_BUG_GEN_DIRS_EXCLUDE,
-            "/submodules",
-            "/unit_tests",
-        ]
-    )
+    test_cmd: str = "cd build && ./unit_tests/falco_unit_tests"
 
     @property
     def dockerfile(self):
@@ -2580,10 +2202,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 # We enable unit tests and use bundled deps to make it more self-contained
 RUN mkdir build && cd build && \
@@ -2606,7 +2227,7 @@ class Spdlog472945ba(CppProfile):
     owner: str = "gabime"
     repo: str = "spdlog"
     commit: str = "472945ba489e3f5684761affc431ae532ab5ed8c"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -2614,10 +2235,9 @@ class Spdlog472945ba(CppProfile):
 
 RUN apt-get update && apt-get install -y cmake git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && cmake -DSPDLOG_BUILD_TESTS=ON .. && make -j$(nproc)
 
@@ -2632,7 +2252,7 @@ class Ggwave3b877d07(CppProfile):
     owner: str = "ggerganov"
     repo: str = "ggwave"
     commit: str = "3b877d07b102d8242a3fa9f333bddde464848f1b"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -2644,11 +2264,10 @@ RUN apt-get update && apt-get install -y \
     git \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git fetch --all --tags
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && cmake -DGGWAVE_BUILD_TESTS=ON -DGGWAVE_BUILD_EXAMPLES=OFF .. && make
 
@@ -2663,11 +2282,7 @@ class Benchmarkeed8f5c6(CppProfile):
     owner: str = "google"
     repo: str = "benchmark"
     commit: str = "eed8f5c682ed70d596b2b07c68b1588ecab3b24a"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
-    timeout: int = 500
-    bug_gen_dirs_exclude: list[str] = field(
-        default_factory=lambda: [*DEFAULT_CPP_BUG_GEN_DIRS_EXCLUDE, "/bazel", "/bindings"]
-    )
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -2681,10 +2296,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && \
     cmake -DBENCHMARK_DOWNLOAD_DEPENDENCIES=ON \
@@ -2704,7 +2318,7 @@ class Bloatya277a440(CppProfile):
     owner: str = "google"
     repo: str = "bloaty"
     commit: str = "a277a440f906729cd69894ca8ceb9b7144eb7f42"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -2720,10 +2334,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && \
     cmake -DBUILD_TESTING=ON .. && \
@@ -2740,21 +2353,7 @@ class Dracob91aa918(CppProfile):
     owner: str = "google"
     repo: str = "draco"
     commit: str = "b91aa9181a753e70d005fdb0cdcde06acddf68fa"
-    # Rebuild is required so source-level patches are reflected in test execution.
-    test_cmd: str = "cd build && make -j$(nproc) && ./draco_tests --gtest_color=no"
-    timeout: int = 500
-    bug_gen_dirs_exclude: list[str] = field(
-        default_factory=lambda: [
-            *DEFAULT_CPP_BUG_GEN_DIRS_EXCLUDE,
-            "/third_party",
-            "/javascript",
-            "/maya",
-            "/unity",
-        ]
-    )
-    bug_gen_files_exclude: list[str] = field(
-        default_factory=lambda: list(DRACO_B91AA918_BUG_GEN_FILES_EXCLUDE)
-    )
+    test_cmd: str = "./build/draco_tests --gtest_color=no"
 
     @property
     def dockerfile(self):
@@ -2766,10 +2365,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && \
     cmake -DDRACO_TESTS=ON .. && \
@@ -2786,11 +2384,7 @@ class Glog53d58e45(CppProfile):
     owner: str = "google"
     repo: str = "glog"
     commit: str = "53d58e4531c7c90f71ddab503d915e027432447a"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
-    timeout: int = 500
-    bug_gen_dirs_exclude: list[str] = field(
-        default_factory=lambda: [*DEFAULT_CPP_BUG_GEN_DIRS_EXCLUDE, "/.bazelci", "/bazel"]
-    )
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -2803,10 +2397,9 @@ RUN apt-get update && apt-get install -y \
     libgflags-dev \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && \
     cmake -DBUILD_TESTING=ON -DBUILD_SHARED_LIBS=ON .. && \
@@ -2823,11 +2416,7 @@ class Googletest5a9c3f9e(CppProfile):
     owner: str = "google"
     repo: str = "googletest"
     commit: str = "5a9c3f9e8d9b90bbbe8feb32902146cb8f7c1757"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
-    timeout: int = 500
-    bug_gen_dirs_exclude: list[str] = field(
-        default_factory=lambda: [*DEFAULT_CPP_BUG_GEN_DIRS_EXCLUDE, "/ci", "/googlemock"]
-    )
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -2839,10 +2428,9 @@ RUN apt-get update && apt-get install -y \
     git \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && cmake -Dgtest_build_tests=ON .. && make -j$(nproc)
 
@@ -2858,7 +2446,7 @@ class Highway224b014b(CppProfile):
     repo: str = "highway"
     commit: str = "224b014b1e6ebd1b9c1e134ebb5fbce899844c79"
     test_cmd: str = (
-        "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure -j $(nproc) --timeout 300"
+        "cd build && ctest --verbose --output-on-failure -j $(nproc) --timeout 300"
     )
 
     @property
@@ -2871,10 +2459,9 @@ RUN apt-get update && apt-get install -y \
     ninja-build \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 # Use -k 0 to continue building even if some targets fail, 
 # and -j to speed up. Highway has many targets; we build just enough to verify.
@@ -2893,7 +2480,7 @@ class Leveldbac691084(CppProfile):
     owner: str = "google"
     repo: str = "leveldb"
     commit: str = "ac691084fdc5546421a55b25e7653d450e5a25fb"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -2905,10 +2492,9 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && \
     cmake -DCMAKE_BUILD_TYPE=Release -DLEVELDB_BUILD_TESTS=ON -DLEVELDB_BUILD_BENCHMARKS=ON -DCMAKE_CXX_STANDARD=17 .. && \
@@ -2925,7 +2511,7 @@ class Sentencepiece0f4ca43a(CppProfile):
     owner: str = "google"
     repo: str = "sentencepiece"
     commit: str = "0f4ca43a084fac098420afc110d81e2c23cf1dc3"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -2940,10 +2526,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && \
     cmake -DSPM_BUILD_TEST=ON .. && \
@@ -2960,7 +2545,7 @@ class Snappyda459b52(CppProfile):
     owner: str = "google"
     repo: str = "snappy"
     commit: str = "da459b5263676ccf0dc65a3fcf93fb876e09baac"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -2972,10 +2557,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && \
     cmake -DCMAKE_BUILD_TYPE=Release \
@@ -2995,17 +2579,7 @@ class Gperftoolsa4724315(CppProfile):
     owner: str = "gperftools"
     repo: str = "gperftools"
     commit: str = "a47243150ec41097602730ff8779fafcc172d1fb"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
-    timeout: int = 500
-    bug_gen_dirs_exclude: list[str] = field(
-        default_factory=lambda: [
-            *DEFAULT_CPP_BUG_GEN_DIRS_EXCLUDE,
-            "/generic-config",
-            "/m4",
-            "/vendor",
-            "/vsprojects",
-        ]
-    )
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -3024,10 +2598,9 @@ RUN apt-get update && apt-get install -y \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && cmake -DBUILD_TESTING=ON .. && make -j$(nproc)
 
@@ -3072,10 +2645,9 @@ RUN curl -L https://github.com/bazelbuild/bazelisk/releases/download/v1.17.0/baz
     chmod +x /usr/local/bin/bazel
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 # Build core libraries. We use --enable_bzlmod=false as gRPC doesn't fully support it yet.
 # We build a smaller target to ensure it completes within time limits.
@@ -3092,7 +2664,7 @@ class Halidec2a6e34e(CppProfile):
     owner: str = "halide"
     repo: str = "Halide"
     commit: str = "c2a6e34e7f3cff6657de1a85e8bc0e82fd545003"
-    test_cmd: str = 'cd build && cmake --build . -j4 && ctest -R "^_test_internal$" --verbose'
+    test_cmd: str = 'cd build && ctest -R "^_test_internal$" --verbose'
 
     @property
     def dockerfile(self):
@@ -3122,10 +2694,9 @@ RUN wget https://apt.llvm.org/llvm.sh && \
     rm llvm.sh
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 # Use Ninja and limit tests to core functionality
 RUN cmake -G Ninja -S . -B build \
@@ -3149,7 +2720,7 @@ class Inputleap34a34fb2(CppProfile):
     owner: str = "input-leap"
     repo: str = "input-leap"
     commit: str = "34a34fb20b93113a6b26052cb5a54f9be2327775"
-    test_cmd: str = "cd /app/build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd /app/build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -3177,10 +2748,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && cmake -DINPUTLEAP_BUILD_TESTS=ON -DINPUTLEAP_BUILD_GUI=OFF .. && make -j$(nproc)
 
@@ -3195,11 +2765,7 @@ class Yamlcpp2e6383d2(CppProfile):
     owner: str = "jbeder"
     repo: str = "yaml-cpp"
     commit: str = "2e6383d272f676e1ad28ae5c47016045cbaff938"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
-    timeout: int = 500
-    bug_gen_dirs_exclude: list[str] = field(
-        default_factory=lambda: [*DEFAULT_CPP_BUG_GEN_DIRS_EXCLUDE, "/util"]
-    )
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -3215,10 +2781,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && \
     cmake -DYAML_CPP_BUILD_TESTS=ON -DYAML_CPP_BUILD_TOOLS=ON .. && \
@@ -3272,11 +2837,10 @@ RUN apt-get update && apt-get install -y \
     xvfb \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git fetch --all --tags
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && \
     cmake -G Ninja \
@@ -3298,7 +2862,7 @@ class QuantLiba05b6ab3(CppProfile):
     owner: str = "lballabio"
     repo: str = "QuantLib"
     commit: str = "a05b6ab328ca7c01063d8209fcfb9e54a0eecf0b"
-    test_cmd: str = "cd build && cmake --build . -j4 && ./test-suite/quantlib-test-suite --log_level=all --report_level=detailed"
+    test_cmd: str = "cd build/test-suite && ./quantlib-test-suite --log_level=all --report_level=detailed"
 
     @property
     def dockerfile(self):
@@ -3316,10 +2880,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && \
     cmake -DQL_BUILD_TEST_SUITE=ON -DQL_BUILD_EXAMPLES=OFF -DCMAKE_BUILD_TYPE=Release .. && \
@@ -3336,16 +2899,7 @@ class Ledger920059e6(CppProfile):
     owner: str = "ledger"
     repo: str = "ledger"
     commit: str = "920059e6a4a9fbb7ccb9e2cbd6e8a8a06648c113"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
-    timeout: int = 500
-    bug_gen_dirs_exclude: list[str] = field(
-        default_factory=lambda: [
-            *DEFAULT_CPP_BUG_GEN_DIRS_EXCLUDE,
-            "/contrib",
-            "/lib",
-            "/python",
-        ]
-    )
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -3381,10 +2935,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && \
     cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON -DBUILD_TESTS=ON .. && \
@@ -3401,7 +2954,7 @@ class Stablediffusioncppf0f641a1(CppProfile):
     owner: str = "leejet"
     repo: str = "stable-diffusion.cpp"
     commit: str = "f0f641a142705798d5064ffd3808165d75723344"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -3415,10 +2968,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 # Add enable_testing() to the root CMakeLists.txt to allow ctest to find submodule tests
 RUN sed -i '1ienable_testing()' CMakeLists.txt
@@ -3436,7 +2988,7 @@ class Tinyxml23324d04d(CppProfile):
     owner: str = "leethomason"
     repo: str = "tinyxml2"
     commit: str = "3324d04d58de9d5db09327db6442f075e519f11b"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -3444,10 +2996,9 @@ class Tinyxml23324d04d(CppProfile):
 
 RUN apt-get update && apt-get install -y cmake git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && \
     cmake -Dtinyxml2_BUILD_TESTING=ON -DBUILD_TESTING=ON .. && \
@@ -3464,7 +3015,7 @@ class Cpr22a41e60(CppProfile):
     owner: str = "libcpr"
     repo: str = "cpr"
     commit: str = "22a41e60836f2207bf54131e6ef7752009ec31e1"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -3472,10 +3023,9 @@ class Cpr22a41e60(CppProfile):
 
 RUN apt-get update && apt-get install -y     cmake     git     libcurl4-openssl-dev     libssl-dev     zlib1g-dev     meson     ninja-build     pkg-config     python3-pip     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build &&     cmake -DCPR_BUILD_TESTS=ON -DCPR_BUILD_TESTS_SSL=ON -DCPR_BUILD_TESTS_PROXY=OFF -DCPR_CURL_USE_LIBPSL=OFF .. &&     make -j$(nproc)
 
@@ -3490,7 +3040,7 @@ class Luantifc363085(CppProfile):
     owner: str = "luanti-org"
     repo: str = "luanti"
     commit: str = "fc363085dd46330908b3a485dbe5bd7adfcc91b8"
-    test_cmd: str = "cmake --build build -j4 && ./bin/luanti --run-unittests"
+    test_cmd: str = "./bin/luanti --run-unittests"
 
     @property
     def dockerfile(self):
@@ -3523,10 +3073,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && \
     cmake .. \
@@ -3535,10 +3084,10 @@ RUN mkdir build && cd build && \
     -DCMAKE_BUILD_TYPE=Release && \
     make -j$(nproc)
 
-    CMD ["/bin/bash"]"""
+CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
-        return parse_log_luanti(log)
+        return parse_log_catch2(log)
 
 
 @dataclass
@@ -3546,17 +3095,7 @@ class Luau54a2ea00(CppProfile):
     owner: str = "luau-lang"
     repo: str = "luau"
     commit: str = "54a2ea00831df4c791e6cfc896a98da75d1ae126"
-    test_cmd: str = "cmake --build build -j4 && ./build/Luau.UnitTest --reporters=console --no-colors"
-    timeout: int = 500
-    bug_gen_dirs_exclude: list[str] = field(
-        default_factory=lambda: [
-            *DEFAULT_CPP_BUG_GEN_DIRS_EXCLUDE,
-            "/CLI",
-            "/Require",
-            "/extern",
-            "/fuzz",
-        ]
-    )
+    test_cmd: str = "./build/Luau.UnitTest --reporters=console --no-colors"
 
     @property
     def dockerfile(self):
@@ -3564,10 +3103,9 @@ class Luau54a2ea00(CppProfile):
 
 RUN apt-get update && apt-get install -y     build-essential     cmake     git     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build &&     cmake -DCMAKE_BUILD_TYPE=Release -DLUAU_BUILD_TESTS=ON .. &&     make -j$(nproc 2>/dev/null || echo 2) Luau.UnitTest Luau.CLI.Test
 
@@ -3582,7 +3120,7 @@ class AirSim13448700(CppProfile):
     owner: str = "microsoft"
     repo: str = "AirSim"
     commit: str = "13448700ec2b36d6aad7a4e0909bc9daf9d3d931"
-    test_cmd: str = "cmake --build build_release -j4 && echo '[==========] Running 1 test'; ./build_release/output/bin/AirLibUnitTests || true; echo '[  PASSED  ] AirLibUnitTests.Main'"
+    test_cmd: str = "echo '[==========] Running 1 test'; ./build_release/output/bin/AirLibUnitTests || true; echo '[  PASSED  ] AirLibUnitTests.Main'"
 
     @property
     def dockerfile(self):
@@ -3604,10 +3142,9 @@ RUN apt-get update && apt-get install -y \
     libc++-8-dev \
     libc++abi-8-dev \
     && rm -rf /var/lib/apt/lists/*
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 # Apply the fix for CelestialTests to avoid precision-based failure on ARM64
 RUN sed -i 's/0.1)/10.0)/g' AirLibUnitTests/CelestialTests.hpp
@@ -3625,7 +3162,7 @@ class GSL756c91ab(CppProfile):
     owner: str = "microsoft"
     repo: str = "GSL"
     commit: str = "756c91ab895aa52f650599bb1a3fc131f1f4b5ef"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -3638,10 +3175,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && \
     cmake -DGSL_TEST=ON .. && \
@@ -3658,7 +3194,7 @@ class Magnumf3a4ce7d(CppProfile):
     owner: str = "mosra"
     repo: str = "magnum"
     commit: str = "f3a4ce7d1d0cd8085d4f05811c378813ada3cfcc"
-    test_cmd: str = "export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH && cd build && cmake --build . -j4 && ctest --verbose --output-on-failure"
+    test_cmd: str = "export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH && cd build && ctest --verbose --output-on-failure"
 
     @property
     def dockerfile(self):
@@ -3691,8 +3227,7 @@ RUN wget -qO- https://github.com/Kitware/CMake/releases/download/v3.26.4/cmake-3
     cmake --install build
 
 WORKDIR /app
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git submodule update --init --recursive
 CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
@@ -3704,7 +3239,7 @@ class Mumble997ecba9(CppProfile):
     owner: str = "mumble-voip"
     repo: str = "mumble"
     commit: str = "997ecba92c7314d9b8964c50a0621230694bbf85"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -3752,10 +3287,9 @@ RUN apt-get update && apt-get install -y ca-certificates gpg wget && \
 RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 100 --slave /usr/bin/g++ g++ /usr/bin/g++-12
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && \
     cmake -Dtests=ON \
@@ -3777,11 +3311,7 @@ class Ninjacc60300a(CppProfile):
     owner: str = "ninja-build"
     repo: str = "ninja"
     commit: str = "cc60300ab94dae9bb28fece3c9b7c397235b17de"
-    test_cmd: str = "cd build && make -j$(nproc) && ./ninja_test"
-    timeout: int = 500
-    bug_gen_dirs_exclude: list[str] = field(
-        default_factory=lambda: [*DEFAULT_CPP_BUG_GEN_DIRS_EXCLUDE, "/misc", "/windows"]
-    )
+    test_cmd: str = "./build/ninja_test"
 
     @property
     def dockerfile(self):
@@ -3794,10 +3324,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && cmake -DBUILD_TESTING=ON .. && make -j$(nproc)
 
@@ -3812,7 +3341,7 @@ class Oatppf83d648f(CppProfile):
     owner: str = "oatpp"
     repo: str = "oatpp"
     commit: str = "f83d648fd82dc222ef88aabbafb68efbd7d7bf50"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -3820,10 +3349,9 @@ class Oatppf83d648f(CppProfile):
 
 RUN apt-get update && apt-get install -y     build-essential     cmake     git     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && cmake -DOATPP_BUILD_TESTS=ON .. && make -j$(nproc)
 CMD ["/bin/bash"]"""
@@ -3837,7 +3365,7 @@ class Jsoncppe799ca05(CppProfile):
     owner: str = "open-source-parsers"
     repo: str = "jsoncpp"
     commit: str = "e799ca052df0f859d8d4133211344581c211b925"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -3845,10 +3373,9 @@ class Jsoncppe799ca05(CppProfile):
 
 RUN apt-get update && apt-get install -y cmake python3 git && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && \
     cmake -DCMAKE_BUILD_TYPE=Release -DJSONCPP_WITH_TESTS=ON -DJSONCPP_WITH_POST_BUILD_UNITTEST=OFF .. && \
@@ -3865,20 +3392,7 @@ class OpenMVGc76d8724(CppProfile):
     owner: str = "openMVG"
     repo: str = "openMVG"
     commit: str = "c76d87244fb3590fb8b9a752be34f07411057ae2"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
-    timeout: int = 500
-    bug_gen_dirs_exclude: list[str] = field(
-        default_factory=lambda: [
-            *DEFAULT_CPP_BUG_GEN_DIRS_EXCLUDE,
-            "/dist",
-            "/logo",
-            "/src/dependencies",
-            "/src/nonFree",
-            "/src/openMVG_Samples",
-            "/src/software",
-            "/src/third_party",
-        ]
-    )
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -3905,10 +3419,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && \
     cmake -DCMAKE_BUILD_TYPE=RELEASE \
@@ -3934,7 +3447,7 @@ class Opencvaea90a9e(CppProfile):
     repo: str = "opencv"
     commit: str = "aea90a9e314d220dcaa80a616808afc38e1c78b6"
     test_cmd: str = (
-        "cd build && cmake --build . -j4 && ./bin/opencv_test_core --gtest_color=no --gtest_filter=-*OCL*"
+        "cd build && ./bin/opencv_test_core --gtest_color=no --gtest_filter=-*OCL*"
     )
 
     @property
@@ -3965,10 +3478,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && \
     cmake -D CMAKE_BUILD_TYPE=RELEASE \
@@ -3991,7 +3503,7 @@ class Srs6e2392f3(CppProfile):
     owner: str = "ossrs"
     repo: str = "srs"
     commit: str = "6e2392f3667512e8c75899dd7d71294785ea0cf7"
-    test_cmd: str = "make -j$(nproc) utest && ./objs/srs_utest --gtest_color=no"
+    test_cmd: str = "./objs/srs_utest --gtest_color=no"
 
     @property
     def dockerfile(self):
@@ -4014,11 +3526,10 @@ RUN apt-get update && apt-get install -y \
     perl \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
 
-WORKDIR /testbed/trunk
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+WORKDIR /{ENV_NAME}/trunk
+RUN git submodule update --init --recursive
 RUN ./configure --utest && make utest
 
 CMD ["./objs/srs"]"""
@@ -4032,7 +3543,7 @@ class Polybarf99e0b1c(CppProfile):
     owner: str = "polybar"
     repo: str = "polybar"
     commit: str = "f99e0b1c7a5b094f5a04b14101899d0cb4ece69d"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -4070,10 +3581,9 @@ RUN apt-get update && apt-get install -y \
     libjsoncpp-dev xcb-proto python3-xcbgen i3-wm \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && \
     cmake -DBUILD_TESTS=ON \
@@ -4098,7 +3608,7 @@ class Recastnavigation13f43344(CppProfile):
     owner: str = "recastnavigation"
     repo: str = "recastnavigation"
     commit: str = "13f433443867c4fb283bf230089b7250d09e331e"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -4113,10 +3623,9 @@ RUN apt-get update && apt-get install -y \
     mesa-common-dev \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && \
     cmake -DRECASTNAVIGATION_DEMO=OFF -DRECASTNAVIGATION_TESTS=ON .. && \
@@ -4134,7 +3643,7 @@ class Seastar7e457cf7(CppProfile):
     repo: str = "seastar"
     commit: str = "7e457cf72dad2987c8fbf8f2382ea712e8bf1c34"
     test_cmd: str = (
-        "cd build/release && cmake --build . -j4 && ctest --verbose --output-on-failure --repeat until-pass:1"
+        "cd build/release && ctest --verbose --output-on-failure --repeat until-pass:1"
     )
 
     @property
@@ -4183,10 +3692,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN ./configure.py --mode=release --compiler=g++ && \
     ninja -C build/release
@@ -4202,7 +3710,7 @@ class Entte08302e1(CppProfile):
     owner: str = "skypjack"
     repo: str = "entt"
     commit: str = "e08302e169690a40500fe6547209fa82f17f913e"
-    test_cmd: str = "cd build_dir && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build_dir && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -4211,10 +3719,9 @@ class Entte08302e1(CppProfile):
 RUN apt-get update && apt-get install -y     cmake     git     build-essential     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build_dir && cd build_dir &&     cmake -DENTT_BUILD_TESTING=ON .. &&     make -j$(nproc)
 
@@ -4229,7 +3736,7 @@ class Snapcast439dc886(CppProfile):
     owner: str = "snapcast"
     repo: str = "snapcast"
     commit: str = "439dc88637bb7ac227c24d8ad383e7cdf46a76d7"
-    test_cmd: str = "cd build && cmake --build . -j4 && /app/bin/snapcast_test"
+    test_cmd: str = "/app/bin/snapcast_test"
 
     @property
     def dockerfile(self):
@@ -4256,11 +3763,10 @@ RUN apt-get update && apt-get install -y \
     libexpat1-dev \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
 RUN git fetch --all --tags
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && \
     cmake -DBUILD_TESTS=ON -DBUILD_WITH_PULSE=ON .. && \
@@ -4277,7 +3783,7 @@ class Sqlitebrowser95f92180(CppProfile):
     owner: str = "sqlitebrowser"
     repo: str = "sqlitebrowser"
     commit: str = "95f92180cd88f7e51f3678fc5133191393edc19d"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -4301,10 +3807,9 @@ RUN apt-get update && apt-get install -y \
     qttools5-dev-tools \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && \
     cmake -DENABLE_TESTING=ON -DFORCE_INTERNAL_QSCINTILLA=ON .. && \
@@ -4321,7 +3826,7 @@ class Supercollider438bf480(CppProfile):
     owner: str = "supercollider"
     repo: str = "supercollider"
     commit: str = "438bf480d84af4978a5773fdee05a861ac69136a"
-    test_cmd: str = "export QT_QPA_PLATFORM=offscreen && cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "export QT_QPA_PLATFORM=offscreen && cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -4371,10 +3876,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && \
     cmake -DCMAKE_BUILD_TYPE=Release \
@@ -4396,20 +3900,7 @@ class Taskflowd8776bc0(CppProfile):
     owner: str = "taskflow"
     repo: str = "taskflow"
     commit: str = "d8776bc0d3317efbf2c2376006d74a04a6eabf2a"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
-    timeout: int = 500
-    bug_gen_dirs_exclude: list[str] = field(
-        default_factory=lambda: [
-            *DEFAULT_CPP_BUG_GEN_DIRS_EXCLUDE,
-            "/3rd-party",
-            "/sandbox",
-            "/tfprof",
-            "/unittests",
-        ]
-    )
-    bug_gen_files_exclude: list[str] = field(
-        default_factory=lambda: list(TASKFLOW_D8776BC0_BUG_GEN_FILES_EXCLUDE)
-    )
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -4422,10 +3913,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && \
     cmake -DTF_BUILD_TESTS=ON .. && \
@@ -4442,7 +3932,7 @@ class OneTBB3ebfedd8(CppProfile):
     owner: str = "uxlfoundation"
     repo: str = "oneTBB"
     commit: str = "3ebfedd8638e3bf39db754d458099684488ad8f4"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -4458,10 +3948,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && \
     cmake -DTBB_TEST=ON -DCMAKE_BUILD_TYPE=Release .. && \
@@ -4478,7 +3967,7 @@ class Websocketpp4dfe1be7(CppProfile):
     owner: str = "zaphoyd"
     repo: str = "websocketpp"
     commit: str = "4dfe1be74e684acca19ac1cf96cce0df9eac2a2d"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure"
 
     @property
     def dockerfile(self):
@@ -4496,10 +3985,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 # Bypass broken Boost discovery by manually providing paths and libraries
 RUN mkdir build && cd build && \
@@ -4523,19 +4011,7 @@ class Libzmq51a5a9cb(CppProfile):
     owner: str = "zeromq"
     repo: str = "libzmq"
     commit: str = "51a5a9cbe315ab149357afe063e9e2d41f4c99a8"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
-    timeout: int = 500
-    bug_gen_dirs_exclude: list[str] = field(
-        default_factory=lambda: [
-            *DEFAULT_CPP_BUG_GEN_DIRS_EXCLUDE,
-            "/build_qnx",
-            "/builds",
-            "/external",
-            "/m4",
-            "/packaging",
-            "/perf",
-        ]
-    )
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -4551,10 +4027,9 @@ RUN apt-get update && apt-get install -y \
     automake \
     && rm -rf /var/lib/apt/lists/*
 
-RUN git clone https://github.com/{self.owner}/{self.repo}.git /testbed
-WORKDIR /testbed
-RUN git checkout {self.commit} && \
-    git submodule update --init --recursive
+RUN git clone https://github.com/{self.mirror_name} /{ENV_NAME}
+WORKDIR /{ENV_NAME}
+RUN git submodule update --init --recursive
 
 RUN mkdir build && cd build && \
     cmake -DBUILD_TESTS=ON -DBUILD_SHARED=ON -DBUILD_STATIC=ON .. && \
@@ -4589,7 +4064,7 @@ class OpenColorIOeaa02817(CppProfile):
     owner: str = "AcademySoftwareFoundation"
     repo: str = "OpenColorIO"
     commit: str = "eaa028171a8e74d029b0c139a3a8588d15fd00af"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -4629,7 +4104,7 @@ class BehaviorTreeCPP3ff6a32b(CppProfile):
     owner: str = "BehaviorTree"
     repo: str = "BehaviorTree.CPP"
     commit: str = "3ff6a32ba0497a08519c77a1436e3b81eff1bcd6"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -4679,7 +4154,7 @@ class CLI11fe3772d3(CppProfile):
     owner: str = "CLIUtils"
     repo: str = "CLI11"
     commit: str = "fe3772d3c2969330ed0e4f32351ad066e8d375c5"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -4700,10 +4175,10 @@ RUN mkdir build && cd build && \
     cmake -DCLI11_BUILD_TESTS=ON -DCLI11_BUILD_EXAMPLES=ON .. && \
     make -j$(nproc)
 
-    CMD ["/bin/bash"]"""
+CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
-        return parse_log_ctest(log)
+        return parse_log_catch2(log)
 
 
 @dataclass
@@ -4711,7 +4186,7 @@ class ChaiScript2eb3279c(CppProfile):
     owner: str = "ChaiScript"
     repo: str = "ChaiScript"
     commit: str = "2eb3279c391854c7a005b82ad121802e88b7c171"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -4748,7 +4223,7 @@ class Crowb8c021a7(CppProfile):
     owner: str = "CrowCpp"
     repo: str = "Crow"
     commit: str = "b8c021a7c876eeb76ad00946b83da5d8a8199a84"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -4781,7 +4256,7 @@ RUN mkdir build && cd build && \
 CMD ["/bin/bash"]"""
 
     def log_parser(self, log: str) -> dict[str, str]:
-        return parse_log_ctest(log)
+        return parse_log_catch2(log)
 
 
 @dataclass
@@ -4789,7 +4264,7 @@ class Cytopiab67e255d(CppProfile):
     owner: str = "CytopiaTeam"
     repo: str = "Cytopia"
     commit: str = "b67e255d3870ddf02bf2a489bba93473a6f59a4b"
-    test_cmd: str = "export HOME=/tmp XDG_RUNTIME_DIR=/tmp SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy && cd build && cmake --build . -j4 && ctest --verbose --output-on-failure"
+    test_cmd: str = "export HOME=/tmp XDG_RUNTIME_DIR=/tmp SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy && cd build && ctest --verbose --output-on-failure"
 
     @property
     def dockerfile(self):
@@ -4877,7 +4352,7 @@ class Descent3156cba8a(CppProfile):
     owner: str = "DescentDevelopers"
     repo: str = "Descent3"
     commit: str = "156cba8aafd997d27deb0902ba6026bcdcc1cfaf"
-    test_cmd: str = "cd builds/linux && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd builds/linux && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -4954,7 +4429,7 @@ class Etlc6006057(CppProfile):
     owner: str = "ETLCPP"
     repo: str = "etl"
     commit: str = "c600605734360f851347e0caa61c81c078886ad9"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -5019,7 +4494,7 @@ class Srtce54b5ea(CppProfile):
     owner: str = "Haivision"
     repo: str = "srt"
     commit: str = "ce54b5ea363dee0e16d4fdf2c43d96f5d896706a"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -5056,7 +4531,7 @@ class Heaptrackf16e8d33(CppProfile):
     owner: str = "KDE"
     repo: str = "heaptrack"
     commit: str = "f16e8d336f0e3353892d07db307af36112ffb53b"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -5108,7 +4583,7 @@ class Kdenlivefba388ba(CppProfile):
     owner: str = "KDE"
     repo: str = "kdenlive"
     commit: str = "fba388babdcf6d057f2cf973b3f880ae982eaecd"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose"
+    test_cmd: str = "cd build && ctest --verbose"
 
     @property
     def dockerfile(self):
@@ -5182,7 +4657,7 @@ class VulkanHpp39609625(CppProfile):
     owner: str = "KhronosGroup"
     repo: str = "Vulkan-Hpp"
     commit: str = "396096255f032bbd3ca4bdafd26556cba583c67c"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -5218,7 +4693,7 @@ class Glslange966816a(CppProfile):
     owner: str = "KhronosGroup"
     repo: str = "glslang"
     commit: str = "e966816ab28ab7cb448d5b33270b43c941b343d4"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -5254,7 +4729,7 @@ class VTK28b49bee(CppProfile):
     owner: str = "Kitware"
     repo: str = "VTK"
     commit: str = "28b49beea5e8fd47a3dd3f1c52a1f1637111d09d"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest -R CommonCore --verbose --output-on-failure"
+    test_cmd: str = "cd build && ctest -R CommonCore --verbose --output-on-failure"
 
     @property
     def dockerfile(self):
@@ -5299,7 +4774,7 @@ class Server637f8c4d(CppProfile):
     owner: str = "MariaDB"
     repo: str = "server"
     commit: str = "637f8c4db7533fc4f22433f042cc83f7ba3bfb41"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -5348,10 +4823,7 @@ class EternalTerminal90b10d5f(CppProfile):
     owner: str = "MisterTea"
     repo: str = "EternalTerminal"
     commit: str = "90b10d5f99be322d2ad9deabc4b86aa36a5f6894"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure"
-    bug_gen_dirs_exclude: list[str] = field(
-        default_factory=lambda: [*DEFAULT_CPP_BUG_GEN_DIRS_EXCLUDE, "/external"]
-    )
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure"
 
     @property
     def dockerfile(self):
@@ -5405,7 +4877,7 @@ class Launcher4aa2b3ce(CppProfile):
     owner: str = "MultiMC"
     repo: str = "Launcher"
     commit: str = "4aa2b3ce6a19f9b0e662c9b35054db23d921adf9"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -5507,7 +4979,7 @@ class Cutlass3476ddb7(CppProfile):
     repo: str = "cutlass"
     commit: str = "3476ddb7bd6ca4161a0169103ceaa20ce0eb891f"
     test_cmd: str = (
-        "cd build && cmake --build . -j4 && ./test/unit/core/cutlass_test_unit_core --gtest_color=no || true"
+        "cd build && ./test/unit/core/cutlass_test_unit_core --gtest_color=no || true"
     )
 
     @property
@@ -5544,7 +5016,7 @@ CMD ["/bin/bash"]"""
 #     owner: str = "NVIDIA"
 #     repo: str = "stdexec"
 #     commit: str = "b84044a3b2c755c9de9673ae3a5b63a679201a42"
-#     test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+#     test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
 #     @property
 #     def dockerfile(self):
@@ -5579,7 +5051,7 @@ class Pikiwidb44848409(CppProfile):
     owner: str = "OpenAtomFoundation"
     repo: str = "pikiwidb"
     commit: str = "4484840997347493132e611f9c171d2826763b76"
-    test_cmd: str = "./build.sh && mkdir -p src && cp ./output/pika src/redis-server && cp ./output/pika tests/integration/pika && cp tests/conf/pika.conf tests/assets/default.conf && tclsh tests/test_helper.tcl --clients 1"
+    test_cmd: str = "mkdir -p src && cp ./output/pika src/redis-server && cp ./output/pika tests/integration/pika && cp tests/conf/pika.conf tests/assets/default.conf && tclsh tests/test_helper.tcl --clients 1"
 
     @property
     def dockerfile(self):
@@ -5619,7 +5091,7 @@ class CTranslate2226c95d9(CppProfile):
     owner: str = "OpenNMT"
     repo: str = "CTranslate2"
     commit: str = "226c95d94e660c48b11c62e108886b7ef76d589d"
-    test_cmd: str = "cd build && cmake --build . -j4 && ./tests/ctranslate2_test --gtest_color=no"
+    test_cmd: str = "cd build && ./tests/ctranslate2_test --gtest_color=no"
 
     @property
     def dockerfile(self):
@@ -5661,7 +5133,7 @@ class Osrmbackend362b388d(CppProfile):
     owner: str = "Project-OSRM"
     repo: str = "osrm-backend"
     commit: str = "362b388d7e0582291662105d7bfc004a3a44a393"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure"
 
     @property
     def dockerfile(self):
@@ -5705,7 +5177,7 @@ class I2pd8ab7cfa2(CppProfile):
     owner: str = "PurpleI2P"
     repo: str = "i2pd"
     commit: str = "8ab7cfa2a66693ec79c1ce23e45ac77d41ff0754"
-    test_cmd: str = 'make libi2pd.a && cd tests && make && for TEST in test-http-merge_chunked test-http-req test-http-res test-http-url test-http-url_decode test-gost test-gost-sig test-base-64 test-aeadchacha20poly1305 test-blinding test-elligator test-eddsa test-aes; do echo "Running $TEST"; ./$TEST || exit 1; done'
+    test_cmd: str = 'cd tests && for TEST in test-http-merge_chunked test-http-req test-http-res test-http-url test-http-url_decode test-gost test-gost-sig test-base-64 test-aeadchacha20poly1305 test-blinding test-elligator test-eddsa test-aes; do echo "Running $TEST"; ./$TEST || exit 1; done'
 
     @property
     def dockerfile(self):
@@ -5737,7 +5209,7 @@ class Jakt3c8d7508(CppProfile):
     owner: str = "SerenityOS"
     repo: str = "jakt"
     commit: str = "3c8d7508fb49e682bf93d6ab8bd3e54afe259fb6"
-    test_cmd: str = "cmake --build build -j4 && ./build/bin/jakttest"
+    test_cmd: str = "./build/bin/jakttest"
 
     @property
     def dockerfile(self):
@@ -5780,7 +5252,7 @@ class Plog2ab53dc7(CppProfile):
     owner: str = "SergiusTheBest"
     repo: str = "plog"
     commit: str = "2ab53dc768507fae46a30426e82e8018d093416b"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -5804,7 +5276,7 @@ class Supertux53884267(CppProfile):
     owner: str = "SuperTux"
     repo: str = "supertux"
     commit: str = "5388426757834024d805df836157b1687a61420b"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -5855,7 +5327,7 @@ class TNNf0cb0812(CppProfile):
     owner: str = "Tencent"
     repo: str = "TNN"
     commit: str = "f0cb08129a05c5b60f08e4ef66042a54a883a56a"
-    test_cmd: str = "cmake --build build -j4 && ./build/test/unit_test/unit_test --gtest_color=no"
+    test_cmd: str = "./build/test/unit_test/unit_test --gtest_color=no"
 
     @property
     def dockerfile(self):
@@ -5941,7 +5413,7 @@ class Ncnna64aa7ff(CppProfile):
     owner: str = "Tencent"
     repo: str = "ncnn"
     commit: str = "a64aa7ff68af3f833fc160c6ee15b0f08aec4b11"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -5978,7 +5450,7 @@ class Sol2c1f95a77(CppProfile):
     owner: str = "ThePhD"
     repo: str = "sol2"
     commit: str = "c1f95a773c6f8f4fde8ca3efe872e7286afe4444"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -6018,7 +5490,7 @@ class Tigervncaf48f2c8(CppProfile):
     owner: str = "TigerVNC"
     repo: str = "tigervnc"
     commit: str = "af48f2c8c7a20d8704a126649993b48f3e1352dd"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -6081,7 +5553,7 @@ class PowerInfer59df1750(CppProfile):
     owner: str = "Tiiny-AI"
     repo: str = "PowerInfer"
     commit: str = "59df17505d981e258a50194597501e0bbd5eaf50"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -6118,7 +5590,7 @@ class TileDB13d41286(CppProfile):
     owner: str = "TileDB-Inc"
     repo: str = "TileDB"
     commit: str = "13d41286a8784649a12f624d9338456ea4466116"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1 -L unit"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1 -L unit"
 
     @property
     def dockerfile(self):
@@ -6179,7 +5651,7 @@ class Cereala56bad8b(CppProfile):
     owner: str = "USCiLab"
     repo: str = "cereal"
     commit: str = "a56bad8bbb770ee266e930c95d37fff2a5be7fea"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -6211,7 +5683,7 @@ CMD ["/bin/bash"]"""
 #     owner: str = "Vita3K"
 #     repo: str = "Vita3K"
 #     commit: str = "276bfaffd443325f3e1637d838d615b8fb11f37e"
-#     test_cmd: str = "cmake --build build -j4 && ./build/vita3k/module/module-tests"
+#     test_cmd: str = "./build/vita3k/module/module-tests"
 
 #     @property
 #     def dockerfile(self):
@@ -6270,18 +5742,7 @@ class Vowpalwabbit0d344494(CppProfile):
     owner: str = "VowpalWabbit"
     repo: str = "vowpal_wabbit"
     commit: str = "0d344494d5d7aade6ee2811c7e6a63e8f9597265"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
-    bug_gen_dirs_exclude: list[str] = field(
-        default_factory=lambda: [
-            *DEFAULT_CPP_BUG_GEN_DIRS_EXCLUDE,
-            "/ext_libs",
-            "/java",
-            "/cs",
-            "/python",
-            "/demo",
-            "/utl",
-        ]
-    )
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -6322,7 +5783,7 @@ class Wabt6ca912cf(CppProfile):
     owner: str = "WebAssembly"
     repo: str = "wabt"
     commit: str = "6ca912cf16345af74cb97506a8ceadfa54e428f4"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -6355,7 +5816,7 @@ class Easyloggingpp63032b87(CppProfile):
     owner: str = "abumq"
     repo: str = "easyloggingpp"
     commit: str = "63032b874431e2ec2304917415132201b1c70e30"
-    test_cmd: str = "cmake --build build -j4 && ./build/bin/easyloggingpp-unit-tests --gtest_color=no"
+    test_cmd: str = "./build/bin/easyloggingpp-unit-tests --gtest_color=no"
 
     @property
     def dockerfile(self):
@@ -6381,7 +5842,7 @@ class Singaa64d65fa(CppProfile):
     owner: str = "apache"
     repo: str = "singa"
     commit: str = "a64d65fa6f0cf488f5eb8f8fcbc052fdaa5384a8"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure"
 
     @property
     def dockerfile(self):
@@ -6435,7 +5896,7 @@ class Thrift32776c0f(CppProfile):
     owner: str = "apache"
     repo: str = "thrift"
     commit: str = "32776c0f46f5fd79b296391d66236c23b20af072"
-    test_cmd: str = "cd cmake-build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd cmake-build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -6486,7 +5947,7 @@ class Asmjit64a88ed1(CppProfile):
     owner: str = "asmjit"
     repo: str = "asmjit"
     commit: str = "64a88ed1d8abb2e2b17a938a5ce7c1b66dabb695"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -6521,7 +5982,7 @@ class Assimp3e672ff8(CppProfile):
     owner: str = "assimp"
     repo: str = "assimp"
     commit: str = "3e672ff856b0bad35f478cc11acdd903674066ee"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -6579,7 +6040,7 @@ class Audiowaveform9edb233c(CppProfile):
     owner: str = "bbc"
     repo: str = "audiowaveform"
     commit: str = "9edb233cd84c5e3c0669a9ecb55dad56dac5f93f"
-    test_cmd: str = "cd build && cmake --build . -j4 && ./audiowaveform_tests --gtest_color=no"
+    test_cmd: str = "cd build && ./audiowaveform_tests --gtest_color=no"
 
     @property
     def dockerfile(self):
@@ -6627,7 +6088,7 @@ class Bitcoin76eb04b1(CppProfile):
     owner: str = "bitcoin"
     repo: str = "bitcoin"
     commit: str = "76eb04b16f9432a2cca03b02f6afb065c914f3af"
-    test_cmd: str = "cmake --build build -j4 && ctest --test-dir build --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "ctest --test-dir build --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -6671,7 +6132,7 @@ class Backwardcpp0bfd0a07(CppProfile):
     owner: str = "bombela"
     repo: str = "backward-cpp"
     commit: str = "0bfd0a07a61551413ccd2ab9a9099af3bad40681"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -6711,7 +6172,7 @@ class Beast9ad3b683(CppProfile):
     owner: str = "boostorg"
     repo: str = "beast"
     commit: str = "9ad3b6831f9828afee8006fdc8ef0fc81724a0e9"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -6753,7 +6214,7 @@ class Ccache85a885b2(CppProfile):
     owner: str = "ccache"
     repo: str = "ccache"
     commit: str = "85a885b201d25461d66cfcef98f80698e55dd43b"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -6802,7 +6263,7 @@ class Ceressolvera2bab5af(CppProfile):
     owner: str = "ceres-solver"
     repo: str = "ceres-solver"
     commit: str = "a2bab5af5131d52a756b1fa7b7cff83821541449"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -6841,7 +6302,7 @@ class Openh264cf568c83(CppProfile):
     owner: str = "cisco"
     repo: str = "openh264"
     commit: str = "cf568c83f71a18778f9a16e344effaf40c11b752"
-    test_cmd: str = "make -B ENABLE64BIT=Yes BUILDTYPE=Release all && ./codec_unittest"
+    test_cmd: str = "./codec_unittest"
 
     @property
     def dockerfile(self):
@@ -6872,7 +6333,7 @@ class Clementinebb2f6378(CppProfile):
     owner: str = "clementine-player"
     repo: str = "Clementine"
     commit: str = "bb2f6378071ee7af474f5a049328fc421b6e4904"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -6943,7 +6404,7 @@ class Osiris482d672b(CppProfile):
     owner: str = "danielkrupinski"
     repo: str = "Osiris"
     commit: str = "482d672bcaf12160e8af852c17f1640033173a3d"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -6982,7 +6443,7 @@ class Xgboostafdc0372(CppProfile):
     owner: str = "dmlc"
     repo: str = "xgboost"
     commit: str = "afdc0372f368d6f5ca9a74a969155db7a4bcbd38"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -7026,7 +6487,7 @@ class NumCpp3bbce083(CppProfile):
     owner: str = "dpilger26"
     repo: str = "NumCpp"
     commit: str = "3bbce08329cda35655e154f3724c585d65c3c436"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -7061,7 +6522,7 @@ class FastDDSe516400f(CppProfile):
     owner: str = "eProsima"
     repo: str = "Fast-DDS"
     commit: str = "e516400ff230fc51fad569b0ed209b1464467cb4"
-    test_cmd: str = 'cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1 -E "BlackboxTest"'
+    test_cmd: str = 'cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1 -E "BlackboxTest"'
 
     @property
     def dockerfile(self):
@@ -7114,7 +6575,7 @@ CMD ["/bin/bash"]"""
 #     owner: str = "emcrisostomo"
 #     repo: str = "fswatch"
 #     commit: str = "5c443d22c53df1eef661d780d816700935a51e1b"
-#     test_cmd: str = "cmake --build build -j4 && bash -c 'mkdir -p /tmp/fsw_test && timeout 5s ./build/test/src/fswatch_test /tmp/fsw_test > test_run.log 2>&1 || true && if [ -f ./build/test/src/fswatch_test ]; then echo \"1 tests, 1 passing\"; else exit 1; fi'"
+#     test_cmd: str = "bash -c 'mkdir -p /tmp/fsw_test && timeout 5s ./build/test/src/fswatch_test /tmp/fsw_test > test_run.log 2>&1 || true && if [ -f ./build/test/src/fswatch_test ]; then echo \"1 tests, 1 passing\"; else exit 1; fi'"
 
 #     @property
 #     def dockerfile(self):
@@ -7148,7 +6609,7 @@ class Rangev3ca1388fb(CppProfile):
     owner: str = "ericniebler"
     repo: str = "range-v3"
     commit: str = "ca1388fb9da8e69314dda222dc7b139ca84e092f"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -7253,7 +6714,7 @@ class Yoga8b42116d(CppProfile):
     owner: str = "facebook"
     repo: str = "yoga"
     commit: str = "8b42116d1b71d1a5d793719f72a5b7f905d0b4b4"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -7279,7 +6740,7 @@ class Faiss7cfb2500(CppProfile):
     owner: str = "facebookresearch"
     repo: str = "faiss"
     commit: str = "7cfb2500819fbf6c81e328a028c15638c7152195"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -7325,7 +6786,7 @@ class Fastfloat9f30728c(CppProfile):
     owner: str = "fastfloat"
     repo: str = "fast_float"
     commit: str = "9f30728ce94ab1fc8f49ef2f987de0f9be3ce01b"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -7350,7 +6811,7 @@ class Sqliteorm69917bd0(CppProfile):
     owner: str = "fnc12"
     repo: str = "sqlite_orm"
     commit: str = "69917bd09a84970881d755828d60d8edf79728c6"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -7382,7 +6843,7 @@ class Gflags53193503(CppProfile):
     owner: str = "gflags"
     repo: str = "gflags"
     commit: str = "5319350323577cff4c42ab59118531d04f13edf4"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -7413,7 +6874,7 @@ class Ggmld6754f3d(CppProfile):
     owner: str = "ggml-org"
     repo: str = "ggml"
     commit: str = "d6754f3d0e6d0acd21c12442353c9fd2f94188e7"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -7443,7 +6904,7 @@ class Llamacpp24464195(CppProfile):
     owner: str = "ggml-org"
     repo: str = "llama.cpp"
     commit: str = "244641955f6146f7e8474afff7772d427593a534"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -7477,7 +6938,7 @@ class Whispercpp21411d81(CppProfile):
     owner: str = "ggml-org"
     repo: str = "whisper.cpp"
     commit: str = "21411d81ea736ed5d9cdea4df360d3c4b60a4adb"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -7514,7 +6975,7 @@ class Cherrytree6c42a114(CppProfile):
     owner: str = "giuspen"
     repo: str = "cherrytree"
     commit: str = "6c42a1141071baf7a2c539da12e6fce1197d27ca"
-    test_cmd: str = "export HOME=/tmp && cd build && cmake --build . -j4 && xvfb-run ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "export HOME=/tmp && cd build && xvfb-run ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -7564,7 +7025,7 @@ class Cpufeatures545431d6(CppProfile):
     owner: str = "google"
     repo: str = "cpu_features"
     commit: str = "545431d64a43f683d75e51c36df19f90afe82752"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -7592,7 +7053,7 @@ class Mujoco82e92cbc(CppProfile):
     owner: str = "google-deepmind"
     repo: str = "mujoco"
     commit: str = "82e92cbcaae55b381a34de58be84b5a3e8c18093"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -7644,7 +7105,7 @@ class Filament770ce7f8(CppProfile):
     owner: str = "google"
     repo: str = "filament"
     commit: str = "770ce7f8ec7e202d1e18869420161866f65aa26e"
-    test_cmd: str = "cd out/cmake-release && cmake --build . -j4 && ctest --verbose --output-on-failure"
+    test_cmd: str = "cd out/cmake-release && ctest --verbose --output-on-failure"
 
     @property
     def dockerfile(self):
@@ -7709,7 +7170,7 @@ CMD ["/bin/bash"]"""
 #     owner: str = "google"
 #     repo: str = "flatbuffers"
 #     commit: str = "94d6b8086b46bdff7da308aa2d3aebf336d29f55"
-#     test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+#     test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
 #     @property
 #     def dockerfile(self):
@@ -7745,7 +7206,7 @@ class Parallelhashmap8442f1c8(CppProfile):
     owner: str = "greg7mdp"
     repo: str = "parallel-hashmap"
     commit: str = "8442f1c82cad04c026e3db4959c6b7a5396f982a"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -7770,7 +7231,7 @@ class Ozzanimation6cbdc790(CppProfile):
     owner: str = "guillaumeblanc"
     repo: str = "ozz-animation"
     commit: str = "6cbdc790123aa4731d82e255df187b3a8a808256"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -7808,7 +7269,7 @@ class Compiletimeregularexpressions62252118(CppProfile):
     owner: str = "hanickadot"
     repo: str = "compile-time-regular-expressions"
     commit: str = "6225211806c48230e5d17a1e555ef69e7325051c"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -7833,7 +7294,7 @@ class Coost0e89c366(CppProfile):
     owner: str = "idealvin"
     repo: str = "coost"
     commit: str = "0e89c366f707ff4ca4738f879fd5e6934bc57cc4"
-    test_cmd: str = "cmake --build build -j4 && ./build/bin/unitest"
+    test_cmd: str = "./build/bin/unitest"
 
     @property
     def dockerfile(self):
@@ -7866,7 +7327,7 @@ class Iree3f630a72(CppProfile):
     owner: str = "iree-org"
     repo: str = "iree"
     commit: str = "3f630a72b225df01866ad02cf8b81a2d27941817"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1 -L 'driver=local-task|driver=local-sync'"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1 -L 'driver=local-task|driver=local-sync'"
 
     @property
     def dockerfile(self):
@@ -7925,7 +7386,7 @@ class Cxxopts370de72b(CppProfile):
     owner: str = "jarro2783"
     repo: str = "cxxopts"
     commit: str = "370de72bfef8daf0147352d39b5504e67baa4aef"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -7952,7 +7413,7 @@ class Jellyfindesktop676758b6(CppProfile):
     owner: str = "jellyfin"
     repo: str = "jellyfin-desktop"
     commit: str = "676758b6088aa010680a6795462630168e1a9b7c"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -8004,7 +7465,7 @@ class Nanoflannba47cfcb(CppProfile):
     owner: str = "jlblancoc"
     repo: str = "nanoflann"
     commit: str = "ba47cfcb127c3597d69196d87f5aa9ca8811b0a9"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -8036,7 +7497,7 @@ class QView801b0738(CppProfile):
     owner: str = "jurplel"
     repo: str = "qView"
     commit: str = "801b07383a33461cbeb2ca70df29217ef2f4cae7"
-    test_cmd: str = "cd build && cmake --build . -j4 && xvfb-run ctest --verbose --output-on-failure"
+    test_cmd: str = "cd build && xvfb-run ctest --verbose --output-on-failure"
 
     @property
     def dockerfile(self):
@@ -8079,7 +7540,7 @@ class Sherpaonnxcb0828a0(CppProfile):
     owner: str = "k2-fsa"
     repo: str = "sherpa-onnx"
     commit: str = "cb0828a001357d5da9c9d60055f644b0df3a882d"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -8122,7 +7583,7 @@ class Openalsoft32759d3c(CppProfile):
     owner: str = "kcat"
     repo: str = "openal-soft"
     commit: str = "32759d3c7d367ed2dc49216cc794df5d1d20ecb7"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1 --gtest_color=no"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1 --gtest_color=no"
 
     @property
     def dockerfile(self):
@@ -8165,7 +7626,7 @@ class Bkcrack1f34dd5e(CppProfile):
     owner: str = "kimci86"
     repo: str = "bkcrack"
     commit: str = "1f34dd5ee779d983ee0350fc1b961c72bad68e96"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -8254,7 +7715,7 @@ class Kokkos21a05468(CppProfile):
     owner: str = "kokkos"
     repo: str = "kokkos"
     commit: str = "21a05468fadf7d750e74192d18c0e49fb56a274b"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -8290,7 +7751,7 @@ class Ksnipc0537020(CppProfile):
     owner: str = "ksnip"
     repo: str = "ksnip"
     commit: str = "c05370203c523a7483ade0503f3906314d3c3496"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -8355,7 +7816,7 @@ class Libigl6000ccb7(CppProfile):
     owner: str = "libigl"
     repo: str = "libigl"
     commit: str = "6000ccb70fdeb78376dcb5d2531e57a15d884aa0"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1 -R igl_core"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1 -R igl_core"
 
     @property
     def dockerfile(self):
@@ -8446,7 +7907,7 @@ class Kakouneea233559(CppProfile):
     owner: str = "mawww"
     repo: str = "kakoune"
     commit: str = "ea23355926f9cd7e80b96d292ae9500d99f11386"
-    test_cmd: str = "make -j$(nproc) && ./test/run"
+    test_cmd: str = "./test/run"
 
     @property
     def dockerfile(self):
@@ -8568,7 +8029,7 @@ class Proxydc3d95c7(CppProfile):
     owner: str = "microsoft"
     repo: str = "proxy"
     commit: str = "dc3d95c763ec04b0b2821addd643b024b07cd1c9"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -8593,7 +8054,7 @@ class Veronabfca50d1(CppProfile):
     owner: str = "microsoft"
     repo: str = "verona"
     commit: str = "bfca50d1bab69a73f00bf35e80b14e4912b2326b"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --timeout 400"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --timeout 400"
 
     @property
     def dockerfile(self):
@@ -8651,7 +8112,7 @@ class RmlUi1bf04a3c(CppProfile):
     owner: str = "mikke89"
     repo: str = "RmlUi"
     commit: str = "1bf04a3cda75d4c433242cb73bdd2231a2fca1b7"
-    test_cmd: str = "cd build && cmake --build . -j4 && ./rmlui_unit_tests --success"
+    test_cmd: str = "cd build && ./rmlui_unit_tests --success"
 
     @property
     def dockerfile(self):
@@ -8724,7 +8185,7 @@ class Mlx6304c285(CppProfile):
     owner: str = "ml-explore"
     repo: str = "mlx"
     commit: str = "6304c285d30ae4843229cf9a6939c227c2e60bb2"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -8824,7 +8285,7 @@ class Cppipc2e28547c(CppProfile):
     owner: str = "mutouyun"
     repo: str = "cpp-ipc"
     commit: str = "2e28547cd32b22c2e1f2c85d22d0882810838503"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -8857,7 +8318,7 @@ class Nghttp2cd3c0126(CppProfile):
     owner: str = "nghttp2"
     repo: str = "nghttp2"
     commit: str = "cd3c01267d2f49a10aa92f59ada6efd8241f4275"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -8897,7 +8358,7 @@ CMD ["/bin/bash"]"""
 #     owner: str = "oceanbase"
 #     repo: str = "miniob"
 #     commit: str = "9f856a542decb6dc678650406af7d6e351940dab"
-#     test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+#     test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
 #     @property
 #     def dockerfile(self):
@@ -8942,7 +8403,7 @@ CMD ["/bin/bash"]"""
 #     owner: str = "oceanbase"
 #     repo: str = "seekdb"
 #     commit: str = "b8f41a6dfef404543191dd0665f3b2e3aea44173"
-#     test_cmd: str = "cd build_debug && cmake --build . -j4 && ctest --verbose --output-on-failure"
+#     test_cmd: str = "cd build_debug && ctest --verbose --output-on-failure"
 
 #     @property
 #     def dockerfile(self):
@@ -8985,7 +8446,7 @@ class Quill7c0ffa54(CppProfile):
     owner: str = "odygrd"
     repo: str = "quill"
     commit: str = "7c0ffa54e51c2b8db6ec091c2922aeaf9b3b08c0"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -9126,7 +8587,7 @@ class Pistache8a1ac905(CppProfile):
     owner: str = "pistacheio"
     repo: str = "pistache"
     commit: str = "8a1ac9059617d2e3c782f4b0afcdf9f55bb91a0a"
-    test_cmd: str = "meson compile -C build && meson test -C build --verbose"
+    test_cmd: str = "meson test -C build --verbose --no-rebuild"
 
     @property
     def dockerfile(self):
@@ -9174,7 +8635,7 @@ class Projectmf67dac94(CppProfile):
     owner: str = "projectM-visualizer"
     repo: str = "projectm"
     commit: str = "f67dac948129d9f54a4c3791d19bb95f2ac5747b"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -9219,7 +8680,7 @@ class PrusaFirmwaref3e0dfd4(CppProfile):
     owner: str = "prusa3d"
     repo: str = "Prusa-Firmware"
     commit: str = "f3e0dfd481a78b222d2a82752f261adbc5a2c4d7"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -9253,7 +8714,7 @@ class QTox2b9cbdca(CppProfile):
     owner: str = "qTox"
     repo: str = "qTox"
     commit: str = "2b9cbdcac1f5f140e054513d03a53b68b2ba843a"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -9342,7 +8803,7 @@ class QBittorrentf68f332f(CppProfile):
     owner: str = "qbittorrent"
     repo: str = "qBittorrent"
     commit: str = "f68f332f255e42f0d0b782bb7dc6f3acad43ef41"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure"
 
     @property
     def dockerfile(self):
@@ -9390,7 +8851,7 @@ class Qpdf9352f6f8(CppProfile):
     owner: str = "qpdf"
     repo: str = "qpdf"
     commit: str = "9352f6f85f04f90a193f854bd39b31dec9913794"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -9435,7 +8896,7 @@ class Qtcreatoree5a1883(CppProfile):
     owner: str = "qt-creator"
     repo: str = "qt-creator"
     commit: str = "ee5a188335210fb421657936a561788df7d4f9b4"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure -L auto"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure -L auto"
 
     @property
     def dockerfile(self):
@@ -9539,7 +9000,7 @@ class Sqlpp116180ee5e(CppProfile):
     owner: str = "rbock"
     repo: str = "sqlpp11"
     commit: str = "6180ee5e49e7a824aab98080207a8d9b5c3d5c99"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -9578,7 +9039,7 @@ class Librealsense78cb605b(CppProfile):
     owner: str = "realsenseai"
     repo: str = "librealsense"
     commit: str = "78cb605b11f5ba80176e7b8d70292f76ba625565"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -9620,7 +9081,7 @@ class Miniz4b9fcf1d(CppProfile):
     owner: str = "richgel999"
     repo: str = "miniz"
     commit: str = "4b9fcf1df525114484be49f3216169b061c07ac6"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -9651,7 +9112,7 @@ class Librimede4700e9(CppProfile):
     owner: str = "rime"
     repo: str = "librime"
     commit: str = "de4700e9f6b75b109910613df907965e3cbe0567"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure"
 
     @property
     def dockerfile(self):
@@ -9709,7 +9170,7 @@ class Openrw5c5f266b(CppProfile):
     repo: str = "openrw"
     commit: str = "5c5f266b71aa55aeec8cb4d823f19e7c4348f3bd"
     test_cmd: str = (
-        "cmake --build build -j4 && ./build/tests/rwtests --log_level=test_suite --report_level=detailed || true"
+        "./build/tests/rwtests --log_level=test_suite --report_level=detailed || true"
     )
 
     @property
@@ -9796,7 +9257,7 @@ class PcapPlusPlus2a39a25b(CppProfile):
     owner: str = "seladb"
     repo: str = "PcapPlusPlus"
     commit: str = "2a39a25b94d5f8e0e6d4131b5e19235f311c8f4c"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose"
+    test_cmd: str = "cd build && ctest --verbose"
 
     @property
     def dockerfile(self):
@@ -9828,7 +9289,7 @@ class Uvwbf9c298e(CppProfile):
     owner: str = "skypjack"
     repo: str = "uvw"
     commit: str = "bf9c298ea6598e78913c6cd186211412ddac04d6"
-    test_cmd: str = "cd build_dir && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build_dir && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -9861,7 +9322,7 @@ class Socketioclientcpp3b7be7e4(CppProfile):
     owner: str = "socketio"
     repo: str = "socket.io-client-cpp"
     commit: str = "3b7be7e4173b5bdeed393966e3274f65d513a280"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -9921,7 +9382,7 @@ class Strawberry5aabf649(CppProfile):
     owner: str = "strawberrymusicplayer"
     repo: str = "strawberry"
     commit: str = "5aabf649bf85ada13e34eb6d3b6fb1208188c34d"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -10002,7 +9463,7 @@ class Subsurface59455fbf(CppProfile):
     owner: str = "subsurface"
     repo: str = "subsurface"
     commit: str = "59455fbfd401b55e1a240b4acb38dea4e543ff8c"
-    test_cmd: str = "export QT_QPA_PLATFORM=offscreen HOME=/tmp XDG_RUNTIME_DIR=/tmp && mkdir -p /tmp/.cache /tmp/.config /tmp/.local/share && cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "export QT_QPA_PLATFORM=offscreen HOME=/tmp XDG_RUNTIME_DIR=/tmp && mkdir -p /tmp/.cache /tmp/.config /tmp/.local/share && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -10081,7 +9542,7 @@ class Tinygltfbdc37385(CppProfile):
     owner: str = "syoyo"
     repo: str = "tinygltf"
     commit: str = "bdc37385f198c787ba143e18f01b06164f8c7d15"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -10183,7 +9644,7 @@ class PEGTL54a2e32b(CppProfile):
     owner: str = "taocpp"
     repo: str = "PEGTL"
     commit: str = "54a2e32bf4593ed86782b4882702286cc8d621f9"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -10239,7 +9700,7 @@ class Uncrustify7e055694(CppProfile):
     owner: str = "uncrustify"
     repo: str = "uncrustify"
     commit: str = "7e055694bdf92bbe7eec53fe2c88f48e524cf2af"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -10264,7 +9725,7 @@ CMD ["/bin/bash"]"""
 #     owner: str = "unum-cloud"
 #     repo: str = "USearch"
 #     commit: str = "40d127f472e9073875566f0e9308c0302b89100a"
-#     test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+#     test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
 #     @property
 #     def dockerfile(self):
@@ -10297,7 +9758,7 @@ class Upxbe1ca792(CppProfile):
     owner: str = "upx"
     repo: str = "upx"
     commit: str = "be1ca792de6940fa8dfa212da4a0160a70e71007"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -10329,7 +9790,7 @@ class Nebula5d43e44b(CppProfile):
     owner: str = "vesoft-inc"
     repo: str = "nebula"
     commit: str = "5d43e44b43ae5239400897f664e68b034a0d46e5"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure"
 
     @property
     def dockerfile(self):
@@ -10380,7 +9841,7 @@ class Visualboyadvancemb58b2478(CppProfile):
     owner: str = "visualboyadvance-m"
     repo: str = "visualboyadvance-m"
     commit: str = "b58b2478cf7dd1beff0d5e3b154f121a416d74ec"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -10429,7 +9890,7 @@ class Xsimd548b05f0(CppProfile):
     owner: str = "xtensor-stack"
     repo: str = "xsimd"
     commit: str = "548b05f0c91bf9e205c1638967e45fa1c7c23c7a"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -10460,7 +9921,7 @@ class Xtensor18f65248(CppProfile):
     owner: str = "xtensor-stack"
     repo: str = "xtensor"
     commit: str = "18f6524829d8ac6399374f9ecbd21b959f75424d"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure"
 
     @property
     def dockerfile(self):
@@ -10543,7 +10004,7 @@ class Cppjieba9408c1d0(CppProfile):
     owner: str = "yanyiwu"
     repo: str = "cppjieba"
     commit: str = "9408c1d08facc6e324dc90260e8cb20ecceebf70"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -10571,7 +10032,7 @@ class Cppzmq041f755b(CppProfile):
     owner: str = "zeromq"
     repo: str = "cppzmq"
     commit: str = "041f755b7980af4a8022f1adf511cc6bd6139e2b"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -10611,7 +10072,7 @@ class Pugixml71005206(CppProfile):
     owner: str = "zeux"
     repo: str = "pugixml"
     commit: str = "710052066cc0a7210d7f554196ae43bd1cd9da3e"
-    test_cmd: str = "cd build && cmake --build . -j4 && ./pugixml-check"
+    test_cmd: str = "cd build && ./pugixml-check"
 
     @property
     def dockerfile(self):
@@ -10642,7 +10103,7 @@ CMD ["/bin/bash"]"""
 #     owner: str = "zjhellofss"
 #     repo: str = "KuiperInfer"
 #     commit: str = "64e9561b505431ce0720c800296e2c60e15bebae"
-#     test_cmd: str = "cmake --build build -j4 && cd build/test && ./test_kuiper --gtest_color=no"
+#     test_cmd: str = "cd build/test && ./test_kuiper --gtest_color=no"
 
 #     @property
 #     def dockerfile(self):
@@ -10708,7 +10169,7 @@ class Zncad7bd6d7(CppProfile):
     owner: str = "znc"
     repo: str = "znc"
     commit: str = "ad7bd6d7eed84648638e1b6fd69546b9fe496576"
-    test_cmd: str = "cd build && cmake --build . -j4 && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
 
     @property
     def dockerfile(self):
@@ -10753,7 +10214,7 @@ class Pycdca05ddec0(CppProfile):
     owner: str = "zrax"
     repo: str = "pycdc"
     commit: str = "a05ddec0d889efe3a9082790df4e2ed380d6a555"
-    test_cmd: str = "cd build && cmake --build . -j4 && python3 ../tests/run_tests.py"
+    test_cmd: str = "cd build && python3 ../tests/run_tests.py"
 
     @property
     def dockerfile(self):
@@ -10783,7 +10244,7 @@ class Fastllmb5ff6009(CppProfile):
     owner: str = "ztxz16"
     repo: str = "fastllm"
     commit: str = "b5ff6009a6739d4a967684fce9fc2280df8775bd"
-    test_cmd: str = "cmake --build build -j4 && ./build/testOps"
+    test_cmd: str = "./build/testOps"
 
     @property
     def dockerfile(self):
@@ -10814,8 +10275,7 @@ CMD ["/bin/bash"]"""
         return parse_log_fastllm(log)
 
 
-# Register all defined profiles with the global registry.
-# Profiles that should remain disabled are commented out above.
+# Register all profiles with the global registry
 for name, obj in list(globals().items()):
     if (
         isinstance(obj, type)

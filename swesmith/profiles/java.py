@@ -1,8 +1,15 @@
+import os
 import re
+import shutil
 import xml.etree.ElementTree as ET
 
 from dataclasses import dataclass, field
-from swebench.harness.constants import TestStatus
+from swebench.harness.constants import (
+    FAIL_TO_PASS,
+    PASS_TO_PASS,
+    KEY_INSTANCE_ID,
+    TestStatus,
+)
 from swesmith.constants import ENV_NAME
 from swesmith.profiles.base import RepoProfile, registry
 
@@ -14,6 +21,93 @@ class JavaProfile(RepoProfile):
     """
 
     exts: list[str] = field(default_factory=lambda: [".java"])
+    _test_name_to_files_cache: dict[str, set[str]] = field(
+        default=None, init=False, repr=False
+    )
+
+    @staticmethod
+    def _extract_test_class_name(test_name: str) -> str | None:
+        """Extract the Java class name from a fully-qualified test name.
+
+        Returns the simple class name (outer class for nested classes), or None
+        if no valid class name can be identified.
+
+        Handles these formats:
+        - FQN with parens: "pkg.Class.method()" -> "Class"
+        - FQN no parens: "pkg.Class.method" -> "Class"
+        - Parameterized: "pkg.Class.method[display]" -> "Class"
+        - Nested class: "pkg.Outer$Inner.method()" -> "Outer"
+        - Repetition: "pkg.Class.repetition 1 of 100" -> "Class"
+        - Simple: "Class.method()" -> "Class"
+        """
+        # Strip parameterized suffix [...]
+        name = re.sub(r"\[.*$", "", test_name)
+        # Strip method signature/parens (...)
+        name = re.sub(r"\(.*$", "", name)
+        # Strip trailing dots and whitespace
+        name = name.rstrip(". ")
+
+        if not name:
+            return None
+
+        # Split by dot, find rightmost valid Java class name (starts with uppercase)
+        parts = name.split(".")
+        for i in range(len(parts) - 1, -1, -1):
+            part = parts[i]
+            # Handle nested classes: Outer$Inner -> use Outer
+            outer = part.split("$")[0]
+            if outer and outer[0].isupper() and outer.isidentifier():
+                return outer
+        return None
+
+    def _build_test_name_to_files_map(self) -> dict[str, set[str]]:
+        """Build a mapping from Java class names to their source file paths.
+
+        Uses filename-based mapping since Java enforces that the public class
+        name matches the filename (e.g. FooTest.java contains class FooTest).
+        """
+        dest, cloned = self.clone()
+        class_to_files: dict[str, set[str]] = {}
+
+        for dirpath, _, filenames in os.walk(dest):
+            for fname in filenames:
+                if not fname.endswith(".java"):
+                    continue
+
+                class_name = fname[:-5]  # Strip .java
+                full_path = os.path.join(dirpath, fname)
+                relative_path = os.path.relpath(full_path, dest)
+                class_to_files.setdefault(class_name, set()).add(relative_path)
+
+        if cloned:
+            shutil.rmtree(dest)
+        return class_to_files
+
+    def get_test_files(self, instance: dict) -> tuple[list[str], list[str]]:
+        assert FAIL_TO_PASS in instance and PASS_TO_PASS in instance, (
+            f"Instance {instance[KEY_INSTANCE_ID]} missing required keys {FAIL_TO_PASS} or {PASS_TO_PASS}"
+        )
+
+        if self._test_name_to_files_cache is None:
+            with self._lock:
+                if self._test_name_to_files_cache is None:
+                    self._test_name_to_files_cache = (
+                        self._build_test_name_to_files_map()
+                    )
+
+        f2p_files: set[str] = set()
+        for test_name in instance[FAIL_TO_PASS]:
+            class_name = self._extract_test_class_name(test_name)
+            if class_name and class_name in self._test_name_to_files_cache:
+                f2p_files.update(self._test_name_to_files_cache[class_name])
+
+        p2p_files: set[str] = set()
+        for test_name in instance[PASS_TO_PASS]:
+            class_name = self._extract_test_class_name(test_name)
+            if class_name and class_name in self._test_name_to_files_cache:
+                p2p_files.update(self._test_name_to_files_cache[class_name])
+
+        return list(f2p_files), list(p2p_files)
 
 
 def parse_log_maven_surefire(log: str) -> dict[str, str]:
