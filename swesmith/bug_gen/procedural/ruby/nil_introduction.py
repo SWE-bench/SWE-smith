@@ -43,21 +43,6 @@ class SafeNavigationRemovalModifier(RubyProceduralModifier):
         )
 
 
-_CONDITIONAL_CONTEXTS = frozenset(
-    {
-        "if",
-        "unless",
-        "while",
-        "until",
-        "conditional",
-        "if_modifier",
-        "unless_modifier",
-        "while_modifier",
-        "until_modifier",
-    }
-)
-
-
 class OrDefaultRemovalModifier(RubyProceduralModifier):
     explanation: str = (
         "A fallback default (|| value) has been removed, allowing nil to propagate."
@@ -67,8 +52,15 @@ class OrDefaultRemovalModifier(RubyProceduralModifier):
 
     @staticmethod
     def _in_conditional(node) -> bool:
-        """Check if node is a direct child of a conditional."""
-        return node.parent is not None and node.parent.type in _CONDITIONAL_CONTEXTS
+        """Check if node is inside a conditional's condition subtree."""
+        ancestor = node
+        while ancestor.parent is not None:
+            parent = ancestor.parent
+            cond = parent.child_by_field_name("condition")
+            if cond is not None and cond.id == ancestor.id:
+                return True
+            ancestor = parent
+        return False
 
     def modify(self, code_entity: CodeEntity) -> BugRewrite:
         """Replace `x || default` with just `x`."""
