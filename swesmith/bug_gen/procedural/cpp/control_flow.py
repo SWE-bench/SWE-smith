@@ -238,7 +238,12 @@ class ControlBreakContinueSwapModifier(CppProceduralModifier):
             self._find_loop_control_statements(child, candidates)
 
     def _inside_loop(self, node) -> bool:
-        loop_types = ["for_statement", "for_range_loop", "while_statement", "do_statement"]
+        loop_types = [
+            "for_statement",
+            "for_range_loop",
+            "while_statement",
+            "do_statement",
+        ]
         parent = node.parent
         while parent:
             if parent.type in loop_types:

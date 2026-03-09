@@ -120,7 +120,9 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
     # Per-profile lock to prevent concurrent clone/cache initialization races.
     # We intentionally use threading.Lock (not multiprocessing.Lock) to avoid
     # allocating OS semaphores for every registered profile instance.
-    _lock: object = field(default_factory=ThreadLock, init=False, repr=False, compare=False)
+    _lock: object = field(
+        default_factory=ThreadLock, init=False, repr=False, compare=False
+    )
 
     # GitHub API instance (lazily initialized)
     _api: GhApi | None = field(default=None, init=False, repr=False, compare=False)
