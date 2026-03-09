@@ -37,7 +37,9 @@ def filter_and_overwrite_remote(
     ds = load_dataset(source_dataset, split=source_split)
     print(f"Source rows: {len(ds)}")
 
-    filtered = ds.filter(lambda row: bool(str(row.get("problem_statement") or "").strip()))
+    filtered = ds.filter(
+        lambda row: bool(str(row.get("problem_statement") or "").strip())
+    )
 
     print(f"Filtered rows (non-empty problem_statement): {len(filtered)}")
     print(f"Dropped rows: {len(ds) - len(filtered)}")
