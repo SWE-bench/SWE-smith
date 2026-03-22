@@ -591,6 +591,18 @@ def test_get_test_cmd_instance_id_mismatch():
         mock_rp.get_test_cmd(instance)
 
 
+def test_get_test_cmd_instance_id_with_ref_suffix():
+    """Test get_test_cmd with an instance ID that has an extra .ref suffix (validation use case)."""
+    mock_rp = MockRepoProfile("dummy_dir")
+    mock_rp.test_cmd = "pytest"
+
+    instance = {KEY_INSTANCE_ID: "test__test_repo.test1234.suffix.ref"}
+
+    test_command, test_files = mock_rp.get_test_cmd(instance)
+    assert test_command == "pytest"
+    assert test_files == []
+
+
 def test_get_test_cmd_non_pytest_eval():
     """Test get_test_cmd in eval mode with non-pytest command."""
     mock_rp = MockRepoProfile("dummy_dir")

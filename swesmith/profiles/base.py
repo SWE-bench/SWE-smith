@@ -564,7 +564,7 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
     def get_test_cmd(
         self, instance: dict, f2p_only: bool = False
     ) -> tuple[str, list[Path]]:
-        assert instance[KEY_INSTANCE_ID].rsplit(".", 1)[0] == self.repo_name, (
+        assert instance[KEY_INSTANCE_ID].startswith(self.repo_name + "."), (
             f"WARNING: {instance[KEY_INSTANCE_ID]} not from {self.repo_name}"
         )
         test_command = self.test_cmd
