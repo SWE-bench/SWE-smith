@@ -1,0 +1,94 @@
+2025-11-28 18:41:52,930 - INFO - Checking out commit pylint-dev__astroid.b114f6b5.2496
+2025-11-28 18:41:56,512 - INFO - Applying patch to container...
+2025-11-28 18:41:56,588 - INFO - Patch written to logs/run_evaluation/eval_astroid_2496/pylint-dev__astroid.b114f6b5.2496/patch.diff, now applying to container...
+2025-11-28 18:41:56,704 - INFO - Failed to apply patch to container with git apply --verbose /tmp/patch.diff.
+Error Message: Checking patch ChangeLog...
+error: while searching for:
+============================
+Release date: TBA
+
+
+
+What's New in astroid 3.3.0?
+
+error: patch failed: ChangeLog:13
+error: ChangeLog: patch does not apply
+Checking patch astroid/nodes/node_classes.py...
+error: while searching for:
+                    uninferable_already_generated = True
+                continue
+           for value in self.value.infer(context, **kwargs):
+                if not isinstance(value, Const):
+                    if not uninferable_already_generated:
+                        yield util.Uninferable
+                        uninferable_already_generated = True
+                    continue
+                formatted = format(value.value, format_spec.value)
+                yield Const(
+                    formatted,
+                    lineno=self.lineno,
+                    col_offset=self.col_offset,
+                    end_lineno=self.end_lineno,
+                    end_col_offset=self.end_col_offset,
+                )
+
+
+MISSING_VALUE = "{MISSING_VALUE}"
+
+error: patch failed: astroid/nodes/node_classes.py:4687
+error: astroid/nodes/node_classes.py: patch does not apply
+
+Trying again...
+2025-11-28 18:41:56,771 - INFO - Failed to apply patch to container with git apply --verbose --reject /tmp/patch.diff.
+Error Message: Checking patch ChangeLog...
+error: while searching for:
+============================
+Release date: TBA
+
+
+
+What's New in astroid 3.3.0?
+
+error: patch failed: ChangeLog:13
+Checking patch astroid/nodes/node_classes.py...
+error: while searching for:
+                    uninferable_already_generated = True
+                continue
+           for value in self.value.infer(context, **kwargs):
+                if not isinstance(value, Const):
+                    if not uninferable_already_generated:
+                        yield util.Uninferable
+                        uninferable_already_generated = True
+                    continue
+                formatted = format(value.value, format_spec.value)
+                yield Const(
+                    formatted,
+                    lineno=self.lineno,
+                    col_offset=self.col_offset,
+                    end_lineno=self.end_lineno,
+                    end_col_offset=self.end_col_offset,
+                )
+
+
+MISSING_VALUE = "{MISSING_VALUE}"
+
+error: patch failed: astroid/nodes/node_classes.py:4687
+Applying patch ChangeLog with 1 reject...
+Rejected hunk #1.
+Applying patch astroid/nodes/node_classes.py with 1 reject...
+Rejected hunk #1.
+
+Trying again...
+2025-11-28 18:41:56,825 - INFO - >>>>> Applied Patch:
+patching file ChangeLog
+Hunk #1 succeeded at 35 with fuzz 1 (offset 22 lines).
+patching file astroid/nodes/node_classes.py
+Hunk #1 succeeded at 4724 with fuzz 3 (offset 37 lines).
+
+2025-11-28 18:41:56,909 - INFO - Reverted changes to test files in container: tests/test_inference.py tests/brain/numpy/test_core_einsumfunc.py tests/brain/numpy/test_core_fromnumeric.py tests/brain/numpy/test_core_function_base.py tests/brain/numpy/test_core_multiarray.py tests/brain/numpy/test_core_numeric.py tests/brain/numpy/test_core_numerictypes.py tests/brain/numpy/test_core_umath.py tests/brain/numpy/test_ma.py tests/brain/numpy/test_ndarray.py tests/brain/numpy/test_random_mtrand.py tests/brain/test_argparse.py tests/brain/test_attr.py tests/brain/test_brain.py tests/brain/test_builtin.py tests/brain/test_ctypes.py tests/brain/test_dataclasses.py tests/brain/test_dateutil.py tests/brain/test_enum.py tests/brain/test_hashlib.py tests/brain/test_multiprocessing.py tests/brain/test_named_tuple.py tests/brain/test_pathlib.py tests/brain/test_pytest.py tests/brain/test_qt.py tests/brain/test_regex.py tests/brain/test_signal.py tests/brain/test_six.py tests/brain/test_ssl.py tests/brain/test_threading.py tests/brain/test_typing.py tests/brain/test_typing_extensions.py tests/brain/test_unittest.py tests/test_builder.py tests/test_constraint.py tests/test_decorators.py tests/test_filter_statements.py tests/test_helpers.py tests/test_inference.py tests/test_inference_calls.py tests/test_lookup.py tests/test_manager.py tests/test_modutils.py tests/test_nodes.py tests/test_nodes_lineno.py tests/test_nodes_position.py tests/test_object_model.py tests/test_objects.py tests/test_protocols.py tests/test_python3.py tests/test_raw_building.py tests/test_regrtest.py tests/test_scoped_nodes.py tests/test_stdlib.py tests/test_transforms.py tests/test_utils.py
+2025-11-28 18:42:24,416 - INFO - Test Runtime: 27.45 seconds
+2025-11-28 18:42:24,418 - INFO - Test output for pylint-dev__astroid.b114f6b5.2496 written to logs/run_evaluation/eval_astroid_2496/pylint-dev__astroid.b114f6b5.2496/test_output.txt
+2025-11-28 18:42:24,419 - INFO - Attempting to stop container swesmith.eval.eval_astroid_2496.pylint-dev__astroid.b114f6b5.2496...
+2025-11-28 18:42:39,531 - INFO - Attempting to remove container swesmith.eval.eval_astroid_2496.pylint-dev__astroid.b114f6b5.2496...
+2025-11-28 18:42:39,547 - INFO - Container swesmith.eval.eval_astroid_2496.pylint-dev__astroid.b114f6b5.2496 removed.
+2025-11-28 18:42:39,548 - INFO - Grading answer for pylint-dev__astroid.b114f6b5.2496...

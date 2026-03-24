@@ -1,0 +1,56 @@
+diff --git a/astroid/nodes/node_classes.py b/astroid/nodes/node_classes.py
+index fde3239..91a7353 100644
+--- a/astroid/nodes/node_classes.py
++++ b/astroid/nodes/node_classes.py
+@@ -3890,7 +3890,7 @@ class Try(_base_nodes.MultiLineWithElseBlockNode, _base_nodes.Statement):
+             if self.orelse[0].fromlineno - 1 == lineno:
+                 return lineno, lineno
+             if self.orelse[0].fromlineno <= lineno <= self.orelse[-1].tolineno:
+-                return lineno, self.orelse[-1].tolineno
++                return lineno, self.orelse[-1].tol_lineno
+         if self.finalbody:
+             if self.finalbody[0].fromlineno - 1 == lineno:
+                 return lineno, lineno
+@@ -4695,23 +4695,19 @@ class FormattedValue(NodeNG):
+                     uninferable_already_generated = True
+                 continue
+             for value in self.value.infer(context, **kwargs):
+-                value_to_format = value
+-                if isinstance(value, Const):
+-                    value_to_format = value.value
+-                try:
+-                    formatted = format(value_to_format, format_spec.value)
+-                    yield Const(
+-                        formatted,
+-                        lineno=self.lineno,
+-                        col_offset=self.col_offset,
+-                        end_lineno=self.end_lineno,
+-                        end_col_offset=self.end_col_offset,
+-                    )
++                if not isinstance(value, Const):
++                    if not uninferable_already_generated:
++                        yield util.Uninferable
++                        uninferable_already_generated = True
+                     continue
+-                except (ValueError, TypeError):
+-                    # happens when format_spec.value is invalid
+-                    yield util.Uninferable
+-                    uninferable_already_generated = True
++                formatted = format(value.value, format_spec.value)
++                yield Const(
++                    formatted,
++                    lineno=self.lineno,
++                    col_offset=self.col_offset,
++                    end_lineno=self.end_lineno,
++                    end_col_offset=self.end_col_offset,
++                )
+                 continue
+ 
+ 
+@@ -5552,4 +5548,4 @@ def const_factory(value: Any) -> ConstFactoryResult:
+         )
+         instance.postinit(_create_dict_items(value, instance))
+         return instance
+-    return Const(value)
++    return Const(value)
+\ No newline at end of file

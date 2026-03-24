@@ -1,0 +1,56 @@
+diff --git a/ChangeLog b/ChangeLog
+index 4560e5d2b7..c08b1cbf2c 100644
+--- a/ChangeLog
++++ b/ChangeLog
+@@ -13,6 +13,9 @@ What's New in astroid 3.3.1?
+ ============================
+ Release date: TBA
+ 
++* Fix a crash introduced in 3.3.0 involving invalid format strings.
++
++  Closes #2492
+ 
+ 
+ What's New in astroid 3.3.0?
+diff --git a/astroid/nodes/node_classes.py b/astroid/nodes/node_classes.py
+index c1c7af36da..1924c78eba 100644
+--- a/astroid/nodes/node_classes.py
++++ b/astroid/nodes/node_classes.py
+@@ -4687,19 +4687,24 @@ def _infer(
+                     uninferable_already_generated = True
+                 continue
+            for value in self.value.infer(context, **kwargs):
+-                if not isinstance(value, Const):
+-                    if not uninferable_already_generated:
+-                        yield util.Uninferable
+-                        uninferable_already_generated = True
+-                    continue
+-                formatted = format(value.value, format_spec.value)
+-                yield Const(
+-                    formatted,
+-                    lineno=self.lineno,
+-                    col_offset=self.col_offset,
+-                    end_lineno=self.end_lineno,
+-                    end_col_offset=self.end_col_offset,
+-                )
++                value_to_format = value
++                if isinstance(value, Const):
++                    value_to_format = value.value
++                try:
++                    formatted = format(value_to_format, format_spec.value)
++                    yield Const(
++                        formatted,
++                        lineno=self.lineno,
++                        col_offset=self.col_offset,
++                        end_lineno=self.end_lineno,
++                        end_col_offset=self.end_col_offset,
++                    )
++                    continue
++                except (ValueError, TypeError):
++                    # happens when format_spec.value is invalid
++                    yield util.Uninferable
++                    uninferable_already_generated = True
++                continue
+ 
+ 
+ MISSING_VALUE = "{MISSING_VALUE}"
