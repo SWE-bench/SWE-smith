@@ -98,7 +98,7 @@ def run_command_in_container(instance: dict, command: str, rp: RepoProfile):
         user=DOCKER_USER,
         detach=True,
         command="tail -f /dev/null",
-        platform="linux/x86_64",
+        platform=rp.pltf,
         mem_limit="10g",
     )
     container.start()

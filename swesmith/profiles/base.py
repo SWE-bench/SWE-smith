@@ -505,7 +505,7 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
             user=DOCKER_USER,
             detach=True,
             command="tail -f /dev/null",
-            platform="linux/x86_64",
+            platform=self.pltf,
             mem_limit="10g",
         )
         container.start()
