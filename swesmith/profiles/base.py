@@ -195,6 +195,10 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
 
     @property
     def _docker_ssh_arg(self) -> str:
+        # Prefer the ssh-agent: BuildKit cannot read passphrase-protected key
+        # files, and the agent serves those keys already decrypted.
+        if os.getenv("SSH_AUTH_SOCK"):
+            return "--ssh default"
         key_file = _find_ssh_key()
         if key_file:
             return f"--ssh default={key_file}"
