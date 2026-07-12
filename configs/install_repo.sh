@@ -17,7 +17,7 @@ fi
 
 PYTHON_VERSION="${SWESMITH_PYTHON_VERSION:-3.10}"
 echo "> Creating conda env 'testbed' with python=${PYTHON_VERSION}"
-conda create -n testbed "python=${PYTHON_VERSION}" -yq
+conda create -n testbed "python=${PYTHON_VERSION}" pip -yq
 conda activate testbed
 
 echo "> Installing repo in editable mode"
