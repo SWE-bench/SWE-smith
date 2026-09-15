@@ -41,23 +41,23 @@ Replaces `raise` statements with `pass`. This causes **silent failures** instead
 ### Basic Usage
 ```bash
 # Generate bugs for a repository
-python -m swesmith.bug_gen.error_handling.generate "instagram__monkeytype.70c3acf6"
+python -m swesmith.bug_gen.error_handling.generate "Instagram__MonkeyType.70c3acf6"
 ```
 
 ### With Options
 ```bash
 # Generate max 10 bugs per modifier with a specific seed
-python -m swesmith.bug_gen.error_handling.generate "instagram__monkeytype.70c3acf6" \
+python -m swesmith.bug_gen.error_handling.generate "Instagram__MonkeyType.70c3acf6" \
     --seed 42 \
     --max_bugs 10
 
 # Interleave modifiers randomly
-python -m swesmith.bug_gen.error_handling.generate "instagram__monkeytype.70c3acf6" \
+python -m swesmith.bug_gen.error_handling.generate "Instagram__MonkeyType.70c3acf6" \
     --interleave \
     --max_candidates 50
 
 # Set a timeout
-python -m swesmith.bug_gen.error_handling.generate "instagram__monkeytype.70c3acf6" \
+python -m swesmith.bug_gen.error_handling.generate "Instagram__MonkeyType.70c3acf6" \
     --timeout_seconds 300
 ```
 
@@ -77,7 +77,7 @@ python -m swesmith.bug_gen.error_handling.generate "instagram__monkeytype.70c3ac
 
 Generated bugs are saved to `logs/bug_gen/<repo>/`:
 ```
-logs/bug_gen/instagram__monkeytype.70c3acf6/
+logs/bug_gen/Instagram__MonkeyType.70c3acf6/
 ├── metadata__error_handling_try_except__abc123.json
 ├── bug__error_handling_try_except__abc123.diff
 ├── metadata__error_handling_assert__def456.json
