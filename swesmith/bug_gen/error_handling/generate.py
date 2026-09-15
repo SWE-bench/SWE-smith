@@ -73,6 +73,7 @@ def main(
     timeout_seconds: int | None = None,
 ):
     random.seed(seed)
+    modifiers = [cls(seed=seed) for cls in MODIFIERS_ERROR_HANDLING]
     total = 0
     start_time = time.time() if timeout_seconds is not None else None
     rp = registry.get(repo)
@@ -113,7 +114,7 @@ def main(
         if interleave:
             # Build all (candidate, modifier) pairs upfront
             pairs = []
-            for pm in MODIFIERS_ERROR_HANDLING:
+            for pm in modifiers:
                 candidates = [
                     x
                     for x in entities
@@ -152,7 +153,7 @@ def main(
                     return local_total
         else:
             # Sequential processing
-            for pm in MODIFIERS_ERROR_HANDLING:
+            for pm in modifiers:
                 candidates = [
                     x
                     for x in entities

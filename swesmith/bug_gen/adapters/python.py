@@ -25,6 +25,12 @@ class PythonEntity(CodeEntity):
                 self._tags.add(CodeProperty.HAS_IF_ELSE)
         if any(isinstance(n, ast.Try) for n in ast.walk(node)):
             self._tags.add(CodeProperty.HAS_EXCEPTION)
+        if any(isinstance(n, ast.Try) and n.handlers for n in ast.walk(node)):
+            self._tags.add(CodeProperty.HAS_TRY_EXCEPT)
+        if any(isinstance(n, ast.Assert) for n in ast.walk(node)):
+            self._tags.add(CodeProperty.HAS_ASSERT)
+        if any(isinstance(n, ast.Raise) for n in ast.walk(node)):
+            self._tags.add(CodeProperty.HAS_RAISE)
 
         # Operations
         if any(isinstance(n, ast.Subscript) for n in ast.walk(node)):
