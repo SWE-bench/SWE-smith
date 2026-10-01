@@ -49,6 +49,8 @@ load_dotenv()
 
 logger = logging.getLogger(__name__)
 
+ARCH_TO_PLATFORM = {"x86_64": "linux/x86_64", "arm64": "linux/arm64/v8"}
+
 _DEFAULT_SSH_KEYS = ["id_rsa", "id_ecdsa", "id_ecdsa_sk", "id_ed25519", "id_ed25519_sk"]
 
 
@@ -64,6 +66,18 @@ def _find_ssh_key() -> Path | None:
         if key_file.exists():
             return key_file
 
+    return None
+
+
+def image_platform(image_name: str) -> str | None:
+    """Platform of a swesmith.{arch}.* image, or None if the name does not say.
+
+    A dataset's image_name was built on whatever host produced the dataset, so it
+    can name an architecture other than this host's.
+    """
+    parts = image_name.rsplit("/", 1)[-1].split(".")
+    if len(parts) > 1 and parts[0] == "swesmith":
+        return ARCH_TO_PLATFORM.get(parts[1])
     return None
 
 
@@ -92,14 +106,11 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
 
     @property
     def pltf(self) -> str:
-        if self.arch == "x86_64":
-            return "linux/x86_64"
-        elif self.arch == "arm64":
-            return "linux/arm64/v8"
-        else:
+        if self.arch not in ARCH_TO_PLATFORM:
             raise ValueError(
-                f"Architecture {self.arch} not supported. Must be one of ['x86_64', 'arm64']"
+                f"Architecture {self.arch} not supported. Must be one of {list(ARCH_TO_PLATFORM)}"
             )
+        return ARCH_TO_PLATFORM[self.arch]
 
     exts: list[str] = field(default_factory=list)  # Must be set by subclass
     eval_sets: set[str] = field(default_factory=set)
@@ -505,7 +516,7 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
             user=DOCKER_USER,
             detach=True,
             command="tail -f /dev/null",
-            platform="linux/x86_64",
+            platform=self.pltf,
             mem_limit="10g",
         )
         container.start()

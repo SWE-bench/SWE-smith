@@ -377,6 +377,26 @@ def test_repo_profile_platform_detection():
         assert repo_profile.pltf == "linux/arm64/v8"
 
 
+def test_image_platform():
+    from swesmith.profiles.base import image_platform
+
+    # The dataset's image arch wins, whatever the host is
+    assert (
+        image_platform("jyangballin/swesmith.x86_64.oauthlib_1776_oauthlib.1fd52536")
+        == "linux/x86_64"
+    )
+    assert (
+        image_platform("jyangballin/swesmith.arm64.mewwts_1776_addict.75284f95")
+        == "linux/arm64/v8"
+    )
+    # Matches the name RepoProfile itself builds
+    repo_profile = registry.get("mewwts__addict.75284f95")
+    assert image_platform(repo_profile.image_name) == repo_profile.pltf
+    # Names that do not encode an arch defer to the caller
+    assert image_platform("myorg/custom-image:latest") is None
+    assert image_platform("jyangballin/swesmith.riscv64.foo_1776_bar.12345678") is None
+
+
 def test_clone_mirror_not_exists():
     """Test clone method when mirror doesn't exist"""
     repo_profile = registry.get("mewwts__addict.75284f95")
