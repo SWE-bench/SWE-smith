@@ -38,6 +38,7 @@ from swesmith.constants import (
 )
 from swesmith.issue_gen.utils import get_test_function
 from swesmith.profiles import RepoProfile, registry
+from swesmith.profiles.base import image_platform
 from swesmith.profiles.python import PythonProfile
 from tqdm.auto import tqdm
 from tqdm.contrib.logging import logging_redirect_tqdm
@@ -98,7 +99,7 @@ def run_command_in_container(instance: dict, command: str, rp: RepoProfile):
         user=DOCKER_USER,
         detach=True,
         command="tail -f /dev/null",
-        platform="linux/x86_64",
+        platform=image_platform(image_name) or rp.pltf,
         mem_limit="10g",
     )
     container.start()
