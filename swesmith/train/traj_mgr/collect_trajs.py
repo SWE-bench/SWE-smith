@@ -39,6 +39,21 @@ from tqdm.auto import tqdm
 from typing import Optional, Tuple
 
 
+def read_patch(run_dir: Path, folder: str) -> str:
+    """Return the run's patch, read from its `.pred` file when there is one.
+
+    SWE-agent writes `{instance_id}.pred` from the run's own result. Before SWE-agent
+    PR #1366, its SaveApplyPatchHook wrote `{instance_id}.patch` into the folder of
+    whichever instance had started last when `run-batch` used several workers
+    (SWE-agent issue #1284), so a `.patch` file can hold another run's patch.
+    """
+    pred_path = run_dir / f"{folder}.pred"
+    if pred_path.exists():
+        return json.loads(pred_path.read_text()).get("model_patch") or ""
+    patch_path = run_dir / f"{folder}.patch"
+    return patch_path.read_text() if patch_path.exists() else ""
+
+
 def process_single_trajectory(
     folder: str,
     traj_dir: Path,
@@ -60,7 +75,6 @@ def process_single_trajectory(
             else report[folder].get("resolved", False)
         )
 
-        pred_path = traj_dir / folder / f"{folder}.patch"
         traj_path = traj_dir / folder / f"{folder}.traj"
         traj_orig = json.loads(traj_path.read_text())
         traj = transform_traj(traj_orig)
@@ -71,7 +85,7 @@ def process_single_trajectory(
                 "name"
             ]
         traj["traj_id"] = f"{folder}.{generate_hash(str(traj_dir))}"
-        traj["patch"] = pred_path.read_text() if pred_path.exists() else ""
+        traj["patch"] = read_patch(traj_dir / folder, folder)
 
         return (folder, traj)
     except Exception as e:
