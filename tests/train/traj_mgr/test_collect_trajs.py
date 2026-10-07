@@ -1,5 +1,6 @@
 import json
 import os
+import shutil
 import tempfile
 
 from pathlib import Path
@@ -99,3 +100,39 @@ def test_collect_trajs_basic(logs_trajectories, logs_run_evaluation, ft_xml_exam
 
         # Remove the output file
         output_path.unlink()
+
+
+def test_collect_trajs_takes_each_runs_patch_from_its_pred(
+    logs_trajectories, logs_run_evaluation
+):
+    # SWE-agent's SaveApplyPatchHook could write a run's `.patch` into the folder of the
+    # instance that started last (SWE-agent issue #1284), while `.pred` names its own run.
+    a, b, c = (
+        "getmoto__moto.694ce1f4.pr_7331",
+        "pandas-dev__pandas.95280573.pr_53652",
+        "pydantic__pydantic.acb0f10f.pr_8316",
+    )
+    patches = {i: f"diff --git a/{i}.py b/{i}.py\n+{i}\n" for i in (a, b, c)}
+    with tempfile.TemporaryDirectory() as tmpdir:
+        traj_dir = Path(tmpdir) / "trajs"
+        for inst_id in (a, b, c):
+            (traj_dir / inst_id).mkdir(parents=True)
+            shutil.copy(
+                logs_trajectories / inst_id / f"{inst_id}.traj", traj_dir / inst_id
+            )
+        for inst_id, other in ((a, b), (b, a)):
+            (traj_dir / inst_id / f"{inst_id}.pred").write_text(
+                json.dumps({"instance_id": inst_id, "model_patch": patches[inst_id]})
+            )
+            (traj_dir / inst_id / f"{inst_id}.patch").write_text(patches[other])
+        (traj_dir / c / f"{c}.patch").write_text(patches[c])  # no `.pred`: falls back
+        collect_trajs(
+            Path(tmpdir), traj_dir, logs_run_evaluation, style="xml", workers=2
+        )
+
+        output_path = (
+            Path(tmpdir) / f"{os.path.basename(logs_run_evaluation)}.xml.jsonl"
+        )
+        with open(output_path) as f:
+            got = {t["instance_id"]: t["patch"] for t in map(json.loads, f)}
+        assert got == patches
