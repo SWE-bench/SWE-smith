@@ -29,7 +29,7 @@ all = [
     "astor",
     "datasets",
     "docker",
-    "ghapi",
+    "ghapi<2",
     "jinja2",
     "libcst",
     "litellm",
@@ -73,7 +73,7 @@ test = [
 ]
 # Minimal dependencies for remote validation (no sglang, litellm, openai, docker, etc.)
 validate = [
-    "ghapi",
+    "ghapi<2",
     "python-dotenv",
     "rich",
     "swebench",
@@ -84,7 +84,7 @@ validate = [
 generate = [
     "astor",
     "docker",
-    "ghapi",
+    "ghapi<2",
     "jinja2",
     "libcst",
     "portkey-ai",
