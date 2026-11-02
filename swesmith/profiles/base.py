@@ -108,6 +108,13 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
     timeout: int = 90  # timeout (sec) for running test suite for a single instance
     timeout_ref: int = 900  # timeout for running entire test suite
 
+    # `build_cmd`: If set, run after the patch is applied and before `test_cmd`, so
+    # that tests run against binaries built from the patched source. If it fails,
+    # no test output is recorded. `build_timeout` seconds are added to the timeout
+    # when it is set. Affects run_patch_in_container (eval, validation)
+    build_cmd: str = ""
+    build_timeout: int = 600
+
     # `min_testing`: If set, then subset of tests (not all) are run for post-bug validation
     # Affects get_test_cmd, get_valid_report
     min_testing: bool = False
