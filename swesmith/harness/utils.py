@@ -190,19 +190,29 @@ def run_patch_in_container(
                 logger.info(f"CHECKOUT FAILED: {val.output.decode(UTF8)}")
                 return logger, False
             if is_eval:
-                # NOTE: Key assumption we make is that each branch has two commits
-                # 1. Bug commit
-                # 2. F2P Test File(s) removal commit (on top of 1).
-                # The `HEAD~1` corresponds to reverting the branch to (1), which
-                # effectively brings the tests back into the codebase.
+                # NOTE: gather.py creates each branch as
+                # 1. Bug commit ("Bug Patch")
+                # 2. F2P Test File(s) removal commit ("Remove F2P Tests"), on top of 1,
+                #    only if the profile maps the F2P tests to files.
+                # If the tip is (2), `HEAD~1` reverts the branch to (1), which brings
+                # the tests back into the codebase. If the tip is (1), `HEAD~1` would
+                # be the original, bug-free code, so stay on HEAD.
                 val = container.exec_run(
-                    "git checkout HEAD~1", workdir=DOCKER_WORKDIR, user=DOCKER_USER
+                    "git log -1 --format=%s", workdir=DOCKER_WORKDIR, user=DOCKER_USER
                 )
-                if val.exit_code != 0:
-                    logger.info(
-                        f"CHECKOUT TO BUG STAGE FAILED: {val.output.decode(UTF8)}"
-                    )
+                tip = val.output.decode(UTF8).strip()
+                if val.exit_code != 0 or tip not in ("Bug Patch", "Remove F2P Tests"):
+                    logger.info(f"UNEXPECTED BRANCH TIP: {tip}")
                     return logger, False
+                if tip == "Remove F2P Tests":
+                    val = container.exec_run(
+                        "git checkout HEAD~1", workdir=DOCKER_WORKDIR, user=DOCKER_USER
+                    )
+                    if val.exit_code != 0:
+                        logger.info(
+                            f"CHECKOUT TO BUG STAGE FAILED: {val.output.decode(UTF8)}"
+                        )
+                        return logger, False
 
         # If provided, copy patch to container and apply it to codebase
         if patch is not None and len(patch) >= 1:
