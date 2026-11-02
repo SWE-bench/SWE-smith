@@ -250,12 +250,17 @@ def run_patch_in_container(
         # Copy eval script to container
         eval_file = Path(log_dir / "eval.sh")
         test_command, _ = rp.get_test_cmd(instance, f2p_only=f2p_only)
+        build_command = []
+        if rp.build_cmd:
+            build_command = [f"{rp.build_cmd} || exit 1"]
+            timeout += rp.build_timeout
         eval_file.write_text(
             "\n".join(
                 [
                     "#!/bin/bash",
                     "set -uxo pipefail",
                     f"cd {DOCKER_WORKDIR}",
+                    *build_command,
                     f": '{TEST_OUTPUT_START}'",
                     test_command,
                     f": '{TEST_OUTPUT_END}'",

@@ -5,6 +5,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from swebench.harness.constants import RUN_EVALUATION_LOG_DIR
 
+from swesmith.constants import TEST_OUTPUT_START
 from swesmith.harness.utils import run_patch_in_container
 
 
@@ -26,9 +27,11 @@ def run_eval(tmp_path, monkeypatch):
     """Run run_patch_in_container in eval mode against a fake container."""
     monkeypatch.chdir(tmp_path)
 
-    def _run(container):
+    def _run(container, build_cmd=""):
         profile = MagicMock()
         profile._is_repo_private.return_value = False
+        profile.build_cmd = build_cmd
+        profile.build_timeout = 600
         profile.get_test_cmd.return_value = ("make test", [])
         client = MagicMock()
         client.containers.create.return_value = container
@@ -40,18 +43,19 @@ def run_eval(tmp_path, monkeypatch):
             patch(
                 "swesmith.harness.utils.exec_run_with_timeout",
                 return_value=("output", False, 1.0),
-            ),
+            ) as mock_exec,
             patch("swesmith.harness.utils.cleanup_container"),
         ):
             mock_docker.from_env.return_value = client
             mock_registry.get_from_inst.return_value = profile
-            return run_patch_in_container(
+            run_patch_in_container(
                 instance={"instance_id": "repo.abc.bug"},
                 run_id="run1",
                 log_dir=RUN_EVALUATION_LOG_DIR,
                 timeout=60,
                 commit="repo.abc.bug",
             )
+            return mock_exec
 
     return _run
 
@@ -84,3 +88,19 @@ def test_eval_rejects_unexpected_branch_tip(run_eval, tmp_path):
     run_eval(container)
     assert "git checkout HEAD~1" not in commands(container)
     assert not eval_script(tmp_path).exists()
+
+
+def test_eval_script_builds_before_tests(run_eval, tmp_path):
+    mock_exec = run_eval(make_container("Bug Patch"), build_cmd="cmake --build build")
+    lines = eval_script(tmp_path).read_text().splitlines()
+    build = lines.index("cmake --build build || exit 1")
+    assert build < lines.index(f": '{TEST_OUTPUT_START}'") < lines.index("make test")
+    assert mock_exec.call_args.kwargs["timeout"] == 60 + 600
+
+
+def test_eval_script_without_build_cmd(run_eval, tmp_path):
+    mock_exec = run_eval(make_container("Bug Patch"))
+    lines = eval_script(tmp_path).read_text().splitlines()
+    assert not any("exit 1" in line for line in lines)
+    assert lines.index(f": '{TEST_OUTPUT_START}'") == lines.index("make test") - 1
+    assert mock_exec.call_args.kwargs["timeout"] == 60

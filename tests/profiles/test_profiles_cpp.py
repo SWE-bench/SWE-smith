@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+
 from swesmith.profiles.cpp import (
     CppProfile,
     parse_log_ctest,
@@ -442,6 +444,48 @@ def test_cpp_profile_extract_entities_merges_excludes():
     # This would require more complex mocking to test fully
     assert hasattr(profile, "extract_entities")
     assert callable(profile.extract_entities)
+
+
+def test_cpp_profile_rebuilds_ctest_build_tree():
+    """Profiles that run ctest in the image's build tree rebuild it first."""
+
+    @dataclass
+    class CtestCppProfile(CppProfile):
+        owner: str = "dummy"
+        repo: str = "ctestrepo"
+        commit: str = "deadbeefcafebabe"
+        test_cmd: str = "cd build && ctest --verbose"
+
+        @property
+        def dockerfile(self):
+            return "FROM gcc:12\nRUN echo hello"
+
+        def log_parser(self, log: str) -> dict[str, str]:
+            return parse_log_ctest(log)
+
+    assert CtestCppProfile().build_cmd == "cmake --build build -j$(nproc)"
+    assert make_dummy_cpp_profile().build_cmd == ""
+
+
+def test_cpp_profile_keeps_explicit_build_cmd():
+    """An explicit build_cmd is not replaced by the ctest default."""
+
+    @dataclass
+    class ExplicitBuildCppProfile(CppProfile):
+        owner: str = "dummy"
+        repo: str = "explicitrepo"
+        commit: str = "deadbeefcafebabe"
+        test_cmd: str = "cd build && ctest --verbose"
+        build_cmd: str = "make -C build all"
+
+        @property
+        def dockerfile(self):
+            return "FROM gcc:12\nRUN echo hello"
+
+        def log_parser(self, log: str) -> dict[str, str]:
+            return parse_log_ctest(log)
+
+    assert ExplicitBuildCppProfile().build_cmd == "make -C build all"
 
 
 # ========== Boost.Test Parser Tests ==========

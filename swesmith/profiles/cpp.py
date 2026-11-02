@@ -428,6 +428,12 @@ class CppProfile(RepoProfile):
         default_factory=lambda: list(DEFAULT_CPP_BUG_GEN_DIRS_EXCLUDE)
     )
 
+    def __post_init__(self):
+        # `cd build && ctest` runs the test binaries compiled into the image's CMake
+        # build tree, so rebuild them from the (patched) source first.
+        if not self.build_cmd and self.test_cmd.startswith("cd build && ctest"):
+            self.build_cmd = "cmake --build build -j$(nproc)"
+
     def extract_entities(
         self,
         dirs_exclude: list[str] | None = None,
@@ -1073,6 +1079,7 @@ class OpenTTDae80a47c(CppProfile):
     repo: str = "OpenTTD"
     commit: str = "ae80a47c7db48e543d9a9ebc682df1a889661d2a"
     test_cmd: str = "cd build && ctest --verbose --output-on-failure"
+    build_cmd: str = "cmake --build build -j$(nproc) --target openttd_test"
 
     @property
     def dockerfile(self):
@@ -1248,6 +1255,7 @@ class ImHexf4768420(CppProfile):
     repo: str = "ImHex"
     commit: str = "f4768420087f27fc9f40a41b028529b2f0efd6e3"
     test_cmd: str = "cd build && ctest --verbose --output-on-failure"
+    build_cmd: str = "cmake --build build -j$(nproc) --target unit_tests"
 
     @property
     def dockerfile(self):
@@ -1902,6 +1910,7 @@ class DevilutionXafdaa2ac(CppProfile):
     repo: str = "DevilutionX"
     commit: str = "afdaa2ac5e8e92830e8dac5be1976ea42ae67434"
     test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    build_cmd: str = "cmake --build build -j$(nproc) --target animationinfo_test appfat_test automap_test cursor_test dead_test diablo_test drlg_common_test drlg_l1_test drlg_l2_test drlg_l3_test drlg_l4_test effects_test inv_test items_test math_test missiles_test multi_logging_test pack_test player_test quests_test scrollrt_test stores_test tile_properties_test timedemo_test townerdat_test writehero_test vendor_test palette_blending_test text_render_integration_test codec_test crawl_test format_int_test ini_test path_test rectangle_test static_vector_test str_cat_test utf8_test vision_test"
 
     @property
     def dockerfile(self):
@@ -2665,6 +2674,7 @@ class Halidec2a6e34e(CppProfile):
     repo: str = "Halide"
     commit: str = "c2a6e34e7f3cff6657de1a85e8bc0e82fd545003"
     test_cmd: str = 'cd build && ctest -R "^_test_internal$" --verbose'
+    build_cmd: str = "cmake --build build -j$(nproc) --target Halide _test_internal"
 
     @property
     def dockerfile(self):
@@ -5277,6 +5287,7 @@ class Supertux53884267(CppProfile):
     repo: str = "supertux"
     commit: str = "5388426757834024d805df836157b1687a61420b"
     test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    build_cmd: str = "cmake --build build -j$(nproc) --target tests"
 
     @property
     def dockerfile(self):
@@ -5591,6 +5602,9 @@ class TileDB13d41286(CppProfile):
     repo: str = "TileDB"
     commit: str = "13d41286a8784649a12f624d9338456ea4466116"
     test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1 -L unit"
+    build_cmd: str = (
+        "make -C build -j$(nproc) && make -C build install-tiledb && ldconfig"
+    )
 
     @property
     def dockerfile(self):
@@ -6173,6 +6187,7 @@ class Beast9ad3b683(CppProfile):
     repo: str = "beast"
     commit: str = "9ad3b6831f9828afee8006fdc8ef0fc81724a0e9"
     test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    build_cmd: str = "cmake --build build -j$(nproc) --target beast-tests"
 
     @property
     def dockerfile(self):
@@ -6741,6 +6756,9 @@ class Faiss7cfb2500(CppProfile):
     repo: str = "faiss"
     commit: str = "7cfb2500819fbf6c81e328a028c15638c7152195"
     test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    build_cmd: str = (
+        "cmake --build build -j$(nproc) --target faiss swigfaiss faiss_test"
+    )
 
     @property
     def dockerfile(self):
@@ -7817,6 +7835,7 @@ class Libigl6000ccb7(CppProfile):
     repo: str = "libigl"
     commit: str = "6000ccb70fdeb78376dcb5d2531e57a15d884aa0"
     test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1 -R igl_core"
+    build_cmd: str = "cmake --build build -j$(nproc) --target test_igl_core"
 
     @property
     def dockerfile(self):
@@ -8681,6 +8700,7 @@ class PrusaFirmwaref3e0dfd4(CppProfile):
     repo: str = "Prusa-Firmware"
     commit: str = "f3e0dfd481a78b222d2a82752f261adbc5a2c4d7"
     test_cmd: str = "cd build && ctest --verbose --output-on-failure --rerun-failed --repeat until-pass:1"
+    build_cmd: str = "cmake --build build -j$(nproc) --target tests"
 
     @property
     def dockerfile(self):
@@ -8897,6 +8917,7 @@ class Qtcreatoree5a1883(CppProfile):
     repo: str = "qt-creator"
     commit: str = "ee5a188335210fb421657936a561788df7d4f9b4"
     test_cmd: str = "cd build && ctest --verbose --output-on-failure -L auto"
+    build_cmd: str = "cmake --build build -j$(nproc) --target cpaster"
 
     @property
     def dockerfile(self):
@@ -9922,6 +9943,7 @@ class Xtensor18f65248(CppProfile):
     repo: str = "xtensor"
     commit: str = "18f6524829d8ac6399374f9ecbd21b959f75424d"
     test_cmd: str = "cd build && ctest --verbose --output-on-failure"
+    build_cmd: str = "cmake --build build -j$(nproc) --target test_xtensor"
 
     @property
     def dockerfile(self):
