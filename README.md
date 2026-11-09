@@ -48,10 +48,13 @@ Training SWE-agent's using the [SWE-smith dataset](https://huggingface.co/datase
 ```python
 from swesmith.profiles import registry
 from datasets import load_dataset
-ds = load_dataset("SWE-bench/SWE-smith", split="train") # Loads all 52k task instances
+
+ds = load_dataset("SWE-bench/SWE-smith", split="train")  # Loads all 52k task instances
 for task in ds:
     rp = registry.get_from_inst(task)  # Get the RepoProfile for the task
-    container = rp.get_container(task) # Returns pointer to a Docker container with the task initialized
+    container = rp.get_container(
+        task
+    )  # Returns pointer to a Docker container with the task initialized
 
     """TODO: Train!"""
 ```
