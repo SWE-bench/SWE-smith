@@ -79,7 +79,7 @@ def _apply_patch(
         git_apply_cmd = (
             f"{git_apply_cmd} {DOCKER_PATCH}"
             if not is_gold
-            else f"{git_apply_cmd} --reverse {DOCKER_PATCH}"
+            else f"{git_apply_cmd} {DOCKER_PATCH} --reverse"
         )
         val = container.exec_run(
             git_apply_cmd, workdir=DOCKER_WORKDIR, user=DOCKER_USER
