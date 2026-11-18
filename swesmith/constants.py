@@ -37,10 +37,10 @@ TEST_OUTPUT_START = ">>>>> Start Test Output"
 TODO_REWRITE = "TODO: Implement this function"
 UBUNTU_VERSION = "22.04"
 
+# Keep git apply atomic so the fallback sees the prepared tree, including setup edits.
 GIT_APPLY_CMDS = [
     "git apply --verbose",
-    "git apply --verbose --reject",
-    "patch --batch --fuzz=5 -p1 -i",
+    "patch --batch --forward --fuzz=5 -p1 -i",
 ]
 
 
