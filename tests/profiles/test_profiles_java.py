@@ -69,11 +69,14 @@ def test_maven_parser_basic():
 [INFO] testPass -- Time elapsed: 0.001 s
 [ERROR] testFail -- Time elapsed: 0.002 s <<< FAILURE!
 [INFO] testPass2 -- Time elapsed: 0.003 s
+[ERROR] demo.StringsTest.throws -- Time elapsed: 0.028 s <<< ERROR!
+java.lang.NullPointerException
 """
     result = parse_log_maven_surefire(log)
     assert result["testPass"] == Status.PASSED.value
     assert result["testFail"] == Status.FAILED.value
     assert result["testPass2"] == Status.PASSED.value
+    assert result["demo.StringsTest.throws"] == Status.FAILED.value
 
 
 def test_maven_parser_handles_failures():

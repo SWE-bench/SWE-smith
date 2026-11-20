@@ -142,7 +142,9 @@ def parse_log_maven_surefire(log: str) -> dict[str, str]:
 
         # Try pattern with [INFO]/[ERROR] prefix first
         if line.startswith("["):
-            if line.endswith("<<< FAILURE!") and line.startswith("[ERROR]"):
+            if line.startswith("[ERROR]") and line.endswith(
+                ("<<< FAILURE!", "<<< ERROR!")
+            ):
                 test_name = re.match(pattern_with_prefix, line)
                 if test_name:
                     test_status_map[test_name.group(2)] = TestStatus.FAILED.value
