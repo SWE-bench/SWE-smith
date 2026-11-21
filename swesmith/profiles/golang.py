@@ -1,3 +1,4 @@
+import json
 import os
 import re
 import shutil
@@ -23,7 +24,7 @@ class GoProfile(RepoProfile):
     """
 
     exts: list[str] = field(default_factory=lambda: [".go"])
-    test_cmd: str = "go test -v ./..."
+    test_cmd: str = "go test -json ./..."
     _test_name_to_files_cache: dict[str, set[str]] = field(
         default=None, init=False, repr=False
     )
@@ -84,37 +85,142 @@ RUN go test -v -count=1 ./... || true
                     )
 
         # Look up each test name in the cache
-        f2p_files = set()
-        for test_name in instance[FAIL_TO_PASS]:
-            if test_name in self._test_name_to_files_cache:
-                f2p_files.update(self._test_name_to_files_cache[test_name])
+        def files_for(test_ids: list[str]) -> list[str]:
+            files = set()
+            for test_id in test_ids:
+                # Keep protecting every file with this function name. Subtests
+                # live in the enclosing top-level test function.
+                test_name = test_id.split("::", 1)[-1].split("/", 1)[0]
+                files.update(self._test_name_to_files_cache.get(test_name, ()))
+            return sorted(files)
 
-        p2p_files = set()
-        for test_name in instance[PASS_TO_PASS]:
-            if test_name in self._test_name_to_files_cache:
-                p2p_files.update(self._test_name_to_files_cache[test_name])
+        return files_for(instance[FAIL_TO_PASS]), files_for(instance[PASS_TO_PASS])
 
-        return list(f2p_files), list(p2p_files)
+    def get_test_cmd(self, instance: dict, f2p_only: bool = False):
+        # Go cannot append individual test files to a package pattern.
+        return super().get_test_cmd(instance)
+
+    def select_f2p_tests(self, instance: dict) -> dict:
+        packages = {test.partition("::")[0] for test in instance[FAIL_TO_PASS]}
+        if not packages or any("::" not in test for test in instance[FAIL_TO_PASS]):
+            return instance
+        return {
+            **instance,
+            PASS_TO_PASS: [
+                test
+                for test in instance[PASS_TO_PASS]
+                if "::" not in test or test.partition("::")[0] in packages
+            ],
+        }
 
     def log_parser(self, log: str) -> dict[str, str]:
-        """Parser for test logs generated with 'go test'"""
-        test_status_map = {}
+        """Read Go JSON test events, or archived verbose text logs."""
+        parsed = self._parse_go_json(log)
+        return self._parse_go_verbose(log) if parsed is None else parsed[0]
 
-        pattern_status_map = [
-            (re.compile(r"--- PASS: (\S+)"), TestStatus.PASSED.value),
-            (re.compile(r"--- FAIL: (\S+)"), TestStatus.FAILED.value),
-            (re.compile(r"FAIL:?\s?(.+?)\s"), TestStatus.FAILED.value),
-            (re.compile(r"--- SKIP: (\S+)"), TestStatus.SKIPPED.value),
-        ]
-        for line in log.split("\n"):
-            for pattern, status in pattern_status_map:
-                match = pattern.match(line.strip())
-                if match:
-                    test_name = match.group(1)
-                    test_status_map[test_name] = status
-                    break
+    def eval_log_parser(self, log: str, instance: dict) -> dict[str, str]:
+        parsed = self._parse_go_json(log)
+        if parsed is None:
+            return self._parse_go_verbose(log)
+        result, incomplete = parsed
+        if incomplete:
+            return result
 
-        return test_status_map
+        matches = {}
+        for test_id, status in result.items():
+            _, delimiter, name = test_id.partition("::")
+            if delimiter:
+                matches.setdefault(name, []).append(status)
+
+        for key in (FAIL_TO_PASS, PASS_TO_PASS):
+            for name in instance[key]:
+                # Historical IDs can only be mapped when exactly one package
+                # reported that test name.
+                if len(matches.get(name, ())) == 1:
+                    result[name] = matches[name][0]
+        return result
+
+    @staticmethod
+    def _parse_go_json(log: str) -> tuple[dict[str, str], bool] | None:
+        statuses = {
+            "pass": TestStatus.PASSED.value,
+            "fail": TestStatus.FAILED.value,
+            "skip": TestStatus.SKIPPED.value,
+        }
+        result = {}
+        package_events = {}
+        packages_with_tests = set()
+        seen_event = False
+        for line in log.splitlines():
+            if not line.lstrip().startswith("{"):
+                continue
+            try:
+                event = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if not isinstance(event, dict):
+                continue
+            package = event.get("Package")
+            action = event.get("Action")
+            if not isinstance(package, str) or not isinstance(action, str):
+                continue
+            seen_event = True
+            test = event.get("Test")
+            if isinstance(test, str) and action in statuses:
+                result[f"{package}::{test}"] = statuses[action]
+                packages_with_tests.add(package)
+            elif test is None:
+                if action == "start" or action in statuses:
+                    package_events[package] = action
+                if action == "fail":
+                    result[package] = TestStatus.FAILED.value
+        if not seen_event:
+            return None
+        # A missing package result can hide another match for a legacy ID.
+        incomplete = any(
+            action == "start" or (action == "fail" and package not in packages_with_tests)
+            for package, action in package_events.items()
+        )
+        return result, incomplete
+
+    @staticmethod
+    def _parse_go_verbose(log: str) -> dict[str, str]:
+        """Keep parsing saved results from 'go test -v'."""
+        test_line = re.compile(r"--- (PASS|FAIL|SKIP): (\S+)")
+        footer = re.compile(r"^(ok|FAIL|\?)\s+(\S+)\s+(?:[\d.]+s|\(cached\)|\[)")
+        statuses = {
+            "PASS": TestStatus.PASSED.value,
+            "FAIL": TestStatus.FAILED.value,
+            "SKIP": TestStatus.SKIPPED.value,
+        }
+        result = {}
+        pending = {}
+        by_test = {}
+        for raw_line in log.splitlines():
+            line = raw_line.strip()
+            if match := test_line.match(line):
+                status, name = match.groups()
+                pending[name] = statuses[status]
+            elif match := footer.match(line):
+                verdict, package = match.groups()
+                for name, status in pending.items():
+                    by_test.setdefault(name, {})[package] = status
+                pending.clear()
+                if verdict == "FAIL":
+                    result[package] = TestStatus.FAILED.value
+
+        for name, status in pending.items():
+            by_test.setdefault(name, {})[""] = status
+        for name, packages in by_test.items():
+            if len(packages) == 1:
+                result[name] = next(iter(packages.values()))
+            else:
+                result.update(
+                    (f"{package}::{name}", status)
+                    for package, status in packages.items()
+                    if package
+                )
+        return result
 
 
 @dataclass

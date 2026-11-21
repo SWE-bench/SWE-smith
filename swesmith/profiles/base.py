@@ -561,6 +561,18 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
         """Given an instance, return files corresponding to F2P, P2P test files"""
         return [], []
 
+    def select_f2p_tests(self, instance: dict) -> dict:
+        """Keep evaluations for tests in the selected fail-to-pass files."""
+        files, _ = self.get_test_files(instance)
+        if not files:
+            return instance
+        selected = {**instance}
+        for key in (FAIL_TO_PASS, PASS_TO_PASS):
+            selected[key] = [
+                test for test in instance[key] if test.startswith(tuple(files))
+            ]
+        return selected
+
     def get_test_cmd(
         self, instance: dict, f2p_only: bool = False
     ) -> tuple[str, list[Path]]:
@@ -665,6 +677,10 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
     def log_parser(self, log: str) -> dict[str, str]:
         """Parse test output logs and extract relevant information."""
         pass
+
+    def eval_log_parser(self, log: str, instance: dict) -> dict[str, str]:
+        """Parse output for evaluation against the instance's stored test IDs."""
+        return self.log_parser(log)
 
     @property
     def dockerfile(self) -> str:
