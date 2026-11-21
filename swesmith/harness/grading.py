@@ -55,9 +55,7 @@ def get_valid_report(
 
     val_pregold_output, found_pregold = read_test_output(val_pregold_path)
     val_postgold_output, found_postgold = read_test_output(val_postgold_path)
-    pregold_sm = (
-        rp.validation_log_parser(val_pregold_output) if found_pregold else {}
-    )
+    pregold_sm = rp.validation_log_parser(val_pregold_output) if found_pregold else {}
     postgold_sm = (
         rp.validation_log_parser(val_postgold_output) if found_postgold else {}
     )

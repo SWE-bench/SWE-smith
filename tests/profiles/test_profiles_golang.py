@@ -268,12 +268,13 @@ def test_go_cached_verbose_baseline_matches_json_results(tmp_path):
     new_run = tmp_path / "new.log"
 
     def save(path, output):
-        path.write_text(f"+ : '{TEST_OUTPUT_START}'\n{output}\n+ : '{TEST_OUTPUT_END}'\n")
+        path.write_text(
+            f"+ : '{TEST_OUTPUT_START}'\n{output}\n+ : '{TEST_OUTPUT_END}'\n"
+        )
 
     save(
         archive,
-        "--- PASS: TestUnique (0.01s)\n"
-        "ok\tgithub.com/gin-gonic/gin\t0.02s",
+        "--- PASS: TestUnique (0.01s)\nok\tgithub.com/gin-gonic/gin\t0.02s",
     )
     save(
         new_run,
