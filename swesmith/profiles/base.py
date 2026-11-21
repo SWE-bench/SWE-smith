@@ -678,6 +678,10 @@ class RepoProfile(ABC, metaclass=SingletonMeta):
         """Parse test output logs and extract relevant information."""
         pass
 
+    def validation_log_parser(self, log: str) -> dict[str, str]:
+        """Parse output for comparison with a validation baseline."""
+        return self.log_parser(log)
+
     def eval_log_parser(self, log: str, instance: dict) -> dict[str, str]:
         """Parse output for evaluation against the instance's stored test IDs."""
         return self.log_parser(log)

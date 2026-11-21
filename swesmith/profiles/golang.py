@@ -118,6 +118,12 @@ RUN go test -v -count=1 ./... || true
         parsed = self._parse_go_json(log)
         return self._parse_go_verbose(log) if parsed is None else parsed[0]
 
+    def validation_log_parser(self, log: str) -> dict[str, str]:
+        parsed = self._parse_go_json(log)
+        if parsed is not None:
+            return parsed[0]
+        return self._parse_go_verbose(log, qualified=True)
+
     def eval_log_parser(self, log: str, instance: dict) -> dict[str, str]:
         parsed = self._parse_go_json(log)
         if parsed is None:
@@ -185,7 +191,7 @@ RUN go test -v -count=1 ./... || true
         return result, incomplete
 
     @staticmethod
-    def _parse_go_verbose(log: str) -> dict[str, str]:
+    def _parse_go_verbose(log: str, *, qualified: bool = False) -> dict[str, str]:
         """Keep parsing saved results from 'go test -v'."""
         test_line = re.compile(r"--- (PASS|FAIL|SKIP): (\S+)")
         footer = re.compile(r"^(ok|FAIL|\?)\s+(\S+)\s+(?:[\d.]+s|\(cached\)|\[)")
@@ -213,7 +219,7 @@ RUN go test -v -count=1 ./... || true
         for name, status in pending.items():
             by_test.setdefault(name, {})[""] = status
         for name, packages in by_test.items():
-            if len(packages) == 1:
+            if len(packages) == 1 and (not qualified or "" in packages):
                 result[name] = next(iter(packages.values()))
             else:
                 result.update(

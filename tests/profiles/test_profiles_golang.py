@@ -257,3 +257,27 @@ def test_go_f2p_only_grades_tests_in_selected_packages():
     assert selected["FAIL_TO_PASS"] == instance["FAIL_TO_PASS"]
     assert selected["PASS_TO_PASS"] == ["example.com/m/config::TestDefault"]
     assert len(instance["PASS_TO_PASS"]) == 2
+
+
+def test_go_cached_verbose_baseline_matches_json_results(tmp_path):
+    from swesmith.constants import TEST_OUTPUT_END, TEST_OUTPUT_START
+    from swesmith.harness.grading import get_valid_report
+
+    profile = Gin3c12d2a8()
+    archive = tmp_path / "cached.log"
+    new_run = tmp_path / "new.log"
+
+    def save(path, output):
+        path.write_text(f"+ : '{TEST_OUTPUT_START}'\n{output}\n+ : '{TEST_OUTPUT_END}'\n")
+
+    save(
+        archive,
+        "--- PASS: TestUnique (0.01s)\n"
+        "ok\tgithub.com/gin-gonic/gin\t0.02s",
+    )
+    save(
+        new_run,
+        '{"Action":"fail","Package":"github.com/gin-gonic/gin","Test":"TestUnique"}',
+    )
+    report = get_valid_report(str(new_run), str(archive), {"repo": profile.repo_name})
+    assert report["FAIL_TO_PASS"] == ["github.com/gin-gonic/gin::TestUnique"]
