@@ -55,8 +55,10 @@ def get_valid_report(
 
     val_pregold_output, found_pregold = read_test_output(val_pregold_path)
     val_postgold_output, found_postgold = read_test_output(val_postgold_path)
-    pregold_sm = rp.log_parser(val_pregold_output) if found_pregold else {}
-    postgold_sm = rp.log_parser(val_postgold_output) if found_postgold else {}
+    pregold_sm = rp.validation_log_parser(val_pregold_output) if found_pregold else {}
+    postgold_sm = (
+        rp.validation_log_parser(val_postgold_output) if found_postgold else {}
+    )
 
     report = {
         FAIL_TO_PASS: [],
@@ -216,18 +218,10 @@ def get_eval_report(
     test_output, found = read_test_output(test_log_path)
     if not found:
         return report_map
-    test_status_map = rp.log_parser(test_output)
+    test_status_map = rp.eval_log_parser(test_output, inst)
 
     if f2p_only:
-        # Only examine f2p tests
-        f2p_files, _ = rp.get_test_files(inst)
-        filter_irrelevant_tests = lambda tests: (
-            [x for x in tests if any([x.startswith(y) for y in f2p_files])]
-            if len(f2p_files) > 0
-            else tests
-        )
-        inst[FAIL_TO_PASS] = filter_irrelevant_tests(inst[FAIL_TO_PASS])
-        inst[PASS_TO_PASS] = filter_irrelevant_tests(inst[PASS_TO_PASS])
+        inst = rp.select_f2p_tests(inst)
 
     # Get evaluation test report
     report = get_eval_tests_report(test_status_map, inst)
