@@ -178,7 +178,8 @@ RUN go test -v -count=1 ./... || true
             return None
         # A missing package result can hide another match for a legacy ID.
         incomplete = any(
-            action == "start" or (action == "fail" and package not in packages_with_tests)
+            action == "start"
+            or (action == "fail" and package not in packages_with_tests)
             for package, action in package_events.items()
         )
         return result, incomplete
